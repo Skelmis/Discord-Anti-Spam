@@ -22,3 +22,6 @@ I hope to maintain the above, however, I currently am attempting to `only` creat
 ### Helping out:
 All help is appreciated, just create an issue or pull request!
 See contributing.md for more details.
+
+### License
+This project is licensed under the MIT license
