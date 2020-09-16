@@ -1,7 +1,7 @@
 # DPY Anti-Spam
 ---
 
-[![Build Status](https://travis-ci.com/Skelmis/autotesttables.svg?branch=master)](https://travis-ci.com/Skelmis/autotesttables)
+[![Build Status](https://travis-ci.com/Skelmis/DPY-Anti-Spam.svg?branch=master)](https://travis-ci.com/Skelmis/DPY-Anti-Spam)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Ever felt the need to handle spammers in your discord, but don't have the time or effort to do so yourself? 
