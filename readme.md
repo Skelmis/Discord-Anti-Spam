@@ -1,6 +1,9 @@
 # DPY Anti-Spam
 ---
 
+[![Build Status](https://travis-ci.com/Skelmis/autotesttables.svg?branch=master)](https://travis-ci.com/Skelmis/autotesttables)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Ever felt the need to handle spammers in your discord, but don't have the time or effort to do so yourself? 
 This package aims to help solve that issue by handling all the required logic under the hood, as well as handling the spammers heh.
 
