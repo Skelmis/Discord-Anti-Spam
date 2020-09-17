@@ -25,6 +25,13 @@ class TextMessage(unittest.TestCase):
     def test_strAssignment(self):
         self.assertIsInstance(self.message.content, str)
 
+    def test_valueAssignment(self):
+        self.assertEqual(self.message.id, 0)
+        self.assertEqual(self.message.content, "Hello world")
+        self.assertEqual(self.message.authorId, 2)
+        self.assertEqual(self.message.channelId, 3)
+        self.assertEqual(self.message.guildId, 4)
+
     def test_idRaises(self):
         with self.assertRaises(ValueError):
             self.message.id = "String"
