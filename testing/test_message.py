@@ -7,12 +7,12 @@ from AntiSpam import Message
 
 class TestMessage(unittest.TestCase):
     """
-    Used to test the message object
+    Used to test the Message object
     """
 
     def setUp(self):
         """
-        Simply setup our message obj before usage
+        Simply setup our Message obj before usage
         """
         self.message = Message(0, "Hello world", 2, 3, 4)
 

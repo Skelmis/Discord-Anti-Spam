@@ -3,8 +3,8 @@ A file devoted to some nice custom exceptions of mine
 """
 
 
-class DuplicateMessage(Exception):
-    """Raised because you attempted to create a message object, using the exact same id's."""
+class DuplicateObject(Exception):
+    """Raised because you attempted to create an object, using the exact same id's as a pre-existing one."""
 
     def __init__(self, *args):
         if args:

@@ -65,7 +65,7 @@ class Message:
 
     def __eq__(self, other):
         """
-        This is called with a == comparison object is made
+        This is called with a 'obj1 == obj2' comparison object is made
 
         Checks everything besides message content to figure out if a message
         is the same or not

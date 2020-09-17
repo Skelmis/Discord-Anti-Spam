@@ -1,7 +1,7 @@
 import sys
 import unittest
 
-from AntiSpam.Exceptions import DuplicateMessage
+from AntiSpam.Exceptions import DuplicateObject
 
 sys.path.insert(0, "..")
 from AntiSpam import User, Message
@@ -14,7 +14,7 @@ class TestUser(unittest.TestCase):
 
     def setUp(self):
         """
-        Simply setup our message obj before usage
+        Simply setup our User obj before usage
         """
         self.user = User(0, 3)
         self.user.messages = Message(0, "Hello world", 0, 2, 3)
@@ -47,7 +47,7 @@ class TestUser(unittest.TestCase):
             self.user.messages = 1
 
     def test_messageRaisesDuplicate(self):
-        with self.assertRaises(DuplicateMessage):
+        with self.assertRaises(DuplicateObject):
             self.user.messages = Message(1, "Testing", 0, 2, 3)
 
 
