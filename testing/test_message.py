@@ -32,6 +32,18 @@ class TextMessage(unittest.TestCase):
         self.assertEqual(self.message.channelId, 3)
         self.assertEqual(self.message.guildId, 4)
 
+        self.message.id = 10
+        self.message.content = "Testing"
+        self.message.authorId = 10
+        self.message.channelId = 10
+        self.message.guildId = 10
+
+        self.assertEqual(self.message.id, 10)
+        self.assertEqual(self.message.content, "Testing")
+        self.assertEqual(self.message.authorId, 10)
+        self.assertEqual(self.message.channelId, 10)
+        self.assertEqual(self.message.guildId, 10)
+
     def test_idRaises(self):
         with self.assertRaises(ValueError):
             self.message.id = "String"

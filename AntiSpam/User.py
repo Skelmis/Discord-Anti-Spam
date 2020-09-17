@@ -8,7 +8,13 @@ from AntiSpam.Exceptions import DuplicateMessage
 
 
 class User:
-    def __init__(self, id):
+    """A class dedicated to maintaining a user, and any relevant messages in a single guild.
+
+    """
+
+    __slots__ = ["_id", "_guildId", "_messages"]
+
+    def __init__(self, id, guildId):
         """
         Set the relevant information in order to maintain
         and use a per User object for a guild
@@ -17,8 +23,11 @@ class User:
         ==========
         id : int
             The relevant user id
+        guildId : int
+            The guild (id) this user is belonging to
         """
         self.id = int(id)
+        self.guildId = int(guildId)
         self._messages = []
 
     @property
@@ -32,13 +41,32 @@ class User:
         self._id = value
 
     @property
+    def guildId(self):
+        return self._guildId
+
+    @guildId.setter
+    def guildId(self, value):
+        if not isinstance(value, int):
+            raise ValueError("Expected integer")
+        self._guildId = value
+
+    @property
     def messages(self):
         return self._messages
 
     @messages.setter
     def messages(self, value):
+        """
+        Raises
+        ======
+        DuplicateMessage
+            It won't maintain two message objects with the same
+            id's, and it will complain about it haha
+        """
         if not isinstance(value, Message):
             raise ValueError("Expected Message object")
+
+        # TODO Check the id's match this relevant user
 
         for message in self._messages:
             if message == value:
