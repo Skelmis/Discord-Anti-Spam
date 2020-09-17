@@ -1,10 +1,23 @@
+import datetime
+
 """
 Used to store a message object, essentially a glorified dictionary
 """
 
 
 class Message:
-    __slots__ = ["_id", "_channelId", "_guildId", "_content", "_authorId"]
+    """Represents a lower level object needed to maintain messages
+
+    """
+
+    __slots__ = [
+        "_id",
+        "_channelId",
+        "_guildId",
+        "_content",
+        "_authorId",
+        "_creationTime",
+    ]
 
     def __init__(self, id, content, authorId, channelId, guildId):
         """
@@ -39,19 +52,75 @@ class Message:
         self.authorId = int(authorId)
         self.channelId = int(channelId)
         self.guildId = int(guildId)
+        self._creationTime = datetime.datetime.now(datetime.timezone.utc)
 
     def __repr__(self):
-        return f"{self.__class__.__name__} object"
+        return (
+            f"'{self.__class__.__name__} object. Content: {self.content}, Message Id: {self.id}, "
+            f"Author Id: {self.authorId}, Channel Id: {self.channelId}, Guild Id: {self.guildId}'"
+        )
 
     def __str__(self):
         return f"{self.__class__.__name__} object - '{self.content}'"
 
+    def __eq__(self, other):
+        """
+        This is called with a == comparison object is made
+
+        Checks everything besides message content to figure out if a message
+        is the same or not
+
+        Parameters
+        ----------
+        other : Message
+            The object to compare against
+
+        Returns
+        -------
+        bool
+            `True` or `False` depending on whether they are the same or not
+
+        Raises
+        ======
+        ValueError
+            When the comparison object is not of type `Message`
+        """
+        if not isinstance(other, Message):
+            raise ValueError
+
+        if (
+            self.id == other.id
+            and self.authorId == other.authorId
+            and self.channelId == other.channelId
+            and self.guildId == other.guildId
+        ):
+            return True
+        return False
+
+    def __hash__(self):
+        """
+        Given we create a __eq__ dunder method, we also needed
+        to create one for __hash__ lol
+
+        Returns
+        -------
+        int
+            The hash of all id's
+        """
+        return hash((self.id, self.authorId, self.guildId, self.channelId))
+
     @property
     def id(self):
+        """
+        The `getter` method
+        """
         return self._id
 
     @id.setter
     def id(self, value):
+        """
+        The `setter` method
+        """
         if not isinstance(value, int):
             raise ValueError("Expected integer")
         self._id = value
@@ -96,3 +165,12 @@ class Message:
         if not isinstance(value, int):
             raise ValueError("Expected integer")
         self._guildId = value
+
+    @property
+    def creationTime(self):
+        return self._creationTime
+
+    @creationTime.setter
+    def creationTime(self, value):
+        # We don't want creationTime changed
+        return
