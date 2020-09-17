@@ -4,7 +4,7 @@ Used to store a user, each of these is relevant per guild rather then globally
 Each user object is per guild, rather then globally
 """
 from AntiSpam import Message
-from AntiSpam.Exceptions import DuplicateMessage
+from AntiSpam.Exceptions import DuplicateMessage, ObjectMismatch
 
 
 class User:
@@ -66,7 +66,8 @@ class User:
         if not isinstance(value, Message):
             raise ValueError("Expected Message object")
 
-        # TODO Check the id's match this relevant user
+        if value.authorId != self.id or value.guildId != self.guildId:
+            raise ObjectMismatch
 
         for message in self._messages:
             if message == value:
