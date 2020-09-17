@@ -7,7 +7,7 @@ sys.path.insert(0, "..")
 from AntiSpam import User, Message
 
 
-class TextMessage(unittest.TestCase):
+class TestUser(unittest.TestCase):
     """
     Used to test the user object
     """
