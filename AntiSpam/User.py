@@ -62,7 +62,7 @@ class User:
             When the comparison object is not of type `Message`
         """
         if not isinstance(other, User):
-            raise ValueError
+            raise ValueError("Expected two User objects to compare")
 
         if self.id == other.id and self.guildId == other.guildId:
             return True

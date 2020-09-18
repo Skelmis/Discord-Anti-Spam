@@ -8,13 +8,18 @@ bot = commands.Bot(command_prefix="!")
 
 file = read_json("token")
 
-bot.handler = AntiSpamHandler(bot, 709360360456454155)
+bot.handler = AntiSpamHandler(bot)
 
 
 @bot.event
 async def on_ready():
     # On ready, print some details to standard out
     print(f"-----\nLogged in as: {bot.user.name} : {bot.user.id}\n-----")
+
+
+@bot.event
+async def on_message():
+    pass
 
 
 if __name__ == "__main__":

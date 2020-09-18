@@ -1,14 +1,17 @@
 import discord
 from discord.ext import commands
 
+from AntiSpam import Guild
+from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject
+
 """
 The overall handler & entry point from any discord bot,
 this is responsible for handling interaction with Guilds etc
 """
 
+
 # TODO Check on attempted kick/ban that the bot actually has perms
 # TODO Possibly check that on init as well ^
-import discord as discord
 
 
 class AntiSpamHandler:
@@ -206,9 +209,7 @@ class AntiSpamHandler:
         }
 
         self.bot = bot
-
-        if self.bot is None:
-            raise ValueError("Invalid required inputs.")
+        self._guilds = []
 
         print(self.bot, self.options)
 
@@ -225,3 +226,32 @@ class AntiSpamHandler:
         """
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
+
+        guildId = message.guild.id
+        for guild in self.guilds:
+            pass
+
+    @property
+    def guilds(self):
+        return self._guilds
+
+    @guilds.setter
+    def guilds(self, value):
+        """
+        Raises
+        ======
+        DuplicateObject
+            It won't maintain two message objects with the same
+            id's, and it will complain about it haha
+        ObjectMismatch
+            Raised if `value` wasn't made by this person, so they
+            shouldn't be the ones maintaining the reference
+        """
+        if not isinstance(value, Guild):
+            raise ValueError("Expected Guild object")
+
+        for guild in self._guilds:
+            if guild == value:
+                raise DuplicateObject
+
+        self._guilds.append(value)
