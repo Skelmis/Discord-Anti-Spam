@@ -15,11 +15,13 @@ class Guild:
 
     __slots__ = ["_id", "_bot", "_users", "_channel", "_channelId"]
 
-    def __init__(self, id, channelId, bot):
+    def __init__(self, bot, id, channelId=None):
         """
 
         Parameters
         ----------
+        bot: commands.Bot
+            The global bot instance
         id : int
             This guilds id
         channelId : int
@@ -73,6 +75,28 @@ class Guild:
         """
         return hash((self.id, self._channelId))
 
+    def propagate(self, message: discord.Message):
+        """
+        This method handles a message object and then adds it to
+        the relevant user
+
+        Parameters
+        ==========
+        message : discord.Message
+            The message that needs to be propagated out
+        """
+        if not isinstance(message, discord.Message):
+            raise ValueError("Expected message of type: discord.Message")
+
+        user = User(message.author.id, message.guild.id)
+        for userObj in self.users:
+            if user == userObj:
+                userObj.propagate(message)
+                return
+
+        self.users = user
+        user.propagate(message)
+
     @property
     def id(self):
         return self._id
@@ -89,13 +113,18 @@ class Guild:
 
     @channel.setter
     def channel(self, value):
+        if value is None:
+            self._channel = value
+            self._channelId = value
+            return
+
         if not isinstance(value, int) and not isinstance(value, discord.TextChannel):
             raise ValueError("Expected integer or discord.TextChannel")
 
         if isinstance(value, int):
             try:
                 eventLoop = asyncio.get_event_loop()
-                value = await eventLoop.run_until_complete(self.FetchChannel(value))
+                value = eventLoop.run_until_complete(self.FetchChannel(value))
             except discord.InvalidData:
                 raise ValueError("An unknown channel type was received from Discord.")
             except discord.NotFound:

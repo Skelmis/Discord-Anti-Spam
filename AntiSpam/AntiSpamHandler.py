@@ -211,8 +211,6 @@ class AntiSpamHandler:
         self.bot = bot
         self._guilds = []
 
-        print(self.bot, self.options)
-
     def propagate(self, message: discord.Message):
         """
         This method is the base level intake for messages, then
@@ -227,9 +225,14 @@ class AntiSpamHandler:
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
 
-        guildId = message.guild.id
-        for guild in self.guilds:
-            pass
+        guild = Guild(self.bot, message.guild.id)
+        for guildObj in self.guilds:
+            if guild == guildObj:
+                guildObj.propagate(message)
+                return
+
+        self.guilds = guild
+        guild.propagate(message)
 
     @property
     def guilds(self):

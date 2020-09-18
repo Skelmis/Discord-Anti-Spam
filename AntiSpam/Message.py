@@ -57,7 +57,8 @@ class Message:
     def __repr__(self):
         return (
             f"'{self.__class__.__name__} object. Content: {self.content}, Message Id: {self.id}, "
-            f"Author Id: {self.authorId}, Channel Id: {self.channelId}, Guild Id: {self.guildId}'"
+            f"Author Id: {self.authorId}, Channel Id: {self.channelId}, Guild Id: {self.guildId}' "
+            f"Creation time: {self._creationTime}"
         )
 
     def __str__(self):

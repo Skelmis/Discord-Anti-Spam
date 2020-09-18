@@ -3,6 +3,8 @@ Used to store a user, each of these is relevant per guild rather then globally
 
 Each user object is per guild, rather then globally
 """
+import discord
+
 from AntiSpam import Message
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch
 
@@ -79,6 +81,34 @@ class User:
             The hash of all id's
         """
         return hash((self.id, self.guildId))
+
+    def propagate(self, value: discord.Message):
+        """
+        This method handles a message object and then adds it to
+        the relevant user
+
+        Parameters
+        ==========
+        value : discord.Message
+            The message that needs to be propagated out
+        """
+        if not isinstance(value, discord.Message):
+            raise ValueError("Expected message of type: discord.Message")
+
+        message = Message(
+            value.id,
+            value.clean_content,
+            value.author.id,
+            value.channel.id,
+            value.guild.id,
+        )
+        for messageObj in self.messages:
+            if message == messageObj:
+                messageObj.propagate(message)
+                return
+
+        self.messages = message
+        print(self.messages)
 
     @property
     def id(self):

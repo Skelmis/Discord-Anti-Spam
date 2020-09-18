@@ -18,8 +18,8 @@ async def on_ready():
 
 
 @bot.event
-async def on_message():
-    pass
+async def on_message(message):
+    bot.handler.propagate(message)
 
 
 if __name__ == "__main__":
