@@ -1,4 +1,5 @@
 import discord
+from discord.ext import commands
 
 """
 The overall handler & entry point from any discord bot,
@@ -11,7 +12,8 @@ import discord as discord
 
 
 class AntiSpamHandler:
-    """The overall handler for the DPY Anti-spam package
+    """
+    The overall handler for the DPY Anti-spam package
 
     DEFAULTS:
         warnThreshold: 3 -> This is the amount of messages in a row that result in a warning within the messageInterval
@@ -30,6 +32,7 @@ class AntiSpamHandler:
         ignoreRoles: [] -> The roles (ID Form), that bypass anti-spam
         ignoreUsers: [] -> The users (ID Form), that bypass anti-spam
         ignoreBots: True -> Should bots bypass anti-spam? (True|False)
+
     """
 
     # TODO Add options for group spamming, rather then just per user.
@@ -59,7 +62,7 @@ class AntiSpamHandler:
 
     def __init__(
         self,
-        logChannel: discord.TextChannel,
+        bot: commands.Bot,
         *,
         warnThreshold=None,
         kickThreshold=None,
@@ -78,11 +81,13 @@ class AntiSpamHandler:
         ignoreBots=None
     ):
         """
+        This is the first initialization of the entire spam handler,
+        this is also where the initial options are set
 
         Parameters
         ----------
-        logChannel : discord.TextChannel
-            Where we are going to send our relevant output from the program
+        bot : commands.Bot
+            The commands.Bot instance
         warnThreshold : int, optional
             This is the amount of messages in a row that result in a warning within the messageInterval
         kickThreshold : int, optional
@@ -116,8 +121,8 @@ class AntiSpamHandler:
             Should bots bypass anti-spam?
         """
         # Just gotta casually type check everything.
-        if not isinstance(logChannel, discord.TextChannel):
-            raise ValueError("Expected channel of type: discord.TextChannel")
+        if not isinstance(bot, commands.Bot):
+            raise ValueError("Expected channel of type: commands.Bot")
 
         if not isinstance(warnThreshold, int) and warnThreshold is not None:
             raise ValueError("Expected warnThreshold of type: int")
@@ -174,3 +179,49 @@ class AntiSpamHandler:
             raise ValueError("Expected ignoreBots of type: int")
 
         # Now we have type checked everything, lets do some logic
+        self.options = {
+            "warnThreshold": warnThreshold
+            or AntiSpamHandler.DEFAULTS.get("warnThreshold"),
+            "kickThreshold": kickThreshold
+            or AntiSpamHandler.DEFAULTS.get("kickThreshold"),
+            "banThreshold": banThreshold
+            or AntiSpamHandler.DEFAULTS.get("banThreshold"),
+            "messageInterval": messageInterval
+            or AntiSpamHandler.DEFAULTS.get("messageInterval"),
+            "warnMessage": warnMessage or AntiSpamHandler.DEFAULTS.get("warnMessage"),
+            "kickMessage": kickMessage or AntiSpamHandler.DEFAULTS.get("kickMessage"),
+            "banMessage": banMessage or AntiSpamHandler.DEFAULTS.get("banMessage"),
+            "messageDuplicateWarn": messageDuplicateWarn
+            or AntiSpamHandler.DEFAULTS.get("messageDuplicateWarn"),
+            "messageDuplicateKick": messageDuplicateKick
+            or AntiSpamHandler.DEFAULTS.get("messageDuplicateKick"),
+            "messageDuplicateBan": messageDuplicateBan
+            or AntiSpamHandler.DEFAULTS.get("messageDuplicateBan"),
+            "messageDuplicateAccuracy": messageDuplicateAccuracy
+            or AntiSpamHandler.DEFAULTS.get("messageDuplicateAccuracy"),
+            "ignorePerms": ignorePerms or AntiSpamHandler.DEFAULTS.get("ignorePerms"),
+            "ignoreRoles": ignoreRoles or AntiSpamHandler.DEFAULTS.get("ignoreRoles"),
+            "ignoreUsers": ignoreUsers or AntiSpamHandler.DEFAULTS.get("ignoreUsers"),
+            "ignoreBots": ignoreBots or AntiSpamHandler.DEFAULTS.get("ignoreBots"),
+        }
+
+        self.bot = bot
+
+        if self.bot is None:
+            raise ValueError("Invalid required inputs.")
+
+        print(self.bot, self.options)
+
+    def propagate(self, message: discord.Message):
+        """
+        This method is the base level intake for messages, then
+        propagating it out to the relevant guild or creating one
+        if that is required
+
+        Parameters
+        ==========
+        message : discord.Message
+            The message that needs to be propagated out
+        """
+        if not isinstance(message, discord.Message):
+            raise ValueError("Expected message of type: discord.Message")

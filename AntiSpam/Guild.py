@@ -10,7 +10,7 @@ class Guild:
 
     """
 
-    __slots__ = ["_id", "_users"]
+    __slots__ = ["_id", "_users", "_channel"]
 
     def __init__(self, id):
         """
@@ -21,6 +21,7 @@ class Guild:
             This guilds id
         """
         self.id = int(id)
+        self.channel = channel
         self._users = []
 
     @property
