@@ -60,6 +60,7 @@ class TestMessage(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.message.guildId = "String"
 
+    @unittest.skip
     @unittest.expectedFailure
     def test_contentRaises(self):
         with self.assertRaises(ValueError):

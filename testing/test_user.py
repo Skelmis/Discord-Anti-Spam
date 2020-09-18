@@ -16,7 +16,7 @@ class TestUser(unittest.TestCase):
         """
         Simply setup our User obj before usage
         """
-        self.user = User(0, 3)
+        self.user = User(0, 3, {})
         self.user.messages = Message(0, "Hello world", 0, 2, 3)
         self.user.messages = Message(1, "Foo Bar", 0, 2, 3)
 
