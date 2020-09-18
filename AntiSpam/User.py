@@ -5,6 +5,8 @@ Each user object is per guild, rather then globally
 """
 import discord
 
+from fuzzywuzzy import fuzz
+
 from AntiSpam import Message
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch
 
@@ -14,9 +16,9 @@ class User:
 
     """
 
-    __slots__ = ["_id", "_guildId", "_messages"]
+    __slots__ = ["_id", "_guildId", "_messages", "options", "warnCount", "kickCount"]
 
-    def __init__(self, id, guildId):
+    def __init__(self, id, guildId, options):
         """
         Set the relevant information in order to maintain
         and use a per User object for a guild
@@ -31,6 +33,9 @@ class User:
         self.id = int(id)
         self.guildId = int(guildId)
         self._messages = []
+        self.options = options
+        self.warnCount = 0
+        self.kickCount = 0
 
     def __repr__(self):
         return (
@@ -104,11 +109,28 @@ class User:
         )
         for messageObj in self.messages:
             if message == messageObj:
-                messageObj.propagate(message)
-                return
+                raise DuplicateObject
+
+        # TODO Add checks for if there isn't any content. If there isn't
+        #      we shouldn't bother saving them
+
+        # TODO Compare incoming message to other messages in order
+        relationToOthers = []
+        for messageObj in self.messages:
+            # This calculates the relation to each other
+            relationToOthers.append(
+                fuzz.token_sort_ratio(message.content, messageObj.content)
+            )
 
         self.messages = message
-        print(self.messages)
+
+        # Lets try sus if we need to punish the user
+        for i, proportion in enumerate(relationToOthers):
+            if proportion >= self.options["messageDuplicateAccuracy"]:
+                # We need to punish the user with something
+                if self.warnCount != self.options["warnThreshold"]:
+                    # We only need to warn the user
+                    pass
 
     @property
     def id(self):

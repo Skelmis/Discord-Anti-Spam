@@ -13,9 +13,9 @@ class Guild:
 
     """
 
-    __slots__ = ["_id", "_bot", "_users", "_channel", "_channelId"]
+    __slots__ = ["_id", "_bot", "_users", "_channel", "_channelId", "options"]
 
-    def __init__(self, bot, id, channelId=None):
+    def __init__(self, bot, id, options, channelId=None):
         """
 
         Parameters
@@ -30,6 +30,7 @@ class Guild:
         self.id = int(id)
         self._bot = bot
         self._users = []
+        self.options = options
         self.channel = channelId
 
         # TODO Add the ability to not set a channel
@@ -88,11 +89,10 @@ class Guild:
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
 
-        user = User(message.author.id, message.guild.id)
+        user = User(message.author.id, message.guild.id, self.options)
         for userObj in self.users:
             if user == userObj:
-                userObj.propagate(message)
-                return
+                return userObj.propagate(message)
 
         self.users = user
         user.propagate(message)

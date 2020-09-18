@@ -56,7 +56,7 @@ class AntiSpamHandler:
         "messageDuplicateWarn": 3,
         "messageDuplicateKick": 7,
         "messageDuplicateBan": 10,
-        "messageDuplicateAccuracy": 0.9,
+        "messageDuplicateAccuracy": 90,
         "ignorePerms": [8],
         "ignoreRoles": [],
         "ignoreUsers": [],
@@ -113,7 +113,7 @@ class AntiSpamHandler:
         messageDuplicateBan : int, optional
             Amount of duplicate messages needed within messageInterval to trip a ban
         messageDuplicateAccuracy : float, optional
-            How 'close' messages need to be to be registered as duplicates (Out of 1)
+            How 'close' messages need to be to be registered as duplicates (Out of 100)
         ignorePerms : list, optional
             The perms (ID Form), that bypass anti-spam
         ignoreRoles : list, optional
@@ -168,6 +168,11 @@ class AntiSpamHandler:
             and messageDuplicateAccuracy is not None
         ):
             raise ValueError("Expected messageDuplicateAccuracy of type: int")
+
+        if messageDuplicateAccuracy is not None:
+            if 1 > messageDuplicateAccuracy or messageDuplicateAccuracy > 100:
+                # Only accept values between 1 and 100
+                raise ValueError("Expected messageDuplicateAccuracy between 1 and 100")
 
         if not isinstance(ignorePerms, list) and ignorePerms is not None:
             raise ValueError("Expected ignorePerms of type: list")
@@ -225,7 +230,7 @@ class AntiSpamHandler:
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
 
-        guild = Guild(self.bot, message.guild.id)
+        guild = Guild(self.bot, message.guild.id, self.options)
         for guildObj in self.guilds:
             if guild == guildObj:
                 guildObj.propagate(message)
