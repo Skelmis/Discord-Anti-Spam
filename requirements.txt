@@ -15,6 +15,7 @@ discord.py==1.4.1
 distlib==0.3.1
 docutils==0.16
 filelock==3.0.12
+fuzzywuzzy==0.18.0
 identify==1.5.2
 idna==2.10
 imagesize==1.2.0
@@ -35,6 +36,7 @@ pyparsing==2.4.7
 pyperclip==1.8.0
 PyRect==0.1.4
 PyScreeze==0.1.26
+python-Levenshtein==0.12.0
 PyTweening==1.0.3
 pytz==2020.1
 PyYAML==5.3.1
