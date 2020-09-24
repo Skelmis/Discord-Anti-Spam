@@ -208,6 +208,12 @@ class AntiSpamHandler:
         if message.author.id == self.bot.user.id:
             return
 
+        if self.options["ignoreBots"] and message.author.bot:
+            return
+
+        if message.author.id in self.options["ignoreUsers"]:
+            return
+
         print(f"Propagating message for: {message.author.name}")
 
         guild = Guild(self.bot, message.guild.id, self.options)
