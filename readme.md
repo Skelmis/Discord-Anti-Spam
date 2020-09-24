@@ -10,9 +10,9 @@ This package aims to help solve that issue by handling all the required logic un
 *I decided to create this after seeing a d.js alternative but not one for d.py, as far as I know.*
 
 ---
-##### This project is now at a useable state, albiet a little dodgy.
+#### This project is now at a useable state, albiet a little dodgy.
 ---
----
+
 How to use this right now?
 
 Download the codebase:
