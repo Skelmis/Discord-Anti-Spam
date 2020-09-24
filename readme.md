@@ -9,7 +9,41 @@ This package aims to help solve that issue by handling all the required logic un
 
 *I decided to create this after seeing a d.js alternative but not one for d.py, as far as I know.*
 
-> This is still definitely in early development stages.
+---
+##### This project is now at a useable state, albiet a little dodgy.
+---
+---
+How to use this right now?
+
+Download the codebase:
+```
+> git clone https://github.com/Skelmis/DPY-Anti-Spam.git
+```
+
+A basic bot
+```python
+from discord.ext import commands
+from AntiSpam import AntiSpamHandler
+
+bot = commands.Bot(command_prefix="!")
+bot.handler = AntiSpamHandler(bot)
+
+@bot.event
+async def on_ready():
+    print(f"-----\nLogged in as: {bot.user.name} : {bot.user.id}\n-----")
+
+@bot.event
+async def on_message(message):
+    bot.handler.propagate(message)
+
+if __name__ == "__main__":
+    bot.run("Bot Token")
+```
+
+And thats it!
+Now, there will no doubt be bugs & changes etc. But, you can use this as is now and all I ask is you create an issue for anything you encounter while using this codebase.
+
+
 
 ---
 
