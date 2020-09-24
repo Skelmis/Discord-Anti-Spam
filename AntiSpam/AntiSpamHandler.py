@@ -47,18 +47,15 @@ class AntiSpamHandler:
 
     DEFAULTS = {
         "warnThreshold": 3,
-        "kickThreshold": 5,
-        "banThreshold": 7,
+        "kickThreshold": 2,
+        "banThreshold": 2,
         "messageInterval": 2500,
-        "warnMessage": "Hey {@user.mention}, please stop spamming.",
-        "kickMessage": "{@user.display_name} was kicked for spamming.",
-        "banMessage": "{@user.display_name} was banned for spamming",
-        "messageDuplicateWarn": 3,
-        "messageDuplicateKick": 7,
-        "messageDuplicateBan": 10,
+        "warnMessage": "Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
+        "kickMessage": "$USERNAME was kicked for spamming/sending duplicate messages.",
+        "banMessage": "$USERNAME was banned for spamming/sending duplicate messages.",
+        "messageDuplicateCount": 5,
         "messageDuplicateAccuracy": 90,
         "ignorePerms": [8],
-        "ignoreRoles": [],
         "ignoreUsers": [],
         "ignoreBots": True,
     }
@@ -74,14 +71,11 @@ class AntiSpamHandler:
         warnMessage=None,
         kickMessage=None,
         banMessage=None,
-        messageDuplicateWarn=None,
-        messageDuplicateKick=None,
-        messageDuplicateBan=None,
+        messageDuplicateCount=None,
         messageDuplicateAccuracy=None,
         ignorePerms=None,
-        ignoreRoles=None,
         ignoreUsers=None,
-        ignoreBots=None
+        ignoreBots=None,
     ):
         """
         This is the first initialization of the entire spam handler,
@@ -94,9 +88,9 @@ class AntiSpamHandler:
         warnThreshold : int, optional
             This is the amount of messages in a row that result in a warning within the messageInterval
         kickThreshold : int, optional
-            This is the amount of messages in a row that result in a kick within the messageInterval
+            The amount of 'warns' before a kick occurs
         banThreshold : int, optional
-            This is the amount of messages in a row that result in a ban within the messageInterval
+            The amount of 'kicks' that occur before a ban occurs
         messageInterval : int, optional
             Amount of time a message is kept before being discarded.
             Essentially the amount of time (In milliseconds) a message can count towards spam
@@ -106,8 +100,8 @@ class AntiSpamHandler:
             The message to be sent up kickThreshold being reached
         banMessage : str, optional
             The message to be sent up banThreshold being reached
-        messageDuplicateWarn : int, optional
-            Amount of duplicate messages needed within messageInterval to trip a warning
+        messageDuplicateCount : int, optional
+            Amount of duplicate messages needed to trip a punishment
         messageDuplicateKick : int, optional
             Amount of duplicate messages needed within messageInterval to trip a kick
         messageDuplicateBan : int, optional
@@ -116,8 +110,6 @@ class AntiSpamHandler:
             How 'close' messages need to be to be registered as duplicates (Out of 100)
         ignorePerms : list, optional
             The perms (ID Form), that bypass anti-spam
-        ignoreRoles : list, optional
-            The roles (ID Form), that bypass anti-spam
         ignoreUsers : list, optional
             The users (ID Form), that bypass anti-spam
         ignoreBots : bool, optional
@@ -149,19 +141,10 @@ class AntiSpamHandler:
             raise ValueError("Expected banMessage of type: str")
 
         if (
-            not isinstance(messageDuplicateWarn, int)
-            and messageDuplicateWarn is not None
+            not isinstance(messageDuplicateCount, int)
+            and messageDuplicateCount is not None
         ):
-            raise ValueError("Expected messageDuplicateWarn of type: int")
-
-        if (
-            not isinstance(messageDuplicateKick, int)
-            and messageDuplicateKick is not None
-        ):
-            raise ValueError("Expected messageDuplicateKick of type: int")
-
-        if not isinstance(messageDuplicateBan, int) and messageDuplicateBan is not None:
-            raise ValueError("Expected messageDuplicateBan of type: int")
+            raise ValueError("Expected messageDuplicateCount of type: int")
 
         if (
             not isinstance(messageDuplicateAccuracy, float)
@@ -176,9 +159,6 @@ class AntiSpamHandler:
 
         if not isinstance(ignorePerms, list) and ignorePerms is not None:
             raise ValueError("Expected ignorePerms of type: list")
-
-        if not isinstance(ignoreRoles, list) and ignoreRoles is not None:
-            raise ValueError("Expected ignoreRoles of type: list")
 
         if not isinstance(ignoreUsers, list) and ignoreUsers is not None:
             raise ValueError("Expected ignoreUsers of type: list")
@@ -199,16 +179,11 @@ class AntiSpamHandler:
             "warnMessage": warnMessage or AntiSpamHandler.DEFAULTS.get("warnMessage"),
             "kickMessage": kickMessage or AntiSpamHandler.DEFAULTS.get("kickMessage"),
             "banMessage": banMessage or AntiSpamHandler.DEFAULTS.get("banMessage"),
-            "messageDuplicateWarn": messageDuplicateWarn
-            or AntiSpamHandler.DEFAULTS.get("messageDuplicateWarn"),
-            "messageDuplicateKick": messageDuplicateKick
-            or AntiSpamHandler.DEFAULTS.get("messageDuplicateKick"),
-            "messageDuplicateBan": messageDuplicateBan
-            or AntiSpamHandler.DEFAULTS.get("messageDuplicateBan"),
+            "messageDuplicateCount": messageDuplicateCount
+            or AntiSpamHandler.DEFAULTS.get("messageDuplicateCount"),
             "messageDuplicateAccuracy": messageDuplicateAccuracy
             or AntiSpamHandler.DEFAULTS.get("messageDuplicateAccuracy"),
             "ignorePerms": ignorePerms or AntiSpamHandler.DEFAULTS.get("ignorePerms"),
-            "ignoreRoles": ignoreRoles or AntiSpamHandler.DEFAULTS.get("ignoreRoles"),
             "ignoreUsers": ignoreUsers or AntiSpamHandler.DEFAULTS.get("ignoreUsers"),
             "ignoreBots": ignoreBots or AntiSpamHandler.DEFAULTS.get("ignoreBots"),
         }
@@ -229,6 +204,11 @@ class AntiSpamHandler:
         """
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
+
+        if message.author.id == self.bot.user.id:
+            return
+
+        print(f"Propagating message for: {message.author.name}")
 
         guild = Guild(self.bot, message.guild.id, self.options)
         for guildObj in self.guilds:

@@ -27,3 +27,16 @@ class ObjectMismatch(Exception):
 
     def __str__(self):
         return self.message
+
+
+class LogicError(Exception):
+    """Raised because internal logic has failed. Please create an issue in the github."""
+
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = self.__doc__
+
+    def __str__(self):
+        return self.message

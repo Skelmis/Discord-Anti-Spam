@@ -89,7 +89,10 @@ class Guild:
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
 
-        user = User(message.author.id, message.guild.id, self.options)
+        if isinstance(self._channel, int):
+            self.channel = message.channel
+
+        user = User(self._bot, message.author.id, message.guild.id, self.options)
         for userObj in self.users:
             if user == userObj:
                 return userObj.propagate(message)

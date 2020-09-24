@@ -17,6 +17,7 @@ class Message:
         "_content",
         "_authorId",
         "_creationTime",
+        "_isDuplicate",
     ]
 
     def __init__(self, id, content, authorId, channelId, guildId):
@@ -52,6 +53,7 @@ class Message:
         self.authorId = int(authorId)
         self.channelId = int(channelId)
         self.guildId = int(guildId)
+        self.isDuplicate = False
         self._creationTime = datetime.datetime.now(datetime.timezone.utc)
 
     def __repr__(self):
@@ -175,3 +177,14 @@ class Message:
     def creationTime(self, value):
         # We don't want creationTime changed
         return
+
+    @property
+    def isDuplicate(self):
+        return self._isDuplicate
+
+    @isDuplicate.setter
+    def isDuplicate(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("isDuplicate should be a bool")
+
+        self._isDuplicate = value

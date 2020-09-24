@@ -3,12 +3,15 @@ Used to store a user, each of these is relevant per guild rather then globally
 
 Each user object is per guild, rather then globally
 """
+import asyncio
+from string import Template
+
 import discord
 
 from fuzzywuzzy import fuzz
 
 from AntiSpam import Message
-from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch
+from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch, LogicError
 
 
 class User:
@@ -16,26 +19,41 @@ class User:
 
     """
 
-    __slots__ = ["_id", "_guildId", "_messages", "options", "warnCount", "kickCount"]
+    __slots__ = [
+        "_id",
+        "_guildId",
+        "_messages",
+        "options",
+        "warnCount",
+        "kickCount",
+        "bot",
+        "duplicateCounter",
+    ]
 
-    def __init__(self, id, guildId, options):
+    def __init__(self, bot, id, guildId, options):
         """
         Set the relevant information in order to maintain
         and use a per User object for a guild
 
         Parameters
         ==========
+        bot : commands.bot
+            Bot instance
         id : int
             The relevant user id
         guildId : int
             The guild (id) this user is belonging to
+        options : Dict
+            The options we need to check agaisnt
         """
         self.id = int(id)
+        self.bot = bot
         self.guildId = int(guildId)
         self._messages = []
         self.options = options
         self.warnCount = 0
         self.kickCount = 0
+        self.duplicateCounter = 0
 
     def __repr__(self):
         return (
@@ -116,7 +134,7 @@ class User:
 
         # TODO Compare incoming message to other messages in order
         relationToOthers = []
-        for messageObj in self.messages:
+        for messageObj in self.messages[::-1]:
             # This calculates the relation to each other
             relationToOthers.append(
                 fuzz.token_sort_ratio(message.content, messageObj.content)
@@ -124,13 +142,136 @@ class User:
 
         self.messages = message
 
-        # Lets try sus if we need to punish the user
+        # Check if this message is a duplicate of the most recent messages
         for i, proportion in enumerate(relationToOthers):
             if proportion >= self.options["messageDuplicateAccuracy"]:
-                # We need to punish the user with something
-                if self.warnCount != self.options["warnThreshold"]:
-                    # We only need to warn the user
-                    pass
+                """
+                The handler works off an internal message duplicate counter 
+                so just increment that and then let our logic process it
+                """
+                self.duplicateCounter += 1
+                message.isDuplicate = True
+                break  # we don't want to increment to much
+
+        if self.duplicateCounter >= self.options["messageDuplicateCount"]:
+            print("Punish time")
+            # We need to punish the user with something
+
+            # TODO Figure out why the logic likes having +1 of the actual count
+            #      before it decides its time to actually punish the user properly
+
+            if (
+                self.duplicateCounter >= self.options["warnThreshold"]
+                and self.warnCount < self.options["kickThreshold"]
+                and self.kickCount < self.options["banThreshold"]
+            ):
+                print("Warn time")
+                """
+                The user has yet to reach the warn threshold,
+                after the warn threshold is reached this will
+                then become a kick and so on
+                """
+                # We are still in the warning area
+                channel = value.channel
+                message = Template(self.options["warnMessage"]).safe_substitute(
+                    {
+                        "MENTIONUSER": value.author.mention,
+                        "USERNAME": value.author.display_name,
+                    }
+                )
+
+                asyncio.ensure_future(self.SendToObj(channel, message))
+                self.warnCount += 1
+
+            elif (
+                self.warnCount >= self.options["kickThreshold"]
+                and self.kickCount < self.options["banThreshold"]
+            ):
+                print("kick time")
+                # We should kick the user
+                dcChannel = value.channel
+                message = Template(self.options["kickMessage"]).safe_substitute(
+                    {
+                        "MENTIONUSER": value.author.mention,
+                        "USERNAME": value.author.display_name,
+                    }
+                )
+                asyncio.ensure_future(
+                    self.KickFromGuild(
+                        value.guild,
+                        value.author,
+                        dcChannel,
+                        f"You were kicked from {value.guild.name} for spam.",
+                        message,
+                    )
+                )
+                self.kickCount += 1
+
+            elif self.kickCount >= self.options["banThreshold"]:
+                print("ban time")
+                # We should ban the user
+                pass
+
+            else:
+                print("else?")
+                raise LogicError
+
+    async def SendToObj(self, messageableObj, message):
+        """
+        Send a given message to an abc.messageable object
+
+        This does not handle exceptions, they should be handled
+        on call as I did not want to overdo this method with
+        the required params to notify users.
+
+        Parameters
+        ----------
+        messageableObj : abc.Messageable
+            Where to send message
+        message : String
+            The message to send
+
+        Raises
+        ------
+        discord.HTTPException
+            Failed to send
+        discord.Forbidden
+            Lacking permissions to send
+
+        """
+        await messageableObj.send(message)
+
+    async def KickFromGuild(self, guild, user, dcChannel, userMessage, guildMessage):
+        try:
+            try:
+                await self.SendToObj(user, userMessage)
+            except discord.HTTPException:
+                await self.SendToObj(
+                    user,
+                    f"Sending a message to {user.mention} about their kick failed.",
+                )
+            finally:
+                try:
+                    await guild.kick(user, reason="Spamming")
+                except discord.Forbidden:
+                    await self.SendToObj(
+                        dcChannel, f"I do not have permission to kick: {user.mention}"
+                    )
+                except discord.HTTPException:
+                    await self.SendToObj(
+                        dcChannel, f"An error occurred trying to kick: {user.mention}"
+                    )
+                finally:
+                    try:
+                        await self.SendToObj(dcChannel, guildMessage)
+                    except discord.HTTPException:
+                        print(
+                            f"Failed to send message.\n"
+                            "Guild: {dcChannel.guild.name}({dcChannel.guild.id})\n"
+                            "Channel: {dcChannel.name}({dcChannel.id})"
+                        )
+        except Exception as e:
+            raise e
 
     @property
     def id(self):
