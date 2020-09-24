@@ -11,7 +11,6 @@ This package aims to help solve that issue by handling all the required logic un
 
 ---
 #### This project is now at a useable state, albiet a little dodgy.
----
 
 How to use this right now?
 
