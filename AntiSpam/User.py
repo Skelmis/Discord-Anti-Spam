@@ -267,8 +267,8 @@ class User:
                     except discord.HTTPException:
                         print(
                             f"Failed to send message.\n"
-                            "Guild: {dcChannel.guild.name}({dcChannel.guild.id})\n"
-                            "Channel: {dcChannel.name}({dcChannel.id})"
+                            f"Guild: {dcChannel.guild.name}({dcChannel.guild.id})\n"
+                            f"Channel: {dcChannel.name}({dcChannel.id})"
                         )
         except Exception as e:
             raise e
