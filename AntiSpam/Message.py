@@ -87,6 +87,12 @@ class Message:
         ======
         ValueError
             When the comparison object is not of type `Message`
+
+        Notes
+        =====
+        Does not check creation time, because that can be different
+        and this is mainly used to ensure we don't create duplicates
+        and creation time is this class's time not the message's time
         """
         if not isinstance(other, Message):
             raise ValueError
