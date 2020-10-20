@@ -44,7 +44,13 @@ class User:
         guildId : int
             The guild (id) this user is belonging to
         options : Dict
-            The options we need to check agaisnt
+            The options we need to check against
+
+        Notes
+        =====
+        self.duplicateCounter is initialized as 1 rather then 0
+        due to the maths playing up. When retrieving the object
+        do remember to treat it as such by removing 1
         """
         self.id = int(id)
         self.bot = bot
@@ -53,7 +59,7 @@ class User:
         self.options = options
         self.warnCount = 0
         self.kickCount = 0
-        self.duplicateCounter = 0
+        self.duplicateCounter = 1
 
     def __repr__(self):
         return (
