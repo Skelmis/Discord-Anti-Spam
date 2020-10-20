@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
 
-from AntiSpam import Guild
+from AntiSpam import Guild, static
 from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject
+from AntiSpam.static import Static
 
 """
 The overall handler & entry point from any discord bot,
@@ -44,21 +45,6 @@ class AntiSpamHandler:
     # TODO Add bypass's for modes, so bypass warn mode. (Can be avoided by simply setting warn higher then kick)
     #      and that's how it will be implemented internally most likely
     # TODO Add the ability to toggle dm messages for log messages (To affected users)
-
-    DEFAULTS = {
-        "warnThreshold": 3,
-        "kickThreshold": 2,
-        "banThreshold": 2,
-        "messageInterval": 2500,
-        "warnMessage": "Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
-        "kickMessage": "$USERNAME was kicked for spamming/sending duplicate messages.",
-        "banMessage": "$USERNAME was banned for spamming/sending duplicate messages.",
-        "messageDuplicateCount": 5,
-        "messageDuplicateAccuracy": 90,
-        "ignorePerms": [8],
-        "ignoreUsers": [],
-        "ignoreBots": True,
-    }
 
     def __init__(
         self,
@@ -168,24 +154,21 @@ class AntiSpamHandler:
 
         # Now we have type checked everything, lets do some logic
         self.options = {
-            "warnThreshold": warnThreshold
-            or AntiSpamHandler.DEFAULTS.get("warnThreshold"),
-            "kickThreshold": kickThreshold
-            or AntiSpamHandler.DEFAULTS.get("kickThreshold"),
-            "banThreshold": banThreshold
-            or AntiSpamHandler.DEFAULTS.get("banThreshold"),
+            "warnThreshold": warnThreshold or Static.DEFAULTS.get("warnThreshold"),
+            "kickThreshold": kickThreshold or Static.DEFAULTS.get("kickThreshold"),
+            "banThreshold": banThreshold or Static.DEFAULTS.get("banThreshold"),
             "messageInterval": messageInterval
-            or AntiSpamHandler.DEFAULTS.get("messageInterval"),
-            "warnMessage": warnMessage or AntiSpamHandler.DEFAULTS.get("warnMessage"),
-            "kickMessage": kickMessage or AntiSpamHandler.DEFAULTS.get("kickMessage"),
-            "banMessage": banMessage or AntiSpamHandler.DEFAULTS.get("banMessage"),
+            or Static.DEFAULTS.get("messageInterval"),
+            "warnMessage": warnMessage or Static.DEFAULTS.get("warnMessage"),
+            "kickMessage": kickMessage or Static.DEFAULTS.get("kickMessage"),
+            "banMessage": banMessage or Static.DEFAULTS.get("banMessage"),
             "messageDuplicateCount": messageDuplicateCount
-            or AntiSpamHandler.DEFAULTS.get("messageDuplicateCount"),
+            or Static.DEFAULTS.get("messageDuplicateCount"),
             "messageDuplicateAccuracy": messageDuplicateAccuracy
-            or AntiSpamHandler.DEFAULTS.get("messageDuplicateAccuracy"),
-            "ignorePerms": ignorePerms or AntiSpamHandler.DEFAULTS.get("ignorePerms"),
-            "ignoreUsers": ignoreUsers or AntiSpamHandler.DEFAULTS.get("ignoreUsers"),
-            "ignoreBots": ignoreBots or AntiSpamHandler.DEFAULTS.get("ignoreBots"),
+            or Static.DEFAULTS.get("messageDuplicateAccuracy"),
+            "ignorePerms": ignorePerms or Static.DEFAULTS.get("ignorePerms"),
+            "ignoreUsers": ignoreUsers or Static.DEFAULTS.get("ignoreUsers"),
+            "ignoreBots": ignoreBots or Static.DEFAULTS.get("ignoreBots"),
         }
 
         self.bot = bot

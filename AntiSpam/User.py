@@ -12,6 +12,7 @@ from fuzzywuzzy import fuzz
 
 from AntiSpam import Message
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch, LogicError
+from AntiSpam.static import Static
 
 
 class User:
@@ -195,12 +196,13 @@ class User:
                     }
                 )
                 asyncio.ensure_future(
-                    self.KickFromGuild(
+                    self.PunishUser(
                         value.guild,
                         value.author,
                         dcChannel,
                         f"You were kicked from {value.guild.name} for spam.",
                         message,
+                        "1",
                     )
                 )
                 self.kickCount += 1
@@ -239,7 +241,39 @@ class User:
         """
         await messageableObj.send(message)
 
-    async def KickFromGuild(self, guild, user, dcChannel, userMessage, guildMessage):
+    async def PunishUser(
+        self, guild, user, dcChannel, userMessage, guildMessage, method
+    ):
+        """
+        A generic method to handle multiple methods of punishment for a user.
+
+        Currently supports: kicking, banning
+        TODO: mutes
+
+        Parameters
+        ----------
+        guild : discord.Guild
+            The guild to punish the user in
+        user : discord.User
+            The user to punish
+        dcChannel : discord.TextChannel
+            The channel to send the punishment message to
+        userMessage : str
+            A message to send to the user who is being punished
+        guildMessage : str
+            A message to send in the guild for whoever is being punished
+        method : str
+            A string denoting the type of punishment
+
+        Raises
+        ======
+        LogicError
+            If you do not pass a support punishment method
+
+        """
+        if method != Static.KICK and method != Static.BAN:
+            raise LogicError(f"{method} is not a recognized punishment method.")
+
         try:
             try:
                 await self.SendToObj(user, userMessage)
@@ -250,14 +284,17 @@ class User:
                 )
             finally:
                 try:
-                    await guild.kick(user, reason="Spamming")
+                    await guild.kick(
+                        user, reason="Automated punishment from DPY Anti-Spam."
+                    )
                 except discord.Forbidden:
                     await self.SendToObj(
                         dcChannel, f"I do not have permission to kick: {user.mention}"
                     )
                 except discord.HTTPException:
                     await self.SendToObj(
-                        dcChannel, f"An error occurred trying to kick: {user.mention}"
+                        dcChannel,
+                        f"An error occurred trying to {method}: {user.mention}",
                     )
                 finally:
                     try:
