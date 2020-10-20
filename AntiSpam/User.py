@@ -45,12 +45,6 @@ class User:
             The guild (id) this user is belonging to
         options : Dict
             The options we need to check against
-
-        Notes
-        =====
-        self.duplicateCounter is initialized as 1 rather then 0
-        due to the maths playing up. When retrieving the object
-        do remember to treat it as such by removing 1
         """
         self.id = int(id)
         self.bot = bot

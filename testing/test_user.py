@@ -87,6 +87,15 @@ class TestUser(unittest.TestCase):
         obj = User(None, 2, 2, util.OPTIONS)
         self.assertFalse(self.user == obj)
 
+    def test_duplicateCounter(self):
+        self.assertNotEqual(
+            self.user.duplicateCounter, self.user.GetCorrectDuplicateCount()
+        )
+
+        self.assertEqual(
+            self.user.duplicateCounter - 1, self.user.GetCorrectDuplicateCount()
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
