@@ -42,7 +42,7 @@ if __name__ == "__main__":
 And thats it!
 Now, there will no doubt be bugs & changes etc. But, you can use this as is now and all I ask is you create an issue for anything you encounter while using this codebase.
 
-
+#### Docs can be found [here](https://dpy-anti-spam.readthedocs.io/en/latest/?)
 
 ---
 
