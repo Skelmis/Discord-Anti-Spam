@@ -139,6 +139,7 @@ class User:
         #      we shouldn't bother saving them
 
         # TODO Compare incoming message to other messages in order
+        # I believe this is resolved but idk
         relationToOthers = []
         for messageObj in self.messages[::-1]:
             # This calculates the relation to each other
@@ -162,9 +163,6 @@ class User:
         if self.duplicateCounter >= self.options["messageDuplicateCount"]:
             print("Punish time")
             # We need to punish the user with something
-
-            # TODO Figure out why the logic likes having +1 of the actual count
-            #      before it decides its time to actually punish the user properly
 
             if (
                 self.duplicateCounter >= self.options["warnThreshold"]
@@ -323,3 +321,14 @@ class User:
                 raise DuplicateObject
 
         self._messages.append(value)
+
+    def GetCorrectDuplicateCount(self):
+        """
+        Given the internal math has an extra number cos
+        accuracy this simply returns the correct value
+
+        Returns
+        -------
+        self.duplicateCounter - 1
+        """
+        return self.duplicateCounter - 1
