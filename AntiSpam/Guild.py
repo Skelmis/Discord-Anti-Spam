@@ -99,14 +99,9 @@ class Guild:
                 return userObj.propagate(message)
 
         self.users = user
-        propagationResult = user.propagate(message)
+        user.propagate(message)
 
-        if propagationResult is None:
-            return
-
-        elif propagationResult == Static.BAN:
-            self._users.pop(self._users.index(user))
-            del user
+        # TODO Cleanup after a user is banned
 
     @property
     def id(self):

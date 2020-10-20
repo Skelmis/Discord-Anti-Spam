@@ -172,6 +172,7 @@ class User:
                 then become a kick and so on
                 """
                 # We are still in the warning area
+                # TODO Tell the user if its there final warning before a kick
                 channel = value.channel
                 message = Template(self.options["warnMessage"]).safe_substitute(
                     {
@@ -189,6 +190,7 @@ class User:
             ):
                 print("kick time")
                 # We should kick the user
+                # TODO Tell the user if its there final kick before a ban
                 dcChannel = value.channel
                 message = Template(self.options["kickMessage"]).safe_substitute(
                     {
@@ -229,7 +231,6 @@ class User:
                     )
                 )
                 self.kickCount += 1
-                return Static.BAN
 
             else:
                 print("else?")
