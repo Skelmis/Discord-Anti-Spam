@@ -6,6 +6,7 @@ import discord
 
 from AntiSpam import User
 from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject
+from AntiSpam.static import Static
 
 
 class Guild:
@@ -98,7 +99,14 @@ class Guild:
                 return userObj.propagate(message)
 
         self.users = user
-        user.propagate(message)
+        propagationResult = user.propagate(message)
+
+        if propagationResult is None:
+            return
+
+        elif propagationResult == Static.BAN:
+            self._users.pop(self._users.index(user))
+            del user
 
     @property
     def id(self):
