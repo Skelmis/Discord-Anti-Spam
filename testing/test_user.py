@@ -3,10 +3,8 @@ import unittest
 
 
 from AntiSpam import User, Message
+from AntiSpam.static import Static
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch
-
-# Util stuff with regard to options, etc
-from TestUtil import util
 
 
 class TestUser(unittest.TestCase):
@@ -18,7 +16,7 @@ class TestUser(unittest.TestCase):
         """
         Simply setup our User obj before usage
         """
-        self.user = User(None, 0, 3, util.OPTIONS)
+        self.user = User(None, 0, 3, Static.DEFAULTS)
         self.user.messages = Message(0, "Hello world", 0, 2, 3)
         self.user.messages = Message(1, "Foo Bar", 0, 2, 3)
 
@@ -40,7 +38,7 @@ class TestUser(unittest.TestCase):
     def test_valueAssignment(self):
         self.assertEqual(self.user.id, 0)
         self.assertEqual(self.user.guildId, 3)
-        self.assertEqual(self.user.options, util.OPTIONS)
+        self.assertEqual(self.user.options, Static.DEFAULTS)
 
         self.user.id = 10
         self.user.guildId = 10
@@ -80,11 +78,11 @@ class TestUser(unittest.TestCase):
         )
 
     def test_eqEqual(self):
-        obj = User(None, 0, 3, util.OPTIONS)
+        obj = User(None, 0, 3, Static.DEFAULTS)
         self.assertTrue(self.user == obj)
 
     def test_eqNotEqual(self):
-        obj = User(None, 2, 2, util.OPTIONS)
+        obj = User(None, 2, 2, Static.DEFAULTS)
         self.assertFalse(self.user == obj)
 
     def test_duplicateCounter(self):

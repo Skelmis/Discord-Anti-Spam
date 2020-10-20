@@ -2,9 +2,8 @@ import sys
 import unittest
 
 from AntiSpam import Guild, User, Message
+from AntiSpam.static import Static
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch
-
-from TestUtil import util
 
 
 class TestGuild(unittest.TestCase):
@@ -16,9 +15,9 @@ class TestGuild(unittest.TestCase):
         """
         Simply setup our Guild obj before usage
         """
-        self.guild = Guild(None, 15, util.OPTIONS)
-        self.guild.users = User(None, 20, 15, util.OPTIONS)
-        self.guild.users = User(None, 21, 15, util.OPTIONS)
+        self.guild = Guild(None, 15, Static.DEFAULTS)
+        self.guild.users = User(None, 20, 15, Static.DEFAULTS)
+        self.guild.users = User(None, 21, 15, Static.DEFAULTS)
 
     def test_intAssignment(self):
         self.assertEqual(self.guild.id, 15)
@@ -35,7 +34,7 @@ class TestGuild(unittest.TestCase):
 
     def test_userAssignment(self):
         self.assertEqual(len(self.guild.users), 2)
-        self.guild.users = User(None, 22, 15, util.OPTIONS)
+        self.guild.users = User(None, 22, 15, Static.DEFAULTS)
         self.assertEqual(len(self.guild.users), 3)
 
     def test_userRaises(self):
@@ -44,11 +43,11 @@ class TestGuild(unittest.TestCase):
 
     def test_userRaisesDuplicate(self):
         with self.assertRaises(DuplicateObject):
-            self.guild.users = User(None, 21, 15, util.OPTIONS)
+            self.guild.users = User(None, 21, 15, Static.DEFAULTS)
 
     def test_messageRaisesMismatch(self):
         with self.assertRaises(ObjectMismatch):
-            self.guild.users = User(None, 22, 16, util.OPTIONS)
+            self.guild.users = User(None, 22, 16, Static.DEFAULTS)
 
 
 if __name__ == "__main__":
