@@ -130,11 +130,12 @@ class User:
             if message == messageObj:
                 raise DuplicateObject
 
-        # TODO Add checks for if there isn't any content. If there isn't
-        #      we shouldn't bother saving them
+        # No point saving empty messages, although discord shouldnt allow them anyway
+        if not bool(message.content and message.content.strip()):
+            print("deleting message")
+            del message
+            return
 
-        # TODO Compare incoming message to other messages in order
-        # I believe this is resolved but idk
         relationToOthers = []
         for messageObj in self.messages[::-1]:
             # This calculates the relation to each other
@@ -202,7 +203,7 @@ class User:
                         dcChannel,
                         f"You were kicked from {value.guild.name} for spam.",
                         message,
-                        "1",
+                        Static.KICK,
                     )
                 )
                 self.kickCount += 1
@@ -210,7 +211,25 @@ class User:
             elif self.kickCount >= self.options["banThreshold"]:
                 print("ban time")
                 # We should ban the user
-                pass
+                dcChannel = value.channel
+                message = Template(self.options["banMessage"]).safe_substitute(
+                    {
+                        "MENTIONUSER": value.author.mention,
+                        "USERNAME": value.author.display_name,
+                    }
+                )
+                asyncio.ensure_future(
+                    self.PunishUser(
+                        value.guild,
+                        value.author,
+                        dcChannel,
+                        f"You were banned from {value.guild.name} for spam.",
+                        message,
+                        Static.BAN,
+                    )
+                )
+                self.kickCount += 1
+                return Static.BAN
 
             else:
                 print("else?")
@@ -284,9 +303,16 @@ class User:
                 )
             finally:
                 try:
-                    await guild.kick(
-                        user, reason="Automated punishment from DPY Anti-Spam."
-                    )
+                    if method == Static.KICK:
+                        await guild.kick(
+                            user, reason="Automated punishment from DPY Anti-Spam."
+                        )
+                    elif method == Static.BAN:
+                        await guild.ban(
+                            user, reason="Automated punishment from DPY Anti-Spam."
+                        )
+                    else:
+                        raise NotImplementedError
                 except discord.Forbidden:
                     await self.SendToObj(
                         dcChannel, f"I do not have permission to kick: {user.mention}"
