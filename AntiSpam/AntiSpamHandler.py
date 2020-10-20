@@ -218,7 +218,7 @@ class AntiSpamHandler:
         Raises
         ======
         DuplicateObject
-            It won't maintain two message objects with the same
+            It won't maintain two guild objects with the same
             id's, and it will complain about it haha
         ObjectMismatch
             Raised if `value` wasn't made by this person, so they
