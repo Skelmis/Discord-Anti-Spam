@@ -33,9 +33,10 @@ def countlines(start, lines=0, header=True, begin_start=None):
 
     for thing in os.listdir(start):
         try:
-            thing = os.path.join(start, thing)
-            if os.path.isdir(thing):
-                lines = countlines(thing, lines, header=False, begin_start=start)
+            if thing in ["AntiSpam", "testing", "examples"]:
+                thing = os.path.join(start, thing)
+                if os.path.isdir(thing):
+                    lines = countlines(thing, lines, header=False, begin_start=start)
         except:
             pass
 
