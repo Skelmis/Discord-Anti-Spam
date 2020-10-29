@@ -1,5 +1,7 @@
 import datetime
 
+import discord
+
 """
 Used to store a message object, essentially a glorified dictionary
 """

@@ -36,6 +36,8 @@ class Guild:
 
         # TODO Add the ability to not set a channel
 
+    # TODO Add __repr__ and __str__
+
     def __eq__(self, other):
         """
         This is called with a 'obj1 == obj2' comparison object is made

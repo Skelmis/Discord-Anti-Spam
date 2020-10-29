@@ -1,8 +1,14 @@
+import datetime
+import time
+
 import discord
 from discord.ext import commands
 
+import threading
+import concurrent.futures
+
 from AntiSpam import Guild, static
-from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject
+from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject, BaseASHException
 from AntiSpam.static import Static
 
 """
@@ -116,6 +122,9 @@ class AntiSpamHandler:
 
         if not isinstance(messageInterval, int) and messageInterval is not None:
             raise ValueError("Expected messageInterval of type: int")
+
+        if messageInterval is not None and messageInterval < 1000:
+            raise BaseASHException("Minimum messageInterval is 1 seconds (1000 ms)")
 
         if not isinstance(warnMessage, str) and warnMessage is not None:
             raise ValueError("Expected warnMessage of type: str")

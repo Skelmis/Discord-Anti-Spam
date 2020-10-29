@@ -4,7 +4,10 @@ Used to store a user, each of these is relevant per guild rather then globally
 Each user object is per guild, rather then globally
 """
 import asyncio
+import datetime
+from copy import deepcopy
 from string import Template
+import threading
 
 import discord
 
@@ -29,6 +32,7 @@ class User:
         "kickCount",
         "bot",
         "duplicateCounter",
+        "_lock",
     ]
 
     def __init__(self, bot, id, guildId, options):
@@ -55,6 +59,8 @@ class User:
         self.warnCount = 0
         self.kickCount = 0
         self.duplicateCounter = 1
+
+        self._lock = threading.Lock()
 
     def __repr__(self):
         return (
@@ -119,6 +125,8 @@ class User:
         if not isinstance(value, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
 
+        self.CleanUp(datetime.datetime.now(datetime.timezone.utc))
+
         message = Message(
             value.id,
             value.clean_content,
@@ -126,6 +134,7 @@ class User:
             value.channel.id,
             value.guild.id,
         )
+
         for messageObj in self.messages:
             if message == messageObj:
                 raise DuplicateObject
@@ -390,3 +399,43 @@ class User:
         self.duplicateCounter - 1
         """
         return self.duplicateCounter - 1
+
+    def CleanUp(self, currentTime):
+        """
+        This logic works around checking the current
+        time vs a messages creation time. If the message
+        is older by the config amount it can be cleaned up
+        """
+
+        def IsStillValid(message):
+            """
+            Given a message, figure out if it hasnt
+            expired yet based on timestamps
+            """
+            difference = currentTime - message.creationTime
+            offset = datetime.timedelta(
+                milliseconds=self.options.get("messageInterval")
+            )
+
+            if difference >= offset:
+                return False
+            return True
+
+        currentMessages = []
+        outstandingMessages = []
+
+        for message in self._messages:
+            if IsStillValid(message):
+                currentMessages.append(message)
+            else:
+                outstandingMessages.append(message)
+
+        self._messages = deepcopy(currentMessages)
+
+        # Now if we have outstanding messages we need
+        # to process them and see if we need to deincrement
+        # the duplicate counter as we are removing them from
+        # the queue otherwise everything stacks up
+        for outstandingMessage in outstandingMessages:
+            if outstandingMessage.isDuplicate:
+                self.duplicateCounter -= 1

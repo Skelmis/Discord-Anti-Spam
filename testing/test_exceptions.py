@@ -7,7 +7,7 @@ from AntiSpam.Exceptions import *
 
 class TestUser(unittest.TestCase):
     """
-    Used to test the user object
+    Used to test the Exceptions
     """
 
     def test_baseException(self):

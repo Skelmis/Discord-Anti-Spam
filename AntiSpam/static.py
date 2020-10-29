@@ -11,7 +11,7 @@ class Static:
         "warnThreshold": 3,
         "kickThreshold": 2,
         "banThreshold": 2,
-        "messageInterval": 2500,
+        "messageInterval": 30000,  # 30 Seconds
         "warnMessage": "Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
         "kickMessage": "$USERNAME was kicked for spamming/sending duplicate messages.",
         "banMessage": "$USERNAME was banned for spamming/sending duplicate messages.",
