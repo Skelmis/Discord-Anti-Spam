@@ -55,6 +55,8 @@ class User:
         "kickCount",
         "bot",
         "duplicateCounter",
+        "kicked",
+        
         "_lock",
     ]
 
@@ -82,7 +84,8 @@ class User:
         self.warnCount = 0
         self.kickCount = 0
         self.duplicateCounter = 1
-
+        self.kicked = False  # Indicates if a user was kicked or banned  
+        
         self._lock = threading.Lock()
 
     def __repr__(self):
@@ -135,7 +138,7 @@ class User:
         """
         return hash((self.id, self.guildId))
 
-    def propagate(self, value: discord.Message):
+    def propagate(self, value: discord.Message, rejoined: bool = False):
         """
         This method handles a message object and then adds it to
         the relevant user
@@ -144,10 +147,18 @@ class User:
         ==========
         value : discord.Message
             The message that needs to be propagated out
+        rejoined : bool
+            Given if a user rejoined the guild
         """
         if not isinstance(value, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
 
+        if rejoined:
+            self.kicked = True
+            value = "" # Dirty way of allowing to only update the kicked value 
+
+        if self.kicked:
+            return
         self.CleanUp(datetime.datetime.now(datetime.timezone.utc))
 
         message = Message(
@@ -346,6 +357,7 @@ class User:
                         )
                     else:
                         raise NotImplementedError
+                    self.kicked = True  # Sets it to true after successful kick or ban
                 except discord.Forbidden:
                     await self.SendToObj(
                         dcChannel, f"I do not have permission to kick: {user.mention}"
