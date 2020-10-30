@@ -19,6 +19,7 @@ class Static:
         "messageDuplicateAccuracy": 90,
         "ignorePerms": [8],
         "ignoreUsers": [],
+        "ignoreChannels": [],
         "ignoreBots": True,
     }
     BAN = "ban"

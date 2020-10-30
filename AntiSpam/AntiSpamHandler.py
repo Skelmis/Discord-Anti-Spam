@@ -67,6 +67,7 @@ class AntiSpamHandler:
         messageDuplicateAccuracy=None,
         ignorePerms=None,
         ignoreUsers=None,
+        ignoreChannels=None,
         ignoreBots=None,
     ):
         """
@@ -158,6 +159,9 @@ class AntiSpamHandler:
         if not isinstance(ignoreUsers, list) and ignoreUsers is not None:
             raise ValueError("Expected ignoreUsers of type: list")
 
+        if not isinstance(ignoreChannels, list) and ignoreChannels is not None:
+            raise ValueError("Expected ignoreChannels of type: list")
+
         if not isinstance(ignoreBots, bool) and ignoreBots is not None:
             raise ValueError("Expected ignoreBots of type: int")
 
@@ -177,6 +181,7 @@ class AntiSpamHandler:
             or Static.DEFAULTS.get("messageDuplicateAccuracy"),
             "ignorePerms": ignorePerms or Static.DEFAULTS.get("ignorePerms"),
             "ignoreUsers": ignoreUsers or Static.DEFAULTS.get("ignoreUsers"),
+            "ignoreChannels": ignoreChannels or Static.DEFAULTS.get("ignoreChannels"),
             "ignoreBots": ignoreBots or Static.DEFAULTS.get("ignoreBots"),
         }
 
@@ -200,10 +205,16 @@ class AntiSpamHandler:
         if message.author.id == self.bot.user.id:
             return
 
+        # Return if ignored bot
         if self.options["ignoreBots"] and message.author.bot:
             return
 
+        # Return if ignored user
         if message.author.id in self.options["ignoreUsers"]:
+            return
+
+        # Return if ignored channel
+        if message.channel.id in self.options["ignoreChannels"]:
             return
 
         print(f"Propagating message for: {message.author.name}")
