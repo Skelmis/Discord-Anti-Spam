@@ -64,8 +64,8 @@ class User:
 
     def __repr__(self):
         return (
-            f"{self.__class__.__name__} object. User id: {self.id}, Guild id: {self.guildId}, "
-            f"Len Stored Message {len(self._messages)}"
+            f"'{self.__class__.__name__} object. User id: {self.id}, Guild id: {self.guildId}, "
+            f"Len Stored Messages {len(self._messages)}'"
         )
 
     def __str__(self):

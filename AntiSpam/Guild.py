@@ -36,7 +36,14 @@ class Guild:
 
         # TODO Add the ability to not set a channel
 
-    # TODO Add __repr__ and __str__
+    def __repr__(self):
+        return (
+            f"'{self.__class__.__name__} object. Guild id: {self.id}, "
+            f"Len Stored Users {len(self._users)}, Log Channel Id: {self.channel}'"
+        )
+
+    def __str__(self):
+        return f"{self.__class__.__name__} object for {self.id}."
 
     def __eq__(self, other):
         """
