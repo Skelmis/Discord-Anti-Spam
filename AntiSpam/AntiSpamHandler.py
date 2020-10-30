@@ -68,6 +68,8 @@ class AntiSpamHandler:
         ignorePerms=None,
         ignoreUsers=None,
         ignoreChannels=None,
+        ignoreRoles=None,
+        ignoreGuilds=None,
         ignoreBots=None,
     ):
         """
@@ -162,6 +164,12 @@ class AntiSpamHandler:
         if not isinstance(ignoreChannels, list) and ignoreChannels is not None:
             raise ValueError("Expected ignoreChannels of type: list")
 
+        if not isinstance(ignoreRoles, list) and ignoreRoles is not None:
+            raise ValueError("Expected ignoreRoles of type: list")
+
+        if not isinstance(ignoreGuilds, list) and ignoreGuilds is not None:
+            raise ValueError("Expected ignoreGuilds of type: list")
+
         if not isinstance(ignoreBots, bool) and ignoreBots is not None:
             raise ValueError("Expected ignoreBots of type: int")
 
@@ -182,6 +190,8 @@ class AntiSpamHandler:
             "ignorePerms": ignorePerms or Static.DEFAULTS.get("ignorePerms"),
             "ignoreUsers": ignoreUsers or Static.DEFAULTS.get("ignoreUsers"),
             "ignoreChannels": ignoreChannels or Static.DEFAULTS.get("ignoreChannels"),
+            "ignoreRoles": ignoreRoles or Static.DEFAULTS.get("ignoreRoles"),
+            "ignoreGuilds": ignoreGuilds or Static.DEFAULTS.get("ignoreGuilds"),
             "ignoreBots": ignoreBots or Static.DEFAULTS.get("ignoreBots"),
         }
 
@@ -217,6 +227,16 @@ class AntiSpamHandler:
         if message.channel.id in self.options["ignoreChannels"]:
             return
 
+        # Return if user has an ignored role
+        userRolesId = [role.id for role in message.author.roles]
+        for userRoleId in userRolesId:
+            if userRoleId in self.options.get("ignoreRoles"):
+                return
+
+        # Return if ignored guild
+        if message.guild.id in self.options.get("ignoreGuilds"):
+            return
+
         print(f"Propagating message for: {message.author.name}")
 
         guild = Guild(self.bot, message.guild.id, self.options)
@@ -240,6 +260,13 @@ class AntiSpamHandler:
             A string representation of the ignored
             items overall container
 
+        Raises
+        ======
+        BaseASHException
+            Invalid ignore type
+        ValueError
+            item is not of type int or int convertible
+
         Notes
         =====
         This will silently ignore any attempts
@@ -258,6 +285,12 @@ class AntiSpamHandler:
         elif type == "perm":
             if item not in self.options["ignorePerms"]:
                 self.options["ignorePerms"].append(item)
+        elif type == "guild":
+            if item not in self.options["ignoreGuilds"]:
+                self.options["ignoreGuilds"].append(item)
+        elif type == "role":
+            if item not in self.options["ignoreRoles"]:
+                self.options["ignoreRoles"].append(item)
         else:
             raise BaseASHException("Invalid ignore type")
 
@@ -272,6 +305,13 @@ class AntiSpamHandler:
         type : str
             A string representation of the ignored
             items overall container
+
+        Raises
+        ======
+        BaseASHException
+            Invalid ignore type
+        ValueError
+            item is not of type int or int convertible
 
         Notes
         =====

@@ -20,6 +20,8 @@ class Static:
         "ignorePerms": [8],
         "ignoreUsers": [],
         "ignoreChannels": [],
+        "ignoreRoles": [],
+        "ignoreGuilds": [],
         "ignoreBots": True,
     }
     BAN = "ban"
