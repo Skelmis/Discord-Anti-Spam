@@ -188,7 +188,7 @@ class AntiSpamHandler:
         self.bot = bot
         self._guilds = []
 
-    def propagate(self, message: discord.Message):
+    def propagate(self, message: discord.Message) -> None:
         """
         This method is the base level intake for messages, then
         propagating it out to the relevant guild or creating one
@@ -228,6 +228,76 @@ class AntiSpamHandler:
         self.guilds = guild
         guild.propagate(message)
 
+    def AddIgnoredItem(self, item: int, type: str) -> None:
+        """
+        Add an item to the relevant ignore list
+
+        Parameters
+        ----------
+        item : int
+            The id of the thing to ignore
+        type : str
+            A string representation of the ignored
+            items overall container
+
+        Notes
+        =====
+        This will silently ignore any attempts
+        to add an item already added.
+        """
+        type = type.lower()
+        if not isinstance(item, int):
+            item = int(item)
+
+        if type == "user":
+            if item not in self.options["ignoreUsers"]:
+                self.options["ignoreUsers"].append(item)
+        elif type == "channel":
+            if item not in self.options["ignoreChannels"]:
+                self.options["ignoreChannels"].append(item)
+        elif type == "perm":
+            if item not in self.options["ignorePerms"]:
+                self.options["ignorePerms"].append(item)
+        else:
+            raise BaseASHException("Invalid ignore type")
+
+    def RemoveIgnoredItem(self, item: int, type: str) -> None:
+        """
+        Remove an item from the relevant ignore list
+
+        Parameters
+        ----------
+        item : int
+            The id of the thing to unignore
+        type : str
+            A string representation of the ignored
+            items overall container
+
+        Notes
+        =====
+        This will silently ignore any attempts
+        to remove an item not ignored.
+        """
+        type = type.lower()
+        if not isinstance(item, int):
+            item = int(item)
+
+        if type == "user":
+            if item in self.options["ignoreUsers"]:
+                index = self.options["ignoreUsers"].index(item)
+                self.options["ignoreUsers"].pop(index)
+        elif type == "channel":
+            if item in self.options["ignoreChannels"]:
+                index = self.options["ignoreChannels"].index(item)
+                self.options["ignoreChannels"].pop(index)
+        elif type == "perm":
+            if item in self.options["ignorePerms"]:
+                index = self.options["ignorePerms"].index(item)
+                self.options["ignorePerms"].pop(index)
+        else:
+            raise BaseASHException("Invalid ignore type")
+
+    # <-- Getter & Setters -->
     @property
     def guilds(self):
         return self._guilds
