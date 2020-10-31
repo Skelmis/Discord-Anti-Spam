@@ -112,8 +112,8 @@ class TestMessage(unittest.TestCase):
             repr(self.message),
             (
                 f"'{self.message.__class__.__name__} object. Content: {self.message.content}, Message Id: {self.message.id}, "
-                f"Author Id: {self.message.authorId}, Channel Id: {self.message.channelId}, Guild Id: {self.message.guildId}' "
-                f"Creation time: {self.message.creationTime}"
+                f"Author Id: {self.message.authorId}, Channel Id: {self.message.channelId}, Guild Id: {self.message.guildId} "
+                f"Creation time: {self.message.creationTime}'"
             ),
         )
 

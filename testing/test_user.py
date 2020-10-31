@@ -90,8 +90,8 @@ class TestUser(unittest.TestCase):
         self.assertEqual(
             repr(self.user),
             (
-                f"{self.user.__class__.__name__} object. User id: {self.user.id}, Guild id: {self.user.guildId}, "
-                f"Len Stored Message {len(self.user.messages)}"
+                f"'{self.user.__class__.__name__} object. User id: {self.user.id}, Guild id: {self.user.guildId}, "
+                f"Len Stored Messages {len(self.user.messages)}'"
             ),
         )
 

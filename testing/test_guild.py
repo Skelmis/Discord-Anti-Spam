@@ -72,6 +72,21 @@ class TestGuild(unittest.TestCase):
         with self.assertRaises(ObjectMismatch):
             self.guild.users = User(None, 22, 16, Static.DEFAULTS)
 
+    def test_str(self):
+        self.assertEqual(
+            str(self.guild),
+            f"{self.guild.__class__.__name__} object for {self.guild.id}.",
+        )
+
+    def test_repr(self):
+        self.assertEqual(
+            repr(self.guild),
+            (
+                f"'{self.guild.__class__.__name__} object. Guild id: {self.guild.id}, "
+                f"Len Stored Users {len(self.guild._users)}, Log Channel Id: {self.guild.channel}'"
+            ),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
