@@ -11,13 +11,11 @@ This package aims to help solve that issue by handling all the required logic un
 *I decided to create this after seeing a d.js alternative but not one for d.py, as far as I know.*
 
 ---
-#### This package is nearing release, however all current usages still require you to download from this repo
-
 How to use this right now?
 
 Download the codebase:
 ```
-> git clone https://github.com/Skelmis/DPY-Anti-Spam.git
+> pip install Discord-Anti-Spam
 ```
 
 A basic bot
@@ -35,6 +33,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     bot.handler.propagate(message)
+    await bot.process_commands(message)
 
 if __name__ == "__main__":
     bot.run("Bot Token")

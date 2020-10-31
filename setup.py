@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="discord_anti-spam-Skelmis",
-    version="0.1",
+    name="Discord Anti-Spam",
+    version="0.1.1",
     author="Skelmis",
     author_email="ethan@koldfusion.xyz",
     description="An easy to use package for anti-spam features in discord.py.",
