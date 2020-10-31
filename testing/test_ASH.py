@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-
+import logging
 import sys
 import unittest
 
@@ -40,9 +40,15 @@ class TestGuild(unittest.TestCase):
         Simply setup our Guild obj before usage
         """
         self.ash = AntiSpamHandler(commands.Bot(command_prefix="!"))
-        self.ash.guilds = Guild(None, 12, Static.DEFAULTS)
-        self.ash.guilds = Guild(None, 15, Static.DEFAULTS)
-        self.ash.guilds[0] = User(None, 20, 15, Static.DEFAULTS)
+        self.ash.guilds = Guild(
+            None, 12, Static.DEFAULTS, logger=logging.getLogger(__name__)
+        )
+        self.ash.guilds = Guild(
+            None, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
+        )
+        self.ash.guilds[0] = User(
+            None, 20, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
+        )
 
     def test_defaults(self):
         self.assertEqual(self.ash.options, Static.DEFAULTS)

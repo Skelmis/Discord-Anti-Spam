@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-
+import logging
 import sys
 import unittest
 
@@ -39,7 +39,9 @@ class TestUser(unittest.TestCase):
         """
         Simply setup our User obj before usage
         """
-        self.user = User(None, 0, 3, Static.DEFAULTS)
+        self.user = User(
+            None, 0, 3, Static.DEFAULTS, logger=logging.getLogger(__name__)
+        )
         self.user.messages = Message(0, "Hello world", 0, 2, 3)
         self.user.messages = Message(1, "Foo Bar", 0, 2, 3)
 
@@ -101,11 +103,11 @@ class TestUser(unittest.TestCase):
         )
 
     def test_eqEqual(self):
-        obj = User(None, 0, 3, Static.DEFAULTS)
+        obj = User(None, 0, 3, Static.DEFAULTS, logger=logging.getLogger(__name__))
         self.assertTrue(self.user == obj)
 
     def test_eqNotEqual(self):
-        obj = User(None, 2, 2, Static.DEFAULTS)
+        obj = User(None, 2, 2, Static.DEFAULTS, logger=logging.getLogger(__name__))
         self.assertFalse(self.user == obj)
 
     def test_duplicateCounter(self):
