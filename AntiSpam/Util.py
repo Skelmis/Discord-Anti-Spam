@@ -24,3 +24,39 @@ DEALINGS IN THE SOFTWARE.
 """
 A short utility for random functions which don't fit into an object
 """
+
+
+def EmbedToString(embed) -> str:
+    """
+    Parameters
+    ----------
+    embed : discord.Embed
+        The embed to turn into a string
+
+    Returns
+    -------
+    str
+        The content of the string
+    """
+    content = ""
+    embed = embed.to_dict()
+
+    if "title" in embed:
+        content += f"{embed['title']}\n"
+
+    if "description" in embed:
+        content += f"{embed['description']}\n"
+
+    if "footer" in embed:
+        if "text" in embed["footer"]:
+            content += f"{embed['footer']['text']}\n"
+
+    if "author" in embed:
+        if "name" in embed["author"]:
+            content += f"{embed['author']['name']}\n"
+
+    if "fields" in embed:
+        for field in embed["fields"]:
+            content += f"{field['name']}\n{field['value']}\n"
+
+    return content

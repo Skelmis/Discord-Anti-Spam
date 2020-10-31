@@ -13,7 +13,7 @@ bot = commands.Bot(command_prefix="!")
 
 file = read_json("token")
 
-bot.handler = AntiSpamHandler(bot, 1)
+bot.handler = AntiSpamHandler(bot, 1, ignoreBots=False)
 
 
 @bot.event

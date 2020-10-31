@@ -22,6 +22,8 @@ DEALINGS IN THE SOFTWARE.
 """
 import logging
 
+from AntiSpam.Util import EmbedToString
+
 """
 Used to store a user, each of these is relevant per guild rather then globally
 
@@ -154,24 +156,41 @@ class User:
 
         self.CleanUp(datetime.datetime.now(datetime.timezone.utc))
 
-        message = Message(
-            value.id,
-            value.clean_content,
-            value.author.id,
-            value.channel.id,
-            value.guild.id,
-        )
+        # No point saving empty messages, although discord shouldn't allow them anyway
+        if not bool(value.content and value.content.strip()):
+            if not value.embeds:
+                return
+
+            else:
+                embed = value.embeds[0]
+                if not isinstance(embed, discord.Embed):
+                    return
+
+                if embed.type.lower() != "rich":
+                    return
+
+                content = EmbedToString(embed)
+
+                message = Message(
+                    value.id,
+                    content,
+                    value.author.id,
+                    value.channel.id,
+                    value.guild.id,
+                )
+
+        else:
+            message = Message(
+                value.id,
+                value.clean_content,
+                value.author.id,
+                value.channel.id,
+                value.guild.id,
+            )
 
         for messageObj in self.messages:
             if message == messageObj:
                 raise DuplicateObject
-
-        # No point saving empty messages, although discord shouldn't allow them anyway
-        if not bool(message.content and message.content.strip()):
-            if self.logger.isEnabledFor(logging.DEBUG):
-                self.logger.debug(f"Deleting empty Message: {str(message)}")
-            del message
-            return
 
         relationToOthers = []
         for messageObj in self.messages[::-1]:
