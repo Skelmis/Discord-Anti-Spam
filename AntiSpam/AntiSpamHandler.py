@@ -202,6 +202,8 @@ class AntiSpamHandler:
             raise ValueError("Expected ignoreBots of type: int")
 
         # Now we have type checked everything, lets do some logic
+        if ignoreBots is None:
+            ignoreBots = Static.DEFAULTS.get("ignoreBots")
 
         self.options = {
             "warnThreshold": warnThreshold or Static.DEFAULTS.get("warnThreshold"),
@@ -221,7 +223,7 @@ class AntiSpamHandler:
             "ignoreChannels": ignoreChannels or Static.DEFAULTS.get("ignoreChannels"),
             "ignoreRoles": ignoreRoles or Static.DEFAULTS.get("ignoreRoles"),
             "ignoreGuilds": ignoreGuilds or Static.DEFAULTS.get("ignoreGuilds"),
-            "ignoreBots": ignoreBots or Static.DEFAULTS.get("ignoreBots"),
+            "ignoreBots": ignoreBots,
         }
 
         self.bot = bot
@@ -264,7 +266,6 @@ class AntiSpamHandler:
 
         # Return if ignored bot
         if self.options["ignoreBots"] and message.author.bot:
-            print(self.options["ignoreBots"])
             return
 
         # Return if ignored user
