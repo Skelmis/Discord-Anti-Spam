@@ -13,6 +13,7 @@ bot = commands.Bot(command_prefix="!")
 
 file = read_json("token")
 
+# Generally you only need/want AntiSpamHandler(bot)
 bot.handler = AntiSpamHandler(bot, 1, ignoreBots=False)
 
 
