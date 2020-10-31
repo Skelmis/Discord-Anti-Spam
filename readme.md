@@ -11,7 +11,7 @@ This package aims to help solve that issue by handling all the required logic un
 *I decided to create this after seeing a d.js alternative but not one for d.py, as far as I know.*
 
 ---
-#### This project is now at a useable state, albiet a little dodgy.
+#### This package is nearing release, however all current usages still require you to download from this repo
 
 How to use this right now?
 

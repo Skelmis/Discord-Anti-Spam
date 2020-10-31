@@ -50,23 +50,52 @@ class AntiSpamHandler:
     The overall handler for the DPY Anti-spam package
 
     DEFAULTS:
-        warnThreshold: 3 -> This is the amount of messages in a row that result in a warning within the messageInterval
-        kickThreshold: 5 -> This is the amount of messages in a row that result in a kick within the messageInterval
-        banThreshold: 7 -> This is the amount of messages in a row that result in a ban within the messageInterval
-        messageInterval: 2500 -> Amount of time a message is kept before being discarded.
-                                 Essentially the amount of time (In milliseconds) a message can count towards spam
-        warnMessage: "Hey {@user.mention}, please stop spamming" -> The message to be sent upon warnThreshold being reached
-        kickMessage: "{@user.display_name} was kicked for spamming" -> The message to be sent up kickThreshold being reached
-        banMessage: "{@user.display_name} was banned for spamming" -> The message to be sent up banThreshold being reached
-        messageDuplicateWarn: 3 -> Amount of duplicate messages needed within messageInterval to trip a warning
-        messageDuplicateKick: 7 -> Amount of duplicate messages needed within messageInterval to trip a kick
-        messageDuplicateBan: 10 -> Amount of duplicate messages needed within messageInterval to trip a ban
-        messageDuplicateAccuracy: 0.9 -> How 'close' messages need to be to be registered as duplicates (Out of 1)
-        ignorePerms: [8] -> The perms (ID Form), that bypass anti-spam
-        ignoreRoles: [] -> The roles (ID Form), that bypass anti-spam
-        ignoreUsers: [] -> The users (ID Form), that bypass anti-spam
-        ignoreBots: True -> Should bots bypass anti-spam? (True|False)
+        warnThreshold: 3
+            This is the amount of duplicates that result in a warning within the messageInterval
 
+        kickThreshold: 2
+            This is the amount of warns required before a kick is the next punishment
+
+        banThreshold: 2
+            This is the amount of kicks required before a ban is the next punishment
+
+        messageInterval: 30000ms (30 Seconds)
+            Amount of time a message is kept before being discarded. Essentially the amount of time (In milliseconds) a message can count towards spam
+
+        warnMessage: "Hey $MENTIONUSER, please stop spamming/sending duplicate messages."
+            The message to be sent upon warnThreshold being reached
+
+        kickMessage: "$USERNAME was kicked for spamming/sending duplicate messages."
+            The message to be sent up kickThreshold being reached
+
+        banMessage: "$USERNAME was banned for spamming/sending duplicate messages."
+            The message to be sent up banThreshold being reached
+
+        messageDuplicateCount: 5
+            The amount of duplicate messages needed within messageInterval to trigger a punishment
+
+        messageDuplicateAccuracy: 90
+            How 'close' messages need to be to be registered as duplicates (Out of 100)
+
+        ignorePerms: [8]
+            The perms (ID Form), that bypass anti-spam
+
+            *Not Implemented*
+
+        ignoreUsers: []
+            The users (ID Form), that bypass anti-spam
+
+        ignoreChannels: []
+            Channels (ID Form), that bypass anti-spam
+
+        ignoreRoles: []
+            The roles (ID Form), that bypass anti-spam
+
+        ignoreGuilds: []
+            Guilds (ID Form), that bypass anti-spam
+
+        ignoreBots: True
+            Should bots bypass anti-spam? (True|False)
     """
 
     # TODO Add options for group spamming, rather then just per user.
