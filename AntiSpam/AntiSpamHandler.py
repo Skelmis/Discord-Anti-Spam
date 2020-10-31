@@ -22,6 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 
 import datetime
+import logging
 import time
 
 import discord
@@ -78,6 +79,7 @@ class AntiSpamHandler:
     def __init__(
         self,
         bot: commands.Bot,
+        verboseLevel=0,
         *,
         warnThreshold=None,
         kickThreshold=None,
@@ -136,6 +138,9 @@ class AntiSpamHandler:
         # Just gotta casually type check everything.
         if not isinstance(bot, commands.Bot):
             raise ValueError("Expected channel of type: commands.Bot")
+
+        if not isinstance(verboseLevel, int):
+            raise ValueError("Verbosity should be an int between 0-5")
 
         if not isinstance(warnThreshold, int) and warnThreshold is not None:
             raise ValueError("Expected warnThreshold of type: int")
@@ -221,6 +226,24 @@ class AntiSpamHandler:
         self.bot = bot
         self._guilds = []
 
+        logging.basicConfig(
+            format="%(asctime)s | %(levelname)s | %(module)s | %(message)s",
+            datefmt="%d/%m/%Y %I:%M:%S %p",
+        )
+        self.logger = logging.getLogger(__name__)
+        if verboseLevel == 0:
+            self.logger.setLevel(level=logging.NOTSET)
+        elif verboseLevel == 1:
+            self.logger.setLevel(level=logging.DEBUG)
+        elif verboseLevel == 2:
+            self.logger.setLevel(level=logging.INFO)
+        elif verboseLevel == 3:
+            self.logger.setLevel(level=logging.WARNING)
+        elif verboseLevel == 4:
+            self.logger.setLevel(level=logging.ERROR)
+        elif verboseLevel == 5:
+            self.logger.setLevel(level=logging.CRITICAL)
+
     def propagate(self, message: discord.Message) -> None:
         """
         This method is the base level intake for messages, then
@@ -260,15 +283,19 @@ class AntiSpamHandler:
         if message.guild.id in self.options.get("ignoreGuilds"):
             return
 
-        print(f"Propagating message for: {message.author.name}")
+        self.logger.debug(
+            f"Propagating message for: {message.author.name}({message.author.id})"
+        )
 
-        guild = Guild(self.bot, message.guild.id, self.options)
+        guild = Guild(self.bot, message.guild.id, self.options, logger=self.logger)
         for guildObj in self.guilds:
             if guild == guildObj:
                 guildObj.propagate(message)
                 return
 
         self.guilds = guild
+        self.logger.info(f"Created Guild: {guild.id}")
+
         guild.propagate(message)
 
     def AddIgnoredItem(self, item: int, type: str) -> None:
@@ -317,6 +344,8 @@ class AntiSpamHandler:
         else:
             raise BaseASHException("Invalid ignore type")
 
+        self.logger.debug(f"Ignored {type}: {item}")
+
     def RemoveIgnoredItem(self, item: int, type: str) -> None:
         """
         Remove an item from the relevant ignore list
@@ -359,6 +388,8 @@ class AntiSpamHandler:
                 self.options["ignorePerms"].pop(index)
         else:
             raise BaseASHException("Invalid ignore type")
+
+        self.logger.debug(f"Un-Ignored {type}: {item}")
 
     # <-- Getter & Setters -->
     @property
