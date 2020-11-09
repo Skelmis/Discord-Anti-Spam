@@ -422,6 +422,24 @@ class AntiSpamHandler:
             raise BaseASHException("Invalid ignore type")
 
         self.logger.debug(f"Un-Ignored {type}: {item}")
+    
+    def UpdateUserState(self, guildId: int, userId: int):
+        """
+         Parameters
+        ----------
+        guildId : int
+            The guild id
+        userId : int
+            The user id
+        Updates the state of user in the specific guild,
+        wether a user is in the guild or not.
+        """
+        # get guild 
+        #guild = Guild(self.bot, message.guild.id, self.options, logger=self.logger)
+        #for guildObj in self.guilds:
+        #    if guild == guildObj:
+        #        call update function here
+        #        return
 
     # <-- Getter & Setters -->
     @property
