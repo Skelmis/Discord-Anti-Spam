@@ -383,7 +383,6 @@ class User:
                         self.logger.info(f"Banned User: ({user.id})")
                     else:
                         raise NotImplementedError
-                    self.kicked = True  # Sets it to true after successful kick or ban
                 except discord.Forbidden:
                     await self.SendToObj(
                         dcChannel, f"I do not have permission to kick: {user.mention}"
