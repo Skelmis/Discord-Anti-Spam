@@ -84,7 +84,7 @@ class User:
         self.warnCount = 0
         self.kickCount = 0
         self.duplicateCounter = 1
-        self.kicked = False  # Indicates if a user was kicked or banned  
+        self.inGuild = False  # Indicates if a user is in the guild or not 
         
         self._lock = threading.Lock()
 
@@ -138,7 +138,7 @@ class User:
         """
         return hash((self.id, self.guildId))
 
-    def propagate(self, value: discord.Message, rejoined: bool = False):
+    def propagate(self, value: discord.Message):
         """
         This method handles a message object and then adds it to
         the relevant user
@@ -147,18 +147,14 @@ class User:
         ==========
         value : discord.Message
             The message that needs to be propagated out
-        rejoined : bool
-            Given if a user rejoined the guild
         """
         if not isinstance(value, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
-
-        if rejoined:
-            self.kicked = True
-            value = "" # Dirty way of allowing to only update the kicked value 
-
-        if self.kicked:
+        
+        # Just for error handling because this check should be check before calling this method
+        if self.inGuild:
             return
+        
         self.CleanUp(datetime.datetime.now(datetime.timezone.utc))
 
         message = Message(
@@ -474,3 +470,12 @@ class User:
         for outstandingMessage in outstandingMessages:
             if outstandingMessage.isDuplicate:
                 self.duplicateCounter -= 1
+                
+    def set_inGuild(self)
+        """
+        Sets inGuild to not inGuild means 
+        the oppisite of the current value.
+        For example:
+        inGuild to True from False
+        """
+        self.inGuild = not inGuild
