@@ -58,7 +58,7 @@ class User:
         "kickCount",
         "bot",
         "duplicateCounter",
-        "kicked",
+        "inGuild",
         
         "_lock",
         "logger",
