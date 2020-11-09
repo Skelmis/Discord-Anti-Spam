@@ -20,6 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import logging
 
 """
 This is used to maintain a collection of User's in a relevant guild
@@ -37,9 +38,9 @@ class Guild:
 
     """
 
-    __slots__ = ["_id", "_bot", "_users", "_channel", "_channelId", "options"]
+    __slots__ = ["_id", "_bot", "_users", "_channel", "_channelId", "options", "logger"]
 
-    def __init__(self, bot, id, options, channelId=None):
+    def __init__(self, bot, id, options, channelId=None, *, logger):
         """
 
         Parameters
@@ -56,6 +57,8 @@ class Guild:
         self._users = []
         self.options = options
         self.channel = channelId
+
+        self.logger = logger
 
         # TODO Add the ability to not set a channel
 
@@ -125,12 +128,20 @@ class Guild:
         if isinstance(self._channel, int):
             self.channel = message.channel
 
-        user = User(self._bot, message.author.id, message.guild.id, self.options)
+        user = User(
+            self._bot,
+            message.author.id,
+            message.guild.id,
+            self.options,
+            logger=self.logger,
+        )
         for userObj in self.users:
             if user == userObj:
                 return userObj.propagate(message)
 
         self.users = user
+        self.logger.info(f"Created User: {user.id}")
+
         user.propagate(message)
 
         # TODO Cleanup after a user is banned

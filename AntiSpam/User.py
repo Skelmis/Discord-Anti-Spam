@@ -20,6 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import logging
+
+from AntiSpam.Util import EmbedToString
 
 """
 Used to store a user, each of these is relevant per guild rather then globally
@@ -58,9 +61,10 @@ class User:
         "kicked",
         
         "_lock",
+        "logger",
     ]
 
-    def __init__(self, bot, id, guildId, options):
+    def __init__(self, bot, id, guildId, options, *, logger):
         """
         Set the relevant information in order to maintain
         and use a per User object for a guild
@@ -87,6 +91,8 @@ class User:
         self.inGuild = False  # Indicates if a user is in the guild or not 
         
         self._lock = threading.Lock()
+
+        self.logger = logger
 
     def __repr__(self):
         return (
@@ -157,23 +163,41 @@ class User:
         
         self.CleanUp(datetime.datetime.now(datetime.timezone.utc))
 
-        message = Message(
-            value.id,
-            value.clean_content,
-            value.author.id,
-            value.channel.id,
-            value.guild.id,
-        )
+        # No point saving empty messages, although discord shouldn't allow them anyway
+        if not bool(value.content and value.content.strip()):
+            if not value.embeds:
+                return
+
+            else:
+                embed = value.embeds[0]
+                if not isinstance(embed, discord.Embed):
+                    return
+
+                if embed.type.lower() != "rich":
+                    return
+
+                content = EmbedToString(embed)
+
+                message = Message(
+                    value.id,
+                    content,
+                    value.author.id,
+                    value.channel.id,
+                    value.guild.id,
+                )
+
+        else:
+            message = Message(
+                value.id,
+                value.clean_content,
+                value.author.id,
+                value.channel.id,
+                value.guild.id,
+            )
 
         for messageObj in self.messages:
             if message == messageObj:
                 raise DuplicateObject
-
-        # No point saving empty messages, although discord shouldnt allow them anyway
-        if not bool(message.content and message.content.strip()):
-            print("deleting message")
-            del message
-            return
 
         relationToOthers = []
         for messageObj in self.messages[::-1]:
@@ -183,6 +207,7 @@ class User:
             )
 
         self.messages = message
+        self.logger.info(f"Created Message: {message.id}")
 
         # Check if this message is a duplicate of the most recent messages
         for i, proportion in enumerate(relationToOthers):
@@ -196,7 +221,9 @@ class User:
                 break  # we don't want to increment to much
 
         if self.duplicateCounter >= self.options["messageDuplicateCount"]:
-            print("Punish time")
+            self.logger.debug(
+                f"Message: ({message.id}) requires some form of punishment"
+            )
             # We need to punish the user with something
 
             if (
@@ -204,7 +231,7 @@ class User:
                 and self.warnCount < self.options["kickThreshold"]
                 and self.kickCount < self.options["banThreshold"]
             ):
-                print("Warn time")
+                self.logger.debug(f"Attempting to warn: {message.authorId}")
                 """
                 The user has yet to reach the warn threshold,
                 after the warn threshold is reached this will
@@ -227,7 +254,7 @@ class User:
                 self.warnCount >= self.options["kickThreshold"]
                 and self.kickCount < self.options["banThreshold"]
             ):
-                print("kick time")
+                self.logger.debug(f"Attempting to kick: {message.authorId}")
                 # We should kick the user
                 # TODO Tell the user if its there final kick before a ban
                 dcChannel = value.channel
@@ -250,7 +277,7 @@ class User:
                 self.kickCount += 1
 
             elif self.kickCount >= self.options["banThreshold"]:
-                print("ban time")
+                self.logger.debug(f"Attempting to ban: {message.authorId}")
                 # We should ban the user
                 dcChannel = value.channel
                 message = Template(self.options["banMessage"]).safe_substitute(
@@ -339,18 +366,21 @@ class User:
             except discord.HTTPException:
                 await self.SendToObj(
                     user,
-                    f"Sending a message to {user.mention} about their kick failed.",
+                    f"Sending a message to {user.mention} about their {method} failed.",
                 )
+                self.logger.warn(f"Failed to message User: ({user.id}) about {method}")
             finally:
                 try:
                     if method == Static.KICK:
                         await guild.kick(
                             user, reason="Automated punishment from DPY Anti-Spam."
                         )
+                        self.logger.info(f"Kicked User: ({user.id})")
                     elif method == Static.BAN:
                         await guild.ban(
                             user, reason="Automated punishment from DPY Anti-Spam."
                         )
+                        self.logger.info(f"Banned User: ({user.id})")
                     else:
                         raise NotImplementedError
                     self.kicked = True  # Sets it to true after successful kick or ban
@@ -358,16 +388,18 @@ class User:
                     await self.SendToObj(
                         dcChannel, f"I do not have permission to kick: {user.mention}"
                     )
+                    self.logger.warn(f"Required Permissions are missing for: {method}")
                 except discord.HTTPException:
                     await self.SendToObj(
                         dcChannel,
                         f"An error occurred trying to {method}: {user.mention}",
                     )
+                    self.logger.warn(f"An error occurred trying to {method}: {user.id}")
                 finally:
                     try:
                         await self.SendToObj(dcChannel, guildMessage)
                     except discord.HTTPException:
-                        print(
+                        self.logger.error(
                             f"Failed to send message.\n"
                             f"Guild: {dcChannel.guild.name}({dcChannel.guild.id})\n"
                             f"Channel: {dcChannel.name}({dcChannel.id})"
@@ -437,6 +469,7 @@ class User:
         time vs a messages creation time. If the message
         is older by the config amount it can be cleaned up
         """
+        self.logger.debug("Attempting to remove outdated Message's")
 
         def IsStillValid(message):
             """
@@ -470,6 +503,11 @@ class User:
         for outstandingMessage in outstandingMessages:
             if outstandingMessage.isDuplicate:
                 self.duplicateCounter -= 1
+                self.logger.debug(
+                    f"Removing duplicate Message: {outstandingMessage.id}"
+                )
+            elif self.logger.isEnabledFor(logging.DEBUG):
+                self.logger.debug(f"Removing Message: {outstandingMessage.id}")
                 
     def set_inGuild(self)
         """
