@@ -515,4 +515,4 @@ class User:
         For example:
         inGuild to True from False
         """
-        self.inGuild = not inGuild
+        self.inGuild = not self.inGuild
