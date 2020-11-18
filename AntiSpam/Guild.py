@@ -218,3 +218,22 @@ class Guild:
                 raise DuplicateObject
 
         self._users.append(value)
+        
+    def updateInGuildState(self, userid)
+        """
+        Gets the userobj
+        ======
+        userid
+         the id of the user where the state should be updated
+        """
+        user = User(
+            self._bot,
+            userid,
+            self.id,
+            self.options,
+            logger=self.logger,
+        )
+        
+        for userObj in self.users:
+            if user == userObj:
+                return userObj.set_inGuild()
