@@ -221,7 +221,8 @@ class Guild:
         
     def updateInGuildState(self, userid)
         """
-        Gets the userobj
+        
+        Gets the userobj and updates the state
         ======
         userid
          the id of the user where the state should be updated
