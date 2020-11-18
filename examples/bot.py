@@ -9,7 +9,7 @@ from discord.ext import commands
 from AntiSpam import AntiSpamHandler
 from jsonLoader import read_json
 
-bot = commands.Bot(command_prefix="!")
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 file = read_json("token")
 

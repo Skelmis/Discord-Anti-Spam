@@ -20,6 +20,12 @@ Welcome to DPY Anti-Spam's documentation!
    modules/user.rst
    modules/message.rst
 
+Install Notes
+-------------
+Initial install will get you a working version of this lib, however it is
+recommended you also install **python-Levenshtein** to speed this up.
+This does require c++ build tools, hence why it is not included
+by default.
 
 
 Indices and tables

@@ -28,9 +28,6 @@ import time
 import discord
 from discord.ext import commands
 
-import threading
-import concurrent.futures
-
 from AntiSpam import Guild, static
 from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject, BaseASHException
 from AntiSpam.static import Static
