@@ -26,7 +26,7 @@ A short utility for random functions which don't fit into an object
 """
 
 
-def EmbedToString(embed) -> str:
+def embed_to_string(embed) -> str:
     """
     Parameters
     ----------

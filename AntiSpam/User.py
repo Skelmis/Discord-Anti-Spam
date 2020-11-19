@@ -21,19 +21,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 import logging
-
-from AntiSpam.Util import EmbedToString
-
-"""
-Used to store a user, each of these is relevant per guild rather then globally
-
-Each user object is per guild, rather then globally
-"""
 import asyncio
 import datetime
 from copy import deepcopy
 from string import Template
-import threading
 
 import discord
 
@@ -47,6 +38,7 @@ from AntiSpam.Exceptions import (
     MissingGuildPermissions,
 )
 from AntiSpam.static import Static
+from AntiSpam.Util import embed_to_string
 
 
 class User:
@@ -56,18 +48,17 @@ class User:
 
     __slots__ = [
         "_id",
-        "_guildId",
+        "_guild_id",
         "_messages",
         "options",
-        "warnCount",
-        "kickCount",
+        "warn_count",
+        "kick_count",
         "bot",
-        "duplicateCounter",
-        "_lock",
+        "duplicate_counter",
         "logger",
     ]
 
-    def __init__(self, bot, id, guildId, options, *, logger):
+    def __init__(self, bot, id, guild_id, options, *, logger):
         """
         Set the relevant information in order to maintain
         and use a per User object for a guild
@@ -78,27 +69,24 @@ class User:
             Bot instance
         id : int
             The relevant user id
-        guildId : int
+        guild_id : int
             The guild (id) this user is belonging to
         options : Dict
             The options we need to check against
         """
         self.id = int(id)
         self.bot = bot
-        self.guildId = int(guildId)
+        self.guild_id = int(guild_id)
         self._messages = []
         self.options = options
-        self.warnCount = 0
-        self.kickCount = 0
-        self.duplicateCounter = 1
-
-        self._lock = threading.Lock()
-
+        self.warn_count = 0
+        self.kick_count = 0
+        self.duplicate_counter = 1
         self.logger = logger
 
     def __repr__(self):
         return (
-            f"'{self.__class__.__name__} object. User id: {self.id}, Guild id: {self.guildId}, "
+            f"'{self.__class__.__name__} object. User id: {self.id}, Guild id: {self.guild_id}, "
             f"Len Stored Messages {len(self._messages)}'"
         )
 
@@ -130,7 +118,7 @@ class User:
         if not isinstance(other, User):
             raise ValueError("Expected two User objects to compare")
 
-        if self.id == other.id and self.guildId == other.guildId:
+        if self.id == other.id and self.guild_id == other.guild_id:
             return True
         return False
 
@@ -144,7 +132,7 @@ class User:
         int
             The hash of all id's
         """
-        return hash((self.id, self.guildId))
+        return hash((self.id, self.guild_id))
 
     def propagate(self, value: discord.Message):
         """
@@ -159,7 +147,7 @@ class User:
         if not isinstance(value, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
 
-        self.CleanUp(datetime.datetime.now(datetime.timezone.utc))
+        self.clean_up(datetime.datetime.now(datetime.timezone.utc))
 
         # No point saving empty messages, although discord shouldn't allow them anyway
         if not bool(value.content and value.content.strip()):
@@ -174,7 +162,7 @@ class User:
                 if embed.type.lower() != "rich":
                     return
 
-                content = EmbedToString(embed)
+                content = embed_to_string(embed)
 
                 message = Message(
                     value.id,
@@ -193,43 +181,43 @@ class User:
                 value.guild.id,
             )
 
-        for messageObj in self.messages:
-            if message == messageObj:
+        for message_obj in self.messages:
+            if message == message_obj:
                 raise DuplicateObject
 
-        relationToOthers = []
-        for messageObj in self.messages[::-1]:
+        relation_to_others = []
+        for message_obj in self.messages[::-1]:
             # This calculates the relation to each other
-            relationToOthers.append(
-                fuzz.token_sort_ratio(message.content, messageObj.content)
+            relation_to_others.append(
+                fuzz.token_sort_ratio(message.content, message_obj.content)
             )
 
         self.messages = message
         self.logger.info(f"Created Message: {message.id}")
 
         # Check if this message is a duplicate of the most recent messages
-        for i, proportion in enumerate(relationToOthers):
+        for i, proportion in enumerate(relation_to_others):
             if proportion >= self.options["message_duplicate_accuracy"]:
                 """
                 The handler works off an internal message duplicate counter 
                 so just increment that and then let our logic process it
                 """
-                self.duplicateCounter += 1
-                message.isDuplicate = True
+                self.duplicate_counter += 1
+                message.is_duplicate = True
                 break  # we don't want to increment to much
 
-        if self.duplicateCounter >= self.options["message_duplicate_count"]:
+        if self.duplicate_counter >= self.options["message_duplicate_count"]:
             self.logger.debug(
                 f"Message: ({message.id}) requires some form of punishment"
             )
             # We need to punish the user with something
 
             if (
-                self.duplicateCounter >= self.options["warn_threshold"]
-                and self.warnCount < self.options["kick_threshold"]
-                and self.kickCount < self.options["ban_threshold"]
+                self.duplicate_counter >= self.options["warn_threshold"]
+                and self.warn_count < self.options["kick_threshold"]
+                and self.kick_count < self.options["ban_threshold"]
             ):
-                self.logger.debug(f"Attempting to warn: {message.authorId}")
+                self.logger.debug(f"Attempting to warn: {message.author_id}")
                 """
                 The user has yet to reach the warn threshold,
                 after the warn threshold is reached this will
@@ -245,17 +233,17 @@ class User:
                     }
                 )
 
-                asyncio.ensure_future(self.SendToObj(channel, message))
-                self.warnCount += 1
+                asyncio.ensure_future(self.send_to_obj(channel, message))
+                self.warn_count += 1
 
             elif (
-                self.warnCount >= self.options["kick_threshold"]
-                and self.kickCount < self.options["ban_threshold"]
+                self.warn_count >= self.options["kick_threshold"]
+                and self.kick_count < self.options["ban_threshold"]
             ):
-                self.logger.debug(f"Attempting to kick: {message.authorId}")
+                self.logger.debug(f"Attempting to kick: {message.author_id}")
                 # We should kick the user
                 # TODO Tell the user if its there final kick before a ban
-                dcChannel = value.channel
+                dc_channel = value.channel
                 message = Template(self.options["kick_message"]).safe_substitute(
                     {
                         "MENTIONUSER": value.author.mention,
@@ -266,18 +254,18 @@ class User:
                     self.PunishUser(
                         value.guild,
                         value.author,
-                        dcChannel,
+                        dc_channel,
                         f"You were kicked from {value.guild.name} for spam.",
                         message,
                         Static.KICK,
                     )
                 )
-                self.kickCount += 1
+                self.kick_count += 1
 
-            elif self.kickCount >= self.options["ban_threshold"]:
-                self.logger.debug(f"Attempting to ban: {message.authorId}")
+            elif self.kick_count >= self.options["ban_threshold"]:
+                self.logger.debug(f"Attempting to ban: {message.author_id}")
                 # We should ban the user
-                dcChannel = value.channel
+                dc_channel = value.channel
                 message = Template(self.options["ban_message"]).safe_substitute(
                     {
                         "MENTIONUSER": value.author.mention,
@@ -288,19 +276,18 @@ class User:
                     self.PunishUser(
                         value.guild,
                         value.author,
-                        dcChannel,
+                        dc_channel,
                         f"You were banned from {value.guild.name} for spam.",
                         message,
                         Static.BAN,
                     )
                 )
-                self.kickCount += 1
+                self.kick_count += 1
 
             else:
-                print("else?")
                 raise LogicError
 
-    async def SendToObj(self, messageableObj, message):
+    async def send_to_obj(self, messageable_obj, message):
         """
         Send a given message to an abc.messageable object
 
@@ -310,7 +297,7 @@ class User:
 
         Parameters
         ----------
-        messageableObj : abc.Messageable
+        messageable_obj : abc.Messageable
             Where to send message
         message : String
             The message to send
@@ -328,10 +315,10 @@ class User:
             The sent messages object
 
         """
-        return await messageableObj.send(message)
+        return await messageable_obj.send(message)
 
     async def PunishUser(
-        self, guild, user, dcChannel, userMessage, guildMessage, method
+        self, guild, user, dc_channel, user_message, guild_message, method
     ):
         """
         A generic method to handle multiple methods of punishment for a user.
@@ -345,11 +332,11 @@ class User:
             The guild to punish the user in
         user : discord.User
             The user to punish
-        dcChannel : discord.TextChannel
+        dc_channel : discord.TextChannel
             The channel to send the punishment message to
-        userMessage : str
+        user_message : str
             A message to send to the user who is being punished
-        guildMessage : str
+        guild_message : str
             A message to send in the guild for whoever is being punished
         method : str
             A string denoting the type of punishment
@@ -378,10 +365,10 @@ class User:
         try:
             # Attempt to message the punished user, about their punishment
             try:
-                m = await self.SendToObj(user, userMessage)
+                m = await self.send_to_obj(user, user_message)
             except discord.HTTPException:
-                await self.SendToObj(
-                    dcChannel,
+                await self.send_to_obj(
+                    dc_channel,
                     f"Sending a message to {user.mention} about their {method} failed.",
                 )
                 self.logger.warn(f"Failed to message User: ({user.id}) about {method}")
@@ -403,97 +390,52 @@ class User:
                     else:
                         raise NotImplementedError
                 except discord.Forbidden:
-                    await self.SendToObj(
-                        dcChannel, f"I do not have permission to kick: {user.mention}"
+                    await self.send_to_obj(
+                        dc_channel, f"I do not have permission to kick: {user.mention}"
                     )
                     self.logger.warn(f"Required Permissions are missing for: {method}")
                     if m is not None:
-                        await self.SendToObj(
+                        await self.send_to_obj(
                             user,
                             "I failed to punish you because I lack permissions, but still you shouldn't do it.",
                         )
 
                 except discord.HTTPException:
-                    await self.SendToObj(
-                        dcChannel,
+                    await self.send_to_obj(
+                        dc_channel,
                         f"An error occurred trying to {method}: {user.mention}",
                     )
                     self.logger.warn(f"An error occurred trying to {method}: {user.id}")
                     if m is not None:
-                        await self.SendToObj(
+                        await self.send_to_obj(
                             user,
                             "I failed to punish you because I lack permissions, but still you shouldn't do it.",
                         )
 
                 else:
                     try:
-                        await self.SendToObj(dcChannel, guildMessage)
+                        await self.send_to_obj(dc_channel, guild_message)
                     except discord.HTTPException:
                         self.logger.error(
                             f"Failed to send message.\n"
-                            f"Guild: {dcChannel.guild.name}({dcChannel.guild.id})\n"
-                            f"Channel: {dcChannel.name}({dcChannel.id})"
+                            f"Guild: {dc_channel.guild.name}({dc_channel.guild.id})\n"
+                            f"Channel: {dc_channel.name}({dc_channel.id})"
                         )
         except Exception as e:
             raise e
 
-    @property
-    def id(self):
-        return self._id
-
-    @id.setter
-    def id(self, value):
-        if not isinstance(value, int):
-            raise ValueError("Expected integer")
-        self._id = value
-
-    @property
-    def guildId(self):
-        return self._guildId
-
-    @guildId.setter
-    def guildId(self, value):
-        if not isinstance(value, int):
-            raise ValueError("Expected integer")
-        self._guildId = value
-
-    @property
-    def messages(self):
-        return self._messages
-
-    @messages.setter
-    def messages(self, value):
-        """
-        Raises
-        ======
-        DuplicateObject
-            It won't maintain two message objects with the same
-            id's, and it will complain about it haha
-        """
-        if not isinstance(value, Message):
-            raise ValueError("Expected Message object")
-
-        if value.authorId != self.id or value.guildId != self.guildId:
-            raise ObjectMismatch
-
-        for message in self._messages:
-            if message == value:
-                raise DuplicateObject
-
-        self._messages.append(value)
-
-    def GetCorrectDuplicateCount(self):
+    def get_correct_duplicate_count(self):
         """
         Given the internal math has an extra number cos
         accuracy this simply returns the correct value
 
         Returns
         -------
-        self.duplicateCounter - 1
+        self.duplicate_counter - 1
         """
-        return self.duplicateCounter - 1
+        return self.duplicate_counter - 1
 
-    def CleanUp(self, currentTime):
+    def clean_up(self, currentTime):
         """
         This logic works around checking the current
         time vs a messages creation time. If the message
@@ -501,7 +443,7 @@ class User:
         """
         self.logger.debug("Attempting to remove outdated Message's")
 
-        def IsStillValid(message):
+        def is_still_valid(message):
             """
             Given a message, figure out if it hasnt
             expired yet based on timestamps
@@ -519,7 +461,7 @@ class User:
         outstandingMessages = []
 
         for message in self._messages:
-            if IsStillValid(message):
+            if is_still_valid(message):
                 currentMessages.append(message)
             else:
                 outstandingMessages.append(message)
@@ -531,10 +473,55 @@ class User:
         # the duplicate counter as we are removing them from
         # the queue otherwise everything stacks up
         for outstandingMessage in outstandingMessages:
-            if outstandingMessage.isDuplicate:
-                self.duplicateCounter -= 1
+            if outstandingMessage.is_duplicate:
+                self.duplicate_counter -= 1
                 self.logger.debug(
                     f"Removing duplicate Message: {outstandingMessage.id}"
                 )
             elif self.logger.isEnabledFor(logging.DEBUG):
                 self.logger.debug(f"Removing Message: {outstandingMessage.id}")
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, value):
+        if not isinstance(value, int):
+            raise ValueError("Expected integer")
+        self._id = value
+
+    @property
+    def guild_id(self):
+        return self._guild_id
+
+    @guild_id.setter
+    def guild_id(self, value):
+        if not isinstance(value, int):
+            raise ValueError("Expected integer")
+        self._guild_id = value
+
+    @property
+    def messages(self):
+        return self._messages
+
+    @messages.setter
+    def messages(self, value):
+        """
+        Raises
+        ======
+        DuplicateObject
+            It won't maintain two message objects with the same
+            id's, and it will complain about it haha
+        """
+        if not isinstance(value, Message):
+            raise ValueError("Expected Message object")
+
+        if value.author_id != self.id or value.guild_id != self.guild_id:
+            raise ObjectMismatch
+
+        for message in self._messages:
+            if message == value:
+                raise DuplicateObject
+
+        self._messages.append(value)

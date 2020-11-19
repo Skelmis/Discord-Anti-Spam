@@ -217,7 +217,7 @@ class Guild:
         if not isinstance(value, User):
             raise ValueError("Expected User object")
 
-        if self.id != value.guildId:
+        if self.id != value.guild_id:
             raise ObjectMismatch
 
         for user in self._users:

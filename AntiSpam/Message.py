@@ -35,15 +35,15 @@ class Message:
 
     __slots__ = [
         "_id",
-        "_channelId",
-        "_guildId",
+        "_channel_id",
+        "_guild_id",
         "_content",
-        "_authorId",
-        "_creationTime",
-        "_isDuplicate",
+        "_author_id",
+        "_creation_time",
+        "_is_duplicate",
     ]
 
-    def __init__(self, id, content, authorId, channelId, guildId):
+    def __init__(self, id, content, author_id, channel_id, guild_id):
         """
         Set & store a smaller object footprint then a standard
         message object for memory purposes :)
@@ -54,11 +54,11 @@ class Message:
             The id of the message
         content : String
             The actual message content
-        authorId : int
+        author_id : int
             The author of said message
-        channelId : int
+        channel_id : int
             The channel this message is in
-        guildId : int
+        guild_id : int
             The guild this message belongs to
 
         Raises
@@ -73,17 +73,17 @@ class Message:
         """
         self.id = int(id)
         self.content = str(content)
-        self.authorId = int(authorId)
-        self.channelId = int(channelId)
-        self.guildId = int(guildId)
-        self.isDuplicate = False
-        self._creationTime = datetime.datetime.now(datetime.timezone.utc)
+        self.author_id = int(author_id)
+        self.channel_id = int(channel_id)
+        self.guild_id = int(guild_id)
+        self.is_duplicate = False
+        self._creation_time = datetime.datetime.now(datetime.timezone.utc)
 
     def __repr__(self):
         return (
             f"'{self.__class__.__name__} object. Content: {self.content}, Message Id: {self.id}, "
-            f"Author Id: {self.authorId}, Channel Id: {self.channelId}, Guild Id: {self.guildId} "
-            f"Creation time: {self._creationTime}'"
+            f"Author Id: {self.author_id}, Channel Id: {self.channel_id}, Guild Id: {self.guild_id} "
+            f"Creation time: {self._creation_time}'"
         )
 
     def __str__(self):
@@ -122,9 +122,9 @@ class Message:
 
         if (
             self.id == other.id
-            and self.authorId == other.authorId
-            and self.channelId == other.channelId
-            and self.guildId == other.guildId
+            and self.author_id == other.author_id
+            and self.channel_id == other.channel_id
+            and self.guild_id == other.guild_id
         ):
             return True
         return False
@@ -139,7 +139,7 @@ class Message:
         int
             The hash of all id's
         """
-        return hash((self.id, self.authorId, self.guildId, self.channelId))
+        return hash((self.id, self.author_id, self.guild_id, self.channel_id))
 
     @property
     def id(self):
@@ -169,38 +169,38 @@ class Message:
             raise ValueError("Expected String")
 
     @property
-    def authorId(self):
-        return self._authorId
+    def author_id(self):
+        return self._author_id
 
-    @authorId.setter
-    def authorId(self, value):
+    @author_id.setter
+    def author_id(self, value):
         if not isinstance(value, int):
             raise ValueError("Expected integer")
-        self._authorId = value
+        self._author_id = value
 
     @property
-    def channelId(self):
-        return self._channelId
+    def channel_id(self):
+        return self._channel_id
 
-    @channelId.setter
-    def channelId(self, value):
+    @channel_id.setter
+    def channel_id(self, value):
         if not isinstance(value, int):
             raise ValueError("Expected integer")
-        self._channelId = value
+        self._channel_id = value
 
     @property
-    def guildId(self):
-        return self._guildId
+    def guild_id(self):
+        return self._guild_id
 
-    @guildId.setter
-    def guildId(self, value):
+    @guild_id.setter
+    def guild_id(self, value):
         if not isinstance(value, int):
             raise ValueError("Expected integer")
-        self._guildId = value
+        self._guild_id = value
 
     @property
     def creationTime(self):
-        return self._creationTime
+        return self._creation_time
 
     @creationTime.setter
     def creationTime(self, value):
@@ -208,12 +208,12 @@ class Message:
         return
 
     @property
-    def isDuplicate(self):
-        return self._isDuplicate
+    def is_duplicate(self):
+        return self._is_duplicate
 
-    @isDuplicate.setter
-    def isDuplicate(self, value):
+    @is_duplicate.setter
+    def is_duplicate(self, value):
         if not isinstance(value, bool):
             raise ValueError("isDuplicate should be a bool")
 
-        self._isDuplicate = value
+        self._is_duplicate = value

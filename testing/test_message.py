@@ -42,9 +42,9 @@ class TestMessage(unittest.TestCase):
 
     def test_intAssignment(self):
         self.assertIsInstance(self.message.id, int)
-        self.assertIsInstance(self.message.guildId, int)
-        self.assertIsInstance(self.message.channelId, int)
-        self.assertIsInstance(self.message.authorId, int)
+        self.assertIsInstance(self.message.guild_id, int)
+        self.assertIsInstance(self.message.channel_id, int)
+        self.assertIsInstance(self.message.author_id, int)
 
     def test_strAssignment(self):
         self.assertIsInstance(self.message.content, str)
@@ -57,26 +57,26 @@ class TestMessage(unittest.TestCase):
 
         self.assertEqual(self.message.id, 0)
         self.assertEqual(self.message.content, "Hello world")
-        self.assertEqual(self.message.authorId, 2)
-        self.assertEqual(self.message.channelId, 3)
-        self.assertEqual(self.message.guildId, 4)
-        self.assertFalse(self.message.isDuplicate)
+        self.assertEqual(self.message.author_id, 2)
+        self.assertEqual(self.message.channel_id, 3)
+        self.assertEqual(self.message.guild_id, 4)
+        self.assertFalse(self.message.is_duplicate)
 
         self.message.id = 10
         self.message.content = "Testing"
-        self.message.authorId = 10
-        self.message.channelId = 10
-        self.message.guildId = 10
+        self.message.author_id = 10
+        self.message.channel_id = 10
+        self.message.guild_id = 10
         self.message.creationTime = datetime.datetime.now()
-        self.message.isDuplicate = True
+        self.message.is_duplicate = True
 
         self.assertEqual(self.message.id, 10)
         self.assertEqual(self.message.content, "Testing")
-        self.assertEqual(self.message.authorId, 10)
-        self.assertEqual(self.message.channelId, 10)
-        self.assertEqual(self.message.guildId, 10)
+        self.assertEqual(self.message.author_id, 10)
+        self.assertEqual(self.message.channel_id, 10)
+        self.assertEqual(self.message.guild_id, 10)
         self.assertEqual(self.message.creationTime, creationTime)
-        self.assertTrue(self.message.isDuplicate)
+        self.assertTrue(self.message.is_duplicate)
 
     def test_idRaises(self):
         with self.assertRaises(ValueError):
@@ -84,15 +84,15 @@ class TestMessage(unittest.TestCase):
 
     def test_authorIdRaises(self):
         with self.assertRaises(ValueError):
-            self.message.authorId = "String"
+            self.message.author_id = "String"
 
     def test_channelIdRaises(self):
         with self.assertRaises(ValueError):
-            self.message.channelId = "String"
+            self.message.channel_id = "String"
 
     def test_guildIdRaises(self):
         with self.assertRaises(ValueError):
-            self.message.guildId = "String"
+            self.message.guild_id = "String"
 
     @unittest.skip
     @unittest.expectedFailure
@@ -112,7 +112,7 @@ class TestMessage(unittest.TestCase):
             repr(self.message),
             (
                 f"'{self.message.__class__.__name__} object. Content: {self.message.content}, Message Id: {self.message.id}, "
-                f"Author Id: {self.message.authorId}, Channel Id: {self.message.channelId}, Guild Id: {self.message.guildId} "
+                f"Author Id: {self.message.author_id}, Channel Id: {self.message.channel_id}, Guild Id: {self.message.guild_id} "
                 f"Creation time: {self.message.creationTime}'"
             ),
         )
