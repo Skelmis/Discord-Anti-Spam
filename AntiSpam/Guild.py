@@ -219,7 +219,7 @@ class Guild:
 
         self._users.append(value)
         
-    def updateInGuildState(self, userid)
+    def updateInGuildState(self, userid):
         """
         
         Gets the userobj and updates the state
