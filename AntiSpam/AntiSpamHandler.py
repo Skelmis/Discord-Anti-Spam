@@ -294,6 +294,10 @@ class AntiSpamHandler:
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
 
+        # Ensure we only moderate actual guild messages
+        if not message.guild:
+            return
+
         if message.author.id == self.bot.user.id:
             return
 
