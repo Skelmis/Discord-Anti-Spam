@@ -322,8 +322,13 @@ class User:
         discord.Forbidden
             Lacking permissions to send
 
+        Returns
+        =======
+        discord.Message
+            The sent messages object
+
         """
-        await messageableObj.send(message)
+        return await messageableObj.send(message)
 
     async def PunishUser(
         self, guild, user, dcChannel, userMessage, guildMessage, method
@@ -358,7 +363,7 @@ class User:
         if method != Static.KICK and method != Static.BAN:
             raise LogicError(f"{method} is not a recognized punishment method.")
 
-        perms = guild.me.guild_permissions
+        perms = guild.me.guild_permissions  # TODO Test this
         if not perms.kick_members:
             raise MissingGuildPermissions(
                 f"I need kick perms to punish someone in {guild.name}"
@@ -368,16 +373,22 @@ class User:
                 f"I need ban perms to punish someone in {guild.name}"
             )
 
+        m = None
+
         try:
+            # Attempt to message the punished user, about their punishment
             try:
-                await self.SendToObj(user, userMessage)
+                m = await self.SendToObj(user, userMessage)
             except discord.HTTPException:
                 await self.SendToObj(
-                    user,
+                    dcChannel,
                     f"Sending a message to {user.mention} about their {method} failed.",
                 )
                 self.logger.warn(f"Failed to message User: ({user.id}) about {method}")
             finally:
+
+                # Even if we can't tell them they are being punished
+                # We still need to punish them, so try that
                 try:
                     if method == Static.KICK:
                         await guild.kick(
@@ -396,13 +407,25 @@ class User:
                         dcChannel, f"I do not have permission to kick: {user.mention}"
                     )
                     self.logger.warn(f"Required Permissions are missing for: {method}")
+                    if m is not None:
+                        await self.SendToObj(
+                            user,
+                            "I failed to punish you because I lack permissions, but still you shouldn't do it",
+                        )
+
                 except discord.HTTPException:
                     await self.SendToObj(
                         dcChannel,
                         f"An error occurred trying to {method}: {user.mention}",
                     )
                     self.logger.warn(f"An error occurred trying to {method}: {user.id}")
-                finally:
+                    if m is not None:
+                        await self.SendToObj(
+                            user,
+                            "I failed to punish you because I lack permissions, but still you shouldn't do it",
+                        )  # TODO Test this
+
+                else:
                     try:
                         await self.SendToObj(dcChannel, guildMessage)
                     except discord.HTTPException:
