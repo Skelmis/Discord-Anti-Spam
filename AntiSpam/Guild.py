@@ -237,4 +237,4 @@ class Guild:
         
         for userObj in self.users:
             if user == userObj:
-                return userObj.set_inGuild()
+                userObj.set_inGuild()
