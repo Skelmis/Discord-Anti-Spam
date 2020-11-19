@@ -40,7 +40,12 @@ import discord
 from fuzzywuzzy import fuzz
 
 from AntiSpam import Message
-from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch, LogicError
+from AntiSpam.Exceptions import (
+    DuplicateObject,
+    ObjectMismatch,
+    LogicError,
+    MissingGuildPermissions,
+)
 from AntiSpam.static import Static
 
 
@@ -352,6 +357,16 @@ class User:
         """
         if method != Static.KICK and method != Static.BAN:
             raise LogicError(f"{method} is not a recognized punishment method.")
+
+        perms = guild.me.guild_permissions
+        if not perms.kick_members:
+            raise MissingGuildPermissions(
+                f"I need kick perms to punish someone in {guild.name}"
+            )
+        elif not perms.ban_members:
+            raise MissingGuildPermissions(
+                f"I need ban perms to punish someone in {guild.name}"
+            )
 
         try:
             try:
