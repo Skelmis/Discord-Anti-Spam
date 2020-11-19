@@ -42,12 +42,11 @@ class Guild:
         "_bot",
         "_users",
         "_channel",
-        "_channel_id",
         "options",
         "logger",
     ]
 
-    def __init__(self, bot, id, options, channel_id=None, *, logger):
+    def __init__(self, bot, id, options, *, logger):
         """
 
         Parameters
@@ -56,14 +55,11 @@ class Guild:
             The global bot instance
         id : int
             This guilds id
-        channel_id : int
-            This guilds channel to send logs to
         """
         self.id = int(id)
         self._bot = bot
         self._users = []
         self.options = options
-        self.channel = channel_id
 
         self.logger = logger
 
@@ -72,7 +68,7 @@ class Guild:
     def __repr__(self):
         return (
             f"'{self.__class__.__name__} object. Guild id: {self.id}, "
-            f"Len Stored Users {len(self._users)}, Log Channel Id: {self.channel}'"
+            f"Len Stored Users {len(self._users)}'"
         )
 
     def __str__(self):
@@ -103,7 +99,7 @@ class Guild:
         if not isinstance(other, Guild):
             raise ValueError("Expected two Guild objects to compare")
 
-        if self.id == other.id and self._channel_id == other._channel_id:
+        if self.id == other.id:
             return True
         return False
 
@@ -117,7 +113,7 @@ class Guild:
         int
             The hash of all id's
         """
-        return hash((self.id, self._channel_id))
+        return hash((self.id))
 
     def propagate(self, message: discord.Message):
         """
@@ -131,9 +127,6 @@ class Guild:
         """
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
-
-        if isinstance(self._channel, int):
-            self.channel = message.channel
 
         user = User(
             self._bot,
@@ -162,41 +155,6 @@ class Guild:
         if not isinstance(value, int):
             raise ValueError("Expected integer")
         self._id = value
-
-    @property
-    def channel(self):
-        return self._channel
-
-    @channel.setter
-    def channel(self, value):
-        if value is None:
-            self._channel = value
-            self._channel_id = value
-            return
-
-        if not isinstance(value, int) and not isinstance(value, discord.TextChannel):
-            raise ValueError("Expected integer or discord.TextChannel")
-
-        if isinstance(value, int):
-            try:
-                eventLoop = asyncio.get_event_loop()
-                value = eventLoop.run_until_complete(self.fetch_channel(value))
-            except discord.InvalidData:
-                raise ValueError("An unknown channel type was received from Discord.")
-            except discord.NotFound:
-                raise ValueError("Invalid Channel ID.")
-            except discord.Forbidden:
-                raise ValueError("You do not have permission to fetch this channel.")
-            except discord.HTTPException:
-                raise ValueError("Retrieving the channel failed.")
-            except Exception as e:
-                raise e
-
-        self._channel = value
-        self._channel_id = self._channel.id
-
-    async def fetch_channel(self, channelId):
-        return await self._bot.fetch_channel(channelId)
 
     @property
     def users(self):
