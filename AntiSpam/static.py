@@ -31,21 +31,21 @@ findable, readable, modifiable etc
 class Static:
     # The default options for ASH
     DEFAULTS = {
-        "warnThreshold": 3,
-        "kickThreshold": 2,
-        "banThreshold": 2,
-        "messageInterval": 30000,  # 30 Seconds
-        "warnMessage": "Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
-        "kickMessage": "$USERNAME was kicked for spamming/sending duplicate messages.",
-        "banMessage": "$USERNAME was banned for spamming/sending duplicate messages.",
-        "messageDuplicateCount": 5,
-        "messageDuplicateAccuracy": 90,
-        "ignorePerms": [8],
-        "ignoreUsers": [],
-        "ignoreChannels": [],
-        "ignoreRoles": [],
-        "ignoreGuilds": [],
-        "ignoreBots": True,
+        "warn_threshold": 3,
+        "kick_threshold": 2,
+        "ban_threshold": 2,
+        "message_interval": 30000,  # 30 Seconds
+        "warn_message": "Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
+        "kick_message": "$USERNAME was kicked for spamming/sending duplicate messages.",
+        "ban_message": "$USERNAME was banned for spamming/sending duplicate messages.",
+        "message_duplicate_count": 5,
+        "message_duplicate_accuracy": 90,
+        "ignore_perms": [8],
+        "ignore_users": [],
+        "ignore_channels": [],
+        "ignore_roles": [],
+        "ignore_guilds": [],
+        "ignore_bots": True,
     }
     BAN = "ban"
     KICK = "kick"

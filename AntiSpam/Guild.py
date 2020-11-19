@@ -37,9 +37,17 @@ class Guild:
 
     """
 
-    __slots__ = ["_id", "_bot", "_users", "_channel", "_channelId", "options", "logger"]
+    __slots__ = [
+        "_id",
+        "_bot",
+        "_users",
+        "_channel",
+        "_channel_id",
+        "options",
+        "logger",
+    ]
 
-    def __init__(self, bot, id, options, channelId=None, *, logger):
+    def __init__(self, bot, id, options, channel_id=None, *, logger):
         """
 
         Parameters
@@ -48,14 +56,14 @@ class Guild:
             The global bot instance
         id : int
             This guilds id
-        channelId : int
+        channel_id : int
             This guilds channel to send logs to
         """
         self.id = int(id)
         self._bot = bot
         self._users = []
         self.options = options
-        self.channel = channelId
+        self.channel = channel_id
 
         self.logger = logger
 
@@ -95,7 +103,7 @@ class Guild:
         if not isinstance(other, Guild):
             raise ValueError("Expected two Guild objects to compare")
 
-        if self.id == other.id and self._channelId == other._channelId:
+        if self.id == other.id and self._channel_id == other._channel_id:
             return True
         return False
 
@@ -109,7 +117,7 @@ class Guild:
         int
             The hash of all id's
         """
-        return hash((self.id, self._channelId))
+        return hash((self.id, self._channel_id))
 
     def propagate(self, message: discord.Message):
         """
@@ -163,7 +171,7 @@ class Guild:
     def channel(self, value):
         if value is None:
             self._channel = value
-            self._channelId = value
+            self._channel_id = value
             return
 
         if not isinstance(value, int) and not isinstance(value, discord.TextChannel):
@@ -172,7 +180,7 @@ class Guild:
         if isinstance(value, int):
             try:
                 eventLoop = asyncio.get_event_loop()
-                value = eventLoop.run_until_complete(self.FetchChannel(value))
+                value = eventLoop.run_until_complete(self.fetch_channel(value))
             except discord.InvalidData:
                 raise ValueError("An unknown channel type was received from Discord.")
             except discord.NotFound:
@@ -185,9 +193,9 @@ class Guild:
                 raise e
 
         self._channel = value
-        self._channelId = self._channel.id
+        self._channel_id = self._channel.id
 
-    async def FetchChannel(self, channelId):
+    async def fetch_channel(self, channelId):
         return await self._bot.fetch_channel(channelId)
 
     @property

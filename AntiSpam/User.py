@@ -209,7 +209,7 @@ class User:
 
         # Check if this message is a duplicate of the most recent messages
         for i, proportion in enumerate(relationToOthers):
-            if proportion >= self.options["messageDuplicateAccuracy"]:
+            if proportion >= self.options["message_duplicate_accuracy"]:
                 """
                 The handler works off an internal message duplicate counter 
                 so just increment that and then let our logic process it
@@ -218,16 +218,16 @@ class User:
                 message.isDuplicate = True
                 break  # we don't want to increment to much
 
-        if self.duplicateCounter >= self.options["messageDuplicateCount"]:
+        if self.duplicateCounter >= self.options["message_duplicate_count"]:
             self.logger.debug(
                 f"Message: ({message.id}) requires some form of punishment"
             )
             # We need to punish the user with something
 
             if (
-                self.duplicateCounter >= self.options["warnThreshold"]
-                and self.warnCount < self.options["kickThreshold"]
-                and self.kickCount < self.options["banThreshold"]
+                self.duplicateCounter >= self.options["warn_threshold"]
+                and self.warnCount < self.options["kick_threshold"]
+                and self.kickCount < self.options["ban_threshold"]
             ):
                 self.logger.debug(f"Attempting to warn: {message.authorId}")
                 """
@@ -238,7 +238,7 @@ class User:
                 # We are still in the warning area
                 # TODO Tell the user if its there final warning before a kick
                 channel = value.channel
-                message = Template(self.options["warnMessage"]).safe_substitute(
+                message = Template(self.options["warn_message"]).safe_substitute(
                     {
                         "MENTIONUSER": value.author.mention,
                         "USERNAME": value.author.display_name,
@@ -249,14 +249,14 @@ class User:
                 self.warnCount += 1
 
             elif (
-                self.warnCount >= self.options["kickThreshold"]
-                and self.kickCount < self.options["banThreshold"]
+                self.warnCount >= self.options["kick_threshold"]
+                and self.kickCount < self.options["ban_threshold"]
             ):
                 self.logger.debug(f"Attempting to kick: {message.authorId}")
                 # We should kick the user
                 # TODO Tell the user if its there final kick before a ban
                 dcChannel = value.channel
-                message = Template(self.options["kickMessage"]).safe_substitute(
+                message = Template(self.options["kick_message"]).safe_substitute(
                     {
                         "MENTIONUSER": value.author.mention,
                         "USERNAME": value.author.display_name,
@@ -274,11 +274,11 @@ class User:
                 )
                 self.kickCount += 1
 
-            elif self.kickCount >= self.options["banThreshold"]:
+            elif self.kickCount >= self.options["ban_threshold"]:
                 self.logger.debug(f"Attempting to ban: {message.authorId}")
                 # We should ban the user
                 dcChannel = value.channel
-                message = Template(self.options["banMessage"]).safe_substitute(
+                message = Template(self.options["ban_message"]).safe_substitute(
                     {
                         "MENTIONUSER": value.author.mention,
                         "USERNAME": value.author.display_name,
@@ -410,7 +410,7 @@ class User:
                     if m is not None:
                         await self.SendToObj(
                             user,
-                            "I failed to punish you because I lack permissions, but still you shouldn't do it",
+                            "I failed to punish you because I lack permissions, but still you shouldn't do it.",
                         )
 
                 except discord.HTTPException:
@@ -422,8 +422,8 @@ class User:
                     if m is not None:
                         await self.SendToObj(
                             user,
-                            "I failed to punish you because I lack permissions, but still you shouldn't do it",
-                        )  # TODO Test this
+                            "I failed to punish you because I lack permissions, but still you shouldn't do it.",
+                        )
 
                 else:
                     try:
@@ -508,7 +508,7 @@ class User:
             """
             difference = currentTime - message.creationTime
             offset = datetime.timedelta(
-                milliseconds=self.options.get("messageInterval")
+                milliseconds=self.options.get("message_interval")
             )
 
             if difference >= offset:

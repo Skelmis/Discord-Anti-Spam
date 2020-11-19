@@ -36,7 +36,7 @@ class BaseASHException(Exception):
 
 
 class DuplicateObject(BaseASHException):
-    """Raised because you attempted to create an object, using the exact same id's as a pre-existing one."""
+    """Raised because you attempted to create and add an object, using the exact same id's as a pre-existing one."""
 
 
 class ObjectMismatch(BaseASHException):
