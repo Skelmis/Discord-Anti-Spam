@@ -21,10 +21,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
-"""
-A file devoted to some nice custom exceptions of mine
-"""
-
 
 class BaseASHException(Exception):
     """A base exception handler for the ASH ecosystem."""
@@ -49,3 +45,7 @@ class ObjectMismatch(BaseASHException):
 
 class LogicError(BaseASHException):
     """Raised because internal logic has failed. Please create an issue in the github."""
+
+
+class MissingGuildPermissions(BaseASHException):
+    """I need both permissions to kick & ban people from this guild in order to work!"""

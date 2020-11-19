@@ -29,7 +29,12 @@ import discord
 from discord.ext import commands
 
 from AntiSpam import Guild, static
-from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject, BaseASHException
+from AntiSpam.Exceptions import (
+    ObjectMismatch,
+    DuplicateObject,
+    BaseASHException,
+    MissingGuildPermissions,
+)
 from AntiSpam.static import Static
 
 """
@@ -231,6 +236,8 @@ class AntiSpamHandler:
         if ignoreBots is None:
             ignoreBots = Static.DEFAULTS.get("ignoreBots")
 
+        # TODO Turn ignoreRoles into a valid list of roles
+
         self.options = {
             "warnThreshold": warnThreshold or Static.DEFAULTS.get("warnThreshold"),
             "kickThreshold": kickThreshold or Static.DEFAULTS.get("kickThreshold"),
@@ -321,6 +328,12 @@ class AntiSpamHandler:
             if guild == guildObj:
                 guildObj.propagate(message)
                 return
+        else:
+            # Check we have perms to actually create this guild object
+            # and punish based upon our guild wide permissions
+            perms = message.guild.me.guild_permissions
+            if not perms.kick_members or not perms.ban_members:
+                raise MissingGuildPermissions
 
         self.guilds = guild
         self.logger.info(f"Created Guild: {guild.id}")
