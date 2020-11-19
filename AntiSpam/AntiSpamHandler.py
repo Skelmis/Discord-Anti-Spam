@@ -236,7 +236,17 @@ class AntiSpamHandler:
         if ignoreBots is None:
             ignoreBots = Static.DEFAULTS.get("ignoreBots")
 
-        # TODO Turn ignoreRoles into a valid list of roles
+        # TODO Implement #16
+        if ignoreRoles is not None:
+            placeholderIgnoreRoles = []
+            for item in ignoreRoles:
+                if isinstance(item, discord.Role):
+                    placeholderIgnoreRoles.append(item.id)
+                elif isinstance(item, int):
+                    placeholderIgnoreRoles.append(item)
+                else:
+                    raise ValueError("Expected discord.Role or int for ignoreRoles")
+            ignoreRoles = placeholderIgnoreRoles
 
         self.options = {
             "warnThreshold": warnThreshold or Static.DEFAULTS.get("warnThreshold"),
