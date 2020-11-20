@@ -207,7 +207,7 @@ class AntiSpamHandler:
             not isinstance(message_duplicate_accuracy, float)
             and message_duplicate_accuracy is not None
         ):
-            raise ValueError("Expected message_duplicate_accuracy of type: int")
+            raise ValueError("Expected message_duplicate_accuracy of type: float")
 
         if message_duplicate_accuracy is not None:
             if 1 > message_duplicate_accuracy or message_duplicate_accuracy > 100:
@@ -232,7 +232,7 @@ class AntiSpamHandler:
             raise ValueError("Expected ignore_guilds of type: list")
 
         if not isinstance(ignore_bots, bool) and ignore_bots is not None:
-            raise ValueError("Expected ignore_bots of type: int")
+            raise ValueError("Expected ignore_bots of type: bool")
 
         # Now we have type checked everything, lets do some logic
         if ignore_bots is None:
