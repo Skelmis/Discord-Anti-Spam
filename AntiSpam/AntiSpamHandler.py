@@ -153,10 +153,6 @@ class AntiSpamHandler:
             The message to be sent up banThreshold being reached
         message_duplicate_count : int, optional
             Amount of duplicate messages needed to trip a punishment
-        messageDuplicateKick : int, optional
-            Amount of duplicate messages needed within message_interval to trip a kick
-        messageDuplicateBan : int, optional
-            Amount of duplicate messages needed within message_interval to trip a ban
         message_duplicate_accuracy : float, optional
             How 'close' messages need to be to be registered as duplicates (Out of 100)
         ignore_perms : list, optional
@@ -208,6 +204,7 @@ class AntiSpamHandler:
             and message_duplicate_accuracy is not None
         ):
             raise ValueError("Expected message_duplicate_accuracy of type: float")
+        # TODO Ensure this is within 1-100
 
         if message_duplicate_accuracy is not None:
             if 1 > message_duplicate_accuracy or message_duplicate_accuracy > 100:
