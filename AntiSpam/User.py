@@ -508,12 +508,3 @@ class User:
                 )
             elif self.logger.isEnabledFor(logging.DEBUG):
                 self.logger.debug(f"Removing Message: {outstandingMessage.id}")
-                
-    def set_inGuild(self):
-        """
-        Sets inGuild to not inGuild means 
-        the oppisite of the current value.
-        For example:
-        inGuild to True from False
-        """
-        self.inGuild = not self.inGuild
