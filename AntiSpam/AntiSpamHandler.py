@@ -168,6 +168,8 @@ class AntiSpamHandler:
 
         if not isinstance(verbose_level, int):
             raise ValueError("Verbosity should be an int between 0-5")
+        if 0 > verbose_level or verbose_level > 5:
+            raise ValueError("Verbosity should be between 0-5")
 
         if not isinstance(warn_threshold, int) and warn_threshold is not None:
             raise ValueError("Expected warn_threshold of type: int")
@@ -199,15 +201,16 @@ class AntiSpamHandler:
         ):
             raise ValueError("Expected message_duplicate_count of type: int")
 
+        # Convert message_duplicate_accuracy from int to float if exists
+        if isinstance(message_duplicate_accuracy, int):
+            message_duplicate_accuracy = float(message_duplicate_accuracy)
         if (
             not isinstance(message_duplicate_accuracy, float)
             and message_duplicate_accuracy is not None
         ):
             raise ValueError("Expected message_duplicate_accuracy of type: float")
-        # TODO Ensure this is within 1-100
-
         if message_duplicate_accuracy is not None:
-            if 1 > message_duplicate_accuracy or message_duplicate_accuracy > 100:
+            if 1.0 > message_duplicate_accuracy or message_duplicate_accuracy > 100.0:
                 # Only accept values between 1 and 100
                 raise ValueError(
                     "Expected message_duplicate_accuracy between 1 and 100"

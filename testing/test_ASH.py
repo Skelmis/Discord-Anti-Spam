@@ -53,4 +53,51 @@ class TestGuild(unittest.TestCase):
     def test_defaults(self):
         self.assertEqual(self.ash.options, Static.DEFAULTS)
 
+    def test_verboseType(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level="x")
+
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=1)
+        self.assertIsNotNone(ash)
+
+    def test_verboseLevelRange(self):
+        with self.assertRaises(ValueError, msg="Invalid verbose level (To low)"):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=-1)
+
+        with self.assertRaises(ValueError, msg="Invalid verbose level (To high)"):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=6)
+
+    def test_verboseAssignment(self):
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=4)
+        self.assertEqual(ash.logger.level, 40)
+
+    def test_messageAccuracyType(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(
+                commands.Bot(command_prefix="!"), message_duplicate_accuracy="x"
+            )
+
+    def test_messageAccuracyRange(self):
+        with self.assertRaises(
+            ValueError, msg="Invalid message_duplicate_accuracy (To low)"
+        ):
+            AntiSpamHandler(
+                commands.Bot(command_prefix="!"), message_duplicate_accuracy=0
+            )
+
+        with self.assertRaises(
+            ValueError, msg="Invalid message_duplicate_accuracy (To high)"
+        ):
+            AntiSpamHandler(
+                commands.Bot(command_prefix="!"), message_duplicate_accuracy=101
+            )
+
+    def test_messageAccuracyAssignment(self):
+        ash = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), message_duplicate_accuracy=50
+        )
+        self.assertEqual(ash.options["message_duplicate_accuracy"], 50)
+
     # TODO Add a ensureRaises test for each setable option...
+    # TODO Capture standard out and ensure the logger is working,
+    #      but only at the correct levels
