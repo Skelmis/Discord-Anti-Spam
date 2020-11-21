@@ -52,7 +52,7 @@ class TestUser(unittest.TestCase):
 
     def test_intAssignment(self):
         self.assertIsInstance(self.user.id, int)
-        self.assertIsInstance(self.user.guildId, int)
+        self.assertIsInstance(self.user.guild_id, int)
 
     def test_listAssignment(self):
         self.assertIsInstance(self.user.messages, list)
@@ -62,14 +62,14 @@ class TestUser(unittest.TestCase):
 
     def test_valueAssignment(self):
         self.assertEqual(self.user.id, 0)
-        self.assertEqual(self.user.guildId, 3)
+        self.assertEqual(self.user.guild_id, 3)
         self.assertEqual(self.user.options, Static.DEFAULTS)
 
         self.user.id = 10
-        self.user.guildId = 10
+        self.user.guild_id = 10
 
         self.assertEqual(self.user.id, 10)
-        self.assertEqual(self.user.guildId, 10)
+        self.assertEqual(self.user.guild_id, 10)
 
     def test_messageAssignment(self):
         self.assertEqual(len(self.user.messages), 2)
@@ -92,7 +92,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(
             repr(self.user),
             (
-                f"'{self.user.__class__.__name__} object. User id: {self.user.id}, Guild id: {self.user.guildId}, "
+                f"'{self.user.__class__.__name__} object. User id: {self.user.id}, Guild id: {self.user.guild_id}, "
                 f"Len Stored Messages {len(self.user.messages)}'"
             ),
         )
@@ -112,11 +112,11 @@ class TestUser(unittest.TestCase):
 
     def test_duplicateCounter(self):
         self.assertNotEqual(
-            self.user.duplicateCounter, self.user.GetCorrectDuplicateCount()
+            self.user.duplicate_counter, self.user.get_correct_duplicate_count()
         )
 
         self.assertEqual(
-            self.user.duplicateCounter - 1, self.user.GetCorrectDuplicateCount()
+            self.user.duplicate_counter - 1, self.user.get_correct_duplicate_count()
         )
 
 

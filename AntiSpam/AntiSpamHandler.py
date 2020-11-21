@@ -20,19 +20,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-
-import datetime
 import logging
-import time
 
 import discord
 from discord.ext import commands
 
-import threading
-import concurrent.futures
-
-from AntiSpam import Guild, static
-from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject, BaseASHException
+from AntiSpam import Guild
+from AntiSpam.Exceptions import (
+    DuplicateObject,
+    BaseASHException,
+    MissingGuildPermissions,
+)
 from AntiSpam.static import Static
 
 """
@@ -42,7 +40,6 @@ this is responsible for handling interaction with Guilds etc
 
 
 # TODO Check on attempted kick/ban that the bot actually has perms
-# TODO Possibly check that on init as well ^
 
 
 class AntiSpamHandler:
@@ -50,51 +47,51 @@ class AntiSpamHandler:
     The overall handler for the DPY Anti-spam package
 
     DEFAULTS:
-        warnThreshold: 3
-            This is the amount of duplicates that result in a warning within the messageInterval
+        warn_threshold: 3
+            This is the amount of duplicates that result in a warning within the message_interval
 
-        kickThreshold: 2
+        kick_threshold: 2
             This is the amount of warns required before a kick is the next punishment
 
-        banThreshold: 2
+        ban_threshold: 2
             This is the amount of kicks required before a ban is the next punishment
 
-        messageInterval: 30000ms (30 Seconds)
+        message_interval: 30000ms (30 Seconds)
             Amount of time a message is kept before being discarded. Essentially the amount of time (In milliseconds) a message can count towards spam
 
-        warnMessage: "Hey $MENTIONUSER, please stop spamming/sending duplicate messages."
-            The message to be sent upon warnThreshold being reached
+        warn_message: "Hey $MENTIONUSER, please stop spamming/sending duplicate messages."
+            The message to be sent upon warn_threshold being reached
 
-        kickMessage: "$USERNAME was kicked for spamming/sending duplicate messages."
-            The message to be sent up kickThreshold being reached
+        kick_message: "$USERNAME was kicked for spamming/sending duplicate messages."
+            The message to be sent up kick_threshold being reached
 
-        banMessage: "$USERNAME was banned for spamming/sending duplicate messages."
-            The message to be sent up banThreshold being reached
+        ban_message: "$USERNAME was banned for spamming/sending duplicate messages."
+            The message to be sent up ban_threshold being reached
 
-        messageDuplicateCount: 5
-            The amount of duplicate messages needed within messageInterval to trigger a punishment
+        message_duplicate_count: 5
+            The amount of duplicate messages needed within message_interval to trigger a punishment
 
-        messageDuplicateAccuracy: 90
+        message_duplicate_accuracy: 90
             How 'close' messages need to be to be registered as duplicates (Out of 100)
 
-        ignorePerms: [8]
+        ignore_perms: [8]
             The perms (ID Form), that bypass anti-spam
 
             *Not Implemented*
 
-        ignoreUsers: []
+        ignore_users: []
             The users (ID Form), that bypass anti-spam
 
-        ignoreChannels: []
+        ignore_channels: []
             Channels (ID Form), that bypass anti-spam
 
-        ignoreRoles: []
+        ignore_roles: []
             The roles (ID Form), that bypass anti-spam
 
-        ignoreGuilds: []
+        ignore_guilds: []
             Guilds (ID Form), that bypass anti-spam
 
-        ignoreBots: True
+        ignore_bots: True
             Should bots bypass anti-spam? (True|False)
     """
 
@@ -108,23 +105,23 @@ class AntiSpamHandler:
     def __init__(
         self,
         bot: commands.Bot,
-        verboseLevel=0,
+        verbose_level=0,
         *,
-        warnThreshold=None,
-        kickThreshold=None,
-        banThreshold=None,
-        messageInterval=None,
-        warnMessage=None,
-        kickMessage=None,
-        banMessage=None,
-        messageDuplicateCount=None,
-        messageDuplicateAccuracy=None,
-        ignorePerms=None,
-        ignoreUsers=None,
-        ignoreChannels=None,
-        ignoreRoles=None,
-        ignoreGuilds=None,
-        ignoreBots=None,
+        warn_threshold=None,
+        kick_threshold=None,
+        ban_threshold=None,
+        message_interval=None,
+        warn_message=None,
+        kick_message=None,
+        ban_message=None,
+        message_duplicate_count=None,
+        message_duplicate_accuracy=None,
+        ignore_perms=None,
+        ignore_users=None,
+        ignore_channels=None,
+        ignore_roles=None,
+        ignore_guilds=None,
+        ignore_bots=None,
     ):
         """
         This is the first initialization of the entire spam handler,
@@ -134,125 +131,142 @@ class AntiSpamHandler:
         ----------
         bot : commands.Bot
             The commands.Bot instance
-        warnThreshold : int, optional
-            This is the amount of messages in a row that result in a warning within the messageInterval
-        kickThreshold : int, optional
+        warn_threshold : int, optional
+            This is the amount of messages in a row that result in a warning within the message_interval
+        kick_threshold : int, optional
             The amount of 'warns' before a kick occurs
-        banThreshold : int, optional
+        ban_threshold : int, optional
             The amount of 'kicks' that occur before a ban occurs
-        messageInterval : int, optional
+        message_interval : int, optional
             Amount of time a message is kept before being discarded.
             Essentially the amount of time (In milliseconds) a message can count towards spam
-        warnMessage : str, optional
+        warn_message : str, optional
             The message to be sent upon warnThreshold being reached
-        kickMessage : str, optional
+        kick_message : str, optional
             The message to be sent up kickThreshold being reached
-        banMessage : str, optional
+        ban_message : str, optional
             The message to be sent up banThreshold being reached
-        messageDuplicateCount : int, optional
+        message_duplicate_count : int, optional
             Amount of duplicate messages needed to trip a punishment
-        messageDuplicateKick : int, optional
-            Amount of duplicate messages needed within messageInterval to trip a kick
-        messageDuplicateBan : int, optional
-            Amount of duplicate messages needed within messageInterval to trip a ban
-        messageDuplicateAccuracy : float, optional
+        message_duplicate_accuracy : float, optional
             How 'close' messages need to be to be registered as duplicates (Out of 100)
-        ignorePerms : list, optional
+        ignore_perms : list, optional
             The perms (ID Form), that bypass anti-spam
-        ignoreUsers : list, optional
+        ignore_users : list, optional
             The users (ID Form), that bypass anti-spam
-        ignoreBots : bool, optional
+        ignore_bots : bool, optional
             Should bots bypass anti-spam?
         """
-        # Just gotta casually type check everything.
+        # Just gotta casually ignore_type check everything.
         if not isinstance(bot, commands.Bot):
-            raise ValueError("Expected channel of type: commands.Bot")
+            raise ValueError("Expected channel of ignore_type: commands.Bot")
 
-        if not isinstance(verboseLevel, int):
+        if not isinstance(verbose_level, int):
             raise ValueError("Verbosity should be an int between 0-5")
+        if 0 > verbose_level or verbose_level > 5:
+            raise ValueError("Verbosity should be between 0-5")
 
-        if not isinstance(warnThreshold, int) and warnThreshold is not None:
-            raise ValueError("Expected warnThreshold of type: int")
+        if not isinstance(warn_threshold, int) and warn_threshold is not None:
+            raise ValueError("Expected warn_threshold of ignore_type: int")
 
-        if not isinstance(kickThreshold, int) and kickThreshold is not None:
-            raise ValueError("Expected kickThreshold of type: int")
+        if not isinstance(kick_threshold, int) and kick_threshold is not None:
+            raise ValueError("Expected kick_threshold of ignore_type: int")
 
-        if not isinstance(banThreshold, int) and banThreshold is not None:
-            raise ValueError("Expected banThreshold of type: int")
+        if not isinstance(ban_threshold, int) and ban_threshold is not None:
+            raise ValueError("Expected ban_threshold of ignore_type: int")
 
-        if not isinstance(messageInterval, int) and messageInterval is not None:
-            raise ValueError("Expected messageInterval of type: int")
+        if not isinstance(message_interval, int) and message_interval is not None:
+            raise ValueError("Expected message_interval of ignore_type: int")
 
-        if messageInterval is not None and messageInterval < 1000:
-            raise BaseASHException("Minimum messageInterval is 1 seconds (1000 ms)")
+        if message_interval is not None and message_interval < 1000:
+            raise BaseASHException("Minimum message_interval is 1 seconds (1000 ms)")
 
-        if not isinstance(warnMessage, str) and warnMessage is not None:
-            raise ValueError("Expected warnMessage of type: str")
+        if not isinstance(warn_message, str) and warn_message is not None:
+            raise ValueError("Expected warn_message of ignore_type: str")
 
-        if not isinstance(kickMessage, str) and kickMessage is not None:
-            raise ValueError("Expected kickMessage of type: str")
+        if not isinstance(kick_message, str) and kick_message is not None:
+            raise ValueError("Expected kick_message of ignore_type: str")
 
-        if not isinstance(banMessage, str) and banMessage is not None:
-            raise ValueError("Expected banMessage of type: str")
-
-        if (
-            not isinstance(messageDuplicateCount, int)
-            and messageDuplicateCount is not None
-        ):
-            raise ValueError("Expected messageDuplicateCount of type: int")
+        if not isinstance(ban_message, str) and ban_message is not None:
+            raise ValueError("Expected ban_message of ignore_type: str")
 
         if (
-            not isinstance(messageDuplicateAccuracy, float)
-            and messageDuplicateAccuracy is not None
+            not isinstance(message_duplicate_count, int)
+            and message_duplicate_count is not None
         ):
-            raise ValueError("Expected messageDuplicateAccuracy of type: int")
+            raise ValueError("Expected message_duplicate_count of ignore_type: int")
 
-        if messageDuplicateAccuracy is not None:
-            if 1 > messageDuplicateAccuracy or messageDuplicateAccuracy > 100:
+        # Convert message_duplicate_accuracy from int to float if exists
+        if isinstance(message_duplicate_accuracy, int):
+            message_duplicate_accuracy = float(message_duplicate_accuracy)
+        if (
+            not isinstance(message_duplicate_accuracy, float)
+            and message_duplicate_accuracy is not None
+        ):
+            raise ValueError(
+                "Expected message_duplicate_accuracy of ignore_type: float"
+            )
+        if message_duplicate_accuracy is not None:
+            if 1.0 > message_duplicate_accuracy or message_duplicate_accuracy > 100.0:
                 # Only accept values between 1 and 100
-                raise ValueError("Expected messageDuplicateAccuracy between 1 and 100")
+                raise ValueError(
+                    "Expected message_duplicate_accuracy between 1 and 100"
+                )
 
-        if not isinstance(ignorePerms, list) and ignorePerms is not None:
-            raise ValueError("Expected ignorePerms of type: list")
+        if not isinstance(ignore_perms, list) and ignore_perms is not None:
+            raise ValueError("Expected ignore_perms of ignore_type: list")
 
-        if not isinstance(ignoreUsers, list) and ignoreUsers is not None:
-            raise ValueError("Expected ignoreUsers of type: list")
+        if not isinstance(ignore_users, list) and ignore_users is not None:
+            raise ValueError("Expected ignore_users of ignore_type: list")
 
-        if not isinstance(ignoreChannels, list) and ignoreChannels is not None:
-            raise ValueError("Expected ignoreChannels of type: list")
+        if not isinstance(ignore_channels, list) and ignore_channels is not None:
+            raise ValueError("Expected ignore_channels of ignore_type: list")
 
-        if not isinstance(ignoreRoles, list) and ignoreRoles is not None:
-            raise ValueError("Expected ignoreRoles of type: list")
+        if not isinstance(ignore_roles, list) and ignore_roles is not None:
+            raise ValueError("Expected ignore_roles of ignore_type: list")
 
-        if not isinstance(ignoreGuilds, list) and ignoreGuilds is not None:
-            raise ValueError("Expected ignoreGuilds of type: list")
+        if not isinstance(ignore_guilds, list) and ignore_guilds is not None:
+            raise ValueError("Expected ignore_guilds of ignore_type: list")
 
-        if not isinstance(ignoreBots, bool) and ignoreBots is not None:
-            raise ValueError("Expected ignoreBots of type: int")
+        if not isinstance(ignore_bots, bool) and ignore_bots is not None:
+            raise ValueError("Expected ignore_bots of ignore_type: bool")
 
-        # Now we have type checked everything, lets do some logic
-        if ignoreBots is None:
-            ignoreBots = Static.DEFAULTS.get("ignoreBots")
+        # Now we have ignore_type checked everything, lets do some logic
+        if ignore_bots is None:
+            ignore_bots = Static.DEFAULTS.get("ignore_bots")
+
+        # TODO Implement #16
+        if ignore_roles is not None:
+            placeholderIgnoreRoles = []
+            for item in ignore_roles:
+                if isinstance(item, discord.Role):
+                    placeholderIgnoreRoles.append(item.id)
+                elif isinstance(item, int):
+                    placeholderIgnoreRoles.append(item)
+                else:
+                    raise ValueError("Expected discord.Role or int for ignore_roles")
+            ignore_roles = placeholderIgnoreRoles
 
         self.options = {
-            "warnThreshold": warnThreshold or Static.DEFAULTS.get("warnThreshold"),
-            "kickThreshold": kickThreshold or Static.DEFAULTS.get("kickThreshold"),
-            "banThreshold": banThreshold or Static.DEFAULTS.get("banThreshold"),
-            "messageInterval": messageInterval
-            or Static.DEFAULTS.get("messageInterval"),
-            "warnMessage": warnMessage or Static.DEFAULTS.get("warnMessage"),
-            "kickMessage": kickMessage or Static.DEFAULTS.get("kickMessage"),
-            "banMessage": banMessage or Static.DEFAULTS.get("banMessage"),
-            "messageDuplicateCount": messageDuplicateCount
-            or Static.DEFAULTS.get("messageDuplicateCount"),
-            "messageDuplicateAccuracy": messageDuplicateAccuracy
-            or Static.DEFAULTS.get("messageDuplicateAccuracy"),
-            "ignorePerms": ignorePerms or Static.DEFAULTS.get("ignorePerms"),
-            "ignoreUsers": ignoreUsers or Static.DEFAULTS.get("ignoreUsers"),
-            "ignoreChannels": ignoreChannels or Static.DEFAULTS.get("ignoreChannels"),
-            "ignoreRoles": ignoreRoles or Static.DEFAULTS.get("ignoreRoles"),
-            "ignoreGuilds": ignoreGuilds or Static.DEFAULTS.get("ignoreGuilds"),
-            "ignoreBots": ignoreBots,
+            "warn_threshold": warn_threshold or Static.DEFAULTS.get("warn_threshold"),
+            "kick_threshold": kick_threshold or Static.DEFAULTS.get("kick_threshold"),
+            "ban_threshold": ban_threshold or Static.DEFAULTS.get("ban_threshold"),
+            "message_interval": message_interval
+            or Static.DEFAULTS.get("message_interval"),
+            "warn_message": warn_message or Static.DEFAULTS.get("warn_message"),
+            "kick_message": kick_message or Static.DEFAULTS.get("kick_message"),
+            "ban_message": ban_message or Static.DEFAULTS.get("ban_message"),
+            "message_duplicate_count": message_duplicate_count
+            or Static.DEFAULTS.get("message_duplicate_count"),
+            "message_duplicate_accuracy": message_duplicate_accuracy
+            or Static.DEFAULTS.get("message_duplicate_accuracy"),
+            "ignore_perms": ignore_perms or Static.DEFAULTS.get("ignore_perms"),
+            "ignore_users": ignore_users or Static.DEFAULTS.get("ignore_users"),
+            "ignore_channels": ignore_channels
+            or Static.DEFAULTS.get("ignore_channels"),
+            "ignore_roles": ignore_roles or Static.DEFAULTS.get("ignore_roles"),
+            "ignore_guilds": ignore_guilds or Static.DEFAULTS.get("ignore_guilds"),
+            "ignore_bots": ignore_bots,
         }
 
         self.bot = bot
@@ -263,17 +277,17 @@ class AntiSpamHandler:
             datefmt="%d/%m/%Y %I:%M:%S %p",
         )
         self.logger = logging.getLogger(__name__)
-        if verboseLevel == 0:
+        if verbose_level == 0:
             self.logger.setLevel(level=logging.NOTSET)
-        elif verboseLevel == 1:
+        elif verbose_level == 1:
             self.logger.setLevel(level=logging.DEBUG)
-        elif verboseLevel == 2:
+        elif verbose_level == 2:
             self.logger.setLevel(level=logging.INFO)
-        elif verboseLevel == 3:
+        elif verbose_level == 3:
             self.logger.setLevel(level=logging.WARNING)
-        elif verboseLevel == 4:
+        elif verbose_level == 4:
             self.logger.setLevel(level=logging.ERROR)
-        elif verboseLevel == 5:
+        elif verbose_level == 5:
             self.logger.setLevel(level=logging.CRITICAL)
 
     def propagate(self, message: discord.Message) -> None:
@@ -288,31 +302,35 @@ class AntiSpamHandler:
             The message that needs to be propagated out
         """
         if not isinstance(message, discord.Message):
-            raise ValueError("Expected message of type: discord.Message")
+            raise ValueError("Expected message of ignore_type: discord.Message")
+
+        # Ensure we only moderate actual guild messages
+        if not message.guild:
+            return
 
         if message.author.id == self.bot.user.id:
             return
 
         # Return if ignored bot
-        if self.options["ignoreBots"] and message.author.bot:
+        if self.options["ignore_bots"] and message.author.bot:
             return
 
         # Return if ignored user
-        if message.author.id in self.options["ignoreUsers"]:
+        if message.author.id in self.options["ignore_users"]:
             return
 
         # Return if ignored channel
-        if message.channel.id in self.options["ignoreChannels"]:
+        if message.channel.id in self.options["ignore_channels"]:
             return
 
         # Return if user has an ignored role
         userRolesId = [role.id for role in message.author.roles]
         for userRoleId in userRolesId:
-            if userRoleId in self.options.get("ignoreRoles"):
+            if userRoleId in self.options.get("ignore_roles"):
                 return
 
         # Return if ignored guild
-        if message.guild.id in self.options.get("ignoreGuilds"):
+        if message.guild.id in self.options.get("ignore_guilds"):
             return
 
         self.logger.debug(
@@ -320,17 +338,21 @@ class AntiSpamHandler:
         )
 
         guild = Guild(self.bot, message.guild.id, self.options, logger=self.logger)
-        for guildObj in self.guilds:
-            if guild == guildObj:
-                guildObj.propagate(message)
-                return
+        try:
+            guild = next(iter(g for g in self.guilds if g == guild))
+        except StopIteration:
+            # Check we have perms to actually create this guild object
+            # and punish based upon our guild wide permissions
+            perms = message.guild.me.guild_permissions
+            if not perms.kick_members or not perms.ban_members:
+                raise MissingGuildPermissions
 
-        self.guilds = guild
-        self.logger.info(f"Created Guild: {guild.id}")
+            self.guilds = guild
+            self.logger.info(f"Created Guild: {guild.id}")
 
         guild.propagate(message)
 
-    def AddIgnoredItem(self, item: int, type: str) -> None:
+    def add_ignored_item(self, item: int, ignore_type: str) -> None:
         """
         Add an item to the relevant ignore list
 
@@ -338,47 +360,47 @@ class AntiSpamHandler:
         ----------
         item : int
             The id of the thing to ignore
-        type : str
+        ignore_type : str
             A string representation of the ignored
             items overall container
 
         Raises
         ======
         BaseASHException
-            Invalid ignore type
+            Invalid ignore ignore_type
         ValueError
-            item is not of type int or int convertible
+            item is not of ignore_type int or int convertible
 
         Notes
         =====
         This will silently ignore any attempts
         to add an item already added.
         """
-        type = type.lower()
+        ignore_type = ignore_type.lower()
         if not isinstance(item, int):
             item = int(item)
 
-        if type == "user":
-            if item not in self.options["ignoreUsers"]:
-                self.options["ignoreUsers"].append(item)
-        elif type == "channel":
-            if item not in self.options["ignoreChannels"]:
-                self.options["ignoreChannels"].append(item)
-        elif type == "perm":
-            if item not in self.options["ignorePerms"]:
-                self.options["ignorePerms"].append(item)
-        elif type == "guild":
-            if item not in self.options["ignoreGuilds"]:
-                self.options["ignoreGuilds"].append(item)
-        elif type == "role":
-            if item not in self.options["ignoreRoles"]:
-                self.options["ignoreRoles"].append(item)
+        if ignore_type == "user":
+            if item not in self.options["ignore_users"]:
+                self.options["ignore_users"].append(item)
+        elif ignore_type == "channel":
+            if item not in self.options["ignore_channels"]:
+                self.options["ignore_channels"].append(item)
+        elif ignore_type == "perm":
+            if item not in self.options["ignore_perms"]:
+                self.options["ignore_perms"].append(item)
+        elif ignore_type == "guild":
+            if item not in self.options["ignore_guilds"]:
+                self.options["ignore_guilds"].append(item)
+        elif ignore_type == "role":
+            if item not in self.options["ignore_roles"]:
+                self.options["ignore_roles"].append(item)
         else:
-            raise BaseASHException("Invalid ignore type")
+            raise BaseASHException("Invalid ignore ignore_type")
 
-        self.logger.debug(f"Ignored {type}: {item}")
+        self.logger.debug(f"Ignored {ignore_type}: {item}")
 
-    def RemoveIgnoredItem(self, item: int, type: str) -> None:
+    def remove_ignored_item(self, item: int, ignore_type: str) -> None:
         """
         Remove an item from the relevant ignore list
 
@@ -386,42 +408,43 @@ class AntiSpamHandler:
         ----------
         item : int
             The id of the thing to unignore
-        type : str
+        ignore_type : str
             A string representation of the ignored
             items overall container
 
         Raises
         ======
         BaseASHException
-            Invalid ignore type
+            Invalid ignore ignore_type
         ValueError
-            item is not of type int or int convertible
+            item is not of ignore_type int or int convertible
 
         Notes
         =====
         This will silently ignore any attempts
         to remove an item not ignored.
         """
-        type = type.lower()
+        ignore_type = ignore_type.lower()
         if not isinstance(item, int):
             item = int(item)
 
-        if type == "user":
-            if item in self.options["ignoreUsers"]:
-                index = self.options["ignoreUsers"].index(item)
-                self.options["ignoreUsers"].pop(index)
-        elif type == "channel":
-            if item in self.options["ignoreChannels"]:
-                index = self.options["ignoreChannels"].index(item)
-                self.options["ignoreChannels"].pop(index)
-        elif type == "perm":
-            if item in self.options["ignorePerms"]:
-                index = self.options["ignorePerms"].index(item)
-                self.options["ignorePerms"].pop(index)
+        if ignore_type == "user":
+            if item in self.options["ignore_users"]:
+                index = self.options["ignore_users"].index(item)
+                self.options["ignore_users"].pop(index)
+        elif ignore_type == "channel":
+            if item in self.options["ignore_channels"]:
+                index = self.options["ignore_channels"].index(item)
+                self.options["ignore_channels"].pop(index)
+        elif ignore_type == "perm":
+            if item in self.options["ignore_perms"]:
+                index = self.options["ignore_perms"].index(item)
+                self.options["ignore_perms"].pop(index)
         else:
-            raise BaseASHException("Invalid ignore type")
+            raise BaseASHException("Invalid ignore ignore_type")
 
-        self.logger.debug(f"Un-Ignored {type}: {item}")
+
+        self.logger.debug(f"Un-Ignored {ignore_type}: {item}")
     
     def UpdateUserState(self, guildId: int, userId: int):
         """

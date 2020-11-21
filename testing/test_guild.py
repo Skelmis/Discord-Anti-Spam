@@ -96,7 +96,7 @@ class TestGuild(unittest.TestCase):
             repr(self.guild),
             (
                 f"'{self.guild.__class__.__name__} object. Guild id: {self.guild.id}, "
-                f"Len Stored Users {len(self.guild._users)}, Log Channel Id: {self.guild.channel}'"
+                f"Len Stored Users {len(self.guild._users)}'"
             ),
         )
 

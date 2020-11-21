@@ -40,7 +40,7 @@ class TestUser(unittest.TestCase):
 
     def test_DuplicateObject(self):
         self.assertEqual(
-            "Raised because you attempted to create an object, using the exact same id's as a pre-existing one.",
+            "Raised because you attempted to create and add an object, using the exact same id's as a pre-existing one.",
             str(DuplicateObject()),
         )
 

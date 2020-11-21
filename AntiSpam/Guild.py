@@ -20,7 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-import logging
 
 """
 This is used to maintain a collection of User's in a relevant guild
@@ -29,7 +28,7 @@ import asyncio
 import discord
 
 from AntiSpam import User
-from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject
+from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject, MissingGuildPermissions
 from AntiSpam.static import Static
 
 
@@ -38,9 +37,16 @@ class Guild:
 
     """
 
-    __slots__ = ["_id", "_bot", "_users", "_channel", "_channelId", "options", "logger"]
+    __slots__ = [
+        "_id",
+        "_bot",
+        "_users",
+        "_channel",
+        "options",
+        "logger",
+    ]
 
-    def __init__(self, bot, id, options, channelId=None, *, logger):
+    def __init__(self, bot, id, options, *, logger):
         """
 
         Parameters
@@ -49,14 +55,11 @@ class Guild:
             The global bot instance
         id : int
             This guilds id
-        channelId : int
-            This guilds channel to send logs to
         """
         self.id = int(id)
         self._bot = bot
         self._users = []
         self.options = options
-        self.channel = channelId
 
         self.logger = logger
 
@@ -65,7 +68,7 @@ class Guild:
     def __repr__(self):
         return (
             f"'{self.__class__.__name__} object. Guild id: {self.id}, "
-            f"Len Stored Users {len(self._users)}, Log Channel Id: {self.channel}'"
+            f"Len Stored Users {len(self._users)}'"
         )
 
     def __str__(self):
@@ -91,12 +94,12 @@ class Guild:
         Raises
         ======
         ValueError
-            When the comparison object is not of type `Message`
+            When the comparison object is not of ignore_type `Message`
         """
         if not isinstance(other, Guild):
             raise ValueError("Expected two Guild objects to compare")
 
-        if self.id == other.id and self._channelId == other._channelId:
+        if self.id == other.id:
             return True
         return False
 
@@ -110,7 +113,7 @@ class Guild:
         int
             The hash of all id's
         """
-        return hash((self.id, self._channelId))
+        return hash((self.id))
 
     def propagate(self, message: discord.Message):
         """
@@ -123,10 +126,7 @@ class Guild:
             The message that needs to be propagated out
         """
         if not isinstance(message, discord.Message):
-            raise ValueError("Expected message of type: discord.Message")
-
-        if isinstance(self._channel, int):
-            self.channel = message.channel
+            raise ValueError("Expected message of ignore_type: discord.Message")
 
         user = User(
             self._bot,
@@ -135,12 +135,11 @@ class Guild:
             self.options,
             logger=self.logger,
         )
-        for userObj in self.users:
-            if user == userObj:
-                return userObj.propagate(message)
-
-        self.users = user
-        self.logger.info(f"Created User: {user.id}")
+        try:
+            user = next(iter(u for u in self._users if u == user))
+        except StopIteration:
+            self.users = user
+            self.logger.info(f"Created User: {user.id}")
 
         user.propagate(message)
 
@@ -155,41 +154,6 @@ class Guild:
         if not isinstance(value, int):
             raise ValueError("Expected integer")
         self._id = value
-
-    @property
-    def channel(self):
-        return self._channel
-
-    @channel.setter
-    def channel(self, value):
-        if value is None:
-            self._channel = value
-            self._channelId = value
-            return
-
-        if not isinstance(value, int) and not isinstance(value, discord.TextChannel):
-            raise ValueError("Expected integer or discord.TextChannel")
-
-        if isinstance(value, int):
-            try:
-                eventLoop = asyncio.get_event_loop()
-                value = eventLoop.run_until_complete(self.FetchChannel(value))
-            except discord.InvalidData:
-                raise ValueError("An unknown channel type was received from Discord.")
-            except discord.NotFound:
-                raise ValueError("Invalid Channel ID.")
-            except discord.Forbidden:
-                raise ValueError("You do not have permission to fetch this channel.")
-            except discord.HTTPException:
-                raise ValueError("Retrieving the channel failed.")
-            except Exception as e:
-                raise e
-
-        self._channel = value
-        self._channelId = self._channel.id
-
-    async def FetchChannel(self, channelId):
-        return await self._bot.fetch_channel(channelId)
 
     @property
     def users(self):
@@ -210,7 +174,7 @@ class Guild:
         if not isinstance(value, User):
             raise ValueError("Expected User object")
 
-        if self.id != value.guildId:
+        if self.id != value.guild_id:
             raise ObjectMismatch
 
         for user in self._users:

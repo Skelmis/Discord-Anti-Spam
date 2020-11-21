@@ -4,6 +4,7 @@
 
 notes.txt
 *.json
+examples/dev_test.py
 
 # IntelliJ project files
 .idea
@@ -142,10 +143,10 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# Pyre type checker
+# Pyre ignore_type checker
 .pyre/
 
-# pytype static type analyzer
+# pytype static ignore_type analyzer
 .pytype/
 
 # Cython debug symbols
