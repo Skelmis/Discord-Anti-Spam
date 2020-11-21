@@ -434,12 +434,9 @@ class AntiSpamHandler:
         Updates the state of user in the specific guild,
         wether a user is in the guild or not.
         """
-        # get guild 
-        #guild = Guild(self.bot, message.guild.id, self.options, logger=self.logger)
-        #for guildObj in self.guilds:
-        #    if guild == guildObj:
-        #        call update function here
-        #        return
+        guild = Guild(self.bot, guildId, self.options, logger=self.logger)
+        guild = next(iter(g for g in self.guilds if g == guild))
+        guild.updateInGuildState(userID)
 
     # <-- Getter & Setters -->
     @property
