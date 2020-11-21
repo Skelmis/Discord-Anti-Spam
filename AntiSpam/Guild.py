@@ -199,6 +199,8 @@ class Guild:
             self.options, 
             logger=self.logger
         )
-       
-        user = next(iter(u for u in self.users if u == user))
+        try:
+            user = next(iter(u for u in self.users if u == user))
+        except StopIteration:
+            pass
         user.inGuild = False
