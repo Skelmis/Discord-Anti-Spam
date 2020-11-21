@@ -222,7 +222,8 @@ class Guild:
     def updateInGuildState(self, userid):
         """
         
-        Gets the userobj and updates the state
+        Gets the userobj and sets the inGuild attribute to False 
+        as this indicates that the user is no longer in the guild
         ======
         userid
          the id of the user where the state should be updated
@@ -231,10 +232,9 @@ class Guild:
             self._bot,
             userid,
             self.id,
-            self.options,
-            logger=self.logger,
+            self.options, 
+            logger=self.logger
         )
-        
-        for userObj in self.users:
-            if user == userObj:
-                userObj.set_inGuild()
+       
+        user = next(iter(u for u in self.users if u == user))
+        user.inGuild = False
