@@ -88,7 +88,7 @@ class User:
         self.warnCount = 0
         self.kickCount = 0
         self.duplicateCounter = 1
-        self.inGuild = False  # Indicates if a user is in the guild or not 
+        self.inGuild = True  # Indicates if a user is in the guild or not 
         
         self._lock = threading.Lock()
 
@@ -157,8 +157,9 @@ class User:
         if not isinstance(value, discord.Message):
             raise ValueError("Expected message of type: discord.Message")
         
-        # Just for error handling because this check should be check before calling this method
-        if self.inGuild:
+        # Here we just check if the user is still in the guild by checking if the inGuild attribute is False.
+        # Because if its False then we don't need to process the message.
+        if not self.inGuild:
             return
         
         self.CleanUp(datetime.datetime.now(datetime.timezone.utc))
