@@ -113,7 +113,7 @@ class User:
         Raises
         ======
         ValueError
-            When the comparison object is not of type `Message`
+            When the comparison object is not of ignore_type `Message`
         """
         if not isinstance(other, User):
             raise ValueError("Expected two User objects to compare")
@@ -145,7 +145,7 @@ class User:
             The message that needs to be propagated out
         """
         if not isinstance(value, discord.Message):
-            raise ValueError("Expected message of type: discord.Message")
+            raise ValueError("Expected message of ignore_type: discord.Message")
 
         self.clean_up(datetime.datetime.now(datetime.timezone.utc))
 
@@ -181,6 +181,7 @@ class User:
                 value.guild.id,
             )
 
+        # TODO Figure out a nice way to implement an iter() on this
         for message_obj in self.messages:
             if message == message_obj:
                 raise DuplicateObject
@@ -339,7 +340,7 @@ class User:
         guild_message : str
             A message to send in the guild for whoever is being punished
         method : str
-            A string denoting the type of punishment
+            A string denoting the ignore_type of punishment
 
         Raises
         ======

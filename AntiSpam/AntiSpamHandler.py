@@ -44,7 +44,6 @@ this is responsible for handling interaction with Guilds etc
 
 
 # TODO Check on attempted kick/ban that the bot actually has perms
-# TODO Possibly check that on init as well ^
 
 
 class AntiSpamHandler:
@@ -162,9 +161,9 @@ class AntiSpamHandler:
         ignore_bots : bool, optional
             Should bots bypass anti-spam?
         """
-        # Just gotta casually type check everything.
+        # Just gotta casually ignore_type check everything.
         if not isinstance(bot, commands.Bot):
-            raise ValueError("Expected channel of type: commands.Bot")
+            raise ValueError("Expected channel of ignore_type: commands.Bot")
 
         if not isinstance(verbose_level, int):
             raise ValueError("Verbosity should be an int between 0-5")
@@ -172,34 +171,34 @@ class AntiSpamHandler:
             raise ValueError("Verbosity should be between 0-5")
 
         if not isinstance(warn_threshold, int) and warn_threshold is not None:
-            raise ValueError("Expected warn_threshold of type: int")
+            raise ValueError("Expected warn_threshold of ignore_type: int")
 
         if not isinstance(kick_threshold, int) and kick_threshold is not None:
-            raise ValueError("Expected kick_threshold of type: int")
+            raise ValueError("Expected kick_threshold of ignore_type: int")
 
         if not isinstance(ban_threshold, int) and ban_threshold is not None:
-            raise ValueError("Expected ban_threshold of type: int")
+            raise ValueError("Expected ban_threshold of ignore_type: int")
 
         if not isinstance(message_interval, int) and message_interval is not None:
-            raise ValueError("Expected message_interval of type: int")
+            raise ValueError("Expected message_interval of ignore_type: int")
 
         if message_interval is not None and message_interval < 1000:
             raise BaseASHException("Minimum message_interval is 1 seconds (1000 ms)")
 
         if not isinstance(warn_message, str) and warn_message is not None:
-            raise ValueError("Expected warn_message of type: str")
+            raise ValueError("Expected warn_message of ignore_type: str")
 
         if not isinstance(kick_message, str) and kick_message is not None:
-            raise ValueError("Expected kick_message of type: str")
+            raise ValueError("Expected kick_message of ignore_type: str")
 
         if not isinstance(ban_message, str) and ban_message is not None:
-            raise ValueError("Expected ban_message of type: str")
+            raise ValueError("Expected ban_message of ignore_type: str")
 
         if (
             not isinstance(message_duplicate_count, int)
             and message_duplicate_count is not None
         ):
-            raise ValueError("Expected message_duplicate_count of type: int")
+            raise ValueError("Expected message_duplicate_count of ignore_type: int")
 
         # Convert message_duplicate_accuracy from int to float if exists
         if isinstance(message_duplicate_accuracy, int):
@@ -208,7 +207,9 @@ class AntiSpamHandler:
             not isinstance(message_duplicate_accuracy, float)
             and message_duplicate_accuracy is not None
         ):
-            raise ValueError("Expected message_duplicate_accuracy of type: float")
+            raise ValueError(
+                "Expected message_duplicate_accuracy of ignore_type: float"
+            )
         if message_duplicate_accuracy is not None:
             if 1.0 > message_duplicate_accuracy or message_duplicate_accuracy > 100.0:
                 # Only accept values between 1 and 100
@@ -217,24 +218,24 @@ class AntiSpamHandler:
                 )
 
         if not isinstance(ignore_perms, list) and ignore_perms is not None:
-            raise ValueError("Expected ignore_perms of type: list")
+            raise ValueError("Expected ignore_perms of ignore_type: list")
 
         if not isinstance(ignore_users, list) and ignore_users is not None:
-            raise ValueError("Expected ignore_users of type: list")
+            raise ValueError("Expected ignore_users of ignore_type: list")
 
         if not isinstance(ignore_channels, list) and ignore_channels is not None:
-            raise ValueError("Expected ignore_channels of type: list")
+            raise ValueError("Expected ignore_channels of ignore_type: list")
 
         if not isinstance(ignore_roles, list) and ignore_roles is not None:
-            raise ValueError("Expected ignore_roles of type: list")
+            raise ValueError("Expected ignore_roles of ignore_type: list")
 
         if not isinstance(ignore_guilds, list) and ignore_guilds is not None:
-            raise ValueError("Expected ignore_guilds of type: list")
+            raise ValueError("Expected ignore_guilds of ignore_type: list")
 
         if not isinstance(ignore_bots, bool) and ignore_bots is not None:
-            raise ValueError("Expected ignore_bots of type: bool")
+            raise ValueError("Expected ignore_bots of ignore_type: bool")
 
-        # Now we have type checked everything, lets do some logic
+        # Now we have ignore_type checked everything, lets do some logic
         if ignore_bots is None:
             ignore_bots = Static.DEFAULTS.get("ignore_bots")
 
@@ -305,7 +306,7 @@ class AntiSpamHandler:
             The message that needs to be propagated out
         """
         if not isinstance(message, discord.Message):
-            raise ValueError("Expected message of type: discord.Message")
+            raise ValueError("Expected message of ignore_type: discord.Message")
 
         # Ensure we only moderate actual guild messages
         if not message.guild:
@@ -355,7 +356,7 @@ class AntiSpamHandler:
 
         guild.propagate(message)
 
-    def add_ignored_item(self, item: int, type: str) -> None:
+    def add_ignored_item(self, item: int, ignore_type: str) -> None:
         """
         Add an item to the relevant ignore list
 
@@ -363,47 +364,47 @@ class AntiSpamHandler:
         ----------
         item : int
             The id of the thing to ignore
-        type : str
+        ignore_type : str
             A string representation of the ignored
             items overall container
 
         Raises
         ======
         BaseASHException
-            Invalid ignore type
+            Invalid ignore ignore_type
         ValueError
-            item is not of type int or int convertible
+            item is not of ignore_type int or int convertible
 
         Notes
         =====
         This will silently ignore any attempts
         to add an item already added.
         """
-        type = type.lower()
+        ignore_type = ignore_type.lower()
         if not isinstance(item, int):
             item = int(item)
 
-        if type == "user":
+        if ignore_type == "user":
             if item not in self.options["ignore_users"]:
                 self.options["ignore_users"].append(item)
-        elif type == "channel":
+        elif ignore_type == "channel":
             if item not in self.options["ignore_channels"]:
                 self.options["ignore_channels"].append(item)
-        elif type == "perm":
+        elif ignore_type == "perm":
             if item not in self.options["ignore_perms"]:
                 self.options["ignore_perms"].append(item)
-        elif type == "guild":
+        elif ignore_type == "guild":
             if item not in self.options["ignore_guilds"]:
                 self.options["ignore_guilds"].append(item)
-        elif type == "role":
+        elif ignore_type == "role":
             if item not in self.options["ignore_roles"]:
                 self.options["ignore_roles"].append(item)
         else:
-            raise BaseASHException("Invalid ignore type")
+            raise BaseASHException("Invalid ignore ignore_type")
 
-        self.logger.debug(f"Ignored {type}: {item}")
+        self.logger.debug(f"Ignored {ignore_type}: {item}")
 
-    def remove_ignored_item(self, item: int, type: str) -> None:
+    def remove_ignored_item(self, item: int, ignore_type: str) -> None:
         """
         Remove an item from the relevant ignore list
 
@@ -411,42 +412,42 @@ class AntiSpamHandler:
         ----------
         item : int
             The id of the thing to unignore
-        type : str
+        ignore_type : str
             A string representation of the ignored
             items overall container
 
         Raises
         ======
         BaseASHException
-            Invalid ignore type
+            Invalid ignore ignore_type
         ValueError
-            item is not of type int or int convertible
+            item is not of ignore_type int or int convertible
 
         Notes
         =====
         This will silently ignore any attempts
         to remove an item not ignored.
         """
-        type = type.lower()
+        ignore_type = ignore_type.lower()
         if not isinstance(item, int):
             item = int(item)
 
-        if type == "user":
+        if ignore_type == "user":
             if item in self.options["ignore_users"]:
                 index = self.options["ignore_users"].index(item)
                 self.options["ignore_users"].pop(index)
-        elif type == "channel":
+        elif ignore_type == "channel":
             if item in self.options["ignore_channels"]:
                 index = self.options["ignore_channels"].index(item)
                 self.options["ignore_channels"].pop(index)
-        elif type == "perm":
+        elif ignore_type == "perm":
             if item in self.options["ignore_perms"]:
                 index = self.options["ignore_perms"].index(item)
                 self.options["ignore_perms"].pop(index)
         else:
-            raise BaseASHException("Invalid ignore type")
+            raise BaseASHException("Invalid ignore ignore_type")
 
-        self.logger.debug(f"Un-Ignored {type}: {item}")
+        self.logger.debug(f"Un-Ignored {ignore_type}: {item}")
 
     # <-- Getter & Setters -->
     @property

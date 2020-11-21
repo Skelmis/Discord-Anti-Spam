@@ -64,12 +64,12 @@ class Message:
         Raises
         ======
         ValueError
-            When an item is not the correct type for conversion
+            When an item is not the correct ignore_type for conversion
 
         Notes
         =====
-        This enforces strict types by conversion and type checking
-        pass through of the correct type is required.
+        This enforces strict types by conversion and ignore_type checking
+        pass through of the correct ignore_type is required.
         """
         self.id = int(id)
         self.content = str(content)
@@ -109,7 +109,7 @@ class Message:
         Raises
         ======
         ValueError
-            When the comparison object is not of type `Message`
+            When the comparison object is not of ignore_type `Message`
 
         Notes
         =====

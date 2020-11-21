@@ -28,7 +28,7 @@ import asyncio
 import discord
 
 from AntiSpam import User
-from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject
+from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject, MissingGuildPermissions
 from AntiSpam.static import Static
 
 
@@ -94,7 +94,7 @@ class Guild:
         Raises
         ======
         ValueError
-            When the comparison object is not of type `Message`
+            When the comparison object is not of ignore_type `Message`
         """
         if not isinstance(other, Guild):
             raise ValueError("Expected two Guild objects to compare")
@@ -126,7 +126,7 @@ class Guild:
             The message that needs to be propagated out
         """
         if not isinstance(message, discord.Message):
-            raise ValueError("Expected message of type: discord.Message")
+            raise ValueError("Expected message of ignore_type: discord.Message")
 
         user = User(
             self._bot,
@@ -135,12 +135,11 @@ class Guild:
             self.options,
             logger=self.logger,
         )
-        for userObj in self.users:
-            if user == userObj:
-                return userObj.propagate(message)
-
-        self.users = user
-        self.logger.info(f"Created User: {user.id}")
+        try:
+            user = next(iter(u for u in self._users if u == user))
+        except StopIteration:
+            self.users = user
+            self.logger.info(f"Created User: {user.id}")
 
         user.propagate(message)
 
