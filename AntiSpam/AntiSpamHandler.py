@@ -20,17 +20,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-
-import datetime
 import logging
-import time
 
 import discord
 from discord.ext import commands
 
-from AntiSpam import Guild, static
+from AntiSpam import Guild
 from AntiSpam.Exceptions import (
-    ObjectMismatch,
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,

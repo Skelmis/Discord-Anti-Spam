@@ -234,7 +234,7 @@ class User:
                     }
                 )
 
-                asyncio.ensure_future(self.send_to_obj(channel, message))
+                asyncio.ensure_future(self._send_to_obj(channel, message))
                 self.warn_count += 1
 
             elif (
@@ -252,7 +252,7 @@ class User:
                     }
                 )
                 asyncio.ensure_future(
-                    self.PunishUser(
+                    self._punish_user(
                         value.guild,
                         value.author,
                         dc_channel,
@@ -274,7 +274,7 @@ class User:
                     }
                 )
                 asyncio.ensure_future(
-                    self.PunishUser(
+                    self._punish_user(
                         value.guild,
                         value.author,
                         dc_channel,
@@ -288,7 +288,7 @@ class User:
             else:
                 raise LogicError
 
-    async def send_to_obj(self, messageable_obj, message):
+    async def _send_to_obj(self, messageable_obj, message):
         """
         Send a given message to an abc.messageable object
 
@@ -318,7 +318,7 @@ class User:
         """
         return await messageable_obj.send(message)
 
-    async def PunishUser(
+    async def _punish_user(
         self, guild, user, dc_channel, user_message, guild_message, method
     ):
         """
@@ -366,9 +366,9 @@ class User:
         try:
             # Attempt to message the punished user, about their punishment
             try:
-                m = await self.send_to_obj(user, user_message)
+                m = await self._send_to_obj(user, user_message)
             except discord.HTTPException:
-                await self.send_to_obj(
+                await self._send_to_obj(
                     dc_channel,
                     f"Sending a message to {user.mention} about their {method} failed.",
                 )
@@ -391,31 +391,31 @@ class User:
                     else:
                         raise NotImplementedError
                 except discord.Forbidden:
-                    await self.send_to_obj(
+                    await self._send_to_obj(
                         dc_channel, f"I do not have permission to kick: {user.mention}"
                     )
                     self.logger.warn(f"Required Permissions are missing for: {method}")
                     if m is not None:
-                        await self.send_to_obj(
+                        await self._send_to_obj(
                             user,
                             "I failed to punish you because I lack permissions, but still you shouldn't do it.",
                         )
 
                 except discord.HTTPException:
-                    await self.send_to_obj(
+                    await self._send_to_obj(
                         dc_channel,
                         f"An error occurred trying to {method}: {user.mention}",
                     )
                     self.logger.warn(f"An error occurred trying to {method}: {user.id}")
                     if m is not None:
-                        await self.send_to_obj(
+                        await self._send_to_obj(
                             user,
                             "I failed to punish you because I lack permissions, but still you shouldn't do it.",
                         )
 
                 else:
                     try:
-                        await self.send_to_obj(dc_channel, guild_message)
+                        await self._send_to_obj(dc_channel, guild_message)
                     except discord.HTTPException:
                         self.logger.error(
                             f"Failed to send message.\n"
@@ -444,7 +444,7 @@ class User:
         """
         self.logger.debug("Attempting to remove outdated Message's")
 
-        def is_still_valid(message):
+        def _is_still_valid(message):
             """
             Given a message, figure out if it hasnt
             expired yet based on timestamps
@@ -462,7 +462,7 @@ class User:
         outstandingMessages = []
 
         for message in self._messages:
-            if is_still_valid(message):
+            if _is_still_valid(message):
                 currentMessages.append(message)
             else:
                 outstandingMessages.append(message)
