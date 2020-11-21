@@ -458,7 +458,10 @@ class AntiSpamHandler:
         wether a user is in the guild or not.
         """
         guild = Guild(self.bot, guildId, self.options, logger=self.logger)
-        guild = next(iter(g for g in self.guilds if g == guild))
+        try:
+            guild = next(iter(g for g in self.guilds if g == guild))
+        except StopIteration:
+            pass
         guild.updateInGuildState(userID)
 
     # <-- Getter & Setters -->
