@@ -27,6 +27,9 @@ things associated with this project. Should help to keep everything
 findable, readable, modifiable etc
 """
 
+# TODO Add what you can and can't use message substitution things
+#      Things like $MENTIONUSER and what they do, etc, etc
+
 
 class Static:
     # The default options for ASH
