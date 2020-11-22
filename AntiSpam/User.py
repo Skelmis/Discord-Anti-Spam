@@ -514,6 +514,7 @@ class User:
             The correctly substituted message
 
         """
+        # TODO Add more optionsssssssss
         return Template(message).safe_substitute(
             {
                 "MENTIONUSER": value.author.mention,
