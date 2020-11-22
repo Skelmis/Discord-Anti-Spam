@@ -305,6 +305,7 @@ class User:
             The sent messages object
 
         """
+        # TODO Add embed sending using from_dict
         return await messageable_obj.send(message)
 
     async def _punish_user(

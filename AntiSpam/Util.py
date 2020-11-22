@@ -25,6 +25,8 @@ DEALINGS IN THE SOFTWARE.
 A short utility for random functions which don't fit into an object
 """
 
+# TODO Move classmethods here to free up performance
+
 
 def embed_to_string(embed) -> str:
     """
