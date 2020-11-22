@@ -40,7 +40,7 @@ class DuplicateObject(BaseASHException):
 
 
 class ObjectMismatch(BaseASHException):
-    """Raised because you attempted add a message to a user, but that user didn't create that message."""
+    """Raised because you attempted add a message to a member, but that member didn't create that message."""
 
 
 class LogicError(BaseASHException):

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="Discord Anti-Spam",
-    version="0.2",
+    version="0.2.1",
     author="Skelmis",
     author_email="ethan@koldfusion.xyz",
     description="An easy to use package for anti-spam features in discord.py.",

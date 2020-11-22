@@ -95,7 +95,7 @@ class AntiSpamHandler:
             Should bots bypass anti-spam? (True|False)
     """
 
-    # TODO Add options for group spamming, rather then just per user.
+    # TODO Add options for group spamming, rather then just per member.
     #      This could possibly be implemented at a Guild() level
     # TODO Add the ability to lockdown channels in certain situations
     # TODO Add bypass's for modes, so bypass warn mode. (Can be avoided by simply setting warn higher then kick)
@@ -315,7 +315,7 @@ class AntiSpamHandler:
         if self.options["ignore_bots"] and message.author.bot:
             return
 
-        # Return if ignored user
+        # Return if ignored member
         if message.author.id in self.options["ignore_users"]:
             return
 
@@ -323,7 +323,7 @@ class AntiSpamHandler:
         if message.channel.id in self.options["ignore_channels"]:
             return
 
-        # Return if user has an ignored role
+        # Return if member has an ignored role
         userRolesId = [role.id for role in message.author.roles]
         for userRoleId in userRolesId:
             if userRoleId in self.options.get("ignore_roles"):
@@ -380,7 +380,7 @@ class AntiSpamHandler:
         if not isinstance(item, int):
             item = int(item)
 
-        if ignore_type == "user":
+        if ignore_type == "member":
             if item not in self.options["ignore_users"]:
                 self.options["ignore_users"].append(item)
         elif ignore_type == "channel":
@@ -428,7 +428,7 @@ class AntiSpamHandler:
         if not isinstance(item, int):
             item = int(item)
 
-        if ignore_type == "user":
+        if ignore_type == "member":
             if item in self.options["ignore_users"]:
                 index = self.options["ignore_users"].index(item)
                 self.options["ignore_users"].pop(index)

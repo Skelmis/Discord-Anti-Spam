@@ -42,7 +42,7 @@ from AntiSpam.Util import embed_to_string
 
 
 class User:
-    """A class dedicated to maintaining a user, and any relevant messages in a single guild.
+    """A class dedicated to maintaining a member, and any relevant messages in a single guild.
 
     """
 
@@ -68,9 +68,9 @@ class User:
         bot : commands.bot
             Bot instance
         id : int
-            The relevant user id
+            The relevant member id
         guild_id : int
-            The guild (id) this user is belonging to
+            The guild (id) this member is belonging to
         options : Dict
             The options we need to check against
         """
@@ -137,7 +137,7 @@ class User:
     def propagate(self, value: discord.Message):
         """
         This method handles a message object and then adds it to
-        the relevant user
+        the relevant member
 
         Parameters
         ==========
@@ -186,32 +186,30 @@ class User:
             if message == message_obj:
                 raise DuplicateObject
 
-        relation_to_others = []
-        for message_obj in self.messages[::-1]:
+        for message_obj in self.messages:
             # This calculates the relation to each other
-            relation_to_others.append(
+            if (
                 fuzz.token_sort_ratio(message.content, message_obj.content)
-            )
-
-        self.messages = message
-        self.logger.info(f"Created Message: {message.id}")
-
-        # Check if this message is a duplicate of the most recent messages
-        for i, proportion in enumerate(relation_to_others):
-            if proportion >= self.options["message_duplicate_accuracy"]:
+                >= self.options["message_duplicate_accuracy"]
+            ):
                 """
                 The handler works off an internal message duplicate counter 
                 so just increment that and then let our logic process it
                 """
                 self.duplicate_counter += 1
                 message.is_duplicate = True
-                break  # we don't want to increment to much
+
+                if self.duplicate_counter >= self.options["message_duplicate_count"]:
+                    break
+
+        self.messages = message
+        self.logger.info(f"Created Message: {message.id}")
 
         if self.duplicate_counter >= self.options["message_duplicate_count"]:
             self.logger.debug(
                 f"Message: ({message.id}) requires some form of punishment"
             )
-            # We need to punish the user with something
+            # We need to punish the member with something
 
             if (
                 self.duplicate_counter >= self.options["warn_threshold"]
@@ -220,12 +218,12 @@ class User:
             ):
                 self.logger.debug(f"Attempting to warn: {message.author_id}")
                 """
-                The user has yet to reach the warn threshold,
+                The member has yet to reach the warn threshold,
                 after the warn threshold is reached this will
                 then become a kick and so on
                 """
                 # We are still in the warning area
-                # TODO Tell the user if its there final warning before a kick
+                # TODO Tell the member if its there final warning before a kick
                 channel = value.channel
                 message = Template(self.options["warn_message"]).safe_substitute(
                     {
@@ -242,8 +240,8 @@ class User:
                 and self.kick_count < self.options["ban_threshold"]
             ):
                 self.logger.debug(f"Attempting to kick: {message.author_id}")
-                # We should kick the user
-                # TODO Tell the user if its there final kick before a ban
+                # We should kick the member
+                # TODO Tell the member if its there final kick before a ban
                 dc_channel = value.channel
                 message = Template(self.options["kick_message"]).safe_substitute(
                     {
@@ -265,7 +263,7 @@ class User:
 
             elif self.kick_count >= self.options["ban_threshold"]:
                 self.logger.debug(f"Attempting to ban: {message.author_id}")
-                # We should ban the user
+                # We should ban the member
                 dc_channel = value.channel
                 message = Template(self.options["ban_message"]).safe_substitute(
                     {
@@ -319,7 +317,7 @@ class User:
         return await messageable_obj.send(message)
 
     async def _punish_user(
-        self, guild, user, dc_channel, user_message, guild_message, method
+        self, guild, member, dc_channel, user_message, guild_message, method
     ):
         """
         A generic method to handle multiple methods of punishment for a user.
@@ -331,8 +329,8 @@ class User:
         ----------
         guild : discord.Guild
             The guild to punish the user in
-        user : discord.User
-            The user to punish
+        member : discord.Member
+            The member to punish
         dc_channel : discord.TextChannel
             The channel to send the punishment message to
         user_message : str
@@ -351,28 +349,47 @@ class User:
         if method != Static.KICK and method != Static.BAN:
             raise LogicError(f"{method} is not a recognized punishment method.")
 
-        perms = guild.me.guild_permissions  # TODO Test this
-        if not perms.kick_members:
+        # Check we have perms to punish
+        perms = guild.me.guild_permissions
+        if not perms.kick_members and method == Static.KICK:
             raise MissingGuildPermissions(
                 f"I need kick perms to punish someone in {guild.name}"
             )
-        elif not perms.ban_members:
+
+        elif not perms.ban_members and method == Static.BAN:
             raise MissingGuildPermissions(
                 f"I need ban perms to punish someone in {guild.name}"
+            )
+
+        # We also check they don't own the guild, since ya know...
+        elif guild.owner_id == member.id:
+            raise MissingGuildPermissions(
+                f"I cannot punish {member.display_name}({member.id}) "
+                f"because they own this guild. ({guild.name})"
+            )
+
+        # Ensure we can actually punish the user, for this
+        # we just check our top role is higher then them
+        elif guild.me.top_role < member.top_role:
+            self.logger.warn(
+                f"I might not be able to punish {member.display_name}({member.id}) in {guild.name}({guild.id}) "
+                "because they are higher then me, which means I could lack the ability to kick/ban them."
             )
 
         m = None
 
         try:
-            # Attempt to message the punished user, about their punishment
+            # Attempt to message the punished member, about their punishment
             try:
-                m = await self._send_to_obj(user, user_message)
+                m = await self._send_to_obj(member, user_message)
             except discord.HTTPException:
                 await self._send_to_obj(
                     dc_channel,
-                    f"Sending a message to {user.mention} about their {method} failed.",
+                    f"Sending a message to {member.mention} about their {method} failed.",
                 )
-                self.logger.warn(f"Failed to message User: ({user.id}) about {method}")
+                self.logger.warn(
+                    f"Failed to message User: ({member.id}) about {method}"
+                )
             finally:
 
                 # Even if we can't tell them they are being punished
@@ -380,38 +397,43 @@ class User:
                 try:
                     if method == Static.KICK:
                         await guild.kick(
-                            user, reason="Automated punishment from DPY Anti-Spam."
+                            member, reason="Automated punishment from DPY Anti-Spam."
                         )
-                        self.logger.info(f"Kicked User: ({user.id})")
+                        self.logger.info(f"Kicked User: ({member.id})")
                     elif method == Static.BAN:
                         await guild.ban(
-                            user, reason="Automated punishment from DPY Anti-Spam."
+                            member, reason="Automated punishment from DPY Anti-Spam."
                         )
-                        self.logger.info(f"Banned User: ({user.id})")
+                        self.logger.info(f"Banned User: ({member.id})")
                     else:
                         raise NotImplementedError
                 except discord.Forbidden:
                     await self._send_to_obj(
-                        dc_channel, f"I do not have permission to kick: {user.mention}"
+                        dc_channel,
+                        f"I do not have permission to kick: {member.mention}",
                     )
                     self.logger.warn(f"Required Permissions are missing for: {method}")
                     if m is not None:
                         await self._send_to_obj(
-                            user,
-                            "I failed to punish you because I lack permissions, but still you shouldn't do it.",
+                            member,
+                            "I failed to punish you because I lack permissions, but still you shouldn't spam.",
                         )
+                        await m.delete()
 
                 except discord.HTTPException:
                     await self._send_to_obj(
                         dc_channel,
-                        f"An error occurred trying to {method}: {user.mention}",
+                        f"An error occurred trying to {method}: {member.mention}",
                     )
-                    self.logger.warn(f"An error occurred trying to {method}: {user.id}")
+                    self.logger.warn(
+                        f"An error occurred trying to {method}: {member.id}"
+                    )
                     if m is not None:
                         await self._send_to_obj(
-                            user,
-                            "I failed to punish you because I lack permissions, but still you shouldn't do it.",
+                            member,
+                            "I failed to punish you because I lack permissions, but still you shouldn't spam.",
                         )
+                        await m.delete()
 
                 else:
                     try:

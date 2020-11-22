@@ -118,7 +118,7 @@ class Guild:
     def propagate(self, message: discord.Message):
         """
         This method handles a message object and then adds it to
-        the relevant user
+        the relevant member
 
         Parameters
         ==========
@@ -143,7 +143,7 @@ class Guild:
 
         user.propagate(message)
 
-        # TODO Cleanup after a user is banned
+        # TODO Cleanup after a member is banned
 
     @property
     def id(self):

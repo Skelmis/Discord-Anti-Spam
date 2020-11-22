@@ -46,7 +46,7 @@ class TestUser(unittest.TestCase):
 
     def test_ObjectMismatch(self):
         self.assertEqual(
-            "Raised because you attempted add a message to a user, but that user didn't create that message.",
+            "Raised because you attempted add a message to a member, but that member didn't create that message.",
             str(ObjectMismatch()),
         )
 
