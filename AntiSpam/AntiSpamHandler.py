@@ -59,14 +59,20 @@ class AntiSpamHandler:
         message_interval: 30000ms (30 Seconds)
             Amount of time a message is kept before being discarded. Essentially the amount of time (In milliseconds) a message can count towards spam
 
-        warn_message: "Hey $MENTIONUSER, please stop spamming/sending duplicate messages."
-            The message to be sent upon warn_threshold being reached
+        guild_warn_message: "Hey $MENTIONUSER, please stop spamming/sending duplicate messages."
+            The message to be sent in the guild upon warn_threshold being reached
 
-        kick_message: "$USERNAME was kicked for spamming/sending duplicate messages."
-            The message to be sent up kick_threshold being reached
+        guild_kick_message: "$USERNAME was kicked for spamming/sending duplicate messages."
+            The message to be sent in the guild upon kick_threshold being reached
 
-        ban_message: "$USERNAME was banned for spamming/sending duplicate messages."
-            The message to be sent up ban_threshold being reached
+        guild_ban_message: "$USERNAME was banned for spamming/sending duplicate messages."
+            The message to be sent in the guild upon ban_threshold being reached
+
+        user_kick_message : "Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/sending duplicate messages."
+            The message to be sent to the user who is being warned
+
+        user_ban_message : "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/sending duplicate messages."
+            The message to be sent to the user who is being banned
 
         message_duplicate_count: 5
             The amount of duplicate messages needed within message_interval to trigger a punishment
@@ -111,9 +117,11 @@ class AntiSpamHandler:
         kick_threshold=None,
         ban_threshold=None,
         message_interval=None,
-        warn_message=None,
-        kick_message=None,
-        ban_message=None,
+        guild_warn_message=None,
+        guild_kick_message=None,
+        guild_ban_message=None,
+        user_kick_message=None,
+        user_ban_message=None,
         message_duplicate_count=None,
         message_duplicate_accuracy=None,
         ignore_perms=None,
@@ -140,12 +148,16 @@ class AntiSpamHandler:
         message_interval : int, optional
             Amount of time a message is kept before being discarded.
             Essentially the amount of time (In milliseconds) a message can count towards spam
-        warn_message : str, optional
-            The message to be sent upon warnThreshold being reached
-        kick_message : str, optional
-            The message to be sent up kickThreshold being reached
-        ban_message : str, optional
-            The message to be sent up banThreshold being reached
+        guild_warn_message : str, optional
+            The message to be sent in the guild upon warn_threshold being reached
+        guild_kick_message : str, optional
+            The message to be sent in the guild upon kick_threshold being reached
+        guild_ban_message : str, optional
+            The message to be sent in the guild upon ban_threshold being reached
+        user_kick_message : str, optional
+            The message to be sent to the user who is being warned
+        user_ban_message : str, optional
+            The message to be sent to the user who is being banned
         message_duplicate_count : int, optional
             Amount of duplicate messages needed to trip a punishment
         message_duplicate_accuracy : float, optional
@@ -159,7 +171,7 @@ class AntiSpamHandler:
         """
         # Just gotta casually ignore_type check everything.
         if not isinstance(bot, commands.Bot):
-            raise ValueError("Expected channel of ignore_type: commands.Bot")
+            raise ValueError("Expected channel of type commands.Bot")
 
         if not isinstance(verbose_level, int):
             raise ValueError("Verbosity should be an int between 0-5")
@@ -167,34 +179,40 @@ class AntiSpamHandler:
             raise ValueError("Verbosity should be between 0-5")
 
         if not isinstance(warn_threshold, int) and warn_threshold is not None:
-            raise ValueError("Expected warn_threshold of ignore_type: int")
+            raise ValueError("Expected warn_threshold of type int")
 
         if not isinstance(kick_threshold, int) and kick_threshold is not None:
-            raise ValueError("Expected kick_threshold of ignore_type: int")
+            raise ValueError("Expected kick_threshold of type int")
 
         if not isinstance(ban_threshold, int) and ban_threshold is not None:
-            raise ValueError("Expected ban_threshold of ignore_type: int")
+            raise ValueError("Expected ban_threshold of type int")
 
         if not isinstance(message_interval, int) and message_interval is not None:
-            raise ValueError("Expected message_interval of ignore_type: int")
+            raise ValueError("Expected message_interval of type int")
 
         if message_interval is not None and message_interval < 1000:
             raise BaseASHException("Minimum message_interval is 1 seconds (1000 ms)")
 
-        if not isinstance(warn_message, str) and warn_message is not None:
-            raise ValueError("Expected warn_message of ignore_type: str")
+        if not isinstance(guild_warn_message, str) and guild_warn_message is not None:
+            raise ValueError("Expected guild_warn_message of type str")
 
-        if not isinstance(kick_message, str) and kick_message is not None:
-            raise ValueError("Expected kick_message of ignore_type: str")
+        if not isinstance(guild_kick_message, str) and guild_kick_message is not None:
+            raise ValueError("Expected guild_kick_message of type str")
 
-        if not isinstance(ban_message, str) and ban_message is not None:
-            raise ValueError("Expected ban_message of ignore_type: str")
+        if not isinstance(guild_ban_message, str) and guild_ban_message is not None:
+            raise ValueError("Expected guild_ban_message of type str")
+
+        if not isinstance(user_kick_message, str) and user_kick_message is not None:
+            raise ValueError("Expected user_kick_message of type str")
+
+        if not isinstance(user_ban_message, str) and user_ban_message is not None:
+            raise ValueError("Expected user_ban_message of type str")
 
         if (
             not isinstance(message_duplicate_count, int)
             and message_duplicate_count is not None
         ):
-            raise ValueError("Expected message_duplicate_count of ignore_type: int")
+            raise ValueError("Expected message_duplicate_count of type int")
 
         # Convert message_duplicate_accuracy from int to float if exists
         if isinstance(message_duplicate_accuracy, int):
@@ -203,9 +221,7 @@ class AntiSpamHandler:
             not isinstance(message_duplicate_accuracy, float)
             and message_duplicate_accuracy is not None
         ):
-            raise ValueError(
-                "Expected message_duplicate_accuracy of ignore_type: float"
-            )
+            raise ValueError("Expected message_duplicate_accuracy of type float")
         if message_duplicate_accuracy is not None:
             if 1.0 > message_duplicate_accuracy or message_duplicate_accuracy > 100.0:
                 # Only accept values between 1 and 100
@@ -214,22 +230,22 @@ class AntiSpamHandler:
                 )
 
         if not isinstance(ignore_perms, list) and ignore_perms is not None:
-            raise ValueError("Expected ignore_perms of ignore_type: list")
+            raise ValueError("Expected ignore_perms of type list")
 
         if not isinstance(ignore_users, list) and ignore_users is not None:
-            raise ValueError("Expected ignore_users of ignore_type: list")
+            raise ValueError("Expected ignore_users of type list")
 
         if not isinstance(ignore_channels, list) and ignore_channels is not None:
-            raise ValueError("Expected ignore_channels of ignore_type: list")
+            raise ValueError("Expected ignore_channels of type list")
 
         if not isinstance(ignore_roles, list) and ignore_roles is not None:
-            raise ValueError("Expected ignore_roles of ignore_type: list")
+            raise ValueError("Expected ignore_roles of type list")
 
         if not isinstance(ignore_guilds, list) and ignore_guilds is not None:
-            raise ValueError("Expected ignore_guilds of ignore_type: list")
+            raise ValueError("Expected ignore_guilds of type list")
 
         if not isinstance(ignore_bots, bool) and ignore_bots is not None:
-            raise ValueError("Expected ignore_bots of ignore_type: bool")
+            raise ValueError("Expected ignore_bots of type bool")
 
         # Now we have ignore_type checked everything, lets do some logic
         if ignore_bots is None:
@@ -253,9 +269,16 @@ class AntiSpamHandler:
             "ban_threshold": ban_threshold or Static.DEFAULTS.get("ban_threshold"),
             "message_interval": message_interval
             or Static.DEFAULTS.get("message_interval"),
-            "warn_message": warn_message or Static.DEFAULTS.get("warn_message"),
-            "kick_message": kick_message or Static.DEFAULTS.get("kick_message"),
-            "ban_message": ban_message or Static.DEFAULTS.get("ban_message"),
+            "guild_warn_message": guild_warn_message
+            or Static.DEFAULTS.get("guild_warn_message"),
+            "guild_kick_message": guild_kick_message
+            or Static.DEFAULTS.get("guild_kick_message"),
+            "guild_ban_message": guild_ban_message
+            or Static.DEFAULTS.get("guild_ban_message"),
+            "user_kick_message": user_kick_message
+            or Static.DEFAULTS.get("user_kick_message"),
+            "user_ban_message": user_ban_message
+            or Static.DEFAULTS.get("user_ban_message"),
             "message_duplicate_count": message_duplicate_count
             or Static.DEFAULTS.get("message_duplicate_count"),
             "message_duplicate_accuracy": message_duplicate_accuracy

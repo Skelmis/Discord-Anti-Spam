@@ -11,6 +11,7 @@ Welcome to DPY Anti-Spam's documentation!
    :caption: Main Interface:
 
    modules/handler.rst
+   modules/options.rst
 
 .. toctree::
    :maxdepth: 2

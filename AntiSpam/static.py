@@ -27,9 +27,6 @@ things associated with this project. Should help to keep everything
 findable, readable, modifiable etc
 """
 
-# TODO Add what you can and can't use message substitution things
-#      Things like $MENTIONUSER and what they do, etc, etc
-
 
 class Static:
     # The default options for ASH
@@ -38,9 +35,13 @@ class Static:
         "kick_threshold": 2,
         "ban_threshold": 2,
         "message_interval": 30000,  # 30 Seconds
-        "warn_message": "Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
-        "kick_message": "$USERNAME was kicked for spamming/sending duplicate messages.",
-        "ban_message": "$USERNAME was banned for spamming/sending duplicate messages.",
+        "guild_warn_message": "Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
+        "guild_kick_message": "$USERNAME was kicked for spamming/sending duplicate messages.",
+        "guild_ban_message": "$USERNAME was banned for spamming/sending duplicate messages.",
+        "user_kick_message": "Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/"
+        "sending duplicate messages.",
+        "user_ban_message": "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/"
+        "sending duplicate messages.",
         "message_duplicate_count": 5,
         "message_duplicate_accuracy": 90,
         "ignore_perms": [8],

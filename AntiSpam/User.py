@@ -225,11 +225,8 @@ class User:
                 # We are still in the warning area
                 # TODO Tell the member if its there final warning before a kick
                 channel = value.channel
-                message = Template(self.options["warn_message"]).safe_substitute(
-                    {
-                        "MENTIONUSER": value.author.mention,
-                        "USERNAME": value.author.display_name,
-                    }
+                message = self._transform_message(
+                    self.options["guild_warn_message"], value
                 )
 
                 asyncio.ensure_future(self._send_to_obj(channel, message))
@@ -243,11 +240,8 @@ class User:
                 # We should kick the member
                 # TODO Tell the member if its there final kick before a ban
                 dc_channel = value.channel
-                message = Template(self.options["kick_message"]).safe_substitute(
-                    {
-                        "MENTIONUSER": value.author.mention,
-                        "USERNAME": value.author.display_name,
-                    }
+                message = self._transform_message(
+                    self.options["guild_kick_message"], value
                 )
                 asyncio.ensure_future(
                     self._punish_user(
@@ -265,11 +259,8 @@ class User:
                 self.logger.debug(f"Attempting to ban: {message.author_id}")
                 # We should ban the member
                 dc_channel = value.channel
-                message = Template(self.options["ban_message"]).safe_substitute(
-                    {
-                        "MENTIONUSER": value.author.mention,
-                        "USERNAME": value.author.display_name,
-                    }
+                message = self._transform_message(
+                    self.options["guild_ban_message"], value
                 )
                 asyncio.ensure_future(
                     self._punish_user(
@@ -503,6 +494,34 @@ class User:
                 )
             elif self.logger.isEnabledFor(logging.DEBUG):
                 self.logger.debug(f"Removing Message: {outstandingMessage.id}")
+
+    def _transform_message(self, message, value) -> str:
+        """
+        Given the options string, return the string
+        with the relevant values substituted in
+
+        Parameters
+        ----------
+        message : str
+            The string to substitute with values
+        value : discord.Message
+            Where we get our values from to substitute
+
+        Returns
+        -------
+        str
+            The correctly substituted message
+
+        """
+        return Template(message).safe_substitute(
+            {
+                "MENTIONUSER": value.author.mention,
+                "USERNAME": value.author.display_name,
+                "USERID": value.author.id,
+                "GUILDID": value.guild.id,
+                "GUILDNAME": value.guild.name,
+            }
+        )
 
     @property
     def id(self):
