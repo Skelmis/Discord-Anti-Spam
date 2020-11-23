@@ -22,6 +22,7 @@ Welcome to DPY Anti-Spam's documentation!
    modules/user.rst
    modules/message.rst
    modules/util.rst
+   modules/exceptions.rst
 
 Install Notes
 -------------
