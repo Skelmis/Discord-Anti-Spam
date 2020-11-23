@@ -12,6 +12,7 @@ Welcome to DPY Anti-Spam's documentation!
 
    modules/handler.rst
    modules/options.rst
+   modules/examples.rst
 
 .. toctree::
    :maxdepth: 2
@@ -20,6 +21,7 @@ Welcome to DPY Anti-Spam's documentation!
    modules/guild.rst
    modules/user.rst
    modules/message.rst
+   modules/util.rst
 
 Install Notes
 -------------

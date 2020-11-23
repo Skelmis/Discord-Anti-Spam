@@ -24,7 +24,6 @@ import logging
 import asyncio
 import datetime
 from copy import deepcopy
-from string import Template
 
 import discord
 
@@ -38,7 +37,7 @@ from AntiSpam.Exceptions import (
     MissingGuildPermissions,
 )
 from AntiSpam.static import Static
-from AntiSpam.Util import embed_to_string
+from AntiSpam.Util import embed_to_string, send_to_obj, transform_message
 
 
 class User:
@@ -225,11 +224,13 @@ class User:
                 # We are still in the warning area
                 # TODO Tell the member if its there final warning before a kick
                 channel = value.channel
-                message = self._transform_message(
-                    self.options["guild_warn_message"], value
+                guild_message = transform_message(
+                    self.options["guild_warn_message"],
+                    value,
+                    {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
 
-                asyncio.ensure_future(self._send_to_obj(channel, message))
+                asyncio.ensure_future(send_to_obj(channel, guild_message))
                 self.warn_count += 1
 
             elif (
@@ -239,78 +240,43 @@ class User:
                 self.logger.debug(f"Attempting to kick: {message.author_id}")
                 # We should kick the member
                 # TODO Tell the member if its there final kick before a ban
-                dc_channel = value.channel
-                message = self._transform_message(
-                    self.options["guild_kick_message"], value
+                guild_message = transform_message(
+                    self.options["guild_kick_message"],
+                    value,
+                    {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                )
+                user_message = transform_message(
+                    self.options["user_kick_message"],
+                    value,
+                    {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
                 asyncio.ensure_future(
-                    self._punish_user(
-                        value.guild,
-                        value.author,
-                        dc_channel,
-                        f"You were kicked from {value.guild.name} for spam.",
-                        message,
-                        Static.KICK,
-                    )
+                    self._punish_user(value, user_message, guild_message, Static.KICK,)
                 )
                 self.kick_count += 1
 
             elif self.kick_count >= self.options["ban_threshold"]:
                 self.logger.debug(f"Attempting to ban: {message.author_id}")
                 # We should ban the member
-                dc_channel = value.channel
-                message = self._transform_message(
-                    self.options["guild_ban_message"], value
+                guild_message = transform_message(
+                    self.options["guild_ban_message"],
+                    value,
+                    {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                )
+                user_message = transform_message(
+                    self.options["user_ban_message"],
+                    value,
+                    {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
                 asyncio.ensure_future(
-                    self._punish_user(
-                        value.guild,
-                        value.author,
-                        dc_channel,
-                        f"You were banned from {value.guild.name} for spam.",
-                        message,
-                        Static.BAN,
-                    )
+                    self._punish_user(value, user_message, guild_message, Static.BAN,)
                 )
                 self.kick_count += 1
 
             else:
                 raise LogicError
 
-    async def _send_to_obj(self, messageable_obj, message):
-        """
-        Send a given message to an abc.messageable object
-
-        This does not handle exceptions, they should be handled
-        on call as I did not want to overdo this method with
-        the required params to notify users.
-
-        Parameters
-        ----------
-        messageable_obj : abc.Messageable
-            Where to send message
-        message : String
-            The message to send
-
-        Raises
-        ------
-        discord.HTTPException
-            Failed to send
-        discord.Forbidden
-            Lacking permissions to send
-
-        Returns
-        =======
-        discord.Message
-            The sent messages object
-
-        """
-        # TODO Add embed sending using from_dict
-        return await messageable_obj.send(message)
-
-    async def _punish_user(
-        self, guild, member, dc_channel, user_message, guild_message, method
-    ):
+    async def _punish_user(self, value, user_message, guild_message, method):
         """
         A generic method to handle multiple methods of punishment for a user.
 
@@ -319,12 +285,8 @@ class User:
 
         Parameters
         ----------
-        guild : discord.Guild
-            The guild to punish the user in
-        member : discord.Member
-            The member to punish
-        dc_channel : discord.TextChannel
-            The channel to send the punishment message to
+        value : discord.Message
+            Where we get everything from :)
         user_message : str
             A message to send to the user who is being punished
         guild_message : str
@@ -338,6 +300,9 @@ class User:
             If you do not pass a support punishment method
 
         """
+        guild = value.guild
+        member = value.author
+        dc_channel = value.channel
         if method != Static.KICK and method != Static.BAN:
             raise LogicError(f"{method} is not a recognized punishment method.")
 
@@ -354,7 +319,7 @@ class User:
             )
 
         # We also check they don't own the guild, since ya know...
-        elif guild.owner_id == member.id:
+        elif guild.owner_id == member.id and 1 == 2:
             raise MissingGuildPermissions(
                 f"I cannot punish {member.display_name}({member.id}) "
                 f"because they own this guild. ({guild.name})"
@@ -373,9 +338,9 @@ class User:
         try:
             # Attempt to message the punished member, about their punishment
             try:
-                m = await self._send_to_obj(member, user_message)
+                m = await send_to_obj(member, user_message)
             except discord.HTTPException:
-                await self._send_to_obj(
+                await send_to_obj(
                     dc_channel,
                     f"Sending a message to {member.mention} about their {method} failed.",
                 )
@@ -400,20 +365,20 @@ class User:
                     else:
                         raise NotImplementedError
                 except discord.Forbidden:
-                    await self._send_to_obj(
+                    await send_to_obj(
                         dc_channel,
                         f"I do not have permission to kick: {member.mention}",
                     )
                     self.logger.warn(f"Required Permissions are missing for: {method}")
                     if m is not None:
-                        await self._send_to_obj(
+                        await send_to_obj(
                             member,
                             "I failed to punish you because I lack permissions, but still you shouldn't spam.",
                         )
                         await m.delete()
 
                 except discord.HTTPException:
-                    await self._send_to_obj(
+                    await send_to_obj(
                         dc_channel,
                         f"An error occurred trying to {method}: {member.mention}",
                     )
@@ -421,7 +386,7 @@ class User:
                         f"An error occurred trying to {method}: {member.id}"
                     )
                     if m is not None:
-                        await self._send_to_obj(
+                        await send_to_obj(
                             member,
                             "I failed to punish you because I lack permissions, but still you shouldn't spam.",
                         )
@@ -429,7 +394,7 @@ class User:
 
                 else:
                     try:
-                        await self._send_to_obj(dc_channel, guild_message)
+                        await send_to_obj(dc_channel, guild_message)
                     except discord.HTTPException:
                         self.logger.error(
                             f"Failed to send message.\n"
@@ -495,35 +460,6 @@ class User:
                 )
             elif self.logger.isEnabledFor(logging.DEBUG):
                 self.logger.debug(f"Removing Message: {outstandingMessage.id}")
-
-    def _transform_message(self, message, value) -> str:
-        """
-        Given the options string, return the string
-        with the relevant values substituted in
-
-        Parameters
-        ----------
-        message : str
-            The string to substitute with values
-        value : discord.Message
-            Where we get our values from to substitute
-
-        Returns
-        -------
-        str
-            The correctly substituted message
-
-        """
-        # TODO Add more optionsssssssss
-        return Template(message).safe_substitute(
-            {
-                "MENTIONUSER": value.author.mention,
-                "USERNAME": value.author.display_name,
-                "USERID": value.author.id,
-                "GUILDID": value.guild.id,
-                "GUILDNAME": value.guild.name,
-            }
-        )
 
     @property
     def id(self):

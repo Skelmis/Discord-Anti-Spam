@@ -101,3 +101,28 @@ class TestGuild(unittest.TestCase):
     # TODO Add a ensureRaises test for each setable option...
     # TODO Capture standard out and ensure the logger is working,
     #      but only at the correct levels
+
+    def test_guildWarnMessageType(self):
+        with self.assertRaises(
+            ValueError, msg="guild_warn_message should raise, given int"
+        ):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), guild_warn_message=1)
+
+        with self.assertRaises(
+            ValueError, msg="guild_warn_message should raise, given bool"
+        ):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), guild_warn_message=True)
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), guild_warn_message="Test")
+        AntiSpamHandler(
+            commands.Bot(command_prefix="!"), guild_warn_message={"title": "Hello!"}
+        )
+
+    def test_guildWarnMessageString(self):
+        ash = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), guild_warn_message="This is a message"
+        )
+        self.assertEqual(ash.options["guild_warn_message"], "This is a message")
+
+    def test_guildWarnMessageEmbed(self):
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), guild_warn_message={})

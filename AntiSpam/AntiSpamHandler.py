@@ -1,4 +1,5 @@
 """
+LICENSE
 The MIT License (MIT)
 
 Copyright (c) 2020 Skelmis
@@ -19,6 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
+LICENSE
 """
 import logging
 
@@ -83,7 +85,7 @@ class AntiSpamHandler:
         ignore_perms: [8]
             The perms (ID Form), that bypass anti-spam
 
-            *Not Implemented*
+            **Not Implemented**
 
         ignore_users: []
             The users (ID Form), that bypass anti-spam
@@ -98,7 +100,7 @@ class AntiSpamHandler:
             Guilds (ID Form), that bypass anti-spam
 
         ignore_bots: True
-            Should bots bypass anti-spam? (True|False)
+            Should bots bypass anti-spam?
     """
 
     # TODO Add options for group spamming, rather then just per member.
@@ -148,15 +150,15 @@ class AntiSpamHandler:
         message_interval : int, optional
             Amount of time a message is kept before being discarded.
             Essentially the amount of time (In milliseconds) a message can count towards spam
-        guild_warn_message : str, optional
+        guild_warn_message : [str, dict], optional
             The message to be sent in the guild upon warn_threshold being reached
-        guild_kick_message : str, optional
+        guild_kick_message : [str, dict], optional
             The message to be sent in the guild upon kick_threshold being reached
-        guild_ban_message : str, optional
+        guild_ban_message : [str, dict], optional
             The message to be sent in the guild upon ban_threshold being reached
-        user_kick_message : str, optional
+        user_kick_message : [str, dict], optional
             The message to be sent to the user who is being warned
-        user_ban_message : str, optional
+        user_ban_message : [str, dict], optional
             The message to be sent to the user who is being banned
         message_duplicate_count : int, optional
             Amount of duplicate messages needed to trip a punishment
@@ -193,20 +195,40 @@ class AntiSpamHandler:
         if message_interval is not None and message_interval < 1000:
             raise BaseASHException("Minimum message_interval is 1 seconds (1000 ms)")
 
-        if not isinstance(guild_warn_message, str) and guild_warn_message is not None:
-            raise ValueError("Expected guild_warn_message of type str")
+        if (
+            not isinstance(guild_warn_message, str)
+            and not isinstance(guild_warn_message, dict)
+            and guild_warn_message is not None
+        ):
+            raise ValueError("Expected guild_warn_message of type str or dict")
 
-        if not isinstance(guild_kick_message, str) and guild_kick_message is not None:
-            raise ValueError("Expected guild_kick_message of type str")
+        if (
+            not isinstance(guild_kick_message, str)
+            and not isinstance(guild_kick_message, dict)
+            and guild_kick_message is not None
+        ):
+            raise ValueError("Expected guild_kick_message of type str or dict")
 
-        if not isinstance(guild_ban_message, str) and guild_ban_message is not None:
-            raise ValueError("Expected guild_ban_message of type str")
+        if (
+            not isinstance(guild_ban_message, str)
+            and not isinstance(guild_ban_message, dict)
+            and guild_ban_message is not None
+        ):
+            raise ValueError("Expected guild_ban_message of type str or dict")
 
-        if not isinstance(user_kick_message, str) and user_kick_message is not None:
-            raise ValueError("Expected user_kick_message of type str")
+        if (
+            not isinstance(user_kick_message, str)
+            and not isinstance(user_kick_message, dict)
+            and user_kick_message is not None
+        ):
+            raise ValueError("Expected user_kick_message of type str or dict")
 
-        if not isinstance(user_ban_message, str) and user_ban_message is not None:
-            raise ValueError("Expected user_ban_message of type str")
+        if (
+            not isinstance(user_ban_message, str)
+            and not isinstance(user_ban_message, dict)
+            and user_ban_message is not None
+        ):
+            raise ValueError("Expected user_ban_message of type str or dict")
 
         if (
             not isinstance(message_duplicate_count, int)
