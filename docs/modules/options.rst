@@ -3,7 +3,7 @@ Message Templating
 
 This package utilises safe conversions for message arguments within strings.
 
-Templating Options:
+Templating Options
 -------------------
 
 The following are all the options you as the user have:
@@ -38,7 +38,7 @@ The above are valid in the following uses:
 
 *There are currently no plans to support either* ``discord.Embed.image`` *or* ``discord.Embed.thumbnail``
 
-Templating Usage:
+Templating Usage
 -----------------
 
 You can include the above options in the following arguments
@@ -50,7 +50,7 @@ when you initialize the package:
 * **user_kick_message**
 * **user_ban_message**
 
-Embed Templating:
+Embed Templating
 -----------------
 
 The above options can also be used within embeds, these also support templating with
