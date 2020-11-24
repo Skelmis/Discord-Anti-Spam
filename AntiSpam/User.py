@@ -321,7 +321,7 @@ class User:
             )
 
         # We also check they don't own the guild, since ya know...
-        elif guild.owner_id == member.id and 1 == 2:
+        elif guild.owner_id == member.id:
             raise MissingGuildPermissions(
                 f"I cannot punish {member.display_name}({member.id}) "
                 f"because they own this guild. ({guild.name})"
@@ -329,7 +329,7 @@ class User:
 
         # Ensure we can actually punish the user, for this
         # we just check our top role is higher then them
-        elif guild.me.top_role < member.top_role:
+        elif guild.me.top_role.position < member.top_role.position:
             self.logger.warn(
                 f"I might not be able to punish {member.display_name}({member.id}) in {guild.name}({guild.id}) "
                 "because they are higher then me, which means I could lack the ability to kick/ban them."
