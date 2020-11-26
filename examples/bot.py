@@ -22,7 +22,10 @@ async def on_ready():
 async def on_message(message):
     bot.handler.propagate(message)
     await bot.process_commands(message)
-
-
+    
+    
+@bot.event
+async def on_member_remove(member):
+    bot.handler.UpdateUserState(member.guild.id, member.id)
 if __name__ == "__main__":
     bot.run(file["token"])
