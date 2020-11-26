@@ -6,6 +6,8 @@ notes.txt
 *.json
 examples/dev_test.py
 
+/assets
+
 # IntelliJ project files
 .idea
 *.iml
