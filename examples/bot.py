@@ -27,5 +27,7 @@ async def on_message(message):
 @bot.event
 async def on_member_remove(member):
     bot.handler.UpdateUserState(member.guild.id, member.id)
+    
+
 if __name__ == "__main__":
     bot.run(file["token"])
