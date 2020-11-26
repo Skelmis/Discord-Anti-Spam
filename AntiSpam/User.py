@@ -55,6 +55,7 @@ class User:
         "warn_count",
         "kick_count",
         "bot",
+        "inGuild",
         "duplicate_counter",
         "logger",
     ]
@@ -80,6 +81,7 @@ class User:
         self.guild_id = int(guild_id)
         self._messages = []
         self.options = options
+        self.inGuild = True  # Indicates if a user is in the guild or not 
         self.warn_count = 0
         self.kick_count = 0
         self.duplicate_counter = 1
@@ -147,7 +149,12 @@ class User:
         """
         if not isinstance(value, discord.Message):
             raise ValueError("Expected message of ignore_type: discord.Message")
-
+         
+        # Here we just check if the user is still in the guild by checking if the inGuild attribute is False.
+        # Because if its False then we don't need to process the message.
+        if not self.inGuild:
+            return
+        
         self.clean_up(datetime.datetime.now(datetime.timezone.utc))
 
         # No point saving empty messages, although discord shouldn't allow them anyway

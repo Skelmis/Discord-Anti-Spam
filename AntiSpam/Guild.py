@@ -184,3 +184,25 @@ class Guild:
                 raise DuplicateObject
 
         self._users.append(value)
+        
+    def updateInGuildState(self, userid):
+        """
+        
+        Gets the userobj and sets the inGuild attribute to False 
+        as this indicates that the user is no longer in the guild
+        ======
+        userid
+         the id of the user where the state should be updated
+        """
+        user = User(
+            self._bot,
+            userid,
+            self.id,
+            self.options, 
+            logger=self.logger
+        )
+        try:
+            user = next(iter(u for u in self.users if u == user))
+        except StopIteration:
+            pass
+        user.inGuild = False
