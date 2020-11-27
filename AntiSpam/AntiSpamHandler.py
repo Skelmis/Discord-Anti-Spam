@@ -353,8 +353,12 @@ class AntiSpamHandler:
         if not message.guild:
             return
 
+        # The bot is immune to spam
         if message.author.id == self.bot.user.id:
             return
+
+        if isinstance(message.author, discord.User):
+            self.logger.warning(f"Given message with an author of type User")
 
         # Return if ignored bot
         if self.options["ignore_bots"] and message.author.bot:
@@ -369,10 +373,14 @@ class AntiSpamHandler:
             return
 
         # Return if member has an ignored role
-        userRolesId = [role.id for role in message.author.roles]
-        for userRoleId in userRolesId:
-            if userRoleId in self.options.get("ignore_roles"):
-                return
+        try:
+            user_roles_id = [role.id for role in message.author.roles]
+            for user_role_id in user_roles_id:
+                if user_role_id in self.options.get("ignore_roles"):
+                    return
+        except AttributeError:
+            self.logger.warning(f"Could not compute ignore_roles for {message.author.name}({message.author.id})")
+
 
         # Return if ignored guild
         if message.guild.id in self.options.get("ignore_guilds"):
