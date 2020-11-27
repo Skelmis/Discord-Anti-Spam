@@ -208,6 +208,10 @@ class User:
                 if self.duplicate_counter >= self.options["message_duplicate_count"]:
                     break
 
+        # We check this again, because theoretically the above can take awhile to process etc
+        if not self.in_guild:
+            return
+
         self.messages = message
         self.logger.info(f"Created Message: {message.id}")
 

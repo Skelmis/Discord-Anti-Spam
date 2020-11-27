@@ -141,6 +141,27 @@ class Guild:
 
         user.propagate(message)
 
+    def update_in_guild_state(self, user_id):
+        """
+        This updates an existing user's state so that
+        ASH will process any messages from this user
+
+        ======
+        user_id
+            The id of the user where the state should be updated
+
+        Notes
+        =====
+        Silently ignores users that are not created
+        since they are created as in_guild by default
+        """
+        user = User(self._bot, user_id, self.id, self.options, logger=self.logger)
+        try:
+            user = next(iter(u for u in self.users if u == user))
+        except StopIteration:
+            return  # No need to create a user obj solely for this
+        user.in_guild = True
+
     @property
     def id(self):
         return self._id
@@ -178,19 +199,3 @@ class Guild:
                 raise DuplicateObject
 
         self._users.append(value)
-
-    def update_in_guild_state(self, userid):
-        """
-        
-        Gets the userobj and sets the in_guild attribute to False
-        as this indicates that the user is no longer in the guild
-        ======
-        userid
-         the id of the user where the state should be updated
-        """
-        user = User(self._bot, userid, self.id, self.options, logger=self.logger)
-        try:
-            user = next(iter(u for u in self.users if u == user))
-        except StopIteration:
-            return  # No need to create a user obj
-        user.in_guild = False

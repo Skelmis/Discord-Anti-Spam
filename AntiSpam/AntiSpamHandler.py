@@ -494,24 +494,29 @@ class AntiSpamHandler:
 
         self.logger.debug(f"Un-Ignored {ignore_type}: {item}")
 
-    def update_user_state(self, guild_id: int, user_id: int):
+    def update_user_state(self, member: discord.Member) -> None:
         """
+        This updates an existing user's state so that
+        ASH will process any messages from this user
 
         Parameters
-        ----------
-        guild_id : int
-            The guild id
-        user_id : int
-            The user id
+        ==========
+        member : discord.Member
+            The member to update with
+
+        Notes
+        =====
+        Silently ignores guilds that are not created
+        since user's are created as in_guild by default
         """
-        guild = Guild(self.bot, guild_id, self.options, logger=self.logger)
+        guild = Guild(self.bot, member.guild.id, self.options, logger=self.logger)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
             return  # Lets not make a new guild cos of this
-        guild.update_in_guild_state(user_id)
+        guild.update_in_guild_state(member.id)
 
-        self.logger.debug(f"Setting {user_id}'s in_guild field to False for guild {guild_id}")
+        self.logger.debug(f"Setting {member.id}'s in_guild field to False for guild {member.guild.id}")
 
     # <-- Getter & Setters -->
     @property
