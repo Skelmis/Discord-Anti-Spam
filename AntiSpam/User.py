@@ -326,7 +326,7 @@ class User:
             )
 
         # We also check they don't own the guild, since ya know...
-        elif guild.owner_id == member.id and 1 == 2: # TODO Undo this..
+        elif guild.owner_id == member.id and 1 == 2:  # TODO Undo this..
             raise MissingGuildPermissions(
                 f"I cannot punish {member.display_name}({member.id}) "
                 f"because they own this guild. ({guild.name})"
@@ -422,7 +422,7 @@ class User:
         """
         return self.duplicate_counter - 1
 
-    def clean_up(self, currentTime):
+    def clean_up(self, current_time):
         """
         This logic works around checking the current
         time vs a messages creation time. If the message
@@ -435,7 +435,7 @@ class User:
             Given a message, figure out if it hasnt
             expired yet based on timestamps
             """
-            difference = currentTime - message.creationTime
+            difference = current_time - message.creation_time
             offset = datetime.timedelta(
                 milliseconds=self.options.get("message_interval")
             )
@@ -444,29 +444,29 @@ class User:
                 return False
             return True
 
-        currentMessages = []
-        outstandingMessages = []
+        current_messages = []
+        outstanding_messages = []
 
         for message in self._messages:
             if _is_still_valid(message):
-                currentMessages.append(message)
+                current_messages.append(message)
             else:
-                outstandingMessages.append(message)
+                outstanding_messages.append(message)
 
-        self._messages = deepcopy(currentMessages)
+        self._messages = deepcopy(current_messages)
 
         # Now if we have outstanding messages we need
         # to process them and see if we need to deincrement
         # the duplicate counter as we are removing them from
         # the queue otherwise everything stacks up
-        for outstandingMessage in outstandingMessages:
-            if outstandingMessage.is_duplicate:
+        for outstanding_message in outstanding_messages:
+            if outstanding_message.is_duplicate:
                 self.duplicate_counter -= 1
                 self.logger.debug(
-                    f"Removing duplicate Message: {outstandingMessage.id}"
+                    f"Removing duplicate Message: {outstanding_message.id}"
                 )
             elif self.logger.isEnabledFor(logging.DEBUG):
-                self.logger.debug(f"Removing Message: {outstandingMessage.id}")
+                self.logger.debug(f"Removing Message: {outstanding_message.id}")
 
     @property
     def id(self):

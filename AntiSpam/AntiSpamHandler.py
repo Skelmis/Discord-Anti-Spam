@@ -275,15 +275,15 @@ class AntiSpamHandler:
 
         # TODO Implement #16
         if ignore_roles is not None:
-            placeholderIgnoreRoles = []
+            placeholder_ignore_roles = []
             for item in ignore_roles:
                 if isinstance(item, discord.Role):
-                    placeholderIgnoreRoles.append(item.id)
+                    placeholder_ignore_roles.append(item.id)
                 elif isinstance(item, int):
-                    placeholderIgnoreRoles.append(item)
+                    placeholder_ignore_roles.append(item)
                 else:
                     raise ValueError("Expected discord.Role or int for ignore_roles")
-            ignore_roles = placeholderIgnoreRoles
+            ignore_roles = placeholder_ignore_roles
 
         self.options = {
             "warn_threshold": warn_threshold or Static.DEFAULTS.get("warn_threshold"),
@@ -380,7 +380,6 @@ class AntiSpamHandler:
                     return
         except AttributeError:
             self.logger.warning(f"Could not compute ignore_roles for {message.author.name}({message.author.id})")
-
 
         # Return if ignored guild
         if message.guild.id in self.options.get("ignore_guilds"):
@@ -512,7 +511,7 @@ class AntiSpamHandler:
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
-            return # Lets not make a new guild cos of this
+            return  # Lets not make a new guild cos of this
         guild.update_in_guild_state(user_id)
 
         self.logger.debug(f"Setting {user_id}'s in_guild field to False for guild {guild_id}")

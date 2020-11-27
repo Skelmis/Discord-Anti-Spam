@@ -50,10 +50,10 @@ class TestMessage(unittest.TestCase):
         self.assertIsInstance(self.message.content, str)
 
     def test_datetimeAssignment(self):
-        self.assertIsInstance(self.message.creationTime, datetime.datetime)
+        self.assertIsInstance(self.message.creation_time, datetime.datetime)
 
     def test_valueAssignment(self):
-        creationTime = self.message.creationTime
+        creationTime = self.message.creation_time
 
         self.assertEqual(self.message.id, 0)
         self.assertEqual(self.message.content, "Hello world")
@@ -67,7 +67,7 @@ class TestMessage(unittest.TestCase):
         self.message.author_id = 10
         self.message.channel_id = 10
         self.message.guild_id = 10
-        self.message.creationTime = datetime.datetime.now()
+        self.message.creation_time = datetime.datetime.now()
         self.message.is_duplicate = True
 
         self.assertEqual(self.message.id, 10)
@@ -75,7 +75,7 @@ class TestMessage(unittest.TestCase):
         self.assertEqual(self.message.author_id, 10)
         self.assertEqual(self.message.channel_id, 10)
         self.assertEqual(self.message.guild_id, 10)
-        self.assertEqual(self.message.creationTime, creationTime)
+        self.assertEqual(self.message.creation_time, creationTime)
         self.assertTrue(self.message.is_duplicate)
 
     def test_idRaises(self):
@@ -113,7 +113,7 @@ class TestMessage(unittest.TestCase):
             (
                 f"'{self.message.__class__.__name__} object. Content: {self.message.content}, Message Id: {self.message.id}, "
                 f"Author Id: {self.message.author_id}, Channel Id: {self.message.channel_id}, Guild Id: {self.message.guild_id} "
-                f"Creation time: {self.message.creationTime}'"
+                f"Creation time: {self.message.creation_time}'"
             ),
         )
 

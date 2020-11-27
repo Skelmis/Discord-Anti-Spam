@@ -201,11 +201,11 @@ class Message:
         self._guild_id = value
 
     @property
-    def creationTime(self):
+    def creation_time(self):
         return self._creation_time
 
-    @creationTime.setter
-    def creationTime(self, value):
+    @creation_time.setter
+    def creation_time(self, value):
         # We don't want creationTime changed
         return
 

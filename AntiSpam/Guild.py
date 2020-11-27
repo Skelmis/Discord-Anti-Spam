@@ -22,16 +22,14 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import discord
+
+from AntiSpam import User
+from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject
 
 """
 This is used to maintain a collection of User's in a relevant guild
 """
-import asyncio
-import discord
-
-from AntiSpam import User
-from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject, MissingGuildPermissions
-from AntiSpam.static import Static
 
 
 class Guild:
@@ -198,5 +196,5 @@ class Guild:
         try:
             user = next(iter(u for u in self.users if u == user))
         except StopIteration:
-            return # No need to create a user obj
+            return  # No need to create a user obj
         user.in_guild = False
