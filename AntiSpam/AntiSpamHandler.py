@@ -41,9 +41,6 @@ this is responsible for handling interaction with Guilds etc
 """
 
 
-# TODO Check on attempted kick/ban that the bot actually has perms
-
-
 class AntiSpamHandler:
     """
     The overall handler for the DPY Anti-spam package

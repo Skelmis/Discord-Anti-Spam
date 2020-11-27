@@ -63,8 +63,6 @@ class Guild:
 
         self.logger = logger
 
-        # TODO Add the ability to not set a channel
-
     def __repr__(self):
         return (
             f"'{self.__class__.__name__} object. Guild id: {self.id}, "
@@ -142,8 +140,6 @@ class Guild:
             self.logger.info(f"Created User: {user.id}")
 
         user.propagate(message)
-
-        # TODO Cleanup after a member is banned
 
     @property
     def id(self):
