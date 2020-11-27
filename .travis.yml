@@ -14,8 +14,7 @@ install:
 
 # command to run tests
 script:
-#  - python -m unittest discover -s "testing"
-  - coverage run setup.py test
+  - coverage run --source=AntiSpam/ -m unittest discover testing/
 
 after_success:
   - coveralls
