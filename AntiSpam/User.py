@@ -229,7 +229,6 @@ class User:
                 then become a kick and so on
                 """
                 # We are still in the warning area
-                # TODO Tell the member if its there final warning before a kick
                 channel = value.channel
                 guild_message = transform_message(
                     self.options["guild_warn_message"],
@@ -246,7 +245,6 @@ class User:
             ):
                 self.logger.debug(f"Attempting to kick: {message.author_id}")
                 # We should kick the member
-                # TODO Tell the member if its there final kick before a ban
                 guild_message = transform_message(
                     self.options["guild_kick_message"],
                     value,
