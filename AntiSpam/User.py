@@ -247,6 +247,9 @@ class User:
                 self.warn_count >= self.options["kick_threshold"]
                 and self.kick_count < self.options["ban_threshold"]
             ):
+                # Set this to False here to stop processing other messages, we can revert on failure
+                self.in_guild = False
+
                 self.logger.debug(f"Attempting to kick: {message.author_id}")
                 # We should kick the member
                 guild_message = transform_message(
@@ -265,6 +268,9 @@ class User:
                 self.kick_count += 1
 
             elif self.kick_count >= self.options["ban_threshold"]:
+                # Set this to False here to stop processing other messages, we can revert on failure
+                self.in_guild = False
+
                 self.logger.debug(f"Attempting to ban: {message.author_id}")
                 # We should ban the member
                 guild_message = transform_message(
@@ -318,17 +324,20 @@ class User:
         # Check we have perms to punish
         perms = guild.me.guild_permissions
         if not perms.kick_members and method == Static.KICK:
+            self.in_guild = True
             raise MissingGuildPermissions(
                 f"I need kick perms to punish someone in {guild.name}"
             )
 
         elif not perms.ban_members and method == Static.BAN:
+            self.in_guild = True
             raise MissingGuildPermissions(
                 f"I need ban perms to punish someone in {guild.name}"
             )
 
         # We also check they don't own the guild, since ya know...
-        elif guild.owner_id == member.id:  # TODO Undo this..
+        elif guild.owner_id == member.id:
+            self.in_guild = True
             raise MissingGuildPermissions(
                 f"I cannot punish {member.display_name}({member.id}) "
                 f"because they own this guild. ({guild.name})"
@@ -374,6 +383,7 @@ class User:
                     else:
                         raise NotImplementedError
                 except discord.Forbidden:
+                    self.in_guild = True
                     await send_to_obj(
                         dc_channel,
                         f"I do not have permission to kick: {member.mention}",
@@ -387,6 +397,7 @@ class User:
                         await m.delete()
 
                 except discord.HTTPException:
+                    self.in_guild = True
                     await send_to_obj(
                         dc_channel,
                         f"An error occurred trying to {method}: {member.mention}",
