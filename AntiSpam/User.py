@@ -189,14 +189,12 @@ class User:
                 value.guild.id,
             )
 
-        # TODO Figure out a nice way to implement an iter() on this
         for message_obj in self.messages:
+            # This calculates the relation to each other
             if message == message_obj:
                 raise DuplicateObject
 
-        for message_obj in self.messages:
-            # This calculates the relation to each other
-            if (
+            elif (
                 fuzz.token_sort_ratio(message.content, message_obj.content)
                 >= self.options["message_duplicate_accuracy"]
             ):
