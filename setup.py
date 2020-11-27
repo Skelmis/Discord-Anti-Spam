@@ -1,4 +1,12 @@
 import setuptools
+import unittest
+
+
+def my_test_suite():
+    test_loader = unittest.TestLoader()
+    test_suite = test_loader.discover('testing', pattern='test_*.py')
+    return test_suite
+
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -21,4 +29,5 @@ setuptools.setup(
         "Development Status :: 4 - Beta",
     ],
     python_requires=">=3.6",
+    test_suite='setup.my_test_suite',
 )

@@ -9,10 +9,12 @@ python:
 # command to install dependencies
 install:
   - pip install -r requirements.txt
+  - pip install coverage
 
 # command to run tests
 script:
-  - python -m unittest discover -s "testing"
+#  - python -m unittest discover -s "testing"
+  - coverage run --source cookiecutter setup.py test
 
 after_success:
   - coveralls
