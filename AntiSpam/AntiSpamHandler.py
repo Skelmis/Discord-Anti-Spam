@@ -516,7 +516,7 @@ class AntiSpamHandler:
             return  # Lets not make a new guild cos of this
         guild.update_in_guild_state(member.id)
 
-        self.logger.debug(f"Setting {member.id}'s in_guild field to False for guild {member.guild.id}")
+        self.logger.debug(f"Setting {member.id}'s in_guild field to True for guild {member.guild.id}")
 
     # <-- Getter & Setters -->
     @property
