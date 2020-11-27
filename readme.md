@@ -2,8 +2,9 @@
 ---
 
 [![Build Status](https://travis-ci.com/Skelmis/DPY-Anti-Spam.svg?branch=master)](https://travis-ci.com/Skelmis/DPY-Anti-Spam)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Coverage Status](https://coveralls.io/repos/github/Skelmis/DPY-Anti-Spam/badge.svg?branch=master)](https://coveralls.io/github/Skelmis/DPY-Anti-Spam?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/dpy-anti-spam/badge/?version=latest)](https://dpy-anti-spam.readthedocs.io/en/latest/?badge=latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Ever felt the need to handle spammers in your discord, but don't have the time or effort to do so yourself? 
 This package aims to help solve that issue by handling all the required logic under the hood, as well as handling the spammers heh.

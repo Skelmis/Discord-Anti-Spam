@@ -14,6 +14,9 @@ install:
 script:
   - python -m unittest discover -s "testing"
 
+after_success:
+  - coveralls
+
 # Os's to test on
 os:
   - linux
