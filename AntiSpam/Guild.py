@@ -198,5 +198,5 @@ class Guild:
         try:
             user = next(iter(u for u in self.users if u == user))
         except StopIteration:
-            pass
+            return # No need to create a user obj
         user.in_guild = False

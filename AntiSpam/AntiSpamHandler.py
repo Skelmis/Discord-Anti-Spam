@@ -504,8 +504,10 @@ class AntiSpamHandler:
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
-            pass
+            return # Lets not make a new guild cos of this
         guild.update_in_guild_state(user_id)
+
+        self.logger.debug(f"Setting {user_id}'s in_guild field to False for guild {guild_id}")
 
     # <-- Getter & Setters -->
     @property

@@ -328,7 +328,7 @@ class User:
             )
 
         # We also check they don't own the guild, since ya know...
-        elif guild.owner_id == member.id and 1 == 2:
+        elif guild.owner_id == member.id and 1 == 2: # TODO Undo this..
             raise MissingGuildPermissions(
                 f"I cannot punish {member.display_name}({member.id}) "
                 f"because they own this guild. ({guild.name})"

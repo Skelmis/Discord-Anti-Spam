@@ -26,7 +26,7 @@ async def on_message(message):
     
 @bot.event
 async def on_member_remove(member):
-    bot.handler.UpdateUserState(member.guild.id, member.id)
+    bot.handler.update_user_state(member.guild.id, member.id)
     
 
 if __name__ == "__main__":
