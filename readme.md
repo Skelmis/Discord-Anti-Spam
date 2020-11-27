@@ -8,8 +8,6 @@
 Ever felt the need to handle spammers in your discord, but don't have the time or effort to do so yourself? 
 This package aims to help solve that issue by handling all the required logic under the hood, as well as handling the spammers heh.
 
-*I decided to create this after seeing a d.js alternative but not one for d.py, as far as I know.*
-
 ---
 How to use this right now?
 
@@ -20,10 +18,13 @@ Download the codebase:
 
 A basic bot
 ```python
+import discord
 from discord.ext import commands
 from AntiSpam import AntiSpamHandler
 
-bot = commands.Bot(command_prefix="!")
+intents = discord.Intents.none()
+intents.members = True
+bot = commands.Bot(command_prefix="!", intents=intents)
 bot.handler = AntiSpamHandler(bot)
 
 @bot.event
@@ -35,11 +36,15 @@ async def on_message(message):
     bot.handler.propagate(message)
     await bot.process_commands(message)
 
+@bot.event
+async def on_member_join(member):
+    bot.handler.update_user_state(member)
+
 if __name__ == "__main__":
     bot.run("Bot Token")
 ```
 
-And thats it!
+And that's it!
 Now, there will no doubt be bugs & changes etc. But, you can use this as is now and all I ask is you create an issue for anything you encounter while using this codebase.
 
 #### Docs can be found [here](https://dpy-anti-spam.readthedocs.io/en/latest/?)
@@ -55,9 +60,20 @@ I hope to maintain the above, however, I currently am attempting to `only` creat
 
 ---
 
+### Discord
+
+Given the steady progress of this library I decided to create a discord.
+Come checkout the progress of the next release, give us ideas for what we should add, etc...
+
+[Discord Invite](https://discord.gg/BqPNSH2jPg)
+
+---
+
 ### Helping out:
 All help is appreciated, just create an issue or pull request!
-See contributing.md for more details.
+See [here](https://github.com/Skelmis/DPY-Anti-Spam/blob/master/CONTRIBUTING.md) for more details.
+
+---
 
 ### License
 This project is licensed under the MIT license
