@@ -110,6 +110,10 @@ class TestUser(unittest.TestCase):
         obj = User(None, 2, 2, Static.DEFAULTS, logger=logging.getLogger(__name__))
         self.assertFalse(self.user == obj)
 
+    def test_eqRaises(self):
+        with self.assertRaises(ValueError):
+            self.assertFalse(self.user == 1)
+
     def test_duplicateCounter(self):
         self.assertNotEqual(
             self.user.duplicate_counter, self.user.get_correct_duplicate_count()

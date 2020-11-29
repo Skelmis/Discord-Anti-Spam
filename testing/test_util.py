@@ -92,7 +92,7 @@ class TestUtil(unittest.TestCase):
         mock_message = get_mocked_message()
         warn_dict = {"warn_count": 1, "kick_count": 2}
 
-        test_embed = dict_to_embed(warn_embed_dict, mock_message, warn_dict)
+        test_embed = transform_message(warn_embed_dict, mock_message, warn_dict)
 
         embed = discord.Embed(
             title="**Dear Skelmis**",
