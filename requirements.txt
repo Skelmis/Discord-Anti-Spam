@@ -11,6 +11,7 @@ cfgv==3.2.0
 chardet==3.0.4
 click==7.1.2
 colorama==0.4.4
+discord==1.0.1
 discord.py==1.5.1
 distlib==0.3.1
 docutils==0.16
@@ -68,5 +69,3 @@ urllib3==1.26.2
 virtualenv==20.0.31
 webencodings==0.5.1
 yarl==1.5.1
-fuzzywuzzy==0.18.0
-# TODO Cleanup uneeded packages that were installed during development

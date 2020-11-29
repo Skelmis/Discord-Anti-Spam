@@ -123,9 +123,6 @@ class TestUser(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.assertFalse(self.user == 1)
 
-    def test_hash(self):
-        self.assertEqual(hash(self.user), -4734289103435588629)
-
     def test_duplicateCounter(self):
         self.assertNotEqual(
             self.user.duplicate_counter, self.user.get_correct_duplicate_count()
