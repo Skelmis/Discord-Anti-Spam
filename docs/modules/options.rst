@@ -21,8 +21,8 @@ The following are all the options you as the user have:
 * **$TIMESTAMPNOW** - This exact time formatted as hh:mm:ss AM/PM, dd/mm/yyyy, uses ``datetime.datetime.now()``
 * **$TIMESTAMPTODAY** - Today's date formatted as dd/mm/yyyy, uses ``datetime.datetime.now()``
 
-* **$WARNCOUNT** - How many times the user has been warned so far, uses ``User.warn_count``
-* **$KICKCOUNT** - How many times the user has been removed from the guild so far, uses ``User.kick_count``
+* **$WARNCOUNT** - How many times the user has been warned so far, uses ``AntiSpam.User.warn_count``
+* **$KICKCOUNT** - How many times the user has been removed from the guild so far, uses ``AntiSpam.User.kick_count``
 
 
 The following are special case's for embeds:
