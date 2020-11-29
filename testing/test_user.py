@@ -21,11 +21,11 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 import logging
-import sys
 import unittest
 
 
-from AntiSpam import User, Message
+from AntiSpam.User import User
+from AntiSpam.Message import Message
 from AntiSpam.static import Static
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch
 

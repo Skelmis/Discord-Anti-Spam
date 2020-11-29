@@ -24,7 +24,7 @@ LICENSE
 """
 import discord
 
-from AntiSpam import User
+from AntiSpam.User import User
 from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject
 
 """

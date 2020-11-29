@@ -22,11 +22,9 @@ DEALINGS IN THE SOFTWARE.
 """
 
 import datetime
-import sys
 import unittest
 
-sys.path.insert(0, "..")
-from AntiSpam import Message
+from AntiSpam.Message import Message
 
 
 class TestMessage(unittest.TestCase):

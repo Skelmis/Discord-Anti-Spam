@@ -31,7 +31,7 @@ import discord
 
 from fuzzywuzzy import fuzz
 
-from AntiSpam import Message
+from AntiSpam.Message import Message
 from AntiSpam.Exceptions import (
     DuplicateObject,
     ObjectMismatch,

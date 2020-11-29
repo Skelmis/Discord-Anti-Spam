@@ -25,7 +25,8 @@ import sys
 import unittest
 import logging
 
-from AntiSpam import Guild, User, Message
+from AntiSpam.Guild import Guild
+from AntiSpam.User import User
 from AntiSpam.static import Static
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch
 

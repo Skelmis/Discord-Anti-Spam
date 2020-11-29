@@ -21,13 +21,14 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 import logging
-import sys
 import unittest
 
 from discord.ext import commands
 
-from AntiSpam import Guild, User, AntiSpamHandler
+from AntiSpam import AntiSpamHandler
 from AntiSpam.static import Static
+from AntiSpam.Guild import Guild
+from AntiSpam.User import User
 
 
 class TestGuild(unittest.TestCase):

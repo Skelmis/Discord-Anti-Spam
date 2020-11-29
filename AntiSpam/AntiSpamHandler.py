@@ -27,7 +27,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from AntiSpam import Guild
+from AntiSpam.Guild import Guild
 from AntiSpam.Exceptions import (
     DuplicateObject,
     BaseASHException,
