@@ -423,6 +423,8 @@ class User:
                         )
         except Exception as e:
             raise e
+        finally:
+            self.in_guild = True
 
     def get_correct_duplicate_count(self):
         """
