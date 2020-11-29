@@ -126,11 +126,16 @@ def dict_to_embed(data, message, counts):
             field["name"] = name
             field["value"] = value
 
+            if "inline" not in field:
+                field["inline"] = True
+
     if "timestamp" in data:
         data["timestamp"] = message.created_at.isoformat()
 
     if "colour" in data:
         data["color"] = data["colour"]
+
+    data["type"] = "rich"
 
     return discord.Embed.from_dict(data)
 
@@ -160,7 +165,7 @@ def substitute_args(message, value, counts) -> str:
             "MENTIONUSER": value.author.mention,
             "USERNAME": value.author.display_name,
             "USERID": value.author.id,
-            "BOTNAME": value.guild.me.name,
+            "BOTNAME": value.guild.me.display_name,
             "BOTID": value.guild.me.id,
             "GUILDID": value.guild.id,
             "GUILDNAME": value.guild.name,
