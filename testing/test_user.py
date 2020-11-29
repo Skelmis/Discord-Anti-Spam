@@ -20,7 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import datetime
 import logging
+import time
 import unittest
 
 
@@ -71,6 +73,13 @@ class TestUser(unittest.TestCase):
         self.assertEqual(self.user.id, 10)
         self.assertEqual(self.user.guild_id, 10)
 
+    def test_properties(self):
+        with self.assertRaises(ValueError):
+            self.user.id = "1"
+
+        with self.assertRaises(ValueError):
+            self.user.guild_id = "1"
+
     def test_messageAssignment(self):
         self.assertEqual(len(self.user.messages), 2)
         self.user.messages = Message(3, "Test", 0, 2, 3)
@@ -114,6 +123,9 @@ class TestUser(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.assertFalse(self.user == 1)
 
+    def test_hash(self):
+        self.assertEqual(hash(self.user), -4734289103435588629)
+
     def test_duplicateCounter(self):
         self.assertNotEqual(
             self.user.duplicate_counter, self.user.get_correct_duplicate_count()
@@ -122,6 +134,11 @@ class TestUser(unittest.TestCase):
         self.assertEqual(
             self.user.duplicate_counter - 1, self.user.get_correct_duplicate_count()
         )
+
+    def test_cleanUp(self):
+        x = len(self.user.messages)
+        self.user.clean_up(datetime.datetime.now(datetime.timezone.utc))
+        self.assertEqual(x, len(self.user.messages))
 
 
 if __name__ == "__main__":

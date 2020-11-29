@@ -26,6 +26,7 @@ import unittest
 from discord.ext import commands
 
 from AntiSpam import AntiSpamHandler
+from AntiSpam.Exceptions import DuplicateObject
 from AntiSpam.static import Static
 from AntiSpam.Guild import Guild
 from AntiSpam.User import User
@@ -47,12 +48,18 @@ class TestGuild(unittest.TestCase):
         self.ash.guilds = Guild(
             None, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
         )
-        self.ash.guilds[0] = User(
-            None, 20, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
-        )
 
     def test_defaults(self):
         self.assertEqual(self.ash.options, Static.DEFAULTS)
+
+    def test_properties(self):
+        with self.assertRaises(ValueError):
+            self.ash.guilds = "1"
+
+        with self.assertRaises(DuplicateObject):
+            self.ash.guilds = Guild(
+                None, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
+            )
 
     def test_verboseType(self):
         with self.assertRaises(ValueError):

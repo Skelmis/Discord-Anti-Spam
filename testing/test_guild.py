@@ -63,6 +63,10 @@ class TestGuild(unittest.TestCase):
 
         self.assertEqual(self.guild.id, 10)
 
+    def test_properties(self):
+        with self.assertRaises(ValueError):
+            self.guild.id = "1"
+
     def test_userAssignment(self):
         self.assertEqual(len(self.guild.users), 2)
         self.guild.users = User(
