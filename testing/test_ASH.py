@@ -133,4 +133,14 @@ class TestGuild(unittest.TestCase):
         self.assertEqual(ash.options["guild_warn_message"], "This is a message")
 
     def test_guildWarnMessageEmbed(self):
+        # Just tests this runs
         ash = AntiSpamHandler(commands.Bot(command_prefix="!"), guild_warn_message={})
+
+    def test_deleteSpam(self):
+        with self.assertRaises(ValueError):
+            ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam={})
+        
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam=True)
+        
+
+
