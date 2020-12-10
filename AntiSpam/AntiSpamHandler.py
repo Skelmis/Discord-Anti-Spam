@@ -293,8 +293,10 @@ class AntiSpamHandler:
                     placeholder_ignore_roles.append(item.id)
                 elif isinstance(item, int):
                     placeholder_ignore_roles.append(item)
+                elif isinstance(item, str):
+                    placeholder_ignore_roles.append(item)
                 else:
-                    raise ValueError("Expected discord.Role or int for ignore_roles")
+                    raise ValueError("Expected discord.Role or int or str for ignore_roles")
             ignore_roles = placeholder_ignore_roles
 
         self.options = {
@@ -393,9 +395,13 @@ class AntiSpamHandler:
         # Return if member has an ignored role
         try:
             user_roles_id = [role.id for role in message.author.roles]
+            user_role_names = [role.name for role in message.author.roles]
             for user_role_id in user_roles_id:
                 if user_role_id in self.options.get("ignore_roles"):
                     return
+            for user_role_name in user_role_names:
+                if user_role_name in self.options.get("ignore_roles"):
+                return
         except AttributeError:
             self.logger.warning(
                 f"Could not compute ignore_roles for {message.author.name}({message.author.id})"

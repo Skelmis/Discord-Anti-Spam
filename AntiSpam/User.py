@@ -507,7 +507,6 @@ class User:
                 )
             elif self.logger.isEnabledFor(logging.DEBUG):
                 self.logger.debug(f"Removing Message: {outstanding_message.id}")
-    
 
     @property
     def id(self):
