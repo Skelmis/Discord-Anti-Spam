@@ -342,6 +342,11 @@ class AntiSpamHandler:
         ==========
         message : discord.Message
             The message that needs to be propagated out
+        
+        Returns
+        =======
+        dict
+            A dictionary of useful information about the user in question
         """
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of ignore_type: discord.Message")
@@ -401,7 +406,7 @@ class AntiSpamHandler:
             self.guilds = guild
             self.logger.info(f"Created Guild: {guild.id}")
 
-        guild.propagate(message)
+        return guild.propagate(message)
 
     def add_ignored_item(self, item: int, ignore_type: str) -> None:
         """

@@ -212,6 +212,8 @@ class User:
         if not self.in_guild:
             return
 
+        was_punished = False
+
         self.messages = message
         self.logger.info(f"Created Message: {message.id}")
 
@@ -220,6 +222,7 @@ class User:
                 f"Message: ({message.id}) requires some form of punishment"
             )
             # We need to punish the member with something
+            was_punished = True
 
             if (
                 self.duplicate_counter >= self.options["warn_threshold"]
@@ -290,6 +293,13 @@ class User:
 
             else:
                 raise LogicError
+        
+        return {
+            "warn_count": self.warn_count, 
+            "kick_count": self.warn_count, 
+            "duplicate_counter": self.get_correct_duplicate_count(),
+            "was_punished_this_message": was_punished
+            }
 
     async def _punish_user(self, value, user_message, guild_message, method):
         """

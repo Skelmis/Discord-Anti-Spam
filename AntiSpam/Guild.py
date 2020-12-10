@@ -122,6 +122,11 @@ class Guild:
         ==========
         message : discord.Message
             The message that needs to be propagated out
+        
+        Returns
+        =======
+        dict
+            A dictionary of useful information about the user in question
         """
         if not isinstance(message, discord.Message):
             raise ValueError("Expected message of ignore_type: discord.Message")
@@ -139,7 +144,7 @@ class Guild:
             self.users = user
             self.logger.info(f"Created User: {user.id}")
 
-        user.propagate(message)
+        return user.propagate(message)
 
     @property
     def id(self):
