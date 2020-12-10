@@ -79,6 +79,9 @@ class AntiSpamHandler:
         message_duplicate_accuracy: 90
             How 'close' messages need to be to be registered as duplicates (Out of 100)
 
+        delete_spam: True
+            Whether or not to delete messages marked as spam
+
         ignore_perms: [8]
             The perms (ID Form), that bypass anti-spam
 
@@ -138,6 +141,14 @@ class AntiSpamHandler:
         ----------
         bot : commands.Bot
             The commands.Bot instance
+        verbose_level : int, optional
+            The level at which logging should occur, personal recomendations are 2 or 3
+            0 - No logging
+            1 - Everything
+            2 - Everything from INFO and above
+            3 - WARNING and above
+            4 - ERROR and CRITICAL
+            5 - CRITICAL
         warn_threshold : int, optional
             This is the amount of messages in a row that result in a warning within the message_interval
         kick_threshold : int, optional
@@ -260,9 +271,7 @@ class AntiSpamHandler:
         if not isinstance(ignore_roles, list) and ignore_roles is not None:
             raise ValueError("Expected ignore_roles of type list")
 
-        if not isinstance(ignore_guilds, list) and ignore_guilds is not None:
-            raise ValueError("Expected ignore_guilds of type list")
-
+        if not isinstance(ignore_guilds, list) and delete_spam
         if not isinstance(ignore_bots, bool) and ignore_bots is not None:
             raise ValueError("Expected ignore_bots of type bool")
 
