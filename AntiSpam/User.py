@@ -236,15 +236,18 @@ class User:
                 then become a kick and so on
                 """
                 # We are still in the warning area
+                self.warn_count += 1
                 channel = value.channel
                 guild_message = transform_message(
                     self.options["guild_warn_message"],
                     value,
                     {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
-
-                asyncio.ensure_future(send_to_obj(channel, guild_message))
-                self.warn_count += 1
+                try:
+                    asyncio.ensure_future(send_to_obj(channel, guild_message))
+                except Exception as e:
+                    self.warn_count -= 1
+                    raise e
 
             elif (
                 self.warn_count >= self.options["kick_threshold"]
@@ -252,6 +255,7 @@ class User:
             ):
                 # Set this to False here to stop processing other messages, we can revert on failure
                 self.in_guild = False
+                self.kick_count += 1
 
                 self.logger.debug(f"Attempting to kick: {message.author_id}")
                 # We should kick the member
@@ -268,11 +272,11 @@ class User:
                 asyncio.ensure_future(
                     self._punish_user(value, user_message, guild_message, Static.KICK,)
                 )
-                self.kick_count += 1
 
             elif self.kick_count >= self.options["ban_threshold"]:
                 # Set this to False here to stop processing other messages, we can revert on failure
                 self.in_guild = False
+                self.kick_count += 1
 
                 self.logger.debug(f"Attempting to ban: {message.author_id}")
                 # We should ban the member
@@ -289,7 +293,6 @@ class User:
                 asyncio.ensure_future(
                     self._punish_user(value, user_message, guild_message, Static.BAN,)
                 )
-                self.kick_count += 1
 
             else:
                 raise LogicError
@@ -335,12 +338,14 @@ class User:
         perms = guild.me.guild_permissions
         if not perms.kick_members and method == Static.KICK:
             self.in_guild = True
+            self.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I need kick perms to punish someone in {guild.name}"
             )
 
         elif not perms.ban_members and method == Static.BAN:
             self.in_guild = True
+            self.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I need ban perms to punish someone in {guild.name}"
             )
@@ -348,6 +353,7 @@ class User:
         # We also check they don't own the guild, since ya know...
         elif guild.owner_id == member.id:
             self.in_guild = True
+            self.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I cannot punish {member.display_name}({member.id}) "
                 f"because they own this guild. ({guild.name})"
@@ -401,6 +407,7 @@ class User:
                         raise NotImplementedError
                 except discord.Forbidden:
                     self.in_guild = True
+                    self.kick_count -= 1
                     await send_to_obj(
                         dc_channel,
                         f"I do not have permission to kick: {member.mention}",
@@ -415,6 +422,7 @@ class User:
 
                 except discord.HTTPException:
                     self.in_guild = True
+                    self.kick_count -= 1
                     await send_to_obj(
                         dc_channel,
                         f"An error occurred trying to {method}: {member.mention}",
@@ -499,6 +507,7 @@ class User:
                 )
             elif self.logger.isEnabledFor(logging.DEBUG):
                 self.logger.debug(f"Removing Message: {outstanding_message.id}")
+    
 
     @property
     def id(self):
