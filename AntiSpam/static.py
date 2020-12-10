@@ -46,6 +46,7 @@ class Static:
         "sending duplicate messages.",
         "message_duplicate_count": 5,
         "message_duplicate_accuracy": 90,
+        "delete_spam": True,
         "ignore_perms": [8],
         "ignore_users": [],
         "ignore_channels": [],

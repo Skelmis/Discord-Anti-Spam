@@ -361,6 +361,13 @@ class User:
                 "because they are higher then me, which means I could lack the ability to kick/ban them."
             )
 
+        if self.options.get("delete_spam") is True:
+            try:
+                await value.delete()
+            except discord.HTTPException:
+                # Failed to delete message
+                await self.logger.warn(f"Failed to delete message {value.id} in guild {value.guild.id}")
+
         m = None
 
         try:

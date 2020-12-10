@@ -126,6 +126,7 @@ class AntiSpamHandler:
         user_ban_message=None,
         message_duplicate_count=None,
         message_duplicate_accuracy=None,
+        delete_spam=None,
         ignore_perms=None,
         ignore_users=None,
         ignore_channels=None,
@@ -259,6 +260,9 @@ class AntiSpamHandler:
                     "Expected message_duplicate_accuracy between 1 and 100"
                 )
 
+        if not isinstance(delete_spam, bool) and delete_spam is not None:
+            raise ValueError("Expected delete_spam of type bool")
+
         if not isinstance(ignore_perms, list) and ignore_perms is not None:
             raise ValueError("Expected ignore_perms of type list")
 
@@ -271,7 +275,9 @@ class AntiSpamHandler:
         if not isinstance(ignore_roles, list) and ignore_roles is not None:
             raise ValueError("Expected ignore_roles of type list")
 
-        if not isinstance(ignore_guilds, list) and delete_spam
+        if not isinstance(ignore_guilds, list) and ignore_guilds is not None:
+            raise ValueError("Expected ignore_guilds of type list")
+
         if not isinstance(ignore_bots, bool) and ignore_bots is not None:
             raise ValueError("Expected ignore_bots of type bool")
 
@@ -311,6 +317,7 @@ class AntiSpamHandler:
             or Static.DEFAULTS.get("message_duplicate_count"),
             "message_duplicate_accuracy": message_duplicate_accuracy
             or Static.DEFAULTS.get("message_duplicate_accuracy"),
+            "delete_spam": delete_spam or Static.DEFAULTS.get("delete_spam"),
             "ignore_perms": ignore_perms or Static.DEFAULTS.get("ignore_perms"),
             "ignore_users": ignore_users or Static.DEFAULTS.get("ignore_users"),
             "ignore_channels": ignore_channels
