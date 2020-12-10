@@ -175,6 +175,12 @@ class AntiSpamHandler:
             How 'close' messages need to be to be registered as duplicates (Out of 100)
         ignore_perms : list, optional
             The perms (ID Form), that bypass anti-spam
+        ignore_channels : list, optional
+            The channels (ID Form) that are ignored
+        ignore_roles : list, optional
+            The roles (ID, Name) that are ignored
+        ignore_guilds : list, optional
+            The guilds (ID) that are ignored
         ignore_users : list, optional
             The users (ID Form), that bypass anti-spam
         ignore_bots : bool, optional
@@ -389,6 +395,7 @@ class AntiSpamHandler:
             return
 
         # Return if ignored channel
+        # TODO Add the ability to ignore by channel name
         if message.channel.id in self.options["ignore_channels"]:
             return
 
@@ -401,7 +408,7 @@ class AntiSpamHandler:
                     return
             for user_role_name in user_role_names:
                 if user_role_name in self.options.get("ignore_roles"):
-                return
+                    return
         except AttributeError:
             self.logger.warning(
                 f"Could not compute ignore_roles for {message.author.name}({message.author.id})"
