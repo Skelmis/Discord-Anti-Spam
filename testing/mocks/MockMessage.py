@@ -5,17 +5,37 @@ import datetime
 from unittest.mock import MagicMock
 
 from testing.mocks.MockGuild import get_mocked_guild
-from testing.mocks.MockMember import get_mocked_member
+from testing.mocks.MockMember import get_mocked_member, get_mocked_bot
+from testing.mocks.MockChannel import get_mocked_channel
 
 
-def get_mocked_message():
+def get_mocked_message(*, is_in_guild=True, member_kwargs=None):
     """
     Return a mocked, usable message object
     """
     mock_message = MagicMock(name="Message Mock")
-    mock_message.author = get_mocked_member(name="Skelmis", id=12345)
+    if member_kwargs:
+        if member_kwargs.get("bot") is True:
+            mock_message.author = get_mocked_member(
+                name=member_kwargs.get("name", "Mocked Bot"),
+                id=member_kwargs.get("id", 98987),
+                bot=True,
+            )
+        else:
+            mock_message.author = get_mocked_member(
+                name=member_kwargs.get("name", "Skelmis"),
+                id=member_kwargs.get("id", 12345),
+            )
+    else:
+        mock_message.author = get_mocked_member(name="Skelmis", id=12345)
+    mock_message.bot = False
 
-    mock_message.guild = get_mocked_guild(name="Guild")
+    if is_in_guild:
+        mock_message.guild = get_mocked_guild(name="Guild")
+    else:
+        mock_message.guild = False
+
+    mock_message.channel = get_mocked_channel()
 
     mock_message.created_at = datetime.datetime.now()
 

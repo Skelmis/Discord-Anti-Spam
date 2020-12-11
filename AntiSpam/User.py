@@ -302,6 +302,7 @@ class User:
             "kick_count": self.warn_count,
             "duplicate_counter": self.get_correct_duplicate_count(),
             "was_punished_this_message": was_punished,
+            "status": "Success",
         }
 
     async def _punish_user(self, value, user_message, guild_message, method):

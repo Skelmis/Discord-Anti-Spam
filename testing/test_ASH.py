@@ -32,6 +32,7 @@ from AntiSpam.Exceptions import DuplicateObject
 from AntiSpam.static import Static
 from AntiSpam.Guild import Guild
 from AntiSpam.User import User
+from testing.mocks.MockMember import get_mocked_member, get_mocked_bot
 from testing.mocks.MockMessage import get_mocked_message
 
 
@@ -44,7 +45,7 @@ class TestGuild(unittest.TestCase):
         """
         Simply setup our Guild obj before usage
         """
-        self.ash = AntiSpamHandler(commands.Bot(command_prefix="!"))
+        self.ash = AntiSpamHandler(get_mocked_bot(name="bot", id=98987))
         self.ash.guilds = Guild(
             None, 12, Static.DEFAULTS, logger=logging.getLogger(__name__)
         )
@@ -147,15 +148,40 @@ class TestGuild(unittest.TestCase):
 
     def test_propagateRoleIgnoring(self):
         """
-        Tests if the propagate method ignores
+        Tests if the propagate method ignores the correct roles
         """
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=[151515])
+        ash = AntiSpamHandler(
+            get_mocked_member(name="bot", id="87678"), ignore_roles=[151515]
+        )
 
-        capturedOutput = io.StringIO()
-        sys.stdout = capturedOutput
+        result = ash.propagate(get_mocked_message())
 
-        ash.propagate(get_mocked_message())
+        self.assertEqual(result["status"], "Ignoring this role: 151515")
 
-        sys.stdout = sys.__stdout__
-        stdout = capturedOutput.getvalue()
-        self.assertEqual(stdout, "151515 is a part of ignored roles")
+    def test_propagateTypes(self):
+        with self.assertRaises(ValueError):
+            self.ash.propagate(1)
+
+        with self.assertRaises(ValueError):
+            self.ash.propagate(None)
+
+        with self.assertRaises(ValueError):
+            self.ash.propagate("Hi!")
+
+        with self.assertRaises(ValueError):
+            self.ash.propagate(True)
+
+    def test_propagateDmIgnore(self):
+        result = self.ash.propagate(get_mocked_message(is_in_guild=False))
+        self.assertEqual(result["status"], "Ignoring messages from dm's")
+
+    def test_propagateBotIgnore(self):
+        result = self.ash.propagate(
+            get_mocked_message(member_kwargs={"bot": True, "id": 98987})
+        )
+        self.assertEqual(result["status"], "Ignoring messages from myself (the bot)")
+
+        result_two = self.ash.propagate(
+            get_mocked_message(member_kwargs={"bot": True, "id": 98798})
+        )
+        self.assertEqual(result_two["status"], "Ignoring messages from bots")

@@ -23,7 +23,8 @@ DEALINGS IN THE SOFTWARE.
 LICENSE
 """
 import logging
-from unittest.mock import Mock
+from typing import Optional
+from unittest.mock import MagicMock
 
 import discord
 from discord.ext import commands
@@ -188,7 +189,7 @@ class AntiSpamHandler:
             Should bots bypass anti-spam?
         """
         # Just gotta casually ignore_type check everything.
-        if not isinstance(bot, commands.Bot):
+        if not isinstance(bot, commands.Bot) and not isinstance(bot, MagicMock):
             raise ValueError("Expected channel of type commands.Bot")
 
         if not isinstance(verbose_level, int):
@@ -361,7 +362,7 @@ class AntiSpamHandler:
 
         self.logger.info("Package initialized successfully")
 
-    def propagate(self, message: discord.Message) -> None:
+    def propagate(self, message: discord.Message) -> Optional[dict]:
         """
         This method is the base level intake for messages, then
         propagating it out to the relevant guild or creating one
@@ -377,18 +378,21 @@ class AntiSpamHandler:
         dict
             A dictionary of useful information about the user in question
         """
-        if not isinstance(message, discord.Message) and not isinstance(message, Mock):
+        if not isinstance(message, discord.Message) and not isinstance(
+            message, MagicMock
+        ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
         # Ensure we only moderate actual guild messages
         if not message.guild:
             self.logger.debug("Message was not in a guild")
-            return
+            return {"status": "Ignoring messages from dm's"}
 
         # The bot is immune to spam
+        print(message.author.id, self.bot.user.id)
         if message.author.id == self.bot.user.id:
             self.logger.debug("Message was from myself")
-            return
+            return {"status": "Ignoring messages from myself (the bot)"}
 
         if isinstance(message.author, discord.User):
             self.logger.warning(f"Given message with an author of type User")
@@ -398,20 +402,20 @@ class AntiSpamHandler:
             self.logger.debug(
                 f"I ignore bots, and this is a bot message: {message.author.id}"
             )
-            return
+            return {"status": "Ignoring messages from bots"}
 
         # Return if ignored member
         if message.author.id in self.options["ignore_users"]:
             self.logger.debug(
                 f"The user who sent this message is ignored: {message.author.id}"
             )
-            return
+            return {"status": f"Ignoring this user: {message.author.id}"}
 
         # Return if ignored channel
         # TODO Add the ability to ignore by channel name
         if message.channel.id in self.options["ignore_channels"]:
             self.logger.debug(f"{message.channel.id} is ignored")
-            return
+            return {"status": f"Ignoring this channel: {message.channel.id}"}
 
         # Return if member has an ignored role
         try:
@@ -420,7 +424,7 @@ class AntiSpamHandler:
             for item in user_roles:
                 if item in self.options.get("ignore_roles"):
                     self.logger.debug(f"{item} is a part of ignored roles")
-                    return
+                    return {"status": f"Ignoring this role: {item}"}
         except AttributeError:
             self.logger.warning(
                 f"Could not compute ignore_roles for {message.author.name}({message.author.id})"
@@ -428,7 +432,8 @@ class AntiSpamHandler:
 
         # Return if ignored guild
         if message.guild.id in self.options.get("ignore_guilds"):
-            return
+            self.logger.debug(f"{message.guild.id} is an ignored guild")
+            return {"status": f"Ignoring this guild: {message.guild.id}"}
 
         self.logger.debug(
             f"Propagating message for: {message.author.name}({message.author.id})"

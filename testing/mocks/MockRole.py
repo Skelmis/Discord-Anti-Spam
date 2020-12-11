@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 def get_mocked_role(*, name=None, id=None):
     """
-    Return a mocked, usable message object
+    Return a mocked, usable role object
     """
     name = name or "Mocked Role"
     id = int(id) if id else 151515
