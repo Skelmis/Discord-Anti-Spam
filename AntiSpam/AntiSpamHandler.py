@@ -23,6 +23,7 @@ DEALINGS IN THE SOFTWARE.
 LICENSE
 """
 import logging
+from unittest.mock import Mock
 
 import discord
 from discord.ext import commands
@@ -358,6 +359,8 @@ class AntiSpamHandler:
         elif verbose_level == 5:
             self.logger.setLevel(level=logging.CRITICAL)
 
+        self.logger.info("Package initialized successfully")
+
     def propagate(self, message: discord.Message) -> None:
         """
         This method is the base level intake for messages, then
@@ -374,15 +377,17 @@ class AntiSpamHandler:
         dict
             A dictionary of useful information about the user in question
         """
-        if not isinstance(message, discord.Message):
+        if not isinstance(message, discord.Message) and not isinstance(message, Mock):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
         # Ensure we only moderate actual guild messages
         if not message.guild:
+            self.logger.debug("Message was not in a guild")
             return
 
         # The bot is immune to spam
         if message.author.id == self.bot.user.id:
+            self.logger.debug("Message was from myself")
             return
 
         if isinstance(message.author, discord.User):
@@ -390,26 +395,31 @@ class AntiSpamHandler:
 
         # Return if ignored bot
         if self.options["ignore_bots"] and message.author.bot:
+            self.logger.debug(
+                f"I ignore bots, and this is a bot message: {message.author.id}"
+            )
             return
 
         # Return if ignored member
         if message.author.id in self.options["ignore_users"]:
+            self.logger.debug(
+                f"The user who sent this message is ignored: {message.author.id}"
+            )
             return
 
         # Return if ignored channel
         # TODO Add the ability to ignore by channel name
         if message.channel.id in self.options["ignore_channels"]:
+            self.logger.debug(f"{message.channel.id} is ignored")
             return
 
         # Return if member has an ignored role
         try:
-            user_roles_id = [role.id for role in message.author.roles]
-            user_role_names = [role.name for role in message.author.roles]
-            for user_role_id in user_roles_id:
-                if user_role_id in self.options.get("ignore_roles"):
-                    return
-            for user_role_name in user_role_names:
-                if user_role_name in self.options.get("ignore_roles"):
+            user_roles = [role.id for role in message.author.roles]
+            user_roles.extend([role.name for role in message.author.roles])
+            for item in user_roles:
+                if item in self.options.get("ignore_roles"):
+                    self.logger.debug(f"{item} is a part of ignored roles")
                     return
         except AttributeError:
             self.logger.warning(
