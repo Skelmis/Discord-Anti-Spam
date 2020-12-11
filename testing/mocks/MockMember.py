@@ -3,6 +3,8 @@ This 'mocks' a discord.Member so we can use it for testing
 """
 from unittest.mock import MagicMock
 
+from testing.mocks.MockRole import get_mocked_role
+
 
 def get_mocked_member(*, name=None, id=None):
     """
@@ -15,5 +17,7 @@ def get_mocked_member(*, name=None, id=None):
     mock.id = id
     mock.display_name = name
     mock.mention = f"<@{id}>"
+
+    mock.roles = [get_mocked_role(), get_mocked_role(name="test role 2", id=252525)]
 
     return mock

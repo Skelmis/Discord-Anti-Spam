@@ -20,7 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import io
 import logging
+import sys
 import unittest
 
 from discord.ext import commands
@@ -30,6 +32,7 @@ from AntiSpam.Exceptions import DuplicateObject
 from AntiSpam.static import Static
 from AntiSpam.Guild import Guild
 from AntiSpam.User import User
+from testing.mocks.MockMessage import get_mocked_message
 
 
 class TestGuild(unittest.TestCase):
@@ -141,3 +144,18 @@ class TestGuild(unittest.TestCase):
             ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam={})
 
         ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam=True)
+
+    def test_propagateRoleIgnoring(self):
+        """
+        Tests if the propagate method ignores
+        """
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=[151515])
+
+        capturedOutput = io.StringIO()
+        sys.stdout = capturedOutput
+
+        ash.propagate(get_mocked_message())
+
+        sys.stdout = sys.__stdout__
+        stdout = capturedOutput.getvalue()
+        self.assertEqual(stdout, "151515 is a part of ignored roles")
