@@ -139,8 +139,5 @@ class TestGuild(unittest.TestCase):
     def test_deleteSpam(self):
         with self.assertRaises(ValueError):
             ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam={})
-        
+
         ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam=True)
-        
-
-

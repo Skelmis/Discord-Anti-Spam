@@ -302,7 +302,9 @@ class AntiSpamHandler:
                 elif isinstance(item, str):
                     placeholder_ignore_roles.append(item)
                 else:
-                    raise ValueError("Expected discord.Role or int or str for ignore_roles")
+                    raise ValueError(
+                        "Expected discord.Role or int or str for ignore_roles"
+                    )
             ignore_roles = placeholder_ignore_roles
 
         self.options = {

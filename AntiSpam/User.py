@@ -296,13 +296,13 @@ class User:
 
             else:
                 raise LogicError
-        
+
         return {
-            "warn_count": self.warn_count, 
-            "kick_count": self.warn_count, 
+            "warn_count": self.warn_count,
+            "kick_count": self.warn_count,
             "duplicate_counter": self.get_correct_duplicate_count(),
-            "was_punished_this_message": was_punished
-            }
+            "was_punished_this_message": was_punished,
+        }
 
     async def _punish_user(self, value, user_message, guild_message, method):
         """
@@ -372,7 +372,9 @@ class User:
                 await value.delete()
             except discord.HTTPException:
                 # Failed to delete message
-                await self.logger.warn(f"Failed to delete message {value.id} in guild {value.guild.id}")
+                await self.logger.warn(
+                    f"Failed to delete message {value.id} in guild {value.guild.id}"
+                )
 
         m = None
 
