@@ -571,4 +571,5 @@ class AntiSpamHandler:
             if guild == value:
                 raise DuplicateObject
 
+        self.logger.debug(f"Added guild: {value}")
         self._guilds.append(value)
