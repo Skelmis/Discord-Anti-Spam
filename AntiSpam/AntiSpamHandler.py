@@ -429,7 +429,6 @@ class AntiSpamHandler:
             return {"status": f"Ignoring this user: {message.author.id}"}
 
         # Return if ignored channel
-        # TODO Add the ability to ignore by channel name
         if (
             message.channel.id in self.options["ignore_channels"]
             or message.channel.name in self.options["ignore_channels"]
