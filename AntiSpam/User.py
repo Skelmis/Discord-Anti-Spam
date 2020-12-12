@@ -26,6 +26,7 @@ import logging
 import asyncio
 import datetime
 from copy import deepcopy
+from unittest.mock import MagicMock
 
 import discord
 
@@ -147,7 +148,7 @@ class User:
         value : discord.Message
             The message that needs to be propagated out
         """
-        if not isinstance(value, discord.Message):
+        if not isinstance(value, discord.Message) and not isinstance(value, MagicMock):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
         # Here we just check if the user is still in the guild by checking if the in_guild attribute is False.

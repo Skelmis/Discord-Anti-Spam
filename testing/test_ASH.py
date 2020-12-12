@@ -185,3 +185,28 @@ class TestGuild(unittest.TestCase):
             get_mocked_message(member_kwargs={"bot": True, "id": 98798})
         )
         self.assertEqual(result_two["status"], "Ignoring messages from bots")
+
+    def test_propagateUserIgnore(self):
+        self.ash.add_ignored_item(12345, "member")
+
+        result = self.ash.propagate(get_mocked_message())
+        self.assertEqual(result["status"], "Ignoring this user: 12345")
+
+        result_two = self.ash.propagate(
+            get_mocked_message(member_kwargs={"id": 5433221})
+        )
+        self.assertNotEqual(result_two["status"], "Ignoring this user: 12345")
+
+    def test_propagateIgnoreGuild(self):
+        self.ash.add_ignored_item(123456789, "guild")
+
+        result = self.ash.propagate(get_mocked_message())
+        self.assertEqual(result["status"], "Ignoring this guild: 123456789")
+
+    def test_propagateGuildCreation(self):
+        self.assertEqual(len(self.ash.guilds), 2)
+        self.ash.propagate(get_mocked_message(guild_kwargs={"id": 15}))
+        self.assertEqual(len(self.ash.guilds), 2)
+
+        self.ash.propagate(get_mocked_message())
+        self.assertEqual(len(self.ash.guilds), 3)

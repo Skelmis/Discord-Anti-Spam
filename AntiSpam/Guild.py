@@ -22,6 +22,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+from unittest.mock import MagicMock
+
 import discord
 
 from AntiSpam.User import User
@@ -128,7 +130,9 @@ class Guild:
         dict
             A dictionary of useful information about the user in question
         """
-        if not isinstance(message, discord.Message):
+        if not isinstance(message, discord.Message) and not isinstance(
+            message, MagicMock
+        ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
         user = User(

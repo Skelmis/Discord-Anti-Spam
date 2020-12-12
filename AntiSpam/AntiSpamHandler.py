@@ -548,6 +548,7 @@ class AntiSpamHandler:
         """
         ignore_type = ignore_type.lower()
         if not isinstance(item, int):
+            # TODO Handle more then just ints, also take obj's
             item = int(item)
 
         if ignore_type == "member":
