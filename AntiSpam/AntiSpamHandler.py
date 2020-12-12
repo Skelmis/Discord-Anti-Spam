@@ -389,7 +389,6 @@ class AntiSpamHandler:
             return {"status": "Ignoring messages from dm's"}
 
         # The bot is immune to spam
-        print(message.author.id, self.bot.user.id)
         if message.author.id == self.bot.user.id:
             self.logger.debug("Message was from myself")
             return {"status": "Ignoring messages from myself (the bot)"}
