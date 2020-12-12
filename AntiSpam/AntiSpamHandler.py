@@ -318,6 +318,15 @@ class AntiSpamHandler:
                     placeholder_ignore_channels.append(item)
             ignore_channels = placeholder_ignore_channels
 
+        if ignore_users is not None:
+            placeholder_ignore_users = []
+            for item in ignore_users:
+                if isinstance(item, discord.User) or isinstance(item, discord.Member):
+                    placeholder_ignore_users.append(item.id)
+                else:
+                    placeholder_ignore_users.append(item)
+            ignore_users = placeholder_ignore_users
+
         self.options = {
             "warn_threshold": warn_threshold or Static.DEFAULTS.get("warn_threshold"),
             "kick_threshold": kick_threshold or Static.DEFAULTS.get("kick_threshold"),
