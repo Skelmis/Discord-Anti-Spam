@@ -309,6 +309,15 @@ class AntiSpamHandler:
                     )
             ignore_roles = placeholder_ignore_roles
 
+        if ignore_channels is not None:
+            placeholder_ignore_channels = []
+            for item in ignore_channels:
+                if isinstance(item, discord.TextChannel):
+                    placeholder_ignore_channels.extend([item.id])
+                else:
+                    placeholder_ignore_channels.append(item)
+            ignore_channels = placeholder_ignore_channels
+
         self.options = {
             "warn_threshold": warn_threshold or Static.DEFAULTS.get("warn_threshold"),
             "kick_threshold": kick_threshold or Static.DEFAULTS.get("kick_threshold"),
@@ -412,9 +421,12 @@ class AntiSpamHandler:
 
         # Return if ignored channel
         # TODO Add the ability to ignore by channel name
-        if message.channel.id in self.options["ignore_channels"]:
-            self.logger.debug(f"{message.channel.id} is ignored")
-            return {"status": f"Ignoring this channel: {message.channel.id}"}
+        if (
+            message.channel.id in self.options["ignore_channels"]
+            or message.channel.name in self.options["ignore_channels"]
+        ):
+            self.logger.debug(f"{message.channel} is ignored")
+            return {"status": f"Ignoring this channel: {message.channel}"}
 
         # Return if member has an ignored role
         try:
