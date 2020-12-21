@@ -28,7 +28,7 @@ import unittest
 from discord.ext import commands
 
 from AntiSpam import AntiSpamHandler
-from AntiSpam.Exceptions import DuplicateObject
+from AntiSpam.Exceptions import DuplicateObject, BaseASHException
 from AntiSpam.static import Static
 from AntiSpam.Guild import Guild
 from AntiSpam.User import User
@@ -43,7 +43,7 @@ class TestAsh(unittest.TestCase):
 
     def setUp(self):
         """
-        Simply setup our Guild obj before usage
+        Simply setup our Ash obj before usage
         """
         self.ash = AntiSpamHandler(get_mocked_bot(name="bot", id=98987))
         self.ash.guilds = Guild(
@@ -131,6 +131,75 @@ class TestAsh(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             AntiSpamHandler(False)
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"))
+    
+    def test_warnThreshold(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), warn_threshold="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), warn_threshold=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), warn_threshold=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), warn_threshold=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), warn_threshold=1)
+        AntiSpamHandler(commands.Bot(command_prefix="!"), warn_threshold=None)
+
+    def test_kickThreshold(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), kick_threshold="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), kick_threshold=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), kick_threshold=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), kick_threshold=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), kick_threshold=1)
+        AntiSpamHandler(commands.Bot(command_prefix="!"), kick_threshold=None)
+    
+    def test_banThreshold(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold=1)
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold=None)
+    
+    def test_messageIntervak(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval=1000)
+        AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval=None)
+
+        with self.assertRaises(BaseASHException):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval=999)
 
     # TODO Add a ensureRaises test for each setable option...
     # TODO Capture standard out and ensure the logger is working,
