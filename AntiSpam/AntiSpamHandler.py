@@ -75,6 +75,12 @@ class AntiSpamHandler:
         user_ban_message : "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/sending duplicate messages."
             The message to be sent to the user who is being banned
 
+        user_failed_kick_message : "I failed to punish you because I lack permissions, but still you shouldn't spam"
+            The message to be sent to the user if the bot fails to kick them
+
+        user_failed_ban_message : "I failed to punish you because I lack permissions, but still you shouldn't spam"
+            The message to be sent to the user if the bot fails to ban them
+
         message_duplicate_count: 5
             The amount of duplicate messages needed within message_interval to trigger a punishment
 
@@ -126,6 +132,8 @@ class AntiSpamHandler:
         guild_ban_message=None,
         user_kick_message=None,
         user_ban_message=None,
+        user_failed_kick_message=None,
+        user_failed_ban_message=None,
         message_duplicate_count=None,
         message_duplicate_accuracy=None,
         delete_spam=None,
@@ -161,16 +169,20 @@ class AntiSpamHandler:
         message_interval : int, optional
             Amount of time a message is kept before being discarded.
             Essentially the amount of time (In milliseconds) a message can count towards spam
-        guild_warn_message : [str, dict], optional
+        guild_warn_message : Union[str, dict], optional
             The message to be sent in the guild upon warn_threshold being reached
-        guild_kick_message : [str, dict], optional
+        guild_kick_message : Union[str, dict], optional
             The message to be sent in the guild upon kick_threshold being reached
-        guild_ban_message : [str, dict], optional
+        guild_ban_message : Union[str, dict], optional
             The message to be sent in the guild upon ban_threshold being reached
-        user_kick_message : [str, dict], optional
+        user_kick_message : Union[str, dict], optional
             The message to be sent to the user who is being warned
-        user_ban_message : [str, dict], optional
+        user_ban_message : Union[str, dict], optional
             The message to be sent to the user who is being banned
+        user_failed_kick_message : Union[str, dict], optional
+            The message to be sent to the user if the bot fails to kick them
+        user_failed_ban_message : Union[str, dict], optional
+            The message to be sent to the user if the bot fails to ban them
         message_duplicate_count : int, optional
             Amount of duplicate messages needed to trip a punishment
         message_duplicate_accuracy : float, optional
@@ -248,6 +260,20 @@ class AntiSpamHandler:
             raise ValueError("Expected user_ban_message of type str or dict")
 
         if (
+            not isinstance(user_failed_kick_message, str)
+            and not isinstance(user_failed_kick_message, dict)
+            and user_failed_kick_message is not None
+        ):
+            raise ValueError("Expected user_failed_kick_message of type str or dict")
+
+        if (
+            not isinstance(user_failed_ban_message, str)
+            and not isinstance(user_failed_ban_message, dict)
+            and user_failed_ban_message is not None
+        ):
+            raise ValueError("Expected user_failed_ban_message of type str or dict")
+
+        if (
             not isinstance(message_duplicate_count, int)
             and message_duplicate_count is not None
         ):
@@ -298,7 +324,7 @@ class AntiSpamHandler:
             placeholder_ignore_roles = []
             for item in ignore_roles:
                 if isinstance(item, discord.Role):
-                    placeholder_ignore_roles.append(item.id)
+                    placeholder_ignore_roles.append(item.id)user_failed_kick_message
                 elif isinstance(item, int):
                     placeholder_ignore_roles.append(item)
                 elif isinstance(item, str):
@@ -343,6 +369,10 @@ class AntiSpamHandler:
             or Static.DEFAULTS.get("user_kick_message"),
             "user_ban_message": user_ban_message
             or Static.DEFAULTS.get("user_ban_message"),
+            "user_failed_kick_message" : user_failed_kick_message,
+            or Static.DEFAULTS.get("user_failed_kick_message"),
+            "user_failed_ban_message": user_failed_ban_message
+            or Static.DEFAULTS.get("user_failed_ban_message"),
             "message_duplicate_count": message_duplicate_count
             or Static.DEFAULTS.get("message_duplicate_count"),
             "message_duplicate_accuracy": message_duplicate_accuracy

@@ -267,6 +267,32 @@ class TestAsh(unittest.TestCase):
 
         AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message="hi")
         AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message=dict())
+
+    def test_userFailedKickmessage(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_kick_message=1)
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_kick_message=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_kick_message=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_kick_message="hi")
+        AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_kick_message=dict())
+
+    def test_userFailedBanmessage(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_ban_message=1)
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_ban_message=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_ban_message=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_ban_message="hi")
+        AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_ban_message=dict())
     
     def test_messageDuplicateCount(self):
         with self.assertRaises(ValueError):

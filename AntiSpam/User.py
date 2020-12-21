@@ -418,9 +418,21 @@ class User:
                     )
                     self.logger.warn(f"Required Permissions are missing for: {method}")
                     if m is not None:
+                        if method == Static.KICK:
+                            user_failed_message = transform_message(
+                                self.options["user_failed_kick_message"],
+                                value,
+                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                            )
+                        else:
+                            user_failed_message = transform_message(
+                                self.options["user_failed_ban_message"],
+                                value,
+                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                            )
                         await send_to_obj(
                             member,
-                            "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                            user_failed_message,
                         )
                         await m.delete()
 
@@ -435,9 +447,21 @@ class User:
                         f"An error occurred trying to {method}: {member.id}"
                     )
                     if m is not None:
+                        if method == Static.KICK:
+                            user_failed_message = transform_message(
+                                self.options["user_failed_kick_message"],
+                                value,
+                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                            )
+                        else:
+                            user_failed_message = transform_message(
+                                self.options["user_failed_ban_message"],
+                                value,
+                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                            )
                         await send_to_obj(
                             member,
-                            "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                            user_failed_message,
                         )
                         await m.delete()
 
