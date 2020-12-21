@@ -36,7 +36,7 @@ from testing.mocks.MockMember import get_mocked_member, get_mocked_bot
 from testing.mocks.MockMessage import get_mocked_message
 
 
-class TestGuild(unittest.TestCase):
+class TestAsh(unittest.TestCase):
     """
     Used to test the ASH object (AntiSpamHandler)
     """
@@ -109,6 +109,28 @@ class TestGuild(unittest.TestCase):
             commands.Bot(command_prefix="!"), message_duplicate_accuracy=50
         )
         self.assertEqual(ash.options["message_duplicate_accuracy"], 50)
+
+    def test_botAssignment(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(None)
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(1)
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler("1")
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler({1: 2})
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler([1, None])
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(True)
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(False)
 
     # TODO Add a ensureRaises test for each setable option...
     # TODO Capture standard out and ensure the logger is working,
