@@ -163,32 +163,24 @@ class User:
             if not value.embeds:
                 return
 
-            else:
-                embed = value.embeds[0]
-                if not isinstance(embed, discord.Embed):
-                    return
+            embed = value.embeds[0]
+            if not isinstance(embed, discord.Embed):
+                return
 
-                if embed.type.lower() != "rich":
-                    return
+            if embed.type.lower() != "rich":
+                return
 
-                content = embed_to_string(embed)
-
-                message = Message(
-                    value.id,
-                    content,
-                    value.author.id,
-                    value.channel.id,
-                    value.guild.id,
-                )
-
+            content = embed_to_string(embed)
         else:
-            message = Message(
-                value.id,
-                value.clean_content,
-                value.author.id,
-                value.channel.id,
-                value.guild.id,
-            )
+            content = value.clean_content
+
+        message = Message(
+            value.id,
+            content,
+            value.author.id,
+            value.channel.id,
+            value.guild.id,
+        )
 
         for message_obj in self.messages:
             # This calculates the relation to each other
