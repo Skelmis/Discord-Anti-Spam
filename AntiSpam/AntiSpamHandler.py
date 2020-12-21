@@ -75,6 +75,12 @@ class AntiSpamHandler:
         user_ban_message : "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/sending duplicate messages."
             The message to be sent to the user who is being banned
 
+        user_failed_kick_message : "I failed to punish you because I lack permissions, but still you shouldn't spam"
+            The message to be sent to the user if the bot fails to kick them
+
+        user_failed_ban_message : "I failed to punish you because I lack permissions, but still you shouldn't spam"
+            The message to be sent to the user if the bot fails to ban them
+
         message_duplicate_count: 5
             The amount of duplicate messages needed within message_interval to trigger a punishment
 
@@ -126,6 +132,8 @@ class AntiSpamHandler:
         guild_ban_message=None,
         user_kick_message=None,
         user_ban_message=None,
+        user_failed_kick_message=None,
+        user_failed_ban_message=None,
         message_duplicate_count=None,
         message_duplicate_accuracy=None,
         delete_spam=None,
@@ -161,16 +169,20 @@ class AntiSpamHandler:
         message_interval : int, optional
             Amount of time a message is kept before being discarded.
             Essentially the amount of time (In milliseconds) a message can count towards spam
-        guild_warn_message : [str, dict], optional
+        guild_warn_message : Union[str, dict], optional
             The message to be sent in the guild upon warn_threshold being reached
-        guild_kick_message : [str, dict], optional
+        guild_kick_message : Union[str, dict], optional
             The message to be sent in the guild upon kick_threshold being reached
-        guild_ban_message : [str, dict], optional
+        guild_ban_message : Union[str, dict], optional
             The message to be sent in the guild upon ban_threshold being reached
-        user_kick_message : [str, dict], optional
+        user_kick_message : Union[str, dict], optional
             The message to be sent to the user who is being warned
-        user_ban_message : [str, dict], optional
+        user_ban_message : Union[str, dict], optional
             The message to be sent to the user who is being banned
+        user_failed_kick_message : Union[str, dict], optional
+            The message to be sent to the user if the bot fails to kick them
+        user_failed_ban_message : Union[str, dict], optional
+            The message to be sent to the user if the bot fails to ban them
         message_duplicate_count : int, optional
             Amount of duplicate messages needed to trip a punishment
         message_duplicate_accuracy : float, optional
@@ -246,6 +258,20 @@ class AntiSpamHandler:
             and user_ban_message is not None
         ):
             raise ValueError("Expected user_ban_message of type str or dict")
+
+        if (
+            not isinstance(user_failed_kick_message, str)
+            and not isinstance(user_failed_kick_message, dict)
+            and user_failed_kick_message is not None
+        ):
+            raise ValueError("Expected user_failed_kick_message of type str or dict")
+
+        if (
+            not isinstance(user_failed_ban_message, str)
+            and not isinstance(user_failed_ban_message, dict)
+            and user_failed_ban_message is not None
+        ):
+            raise ValueError("Expected user_failed_ban_message of type str or dict")
 
         if (
             not isinstance(message_duplicate_count, int)
@@ -343,6 +369,10 @@ class AntiSpamHandler:
             or Static.DEFAULTS.get("user_kick_message"),
             "user_ban_message": user_ban_message
             or Static.DEFAULTS.get("user_ban_message"),
+            "user_failed_kick_message" : user_failed_kick_message
+            or Static.DEFAULTS.get("user_failed_kick_message"),
+            "user_failed_ban_message": user_failed_ban_message
+            or Static.DEFAULTS.get("user_failed_ban_message"),
             "message_duplicate_count": message_duplicate_count
             or Static.DEFAULTS.get("message_duplicate_count"),
             "message_duplicate_accuracy": message_duplicate_accuracy
@@ -434,7 +464,7 @@ class AntiSpamHandler:
             or message.channel.name in self.options["ignore_channels"]
         ):
             self.logger.debug(f"{message.channel} is ignored")
-            return {"status": f"Ignoring this channel: {message.channel}"}
+            return {"status": f"Ignoring this channel: {message.channel.id}"}
 
         # Return if member has an ignored role
         try:
@@ -497,9 +527,16 @@ class AntiSpamHandler:
         This will silently ignore any attempts
         to add an item already added.
         """
-        ignore_type = ignore_type.lower()
-        if not isinstance(item, int):
-            item = int(item)
+        try:
+            ignore_type = ignore_type.lower()
+        except:
+            raise ValueError("Expeced ignore_type of type: str")
+
+        try:
+            if not isinstance(item, int):
+                item = int(item)
+        except ValueError:
+            raise ValueError("Expected item of type: int")
 
         if ignore_type == "member":
             if item not in self.options["ignore_users"]:
@@ -545,10 +582,17 @@ class AntiSpamHandler:
         This will silently ignore any attempts
         to remove an item not ignored.
         """
-        ignore_type = ignore_type.lower()
-        if not isinstance(item, int):
-            # TODO Handle more then just ints, also take obj's
-            item = int(item)
+        try:
+            ignore_type = ignore_type.lower()
+        except:
+            raise ValueError("Expeced ignore_type of type: str")
+
+        try:
+            # TODO Handle more then just ints, take relevant objs as well
+            if not isinstance(item, int):
+                item = int(item)
+        except ValueError:
+            raise ValueError("Expected item of type: int")
 
         if ignore_type == "member":
             if item in self.options["ignore_users"]:
@@ -562,6 +606,14 @@ class AntiSpamHandler:
             if item in self.options["ignore_perms"]:
                 index = self.options["ignore_perms"].index(item)
                 self.options["ignore_perms"].pop(index)
+        elif ignore_type == "guild":
+            if item in self.options["ignore_guilds"]:
+                index = self.options["ignore_guilds"].index(item)
+                self.options["ignore_guilds"].pop(index)
+        elif ignore_type == "role":
+            if item in self.options["ignore_roles"]:
+                index = self.options["ignore_roles"].index(item)
+                self.options["ignore_roles"].pop(index)
         else:
             raise BaseASHException("Invalid ignore ignore_type")
 

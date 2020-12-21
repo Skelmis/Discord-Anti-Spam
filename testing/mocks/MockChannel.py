@@ -15,6 +15,7 @@ def get_mocked_channel(*, name=None, id=None):
 
     mock = MagicMock(name="Channel Mock")
     mock.id = id
+    mock.name = name
     mock.mention = f"<@&{id}>"
 
     return mock

@@ -163,32 +163,24 @@ class User:
             if not value.embeds:
                 return
 
-            else:
-                embed = value.embeds[0]
-                if not isinstance(embed, discord.Embed):
-                    return
+            embed = value.embeds[0]
+            if not isinstance(embed, discord.Embed):
+                return
 
-                if embed.type.lower() != "rich":
-                    return
+            if embed.type.lower() != "rich":
+                return
 
-                content = embed_to_string(embed)
-
-                message = Message(
-                    value.id,
-                    content,
-                    value.author.id,
-                    value.channel.id,
-                    value.guild.id,
-                )
-
+            content = embed_to_string(embed)
         else:
-            message = Message(
-                value.id,
-                value.clean_content,
-                value.author.id,
-                value.channel.id,
-                value.guild.id,
-            )
+            content = value.clean_content
+
+        message = Message(
+            value.id,
+            content,
+            value.author.id,
+            value.channel.id,
+            value.guild.id,
+        )
 
         for message_obj in self.messages:
             # This calculates the relation to each other
@@ -418,9 +410,21 @@ class User:
                     )
                     self.logger.warn(f"Required Permissions are missing for: {method}")
                     if m is not None:
+                        if method == Static.KICK:
+                            user_failed_message = transform_message(
+                                self.options["user_failed_kick_message"],
+                                value,
+                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                            )
+                        else:
+                            user_failed_message = transform_message(
+                                self.options["user_failed_ban_message"],
+                                value,
+                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                            )
                         await send_to_obj(
                             member,
-                            "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                            user_failed_message,
                         )
                         await m.delete()
 
@@ -435,9 +439,21 @@ class User:
                         f"An error occurred trying to {method}: {member.id}"
                     )
                     if m is not None:
+                        if method == Static.KICK:
+                            user_failed_message = transform_message(
+                                self.options["user_failed_kick_message"],
+                                value,
+                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                            )
+                        else:
+                            user_failed_message = transform_message(
+                                self.options["user_failed_ban_message"],
+                                value,
+                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                            )
                         await send_to_obj(
                             member,
-                            "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                            user_failed_message,
                         )
                         await m.delete()
 
