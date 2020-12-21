@@ -521,6 +521,46 @@ class TestAsh(unittest.TestCase):
         
         message.guild.me.guild_permissions.ban_members = True
         ash.propagate(message)
+    
+    def test_ignoreMethods(self):
+        self.assertEqual(self.ash.options['ignore_users'], [])
+        self.assertEqual(self.ash.options['ignore_channels'], [])
+        self.assertEqual(self.ash.options['ignore_perms'], [8])
+        self.assertEqual(self.ash.options['ignore_guilds'], [])
+        
+        self.ash.add_ignored_item(1, "member")
+        self.ash.add_ignored_item(2, "channel")
+        self.ash.add_ignored_item(3, "perm")
+        self.ash.add_ignored_item(4, "guild")
+
+        self.assertEqual(self.ash.options['ignore_users'], [1])
+        self.assertEqual(self.ash.options['ignore_channels'], [2])
+        self.assertEqual(self.ash.options['ignore_perms'], [8, 3])
+        self.assertEqual(self.ash.options['ignore_guilds'], [4])
+
+        self.ash.remove_ignored_item(1, "member")
+        self.ash.remove_ignored_item(2, "channel")
+        self.ash.remove_ignored_item(3, "perm")
+        self.ash.remove_ignored_item(4, "guild")
+
+        self.assertEqual(self.ash.options['ignore_users'], [])
+        self.assertEqual(self.ash.options['ignore_channels'], [])
+        self.assertEqual(self.ash.options['ignore_perms'], [8])
+        self.assertEqual(self.ash.options['ignore_guilds'], [])
+
+    def test_ignoreMethodExceptions(self):
+        with self.assertRaises(ValueError):
+            self.ash.add_ignored_item("LOL", "test")
+        
+        with self.assertRaises(ValueError):
+            self.ash.remove_ignored_item("LOL", "test")
+
+        with self.assertRaises(BaseASHException):
+            self.ash.add_ignored_item(1, "testing")
+        
+        with self.assertRaises(BaseASHException):
+            self.ash.remove_ignored_item(1, "testing")
+
 
 
 

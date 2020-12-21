@@ -498,9 +498,16 @@ class AntiSpamHandler:
         This will silently ignore any attempts
         to add an item already added.
         """
-        ignore_type = ignore_type.lower()
-        if not isinstance(item, int):
-            item = int(item)
+        try:
+            ignore_type = ignore_type.lower()
+        except:
+            raise ValueError("Expeced ignore_type of type: str")
+
+        try:
+            if not isinstance(item, int):
+                item = int(item)
+        except ValueError:
+            raise ValueError("Expected item of type: int")
 
         if ignore_type == "member":
             if item not in self.options["ignore_users"]:
@@ -546,10 +553,17 @@ class AntiSpamHandler:
         This will silently ignore any attempts
         to remove an item not ignored.
         """
-        ignore_type = ignore_type.lower()
-        if not isinstance(item, int):
-            # TODO Handle more then just ints, also take obj's
-            item = int(item)
+        try:
+            ignore_type = ignore_type.lower()
+        except:
+            raise ValueError("Expeced ignore_type of type: str")
+
+        try:
+            # TODO Handle more then just ints, take relevant objs as well
+            if not isinstance(item, int):
+                item = int(item)
+        except ValueError:
+            raise ValueError("Expected item of type: int")
 
         if ignore_type == "member":
             if item in self.options["ignore_users"]:
