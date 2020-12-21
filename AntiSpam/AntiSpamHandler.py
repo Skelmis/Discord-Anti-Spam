@@ -324,7 +324,7 @@ class AntiSpamHandler:
             placeholder_ignore_roles = []
             for item in ignore_roles:
                 if isinstance(item, discord.Role):
-                    placeholder_ignore_roles.append(item.id)user_failed_kick_message
+                    placeholder_ignore_roles.append(item.id)
                 elif isinstance(item, int):
                     placeholder_ignore_roles.append(item)
                 elif isinstance(item, str):
