@@ -28,7 +28,7 @@ import unittest
 from discord.ext import commands
 
 from AntiSpam import AntiSpamHandler
-from AntiSpam.Exceptions import DuplicateObject, BaseASHException
+from AntiSpam.Exceptions import DuplicateObject, BaseASHException, MissingGuildPermissions
 from AntiSpam.static import Static
 from AntiSpam.Guild import Guild
 from AntiSpam.User import User
@@ -480,9 +480,23 @@ class TestAsh(unittest.TestCase):
 
     def test_propagateIgnoreGuild(self):
         self.ash.add_ignored_item(123456789, "guild")
+        self.assertEqual(self.ash.options["ignore_guilds"], [123456789])
 
         result = self.ash.propagate(get_mocked_message())
         self.assertEqual(result["status"], "Ignoring this guild: 123456789")
+
+        self.ash.remove_ignored_item(123456789, "guild")
+        self.assertEqual(self.ash.options["ignore_guilds"], [])
+    
+    def test_propagateIgnoredChannel(self):
+        self.ash.add_ignored_item(98987, "channel")
+        self.assertEqual(self.ash.options['ignore_channels'], [98987])
+
+        result = self.ash.propagate(get_mocked_message())
+        self.assertEqual(result['status'], "Ignoring this channel: 98987")
+
+        self.ash.remove_ignored_item(98987, "channel")
+        self.assertEqual(self.ash.options['ignore_channels'], [])
 
     def test_propagateGuildCreation(self):
         self.assertEqual(len(self.ash.guilds), 2)
@@ -491,6 +505,23 @@ class TestAsh(unittest.TestCase):
 
         self.ash.propagate(get_mocked_message())
         self.assertEqual(len(self.ash.guilds), 3)
+    
+    def test_propagateGuildPerms(self):
+        ash = AntiSpamHandler(get_mocked_bot())
+        message = get_mocked_message()
+        message.guild.me.guild_permissions.kick_members = False
+        message.guild.me.guild_permissions.ban_members = True
+        with self.assertRaises(MissingGuildPermissions, msg="Invalid kick_members perms"):
+            ash.propagate(message)
+        
+        message.guild.me.guild_permissions.kick_members = True
+        message.guild.me.guild_permissions.ban_members = False
+        with self.assertRaises(MissingGuildPermissions, msg="Invalid ban_members perms"):
+            ash.propagate(message)
+        
+        message.guild.me.guild_permissions.ban_members = True
+        ash.propagate(message)
+
 
 
 # TODO In test assignments, test it actually get assigned to the options dict

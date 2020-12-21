@@ -435,7 +435,7 @@ class AntiSpamHandler:
             or message.channel.name in self.options["ignore_channels"]
         ):
             self.logger.debug(f"{message.channel} is ignored")
-            return {"status": f"Ignoring this channel: {message.channel}"}
+            return {"status": f"Ignoring this channel: {message.channel.id}"}
 
         # Return if member has an ignored role
         try:
@@ -563,6 +563,10 @@ class AntiSpamHandler:
             if item in self.options["ignore_perms"]:
                 index = self.options["ignore_perms"].index(item)
                 self.options["ignore_perms"].pop(index)
+        elif ignore_type == "guild":
+            if item in self.options["ignore_guilds"]:
+                index = self.options["ignore_guilds"].index(item)
+                self.options["ignore_guilds"].pop(index)
         else:
             raise BaseASHException("Invalid ignore ignore_type")
 
