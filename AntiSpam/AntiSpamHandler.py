@@ -369,7 +369,7 @@ class AntiSpamHandler:
             or Static.DEFAULTS.get("user_kick_message"),
             "user_ban_message": user_ban_message
             or Static.DEFAULTS.get("user_ban_message"),
-            "user_failed_kick_message" : user_failed_kick_message
+            "user_failed_kick_message": user_failed_kick_message
             or Static.DEFAULTS.get("user_failed_kick_message"),
             "user_failed_ban_message": user_failed_ban_message
             or Static.DEFAULTS.get("user_failed_ban_message"),

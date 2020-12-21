@@ -23,6 +23,7 @@ def get_mocked_member(*, name=None, id=None, bot=False):
 
     return mock
 
+
 def get_mocked_user(*, name=None, id=None, bot=False):
     """
     Return a mocked, usable message object

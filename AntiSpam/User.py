@@ -175,11 +175,7 @@ class User:
             content = value.clean_content
 
         message = Message(
-            value.id,
-            content,
-            value.author.id,
-            value.channel.id,
-            value.guild.id,
+            value.id, content, value.author.id, value.channel.id, value.guild.id,
         )
 
         for message_obj in self.messages:
@@ -414,17 +410,22 @@ class User:
                             user_failed_message = transform_message(
                                 self.options["user_failed_kick_message"],
                                 value,
-                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                                {
+                                    "warn_count": self.warn_count,
+                                    "kick_count": self.kick_count,
+                                },
                             )
                         else:
                             user_failed_message = transform_message(
                                 self.options["user_failed_ban_message"],
                                 value,
-                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                                {
+                                    "warn_count": self.warn_count,
+                                    "kick_count": self.kick_count,
+                                },
                             )
                         await send_to_obj(
-                            member,
-                            user_failed_message,
+                            member, user_failed_message,
                         )
                         await m.delete()
 
@@ -443,17 +444,22 @@ class User:
                             user_failed_message = transform_message(
                                 self.options["user_failed_kick_message"],
                                 value,
-                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                                {
+                                    "warn_count": self.warn_count,
+                                    "kick_count": self.kick_count,
+                                },
                             )
                         else:
                             user_failed_message = transform_message(
                                 self.options["user_failed_ban_message"],
                                 value,
-                                {"warn_count": self.warn_count, "kick_count": self.kick_count},
+                                {
+                                    "warn_count": self.warn_count,
+                                    "kick_count": self.kick_count,
+                                },
                             )
                         await send_to_obj(
-                            member,
-                            user_failed_message,
+                            member, user_failed_message,
                         )
                         await m.delete()
 
