@@ -80,8 +80,23 @@ class TestAsh(unittest.TestCase):
             AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=6)
 
     def test_verboseAssignment(self):
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=0)
+        self.assertEqual(ash.logger.level, 0)
+
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=1)
+        self.assertEqual(ash.logger.level, 10)
+
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=2)
+        self.assertEqual(ash.logger.level, 20)
+
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=3)
+        self.assertEqual(ash.logger.level, 30)
+
         ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=4)
         self.assertEqual(ash.logger.level, 40)
+
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=5)
+        self.assertEqual(ash.logger.level, 50)
 
     def test_messageAccuracyType(self):
         with self.assertRaises(ValueError):
@@ -353,7 +368,7 @@ class TestAsh(unittest.TestCase):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=1)
 
-        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=[1])
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=[1, "test role"])
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=None)
     
     def test_ignoreGuilds(self):
@@ -527,26 +542,31 @@ class TestAsh(unittest.TestCase):
         self.assertEqual(self.ash.options['ignore_channels'], [])
         self.assertEqual(self.ash.options['ignore_perms'], [8])
         self.assertEqual(self.ash.options['ignore_guilds'], [])
+        self.assertEqual(self.ash.options['ignore_roles'], [])
         
         self.ash.add_ignored_item(1, "member")
         self.ash.add_ignored_item(2, "channel")
         self.ash.add_ignored_item(3, "perm")
         self.ash.add_ignored_item(4, "guild")
+        self.ash.add_ignored_item(5, "role")
 
         self.assertEqual(self.ash.options['ignore_users'], [1])
         self.assertEqual(self.ash.options['ignore_channels'], [2])
         self.assertEqual(self.ash.options['ignore_perms'], [8, 3])
         self.assertEqual(self.ash.options['ignore_guilds'], [4])
+        self.assertEqual(self.ash.options['ignore_roles'], [5])
 
         self.ash.remove_ignored_item(1, "member")
         self.ash.remove_ignored_item(2, "channel")
         self.ash.remove_ignored_item(3, "perm")
         self.ash.remove_ignored_item(4, "guild")
+        self.ash.remove_ignored_item(5, "role")
 
         self.assertEqual(self.ash.options['ignore_users'], [])
         self.assertEqual(self.ash.options['ignore_channels'], [])
         self.assertEqual(self.ash.options['ignore_perms'], [8])
         self.assertEqual(self.ash.options['ignore_guilds'], [])
+        self.assertEqual(self.ash.options['ignore_roles'], [])
 
     def test_ignoreMethodExceptions(self):
         with self.assertRaises(ValueError):
@@ -560,6 +580,12 @@ class TestAsh(unittest.TestCase):
         
         with self.assertRaises(BaseASHException):
             self.ash.remove_ignored_item(1, "testing")
+
+        with self.assertRaises(ValueError):
+            self.ash.add_ignored_item(1, [])
+        
+        with self.assertRaises(ValueError):
+            self.ash.remove_ignored_item(1, [])
 
 
 

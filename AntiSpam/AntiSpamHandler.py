@@ -581,6 +581,10 @@ class AntiSpamHandler:
             if item in self.options["ignore_guilds"]:
                 index = self.options["ignore_guilds"].index(item)
                 self.options["ignore_guilds"].pop(index)
+        elif ignore_type == "role":
+            if item in self.options["ignore_roles"]:
+                index = self.options["ignore_roles"].index(item)
+                self.options["ignore_roles"].pop(index)
         else:
             raise BaseASHException("Invalid ignore ignore_type")
 
