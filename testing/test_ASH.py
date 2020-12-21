@@ -182,7 +182,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold=1)
         AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold=None)
     
-    def test_messageIntervak(self):
+    def test_messageInterval(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval="1")
         
@@ -200,6 +200,196 @@ class TestAsh(unittest.TestCase):
 
         with self.assertRaises(BaseASHException):
             AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval=999)
+    
+    def test_guildKickMessage(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), guild_kick_message=1)
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), guild_kick_message=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), guild_kick_message=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), guild_kick_message="hi")
+        AntiSpamHandler(commands.Bot(command_prefix="!"), guild_kick_message=dict())
+    
+    def test_guildBanMessage(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), guild_ban_message=1)
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), guild_ban_message=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), guild_ban_message=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), guild_ban_message="hi")
+        AntiSpamHandler(commands.Bot(command_prefix="!"), guild_ban_message=dict())
+    
+    def test_userKickMessage(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_kick_message=1)
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_kick_message=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_kick_message=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), user_kick_message="hi")
+        AntiSpamHandler(commands.Bot(command_prefix="!"), user_kick_message=dict())
+    
+    def test_userBanMessage(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message=1)
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message="hi")
+        AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message=dict())
+    
+    def test_messageDuplicateCount(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_count="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_count=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_count=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_count=[1])
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_count=2.0)
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_count=2)
+        AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_count=None)
+    
+    def test_messageDuplicateAccuracy(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_accuracy="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_accuracy=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_accuracy=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_accuracy=[1])
+
+        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_accuracy=2)
+        AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_accuracy=None)
+
+        self.assertIsInstance(ash.options.get("message_duplicate_accuracy"), float)
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_accuracy=2.0)
+    
+    def test_ignorePerms(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_perms="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_perms=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_perms=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_perms=1)
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_perms=[1])
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_perms=None)
+    
+    def test_ignoreUsers(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_users="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_users=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_users=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_users=1)
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_users=[1])
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_users=None)
+    
+    def test_ignoreChannels(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_channels="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_channels=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_channels=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_channels=1)
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_channels=[1])
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_channels=None)
+    
+    def test_ignoreRoles(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=1)
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=[1])
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=None)
+    
+    def test_ignoreGuilds(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_guilds="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_guilds=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_guilds=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_guilds=1)
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_guilds=[1])
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_guilds=None)
+    
+    def test_ignoreBots(self):
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots="1")
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots=dict())
+        
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots=tuple())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots=1)
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots=[1])
+
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots=True)
+        AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots=None)
 
     # TODO Add a ensureRaises test for each setable option...
     # TODO Capture standard out and ensure the logger is working,
@@ -301,3 +491,6 @@ class TestAsh(unittest.TestCase):
 
         self.ash.propagate(get_mocked_message())
         self.assertEqual(len(self.ash.guilds), 3)
+
+
+# TODO In test assignments, test it actually get assigned to the options dict
