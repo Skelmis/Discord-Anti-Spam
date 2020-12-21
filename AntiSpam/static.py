@@ -44,8 +44,8 @@ class Static:
         "sending duplicate messages.",
         "user_ban_message": "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/"
         "sending duplicate messages.",
-        "user_failed_kick_message": "I failed to punish you because I lack permissions, but still you shouldn't spam." 
-        "user_failed_ban_message": "I failed to punish you because I lack permissions, but still you shouldn't spam."
+        "user_failed_kick_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.", 
+        "user_failed_ban_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
         "message_duplicate_count": 5,
         "message_duplicate_accuracy": 90,
         "delete_spam": True,
