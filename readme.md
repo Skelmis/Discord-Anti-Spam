@@ -56,8 +56,6 @@ Now, there will no doubt be bugs & changes etc. But, you can use this as is now 
 - Scalable -> Multi guild support out of the box
 - Test Driven -> CI with Travis
 
-I hope to maintain the above, however, I currently am attempting to `only` create a `working version`. After such is created, I will begin optimizations, code refactoring and general improvements.
-
 ---
 
 ### Discord
