@@ -661,5 +661,18 @@ class TestAsh(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.ash.remove_ignored_item(1, [])
 
+    def test_customGuildOptions(self):
+        self.assertEqual(self.ash.guilds[0].options, Static.DEFAULTS)
+        self.ash.add_custom_guild_options(self.ash.guilds[0].id, warn_threshold=15)
+        self.assertNotEqual(self.ash.guilds[0].options, Static.DEFAULTS)
+        self.assertEqual(self.ash.guilds[0].has_custom_options, True)
+
+        self.ash.remove_custom_guild_options(self.ash.guilds[0].id)
+        self.assertEqual(self.ash.guilds[0].options, Static.DEFAULTS)
+
+        options = self.ash.get_guild_options(self.ash.guilds[0].id)[0]
+        self.assertEqual(options, self.ash.guilds[0].options)
+        self.assertEqual(options, self.ash.options)
+
 
 # TODO In test assignments, test it actually get assigned to the options dict
