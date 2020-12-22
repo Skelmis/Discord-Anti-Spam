@@ -43,12 +43,12 @@ class Guild:
         "_id",
         "_bot",
         "_users",
-        "_channel",
         "options",
         "logger",
+        "has_custom_options",
     ]
 
-    def __init__(self, bot, id, options, *, logger):
+    def __init__(self, bot, id, options, *, logger, custom_options=False):
         """
 
         Parameters
@@ -57,6 +57,12 @@ class Guild:
             The global bot instance
         id : int
             This guilds id
+        options : dict
+            The options for this guild
+        logger : Python logger
+            The logger to output logs to
+        custom_options : bool
+            Whether this guild has custom options or not
         """
         self.id = int(id)
         self._bot = bot
@@ -64,6 +70,7 @@ class Guild:
         self.options = options
 
         self.logger = logger
+        self.has_custom_options = custom_options
 
     def __repr__(self):
         return (
