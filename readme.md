@@ -25,8 +25,7 @@ import discord
 from discord.ext import commands
 from AntiSpam import AntiSpamHandler
 
-intents = discord.Intents.none()
-intents.members = True
+intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 bot.handler = AntiSpamHandler(bot)
 
