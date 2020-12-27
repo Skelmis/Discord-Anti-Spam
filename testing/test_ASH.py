@@ -73,7 +73,9 @@ class TestAsh(unittest.TestCase):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level="x")
 
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=1)
+        ash = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), verbose_level=logging.INFO
+        )
         self.assertIsNotNone(ash)
 
     def test_verboseLevelRange(self):
@@ -84,22 +86,34 @@ class TestAsh(unittest.TestCase):
             AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=6)
 
     def test_verboseAssignment(self):
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=0)
+        ash = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), verbose_level=logging.NOTSET
+        )
         self.assertEqual(ash.logger.level, 0)
 
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=1)
+        ash = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), verbose_level=logging.DEBUG
+        )
         self.assertEqual(ash.logger.level, 10)
 
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=2)
+        ash = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), verbose_level=logging.INFO
+        )
         self.assertEqual(ash.logger.level, 20)
 
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=3)
+        ash = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), verbose_level=logging.WARNING
+        )
         self.assertEqual(ash.logger.level, 30)
 
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=4)
+        ash = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), verbose_level=logging.ERROR
+        )
         self.assertEqual(ash.logger.level, 40)
 
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=5)
+        ash = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), verbose_level=logging.CRITICAL
+        )
         self.assertEqual(ash.logger.level, 50)
 
     def test_messageAccuracyType(self):

@@ -154,13 +154,13 @@ class AntiSpamHandler:
         bot : commands.Bot
             The commands.Bot instance
         verbose_level : int, optional
-            The level at which logging should occur, personal recomendations are 2 or 3
-            0 - No logging
-            1 - Everything
-            2 - Everything from INFO and above
-            3 - WARNING and above
-            4 - ERROR and CRITICAL
-            5 - CRITICAL
+            The level at which logging should occur, personal recommendations are 2 or 3
+            logging.NOTSET - No logging
+            logging.DEBUG - Everything
+            logging.INFO - Everything from INFO and above
+            logging.WARNING - WARNING and above
+            logging.ERROR - ERROR and CRITICAL
+            logging.CRITICAL - CRITICAL
         warn_threshold : int, optional
             This is the amount of messages in a row that result in a warning within the message_interval
         kick_threshold : int, optional
@@ -206,9 +206,14 @@ class AntiSpamHandler:
             raise ValueError("Expected channel of type commands.Bot")
 
         if not isinstance(verbose_level, int):
-            raise ValueError("Verbosity should be an int between 0-5")
-        if 0 > verbose_level or verbose_level > 5:
-            raise ValueError("Verbosity should be between 0-5")
+            raise ValueError(
+                "Verbosity should be an int in accordance with, "
+                "https://docs.python.org/3/library/logging.html#logging-levels "
+            )
+        if verbose_level not in [0, 10, 20, 30, 40, 50]:
+            raise ValueError(
+                "Verbosity should be in accordance with https://docs.python.org/3/library/logging.html#logging-levels"
+            )
 
         if not isinstance(warn_threshold, int) and warn_threshold is not None:
             raise ValueError("Expected warn_threshold of type int")
@@ -226,50 +231,43 @@ class AntiSpamHandler:
             raise BaseASHException("Minimum message_interval is 1 seconds (1000 ms)")
 
         if (
-            not isinstance(guild_warn_message, str)
-            and not isinstance(guild_warn_message, dict)
+            not isinstance(guild_warn_message, (str, dict))
             and guild_warn_message is not None
         ):
             raise ValueError("Expected guild_warn_message of type str or dict")
 
         if (
-            not isinstance(guild_kick_message, str)
-            and not isinstance(guild_kick_message, dict)
+            not isinstance(guild_kick_message, (str, dict))
             and guild_kick_message is not None
         ):
             raise ValueError("Expected guild_kick_message of type str or dict")
 
         if (
-            not isinstance(guild_ban_message, str)
-            and not isinstance(guild_ban_message, dict)
+            not isinstance(guild_ban_message, (str, dict))
             and guild_ban_message is not None
         ):
             raise ValueError("Expected guild_ban_message of type str or dict")
 
         if (
-            not isinstance(user_kick_message, str)
-            and not isinstance(user_kick_message, dict)
+            not isinstance(user_kick_message, (str, dict))
             and user_kick_message is not None
         ):
             raise ValueError("Expected user_kick_message of type str or dict")
 
         if (
-            not isinstance(user_ban_message, str)
-            and not isinstance(user_ban_message, dict)
+            not isinstance(user_ban_message, (str, dict))
             and user_ban_message is not None
         ):
             raise ValueError("Expected user_ban_message of type str or dict")
 
         if (
-            not isinstance(user_failed_kick_message, str)
-            and not isinstance(user_failed_kick_message, dict)
+            not isinstance(user_failed_kick_message, (str, dict))
             and user_failed_kick_message is not None
         ):
             raise ValueError("Expected user_failed_kick_message of type str or dict")
 
         if (
-            not isinstance(user_failed_ban_message, str)
-            and not isinstance(user_failed_ban_message, dict)
+            not isinstance(user_failed_ban_message, (str, dict))
             and user_failed_ban_message is not None
         ):
             raise ValueError("Expected user_failed_ban_message of type str or dict")
@@ -396,18 +394,7 @@ class AntiSpamHandler:
             datefmt="%d/%m/%Y %I:%M:%S %p",
         )
         self.logger = logging.getLogger(__name__)
-        if verbose_level == 0:
-            self.logger.setLevel(level=logging.NOTSET)
-        elif verbose_level == 1:
-            self.logger.setLevel(level=logging.DEBUG)
-        elif verbose_level == 2:
-            self.logger.setLevel(level=logging.INFO)
-        elif verbose_level == 3:
-            self.logger.setLevel(level=logging.WARNING)
-        elif verbose_level == 4:
-            self.logger.setLevel(level=logging.ERROR)
-        elif verbose_level == 5:
-            self.logger.setLevel(level=logging.CRITICAL)
+        self.logger.setLevel(level=verbose_level)
 
         self.logger.info("Package initialized successfully")
 
@@ -727,50 +714,43 @@ class AntiSpamHandler:
             raise BaseASHException("Minimum message_interval is 1 seconds (1000 ms)")
 
         if (
-            not isinstance(guild_warn_message, str)
-            and not isinstance(guild_warn_message, dict)
+            not isinstance(guild_warn_message, (str, dict))
             and guild_warn_message is not None
         ):
             raise ValueError("Expected guild_warn_message of type str or dict")
 
         if (
-            not isinstance(guild_kick_message, str)
-            and not isinstance(guild_kick_message, dict)
+            not isinstance(guild_kick_message, (str, dict))
             and guild_kick_message is not None
         ):
             raise ValueError("Expected guild_kick_message of type str or dict")
 
         if (
-            not isinstance(guild_ban_message, str)
-            and not isinstance(guild_ban_message, dict)
+            not isinstance(guild_ban_message, (str, dict))
             and guild_ban_message is not None
         ):
             raise ValueError("Expected guild_ban_message of type str or dict")
 
         if (
-            not isinstance(user_kick_message, str)
-            and not isinstance(user_kick_message, dict)
+            not isinstance(user_kick_message, (str, dict))
             and user_kick_message is not None
         ):
             raise ValueError("Expected user_kick_message of type str or dict")
 
         if (
-            not isinstance(user_ban_message, str)
-            and not isinstance(user_ban_message, dict)
+            not isinstance(user_ban_message, (str, dict))
             and user_ban_message is not None
         ):
             raise ValueError("Expected user_ban_message of type str or dict")
 
         if (
-            not isinstance(user_failed_kick_message, str)
-            and not isinstance(user_failed_kick_message, dict)
+            not isinstance(user_failed_kick_message, (str, dict))
             and user_failed_kick_message is not None
         ):
             raise ValueError("Expected user_failed_kick_message of type str or dict")
 
         if (
-            not isinstance(user_failed_ban_message, str)
-            and not isinstance(user_failed_ban_message, dict)
+            not isinstance(user_failed_ban_message, (str, dict))
             and user_failed_ban_message is not None
         ):
             raise ValueError("Expected user_failed_ban_message of type str or dict")
