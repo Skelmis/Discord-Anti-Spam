@@ -411,6 +411,8 @@ class AntiSpamHandler:
 
         self.logger.info("Package initialized successfully")
 
+        self.sync_warn = False
+
     def propagate(self, message: discord.Message) -> Optional[dict]:
         """
         This method is the base level intake for messages, then
@@ -427,6 +429,15 @@ class AntiSpamHandler:
         dict
             A dictionary of useful information about the user in question
         """
+        if not self.sync_warn:
+            print(
+                "The synchronous propagate call will be deprecated in the next release "
+                "and it will be replaced with an asynchronous call.\nThis message "
+                "will only show once, unless you restart your bot. Any further questions, "
+                "join the support server for help."
+            )
+            self.sync_warn = True
+
         if not isinstance(message, discord.Message) and not isinstance(
             message, MagicMock
         ):
