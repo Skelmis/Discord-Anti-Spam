@@ -55,6 +55,9 @@ Now, there will no doubt be bugs & changes etc. But, you can use this as is now 
 - Scalable -> Multi guild support out of the box
 - Test Driven -> CI with Travis
 
+Testing is done at python3.8 and above, due to the usage of unittest.IsolatedAsyncioTestCase which
+is not available at lower python versions.
+
 ---
 
 ### Discord
