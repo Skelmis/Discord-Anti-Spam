@@ -400,7 +400,7 @@ class AntiSpamHandler:
 
         self.sync_warn = False
 
-    def propagate(self, message: discord.Message) -> Optional[dict]:
+    async def propagate(self, message: discord.Message) -> Optional[dict]:
         """
         This method is the base level intake for messages, then
         propagating it out to the relevant guild or creating one
@@ -500,7 +500,7 @@ class AntiSpamHandler:
             self.guilds = guild
             self.logger.info(f"Created Guild: {guild.id}")
 
-        return guild.propagate(message)
+        return await guild.propagate(message)
 
     def add_ignored_item(self, item: int, ignore_type: str) -> None:
         """

@@ -23,7 +23,6 @@ DEALINGS IN THE SOFTWARE.
 LICENSE
 """
 import logging
-import asyncio
 import datetime
 from copy import deepcopy
 from unittest.mock import MagicMock
@@ -138,7 +137,7 @@ class User:
         """
         return hash((self.id, self.guild_id))
 
-    def propagate(self, value: discord.Message):
+    async def propagate(self, value: discord.Message):
         """
         This method handles a message object and then adds it to
         the relevant member
@@ -233,7 +232,7 @@ class User:
                     {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
                 try:
-                    asyncio.ensure_future(send_to_obj(channel, guild_message))
+                    await send_to_obj(channel, guild_message)
                 except Exception as e:
                     self.warn_count -= 1
                     raise e
@@ -258,8 +257,8 @@ class User:
                     value,
                     {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
-                asyncio.ensure_future(
-                    self._punish_user(value, user_message, guild_message, Static.KICK,)
+                await self._punish_user(
+                    value, user_message, guild_message, Static.KICK,
                 )
 
             elif self.kick_count >= self.options["ban_threshold"]:
@@ -279,8 +278,8 @@ class User:
                     value,
                     {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
-                asyncio.ensure_future(
-                    self._punish_user(value, user_message, guild_message, Static.BAN,)
+                await self._punish_user(
+                    value, user_message, guild_message, Static.BAN,
                 )
 
             else:

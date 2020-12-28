@@ -526,7 +526,7 @@ class TestAsh(unittest.TestCase):
 
         ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam=True)
 
-    def test_propagateRoleIgnoring(self):
+    async def test_propagateRoleIgnoring(self):
         """
         Tests if the propagate method ignores the correct roles
         """
@@ -534,29 +534,29 @@ class TestAsh(unittest.TestCase):
             get_mocked_member(name="bot", id="87678"), ignore_roles=[151515]
         )
 
-        result = ash.propagate(get_mocked_message())
+        result = await ash.propagate(get_mocked_message())
 
         self.assertEqual(result["status"], "Ignoring this role: 151515")
 
-    def test_propagateTypes(self):
+    async def test_propagateTypes(self):
         with self.assertRaises(ValueError):
-            self.ash.propagate(1)
+            await self.ash.propagate(1)
 
         with self.assertRaises(ValueError):
-            self.ash.propagate(None)
+            await self.ash.propagate(None)
 
         with self.assertRaises(ValueError):
-            self.ash.propagate("Hi!")
+            await self.ash.propagate("Hi!")
 
         with self.assertRaises(ValueError):
-            self.ash.propagate(True)
+            await self.ash.propagate(True)
 
-    def test_propagateDmIgnore(self):
-        result = self.ash.propagate(get_mocked_message(is_in_guild=False))
+    async def test_propagateDmIgnore(self):
+        result = await self.ash.propagate(get_mocked_message(is_in_guild=False))
         self.assertEqual(result["status"], "Ignoring messages from dm's")
 
-    def test_propagateBotIgnore(self):
-        result = self.ash.propagate(
+    async def test_propagateBotIgnore(self):
+        result = await self.ash.propagate(
             get_mocked_message(member_kwargs={"bot": True, "id": 98987})
         )
         self.assertEqual(result["status"], "Ignoring messages from myself (the bot)")
@@ -566,46 +566,46 @@ class TestAsh(unittest.TestCase):
         )
         self.assertEqual(result_two["status"], "Ignoring messages from bots")
 
-    def test_propagateUserIgnore(self):
+    async def test_propagateUserIgnore(self):
         self.ash.add_ignored_item(12345, "member")
 
-        result = self.ash.propagate(get_mocked_message())
+        result = await self.ash.propagate(get_mocked_message())
         self.assertEqual(result["status"], "Ignoring this user: 12345")
 
-        result_two = self.ash.propagate(
+        result_two = await self.ash.propagate(
             get_mocked_message(member_kwargs={"id": 5433221})
         )
         self.assertNotEqual(result_two["status"], "Ignoring this user: 12345")
 
-    def test_propagateIgnoreGuild(self):
+    async def test_propagateIgnoreGuild(self):
         self.ash.add_ignored_item(123456789, "guild")
         self.assertEqual(self.ash.options["ignore_guilds"], [123456789])
 
-        result = self.ash.propagate(get_mocked_message())
+        result = await self.ash.propagate(get_mocked_message())
         self.assertEqual(result["status"], "Ignoring this guild: 123456789")
 
         self.ash.remove_ignored_item(123456789, "guild")
         self.assertEqual(self.ash.options["ignore_guilds"], [])
 
-    def test_propagateIgnoredChannel(self):
+    async def test_propagateIgnoredChannel(self):
         self.ash.add_ignored_item(98987, "channel")
         self.assertEqual(self.ash.options["ignore_channels"], [98987])
 
-        result = self.ash.propagate(get_mocked_message())
+        result = await self.ash.propagate(get_mocked_message())
         self.assertEqual(result["status"], "Ignoring this channel: 98987")
 
         self.ash.remove_ignored_item(98987, "channel")
         self.assertEqual(self.ash.options["ignore_channels"], [])
 
-    def test_propagateGuildCreation(self):
+    async def test_propagateGuildCreation(self):
         self.assertEqual(len(self.ash.guilds), 2)
-        self.ash.propagate(get_mocked_message(guild_kwargs={"id": 15}))
+        await self.ash.propagate(get_mocked_message(guild_kwargs={"id": 15}))
         self.assertEqual(len(self.ash.guilds), 2)
 
-        self.ash.propagate(get_mocked_message())
+        await self.ash.propagate(get_mocked_message())
         self.assertEqual(len(self.ash.guilds), 3)
 
-    def test_propagateGuildPerms(self):
+    async def test_propagateGuildPerms(self):
         ash = AntiSpamHandler(get_mocked_bot())
         message = get_mocked_message()
         message.guild.me.guild_permissions.kick_members = False
@@ -613,17 +613,17 @@ class TestAsh(unittest.TestCase):
         with self.assertRaises(
             MissingGuildPermissions, msg="Invalid kick_members perms"
         ):
-            ash.propagate(message)
+            await ash.propagate(message)
 
         message.guild.me.guild_permissions.kick_members = True
         message.guild.me.guild_permissions.ban_members = False
         with self.assertRaises(
             MissingGuildPermissions, msg="Invalid ban_members perms"
         ):
-            ash.propagate(message)
+            await ash.propagate(message)
 
         message.guild.me.guild_permissions.ban_members = True
-        ash.propagate(message)
+        await ash.propagate(message)
 
     def test_ignoreMethods(self):
         self.assertEqual(self.ash.options["ignore_users"], [])

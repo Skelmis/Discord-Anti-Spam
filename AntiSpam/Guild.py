@@ -122,7 +122,7 @@ class Guild:
         """
         return hash(self.id)
 
-    def propagate(self, message: discord.Message):
+    async def propagate(self, message: discord.Message):
         """
         This method handles a message object and then adds it to
         the relevant member
@@ -155,7 +155,7 @@ class Guild:
             self.users = user
             self.logger.info(f"Created User: {user.id}")
 
-        return user.propagate(message)
+        return await user.propagate(message)
 
     @property
     def id(self):
