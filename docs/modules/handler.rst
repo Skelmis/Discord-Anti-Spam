@@ -6,7 +6,7 @@ As such this should be the only thing you interact with.**
 
 This handler propagation method also returns the following dictionary for you to use:
 
-.. code-block::
+.. code-block:: python
     :linenos:
 
     {
