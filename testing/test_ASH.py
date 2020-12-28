@@ -688,5 +688,12 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(options, self.ash.guilds[0].options)
         self.assertEqual(options, self.ash.options)
 
+    async def test_ASHRandomVar(self):
+        with self.assertRaises(TypeError):
+            AntiSpamHandler(get_mocked_bot(), logging.NOTSET, lol=1)
+
+        with self.assertRaises(TypeError):
+            self.ash.add_custom_guild_options(1234, testing=1)
+
 
 # TODO In test assignments, test it actually get assigned to the options dict
