@@ -522,8 +522,7 @@ class User:
             if outstanding_message.is_duplicate:
                 self.duplicate_counter -= 1
                 logging.debug(f"Removing duplicate Message: {outstanding_message.id}")
-            elif logging.isEnabledFor(logging.DEBUG):
-                logging.debug(f"Removing Message: {outstanding_message.id}")
+            logging.debug(f"Removing Message: {outstanding_message.id}")
 
     @property
     def id(self):
