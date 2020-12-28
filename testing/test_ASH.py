@@ -40,12 +40,12 @@ from testing.mocks.MockMember import get_mocked_member, get_mocked_bot
 from testing.mocks.MockMessage import get_mocked_message
 
 
-class TestAsh(unittest.TestCase):
+class TestAsh(unittest.IsolatedAsyncioTestCase):
     """
     Used to test the ASH object (AntiSpamHandler)
     """
 
-    def setUp(self):
+    async def asyncSetUp(self):
         """
         Simply setup our Ash obj before usage
         """
@@ -57,10 +57,10 @@ class TestAsh(unittest.TestCase):
             None, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
         )
 
-    def test_defaults(self):
+    async def test_defaults(self):
         self.assertEqual(self.ash.options, Static.DEFAULTS)
 
-    def test_properties(self):
+    async def test_properties(self):
         with self.assertRaises(ValueError):
             self.ash.guilds = "1"
 
@@ -69,7 +69,7 @@ class TestAsh(unittest.TestCase):
                 None, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
             )
 
-    def test_verboseType(self):
+    async def test_verboseType(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level="x")
 
@@ -78,14 +78,14 @@ class TestAsh(unittest.TestCase):
         )
         self.assertIsNotNone(ash)
 
-    def test_verboseLevelRange(self):
+    async def test_verboseLevelRange(self):
         with self.assertRaises(ValueError, msg="Invalid verbose level (To low)"):
             AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=-1)
 
         with self.assertRaises(ValueError, msg="Invalid verbose level (To high)"):
             AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=6)
 
-    def test_verboseAssignment(self):
+    async def test_verboseAssignment(self):
         ash = AntiSpamHandler(
             commands.Bot(command_prefix="!"), verbose_level=logging.NOTSET
         )
@@ -116,13 +116,13 @@ class TestAsh(unittest.TestCase):
         )
         self.assertEqual(ash.logger.level, 50)
 
-    def test_messageAccuracyType(self):
+    async def test_messageAccuracyType(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(
                 commands.Bot(command_prefix="!"), message_duplicate_accuracy="x"
             )
 
-    def test_messageAccuracyRange(self):
+    async def test_messageAccuracyRange(self):
         with self.assertRaises(
             ValueError, msg="Invalid message_duplicate_accuracy (To low)"
         ):
@@ -137,13 +137,13 @@ class TestAsh(unittest.TestCase):
                 commands.Bot(command_prefix="!"), message_duplicate_accuracy=101
             )
 
-    def test_messageAccuracyAssignment(self):
+    async def test_messageAccuracyAssignment(self):
         ash = AntiSpamHandler(
             commands.Bot(command_prefix="!"), message_duplicate_accuracy=50
         )
         self.assertEqual(ash.options["message_duplicate_accuracy"], 50)
 
-    def test_botAssignment(self):
+    async def test_botAssignment(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(None)
 
@@ -167,7 +167,7 @@ class TestAsh(unittest.TestCase):
 
         AntiSpamHandler(commands.Bot(command_prefix="!"))
 
-    def test_warnThreshold(self):
+    async def test_warnThreshold(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), warn_threshold="1")
 
@@ -183,7 +183,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), warn_threshold=1)
         AntiSpamHandler(commands.Bot(command_prefix="!"), warn_threshold=None)
 
-    def test_kickThreshold(self):
+    async def test_kickThreshold(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), kick_threshold="1")
 
@@ -199,7 +199,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), kick_threshold=1)
         AntiSpamHandler(commands.Bot(command_prefix="!"), kick_threshold=None)
 
-    def test_banThreshold(self):
+    async def test_banThreshold(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold="1")
 
@@ -215,7 +215,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold=1)
         AntiSpamHandler(commands.Bot(command_prefix="!"), ban_threshold=None)
 
-    def test_messageInterval(self):
+    async def test_messageInterval(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval="1")
 
@@ -234,7 +234,7 @@ class TestAsh(unittest.TestCase):
         with self.assertRaises(BaseASHException):
             AntiSpamHandler(commands.Bot(command_prefix="!"), message_interval=999)
 
-    def test_guildKickMessage(self):
+    async def test_guildKickMessage(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), guild_kick_message=1)
 
@@ -249,7 +249,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), guild_kick_message="hi")
         AntiSpamHandler(commands.Bot(command_prefix="!"), guild_kick_message=dict())
 
-    def test_guildBanMessage(self):
+    async def test_guildBanMessage(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), guild_ban_message=1)
 
@@ -262,7 +262,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), guild_ban_message="hi")
         AntiSpamHandler(commands.Bot(command_prefix="!"), guild_ban_message=dict())
 
-    def test_userKickMessage(self):
+    async def test_userKickMessage(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), user_kick_message=1)
 
@@ -275,7 +275,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), user_kick_message="hi")
         AntiSpamHandler(commands.Bot(command_prefix="!"), user_kick_message=dict())
 
-    def test_userBanMessage(self):
+    async def test_userBanMessage(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message=1)
 
@@ -288,7 +288,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message="hi")
         AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message=dict())
 
-    def test_userFailedKickmessage(self):
+    async def test_userFailedKickmessage(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(
                 commands.Bot(command_prefix="!"), user_failed_kick_message=1
@@ -309,7 +309,7 @@ class TestAsh(unittest.TestCase):
             commands.Bot(command_prefix="!"), user_failed_kick_message=dict()
         )
 
-    def test_userFailedBanmessage(self):
+    async def test_userFailedBanmessage(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_ban_message=1)
 
@@ -328,7 +328,7 @@ class TestAsh(unittest.TestCase):
             commands.Bot(command_prefix="!"), user_failed_ban_message=dict()
         )
 
-    def test_messageDuplicateCount(self):
+    async def test_messageDuplicateCount(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(
                 commands.Bot(command_prefix="!"), message_duplicate_count="1"
@@ -357,7 +357,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_count=2)
         AntiSpamHandler(commands.Bot(command_prefix="!"), message_duplicate_count=None)
 
-    def test_messageDuplicateAccuracy(self):
+    async def test_messageDuplicateAccuracy(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(
                 commands.Bot(command_prefix="!"), message_duplicate_accuracy="1"
@@ -391,7 +391,7 @@ class TestAsh(unittest.TestCase):
             commands.Bot(command_prefix="!"), message_duplicate_accuracy=2.0
         )
 
-    def test_ignorePerms(self):
+    async def test_ignorePerms(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_perms="1")
 
@@ -407,7 +407,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_perms=[1])
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_perms=None)
 
-    def test_ignoreUsers(self):
+    async def test_ignoreUsers(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_users="1")
 
@@ -423,7 +423,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_users=[1])
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_users=None)
 
-    def test_ignoreChannels(self):
+    async def test_ignoreChannels(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_channels="1")
 
@@ -439,7 +439,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_channels=[1])
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_channels=None)
 
-    def test_ignoreRoles(self):
+    async def test_ignoreRoles(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles="1")
 
@@ -455,7 +455,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=[1, "test role"])
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_roles=None)
 
-    def test_ignoreGuilds(self):
+    async def test_ignoreGuilds(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_guilds="1")
 
@@ -471,7 +471,7 @@ class TestAsh(unittest.TestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_guilds=[1])
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_guilds=None)
 
-    def test_ignoreBots(self):
+    async def test_ignoreBots(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots="1")
 
@@ -494,7 +494,7 @@ class TestAsh(unittest.TestCase):
     # TODO Capture standard out and ensure the logger is working,
     #      but only at the correct levels
 
-    def test_guildWarnMessageType(self):
+    async def test_guildWarnMessageType(self):
         with self.assertRaises(
             ValueError, msg="guild_warn_message should raise, given int"
         ):
@@ -510,17 +510,17 @@ class TestAsh(unittest.TestCase):
             commands.Bot(command_prefix="!"), guild_warn_message={"title": "Hello!"}
         )
 
-    def test_guildWarnMessageString(self):
+    async def test_guildWarnMessageString(self):
         ash = AntiSpamHandler(
             commands.Bot(command_prefix="!"), guild_warn_message="This is a message"
         )
         self.assertEqual(ash.options["guild_warn_message"], "This is a message")
 
-    def test_guildWarnMessageEmbed(self):
+    async def test_guildWarnMessageEmbed(self):
         # Just tests this runs
         ash = AntiSpamHandler(commands.Bot(command_prefix="!"), guild_warn_message={})
 
-    def test_deleteSpam(self):
+    async def test_deleteSpam(self):
         with self.assertRaises(ValueError):
             ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam={})
 
@@ -561,7 +561,7 @@ class TestAsh(unittest.TestCase):
         )
         self.assertEqual(result["status"], "Ignoring messages from myself (the bot)")
 
-        result_two = self.ash.propagate(
+        result_two = await self.ash.propagate(
             get_mocked_message(member_kwargs={"bot": True, "id": 98798})
         )
         self.assertEqual(result_two["status"], "Ignoring messages from bots")
@@ -625,7 +625,7 @@ class TestAsh(unittest.TestCase):
         message.guild.me.guild_permissions.ban_members = True
         await ash.propagate(message)
 
-    def test_ignoreMethods(self):
+    async def test_ignoreMethods(self):
         self.assertEqual(self.ash.options["ignore_users"], [])
         self.assertEqual(self.ash.options["ignore_channels"], [])
         self.assertEqual(self.ash.options["ignore_perms"], [8])
@@ -656,7 +656,7 @@ class TestAsh(unittest.TestCase):
         self.assertEqual(self.ash.options["ignore_guilds"], [])
         self.assertEqual(self.ash.options["ignore_roles"], [])
 
-    def test_ignoreMethodExceptions(self):
+    async def test_ignoreMethodExceptions(self):
         with self.assertRaises(ValueError):
             self.ash.add_ignored_item("LOL", "test")
 
@@ -675,7 +675,7 @@ class TestAsh(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.ash.remove_ignored_item(1, [])
 
-    def test_customGuildOptions(self):
+    async def test_customGuildOptions(self):
         self.assertEqual(self.ash.guilds[0].options, Static.DEFAULTS)
         self.ash.add_custom_guild_options(self.ash.guilds[0].id, warn_threshold=15)
         self.assertNotEqual(self.ash.guilds[0].options, Static.DEFAULTS)

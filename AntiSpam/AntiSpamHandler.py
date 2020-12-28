@@ -119,32 +119,7 @@ class AntiSpamHandler:
     #      and that's how it will be implemented internally most likely
     # TODO Add the ability to toggle dm messages for log messages (To affected users)
 
-    def __init__(
-        self,
-        bot: commands.Bot,
-        verbose_level=0,
-        *,
-        warn_threshold=None,
-        kick_threshold=None,
-        ban_threshold=None,
-        message_interval=None,
-        guild_warn_message=None,
-        guild_kick_message=None,
-        guild_ban_message=None,
-        user_kick_message=None,
-        user_ban_message=None,
-        user_failed_kick_message=None,
-        user_failed_ban_message=None,
-        message_duplicate_count=None,
-        message_duplicate_accuracy=None,
-        delete_spam=None,
-        ignore_perms=None,
-        ignore_users=None,
-        ignore_channels=None,
-        ignore_roles=None,
-        ignore_guilds=None,
-        ignore_bots=None,
-    ):
+    def __init__(self, bot: commands.Bot, verbose_level=0, **kwargs):
         """
         This is the first initialization of the entire spam handler,
         this is also where the initial options are set
@@ -188,6 +163,8 @@ class AntiSpamHandler:
             Amount of duplicate messages needed to trip a punishment
         message_duplicate_accuracy : float, optional
             How 'close' messages need to be to be registered as duplicates (Out of 100)
+        delete_spam : bool, optional
+            Whether or not to delete any messages marked as spam
         ignore_perms : list, optional
             The perms (ID Form), that bypass anti-spam
         ignore_channels : list, optional
@@ -215,176 +192,7 @@ class AntiSpamHandler:
                 "Verbosity should be in accordance with https://docs.python.org/3/library/logging.html#logging-levels"
             )
 
-        if not isinstance(warn_threshold, int) and warn_threshold is not None:
-            raise ValueError("Expected warn_threshold of type int")
-
-        if not isinstance(kick_threshold, int) and kick_threshold is not None:
-            raise ValueError("Expected kick_threshold of type int")
-
-        if not isinstance(ban_threshold, int) and ban_threshold is not None:
-            raise ValueError("Expected ban_threshold of type int")
-
-        if not isinstance(message_interval, int) and message_interval is not None:
-            raise ValueError("Expected message_interval of type int")
-
-        if message_interval is not None and message_interval < 1000:
-            raise BaseASHException("Minimum message_interval is 1 seconds (1000 ms)")
-
-        if (
-            not isinstance(guild_warn_message, (str, dict))
-            and guild_warn_message is not None
-        ):
-            raise ValueError("Expected guild_warn_message of type str or dict")
-
-        if (
-            not isinstance(guild_kick_message, (str, dict))
-            and guild_kick_message is not None
-        ):
-            raise ValueError("Expected guild_kick_message of type str or dict")
-
-        if (
-            not isinstance(guild_ban_message, (str, dict))
-            and guild_ban_message is not None
-        ):
-            raise ValueError("Expected guild_ban_message of type str or dict")
-
-        if (
-            not isinstance(user_kick_message, (str, dict))
-            and user_kick_message is not None
-        ):
-            raise ValueError("Expected user_kick_message of type str or dict")
-
-        if (
-            not isinstance(user_ban_message, (str, dict))
-            and user_ban_message is not None
-        ):
-            raise ValueError("Expected user_ban_message of type str or dict")
-
-        if (
-            not isinstance(user_failed_kick_message, (str, dict))
-            and user_failed_kick_message is not None
-        ):
-            raise ValueError("Expected user_failed_kick_message of type str or dict")
-
-        if (
-            not isinstance(user_failed_ban_message, (str, dict))
-            and user_failed_ban_message is not None
-        ):
-            raise ValueError("Expected user_failed_ban_message of type str or dict")
-
-        if (
-            not isinstance(message_duplicate_count, int)
-            and message_duplicate_count is not None
-        ):
-            raise ValueError("Expected message_duplicate_count of type int")
-
-        # Convert message_duplicate_accuracy from int to float if exists
-        if isinstance(message_duplicate_accuracy, int):
-            message_duplicate_accuracy = float(message_duplicate_accuracy)
-        if (
-            not isinstance(message_duplicate_accuracy, float)
-            and message_duplicate_accuracy is not None
-        ):
-            raise ValueError("Expected message_duplicate_accuracy of type float")
-        if message_duplicate_accuracy is not None:
-            if 1.0 > message_duplicate_accuracy or message_duplicate_accuracy > 100.0:
-                # Only accept values between 1 and 100
-                raise ValueError(
-                    "Expected message_duplicate_accuracy between 1 and 100"
-                )
-
-        if not isinstance(delete_spam, bool) and delete_spam is not None:
-            raise ValueError("Expected delete_spam of type bool")
-
-        if not isinstance(ignore_perms, list) and ignore_perms is not None:
-            raise ValueError("Expected ignore_perms of type list")
-
-        if not isinstance(ignore_users, list) and ignore_users is not None:
-            raise ValueError("Expected ignore_users of type list")
-
-        if not isinstance(ignore_channels, list) and ignore_channels is not None:
-            raise ValueError("Expected ignore_channels of type list")
-
-        if not isinstance(ignore_roles, list) and ignore_roles is not None:
-            raise ValueError("Expected ignore_roles of type list")
-
-        if not isinstance(ignore_guilds, list) and ignore_guilds is not None:
-            raise ValueError("Expected ignore_guilds of type list")
-
-        if not isinstance(ignore_bots, bool) and ignore_bots is not None:
-            raise ValueError("Expected ignore_bots of type bool")
-
-        # Now we have ignore_type checked everything, lets do some logic
-        if ignore_bots is None:
-            ignore_bots = Static.DEFAULTS.get("ignore_bots")
-
-        # TODO Implement #16
-        if ignore_roles is not None:
-            placeholder_ignore_roles = []
-            for item in ignore_roles:
-                if isinstance(item, discord.Role):
-                    placeholder_ignore_roles.append(item.id)
-                elif isinstance(item, int):
-                    placeholder_ignore_roles.append(item)
-                elif isinstance(item, str):
-                    placeholder_ignore_roles.append(item)
-                else:
-                    raise ValueError(
-                        "Expected discord.Role or int or str for ignore_roles"
-                    )
-            ignore_roles = placeholder_ignore_roles
-
-        if ignore_channels is not None:
-            placeholder_ignore_channels = []
-            for item in ignore_channels:
-                if isinstance(item, discord.TextChannel):
-                    placeholder_ignore_channels.extend([item.id])
-                else:
-                    placeholder_ignore_channels.append(item)
-            ignore_channels = placeholder_ignore_channels
-
-        if ignore_users is not None:
-            placeholder_ignore_users = []
-            for item in ignore_users:
-                if isinstance(item, discord.User) or isinstance(item, discord.Member):
-                    placeholder_ignore_users.append(item.id)
-                else:
-                    placeholder_ignore_users.append(item)
-            ignore_users = placeholder_ignore_users
-
-        self.options = {
-            "warn_threshold": warn_threshold or Static.DEFAULTS.get("warn_threshold"),
-            "kick_threshold": kick_threshold or Static.DEFAULTS.get("kick_threshold"),
-            "ban_threshold": ban_threshold or Static.DEFAULTS.get("ban_threshold"),
-            "message_interval": message_interval
-            or Static.DEFAULTS.get("message_interval"),
-            "guild_warn_message": guild_warn_message
-            or Static.DEFAULTS.get("guild_warn_message"),
-            "guild_kick_message": guild_kick_message
-            or Static.DEFAULTS.get("guild_kick_message"),
-            "guild_ban_message": guild_ban_message
-            or Static.DEFAULTS.get("guild_ban_message"),
-            "user_kick_message": user_kick_message
-            or Static.DEFAULTS.get("user_kick_message"),
-            "user_ban_message": user_ban_message
-            or Static.DEFAULTS.get("user_ban_message"),
-            "user_failed_kick_message": user_failed_kick_message
-            or Static.DEFAULTS.get("user_failed_kick_message"),
-            "user_failed_ban_message": user_failed_ban_message
-            or Static.DEFAULTS.get("user_failed_ban_message"),
-            "message_duplicate_count": message_duplicate_count
-            or Static.DEFAULTS.get("message_duplicate_count"),
-            "message_duplicate_accuracy": message_duplicate_accuracy
-            or Static.DEFAULTS.get("message_duplicate_accuracy"),
-            "delete_spam": delete_spam or Static.DEFAULTS.get("delete_spam"),
-            "ignore_perms": ignore_perms or Static.DEFAULTS.get("ignore_perms"),
-            "ignore_users": ignore_users or Static.DEFAULTS.get("ignore_users"),
-            "ignore_channels": ignore_channels
-            or Static.DEFAULTS.get("ignore_channels"),
-            "ignore_roles": ignore_roles or Static.DEFAULTS.get("ignore_roles"),
-            "ignore_guilds": ignore_guilds or Static.DEFAULTS.get("ignore_guilds"),
-            "ignore_bots": ignore_bots,
-        }
+        self.options = self._ensure_options(**kwargs)
 
         self.bot = bot
         self._guilds = []
@@ -618,31 +426,7 @@ class AntiSpamHandler:
 
         self.logger.debug(f"Un-Ignored {ignore_type}: {item}")
 
-    def add_custom_guild_options(
-        self,
-        guild_id: int,
-        *,
-        warn_threshold=None,
-        kick_threshold=None,
-        ban_threshold=None,
-        message_interval=None,
-        guild_warn_message=None,
-        guild_kick_message=None,
-        guild_ban_message=None,
-        user_kick_message=None,
-        user_ban_message=None,
-        user_failed_kick_message=None,
-        user_failed_ban_message=None,
-        message_duplicate_count=None,
-        message_duplicate_accuracy=None,
-        delete_spam=None,
-        ignore_perms=None,
-        ignore_users=None,
-        ignore_channels=None,
-        ignore_roles=None,
-        ignore_guilds=None,
-        ignore_bots=None,
-    ):
+    def add_custom_guild_options(self, guild_id: int, **kwargs):
         """
         Set a guild's options to a custom set, rather then the base level
         set used and defined in ASH initialization
@@ -678,6 +462,8 @@ class AntiSpamHandler:
             Amount of duplicate messages needed to trip a punishment
         message_duplicate_accuracy : float, optional
             How 'close' messages need to be to be registered as duplicates (Out of 100)
+        delete_spam : bool, optional
+            Whether or not to delete any messages marked as spam
         ignore_perms : list, optional
             The perms (ID Form), that bypass anti-spam
         ignore_channels : list, optional
@@ -697,6 +483,130 @@ class AntiSpamHandler:
         to continue using existing settings and merely change some
         I suggest using the get_options method first and then giving
         those values back to this method with the changed arguments
+        """
+        options = self._ensure_options(**kwargs)
+
+        guild = Guild(
+            self.bot, guild_id, options, logger=self.logger, custom_options=True
+        )
+        try:
+            guild = next(iter(g for g in self.guilds if g == guild))
+        except StopIteration:
+            self.logger.warning(
+                f"I cannot ensure I have permissions to kick/ban ban people in guild: {guild_id}"
+            )
+
+            self.guilds = guild
+            self.logger.info(f"Created Guild: {guild.id}")
+        else:
+            guild.options = options
+            guild.has_custom_options = True
+
+        self.logger.info(f"Set custom options for guild: {guild_id}")
+
+    def get_guild_options(self, guild_id: int) -> tuple:
+        """
+        Get the options dictionary for a given guild,
+        if the guild doesnt exist raise an exception
+
+        Parameters
+        ----------
+        guild_id : int
+            The guild to get custom options for
+
+        Returns
+        -------
+        tuple
+            The options for this guild as tuple[0] and tuple[1] is a bool
+            which is used to say if the guild has custom options or not
+
+            Be wary of the return value. It is in the format,
+            (dict, boolean),
+            where dict is the options and boolean is whether
+            or not these options are custom
+        
+        Raises
+        ------
+        BaseASHException
+            This guild does not exist
+
+        Notes
+        -----
+        The value for tuple[1] is not checked/ensured at runtime.
+        Be wary of this if you access guild and manually change
+        options rather then using this libraries methods.
+
+        Another thing to note is this returns a deepcopy of the
+        options dictionary. This is to encourage usage of this
+        libraries methods for changing options, rather then
+        playing around with them yourself and potentially
+        doing damage.
+
+        """
+        guild = Guild(self.bot, guild_id, self.options, logger=self.logger)
+        try:
+            guild = next(iter(g for g in self.guilds if g == guild))
+        except StopIteration:
+            raise BaseASHException("This guild does not exist")
+        else:
+            return deepcopy(guild.options), guild.has_custom_options
+
+    def remove_custom_guild_options(self, guild_id: int) -> None:
+        """
+        Reset a guilds options to the ASH options
+
+        Parameters
+        ----------
+        guild_id : int
+            The guild to reset
+
+        Notes
+        -----
+        This method will silently ignore guilds that
+        do not exist, as it is considered to have
+        'removed' custom options due to how Guild's
+        are created
+
+        """
+        guild = Guild(self.bot, guild_id, self.options, logger=self.logger)
+        try:
+            guild = next(iter(g for g in self.guilds if g == guild))
+        except StopIteration:
+            pass
+        else:
+            guild.options = self.options
+            guild.has_custom_options = False
+
+    def _ensure_options(
+        self,
+        warn_threshold=None,
+        kick_threshold=None,
+        ban_threshold=None,
+        message_interval=None,
+        guild_warn_message=None,
+        guild_kick_message=None,
+        guild_ban_message=None,
+        user_kick_message=None,
+        user_ban_message=None,
+        user_failed_kick_message=None,
+        user_failed_ban_message=None,
+        message_duplicate_count=None,
+        message_duplicate_accuracy=None,
+        delete_spam=None,
+        ignore_perms=None,
+        ignore_users=None,
+        ignore_channels=None,
+        ignore_roles=None,
+        ignore_guilds=None,
+        ignore_bots=None,
+    ):
+        """
+        Given the relevant arguments,
+        validate and return the options dict
+
+        Notes
+        =====
+        For args, view this class's __init__ docstring
         """
         if not isinstance(warn_threshold, int) and warn_threshold is not None:
             raise ValueError("Expected warn_threshold of type int")
@@ -835,7 +745,7 @@ class AntiSpamHandler:
                     placeholder_ignore_users.append(item)
             ignore_users = placeholder_ignore_users
 
-        options = {
+        return {
             "warn_threshold": warn_threshold or Static.DEFAULTS.get("warn_threshold"),
             "kick_threshold": kick_threshold or Static.DEFAULTS.get("kick_threshold"),
             "ban_threshold": ban_threshold or Static.DEFAULTS.get("ban_threshold"),
@@ -868,96 +778,6 @@ class AntiSpamHandler:
             "ignore_guilds": ignore_guilds or Static.DEFAULTS.get("ignore_guilds"),
             "ignore_bots": ignore_bots,
         }
-        guild = Guild(
-            self.bot, guild_id, options, logger=self.logger, custom_options=True
-        )
-        try:
-            guild = next(iter(g for g in self.guilds if g == guild))
-        except StopIteration:
-            self.logger.warning(
-                f"I cannot ensure I have permissions to kick/ban ban people in guild: {guild_id}"
-            )
-
-            self.guilds = guild
-            self.logger.info(f"Created Guild: {guild.id}")
-        else:
-            guild.options = options
-            guild.has_custom_options = True
-
-        self.logger.info(f"Set custom options for guild: {guild_id}")
-
-    def get_guild_options(self, guild_id: int) -> tuple:
-        """
-        Get the options dictionary for a given guild,
-        if the guild doesnt exist raise an exception
-
-        Parameters
-        ----------
-        guild_id : int
-            The guild to get custom options for
-
-        Returns
-        -------
-        tuple
-            The options for this guild as tuple[0] and tuple[1] is a bool
-            which is used to say if the guild has custom options or not
-
-            Be wary of the return value. It is in the format,
-            (dict, boolean),
-            where dict is the options and boolean is whether
-            or not these options are custom
-        
-        Raises
-        ------
-        BaseASHException
-            This guild does not exist
-
-        Notes
-        -----
-        The value for tuple[1] is not checked/ensured at runtime.
-        Be wary of this if you access guild and manually change
-        options rather then using this libraries methods.
-
-        Another thing to note is this returns a deepcopy of the
-        options dictionary. This is to encourage usage of this
-        libraries methods for changing options, rather then
-        playing around with them yourself and potentially
-        doing damage.
-
-        """
-        guild = Guild(self.bot, guild_id, self.options, logger=self.logger)
-        try:
-            guild = next(iter(g for g in self.guilds if g == guild))
-        except StopIteration:
-            raise BaseASHException("This guild does not exist")
-        else:
-            return deepcopy(guild.options), guild.has_custom_options
-
-    def remove_custom_guild_options(self, guild_id: int) -> None:
-        """
-        Reset a guilds options to the ASH options
-
-        Parameters
-        ----------
-        guild_id : int
-            The guild to reset
-
-        Notes
-        -----
-        This method will silently ignore guilds that
-        do not exist, as it is considered to have
-        'removed' custom options due to how Guild's
-        are created
-
-        """
-        guild = Guild(self.bot, guild_id, self.options, logger=self.logger)
-        try:
-            guild = next(iter(g for g in self.guilds if g == guild))
-        except StopIteration:
-            pass
-        else:
-            guild.options = self.options
-            guild.has_custom_options = False
 
     # <-- Getter & Setters -->
     @property
