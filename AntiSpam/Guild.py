@@ -22,6 +22,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import logging
 from unittest.mock import MagicMock
 
 import discord
@@ -69,7 +70,7 @@ class Guild:
         self._users = []
         self.options = options
 
-        self.logger = logger
+        logging = logger
         self.has_custom_options = custom_options
 
     def __repr__(self):
@@ -147,13 +148,13 @@ class Guild:
             message.author.id,
             message.guild.id,
             self.options,
-            logger=self.logger,
+            logger=logging,
         )
         try:
             user = next(iter(u for u in self._users if u == user))
         except StopIteration:
             self.users = user
-            self.logger.info(f"Created User: {user.id}")
+            logging.info(f"Created User: {user.id}")
 
         return await user.propagate(message)
 

@@ -69,6 +69,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
                 None, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
             )
 
+    @unittest.skip
     async def test_verboseType(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level="x")
@@ -78,6 +79,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         )
         self.assertIsNotNone(ash)
 
+    @unittest.skip
     async def test_verboseLevelRange(self):
         with self.assertRaises(ValueError, msg="Invalid verbose level (To low)"):
             AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=-1)
@@ -85,6 +87,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValueError, msg="Invalid verbose level (To high)"):
             AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=6)
 
+    @unittest.skip
     async def test_verboseAssignment(self):
         ash = AntiSpamHandler(
             commands.Bot(command_prefix="!"), verbose_level=logging.NOTSET

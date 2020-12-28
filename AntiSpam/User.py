@@ -85,7 +85,7 @@ class User:
         self.warn_count = 0
         self.kick_count = 0
         self.duplicate_counter = 1
-        self.logger = logger
+        logging = logger
 
     def __repr__(self):
         return (
@@ -203,12 +203,10 @@ class User:
         was_punished = False
 
         self.messages = message
-        self.logger.info(f"Created Message: {message.id}")
+        logging.info(f"Created Message: {message.id}")
 
         if self.duplicate_counter >= self.options["message_duplicate_count"]:
-            self.logger.debug(
-                f"Message: ({message.id}) requires some form of punishment"
-            )
+            logging.debug(f"Message: ({message.id}) requires some form of punishment")
             # We need to punish the member with something
             was_punished = True
 
@@ -217,7 +215,7 @@ class User:
                 and self.warn_count < self.options["kick_threshold"]
                 and self.kick_count < self.options["ban_threshold"]
             ):
-                self.logger.debug(f"Attempting to warn: {message.author_id}")
+                logging.debug(f"Attempting to warn: {message.author_id}")
                 """
                 The member has yet to reach the warn threshold,
                 after the warn threshold is reached this will
@@ -245,7 +243,7 @@ class User:
                 self.in_guild = False
                 self.kick_count += 1
 
-                self.logger.debug(f"Attempting to kick: {message.author_id}")
+                logging.debug(f"Attempting to kick: {message.author_id}")
                 # We should kick the member
                 guild_message = transform_message(
                     self.options["guild_kick_message"],
@@ -266,7 +264,7 @@ class User:
                 self.in_guild = False
                 self.kick_count += 1
 
-                self.logger.debug(f"Attempting to ban: {message.author_id}")
+                logging.debug(f"Attempting to ban: {message.author_id}")
                 # We should ban the member
                 guild_message = transform_message(
                     self.options["guild_ban_message"],
@@ -351,7 +349,7 @@ class User:
         # Ensure we can actually punish the user, for this
         # we just check our top role is higher then them
         elif guild.me.top_role.position < member.top_role.position:
-            self.logger.warn(
+            logging.warn(
                 f"I might not be able to punish {member.display_name}({member.id}) in {guild.name}({guild.id}) "
                 "because they are higher then me, which means I could lack the ability to kick/ban them."
             )
@@ -361,7 +359,7 @@ class User:
                 await value.delete()
             except discord.HTTPException:
                 # Failed to delete message
-                await self.logger.warn(
+                await logging.warn(
                     f"Failed to delete message {value.id} in guild {value.guild.id}"
                 )
 
@@ -376,9 +374,7 @@ class User:
                     dc_channel,
                     f"Sending a message to {member.mention} about their {method} failed.",
                 )
-                self.logger.warn(
-                    f"Failed to message User: ({member.id}) about {method}"
-                )
+                logging.warn(f"Failed to message User: ({member.id}) about {method}")
             finally:
 
                 # Even if we can't tell them they are being punished
@@ -388,12 +384,12 @@ class User:
                         await guild.kick(
                             member, reason="Automated punishment from DPY Anti-Spam."
                         )
-                        self.logger.info(f"Kicked User: ({member.id})")
+                        logging.info(f"Kicked User: ({member.id})")
                     elif method == Static.BAN:
                         await guild.ban(
                             member, reason="Automated punishment from DPY Anti-Spam."
                         )
-                        self.logger.info(f"Banned User: ({member.id})")
+                        logging.info(f"Banned User: ({member.id})")
                     else:
                         raise NotImplementedError
                 except discord.Forbidden:
@@ -403,7 +399,7 @@ class User:
                         dc_channel,
                         f"I do not have permission to kick: {member.mention}",
                     )
-                    self.logger.warn(f"Required Permissions are missing for: {method}")
+                    logging.warn(f"Required Permissions are missing for: {method}")
                     if m is not None:
                         if method == Static.KICK:
                             user_failed_message = transform_message(
@@ -435,9 +431,7 @@ class User:
                         dc_channel,
                         f"An error occurred trying to {method}: {member.mention}",
                     )
-                    self.logger.warn(
-                        f"An error occurred trying to {method}: {member.id}"
-                    )
+                    logging.warn(f"An error occurred trying to {method}: {member.id}")
                     if m is not None:
                         if method == Static.KICK:
                             user_failed_message = transform_message(
@@ -466,7 +460,7 @@ class User:
                     try:
                         await send_to_obj(dc_channel, guild_message)
                     except discord.HTTPException:
-                        self.logger.error(
+                        logging.error(
                             f"Failed to send message.\n"
                             f"Guild: {dc_channel.guild.name}({dc_channel.guild.id})\n"
                             f"Channel: {dc_channel.name}({dc_channel.id})"
@@ -493,7 +487,7 @@ class User:
         time vs a messages creation time. If the message
         is older by the config amount it can be cleaned up
         """
-        self.logger.debug("Attempting to remove outdated Message's")
+        logging.debug("Attempting to remove outdated Message's")
 
         def _is_still_valid(message):
             """
@@ -527,11 +521,9 @@ class User:
         for outstanding_message in outstanding_messages:
             if outstanding_message.is_duplicate:
                 self.duplicate_counter -= 1
-                self.logger.debug(
-                    f"Removing duplicate Message: {outstanding_message.id}"
-                )
-            elif self.logger.isEnabledFor(logging.DEBUG):
-                self.logger.debug(f"Removing Message: {outstanding_message.id}")
+                logging.debug(f"Removing duplicate Message: {outstanding_message.id}")
+            elif logging.isEnabledFor(logging.DEBUG):
+                logging.debug(f"Removing Message: {outstanding_message.id}")
 
     @property
     def id(self):

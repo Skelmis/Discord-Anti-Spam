@@ -119,7 +119,7 @@ class AntiSpamHandler:
     #      and that's how it will be implemented internally most likely
     # TODO Add the ability to toggle dm messages for log messages (To affected users)
 
-    def __init__(self, bot: commands.Bot, verbose_level=0, **kwargs):
+    def __init__(self, bot: commands.Bot, **kwargs):
         """
         This is the first initialization of the entire spam handler,
         this is also where the initial options are set
@@ -128,14 +128,6 @@ class AntiSpamHandler:
         ----------
         bot : commands.Bot
             The commands.Bot instance
-        verbose_level : int, optional
-            The level at which logging should occur, personal recommendations are 2 or 3
-            logging.NOTSET - No logging
-            logging.DEBUG - Everything
-            logging.INFO - Everything from INFO and above
-            logging.WARNING - WARNING and above
-            logging.ERROR - ERROR and CRITICAL
-            logging.CRITICAL - CRITICAL
         warn_threshold : int, optional
             This is the amount of messages in a row that result in a warning within the message_interval
         kick_threshold : int, optional
@@ -182,31 +174,12 @@ class AntiSpamHandler:
         if not isinstance(bot, commands.Bot) and not isinstance(bot, MagicMock):
             raise ValueError("Expected channel of type commands.Bot")
 
-        if not isinstance(verbose_level, int):
-            raise ValueError(
-                "Verbosity should be an int in accordance with, "
-                "https://docs.python.org/3/library/logging.html#logging-levels "
-            )
-        if verbose_level not in [0, 10, 20, 30, 40, 50]:
-            raise ValueError(
-                "Verbosity should be in accordance with https://docs.python.org/3/library/logging.html#logging-levels"
-            )
-
         self.options = self._ensure_options(**kwargs)
 
         self.bot = bot
         self._guilds = []
 
-        logging.basicConfig(
-            format="%(asctime)s | %(levelname)s | %(module)s | %(message)s",
-            datefmt="%d/%m/%Y %I:%M:%S %p",
-        )
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(level=verbose_level)
-
-        self.logger.info("Package initialized successfully")
-
-        self.sync_warn = False
+        logging.info("Package initialized successfully")
 
     async def propagate(self, message: discord.Message) -> Optional[dict]:
         """
@@ -224,15 +197,6 @@ class AntiSpamHandler:
         dict
             A dictionary of useful information about the user in question
         """
-        if not self.sync_warn:
-            print(
-                "The synchronous propagate call will be deprecated in the next release "
-                "and it will be replaced with an asynchronous call.\nThis message "
-                "will only show once, unless you restart your bot. Any further questions, "
-                "join the support server for help."
-            )
-            self.sync_warn = True
-
         if not isinstance(message, discord.Message) and not isinstance(
             message, MagicMock
         ):
@@ -240,27 +204,27 @@ class AntiSpamHandler:
 
         # Ensure we only moderate actual guild messages
         if not message.guild:
-            self.logger.debug("Message was not in a guild")
+            logging.debug("Message was not in a guild")
             return {"status": "Ignoring messages from dm's"}
 
         # The bot is immune to spam
         if message.author.id == self.bot.user.id:
-            self.logger.debug("Message was from myself")
+            logging.debug("Message was from myself")
             return {"status": "Ignoring messages from myself (the bot)"}
 
         if isinstance(message.author, discord.User):
-            self.logger.warning(f"Given message with an author of type User")
+            logging.warning(f"Given message with an author of type User")
 
         # Return if ignored bot
         if self.options["ignore_bots"] and message.author.bot:
-            self.logger.debug(
+            logging.debug(
                 f"I ignore bots, and this is a bot message: {message.author.id}"
             )
             return {"status": "Ignoring messages from bots"}
 
         # Return if ignored member
         if message.author.id in self.options["ignore_users"]:
-            self.logger.debug(
+            logging.debug(
                 f"The user who sent this message is ignored: {message.author.id}"
             )
             return {"status": f"Ignoring this user: {message.author.id}"}
@@ -270,7 +234,7 @@ class AntiSpamHandler:
             message.channel.id in self.options["ignore_channels"]
             or message.channel.name in self.options["ignore_channels"]
         ):
-            self.logger.debug(f"{message.channel} is ignored")
+            logging.debug(f"{message.channel} is ignored")
             return {"status": f"Ignoring this channel: {message.channel.id}"}
 
         # Return if member has an ignored role
@@ -279,23 +243,23 @@ class AntiSpamHandler:
             user_roles.extend([role.name for role in message.author.roles])
             for item in user_roles:
                 if item in self.options.get("ignore_roles"):
-                    self.logger.debug(f"{item} is a part of ignored roles")
+                    logging.debug(f"{item} is a part of ignored roles")
                     return {"status": f"Ignoring this role: {item}"}
         except AttributeError:
-            self.logger.warning(
+            logging.warning(
                 f"Could not compute ignore_roles for {message.author.name}({message.author.id})"
             )
 
         # Return if ignored guild
         if message.guild.id in self.options.get("ignore_guilds"):
-            self.logger.debug(f"{message.guild.id} is an ignored guild")
+            logging.debug(f"{message.guild.id} is an ignored guild")
             return {"status": f"Ignoring this guild: {message.guild.id}"}
 
-        self.logger.debug(
+        logging.debug(
             f"Propagating message for: {message.author.name}({message.author.id})"
         )
 
-        guild = Guild(self.bot, message.guild.id, self.options, logger=self.logger)
+        guild = Guild(self.bot, message.guild.id, self.options, logger=logging)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
@@ -306,7 +270,7 @@ class AntiSpamHandler:
                 raise MissingGuildPermissions
 
             self.guilds = guild
-            self.logger.info(f"Created Guild: {guild.id}")
+            logging.info(f"Created Guild: {guild.id}")
 
         return await guild.propagate(message)
 
@@ -363,7 +327,7 @@ class AntiSpamHandler:
         else:
             raise BaseASHException("Invalid ignore ignore_type")
 
-        self.logger.debug(f"Ignored {ignore_type}: {item}")
+        logging.debug(f"Ignored {ignore_type}: {item}")
 
     def remove_ignored_item(self, item: int, ignore_type: str) -> None:
         """
@@ -424,7 +388,7 @@ class AntiSpamHandler:
         else:
             raise BaseASHException("Invalid ignore ignore_type")
 
-        self.logger.debug(f"Un-Ignored {ignore_type}: {item}")
+        logging.debug(f"Un-Ignored {ignore_type}: {item}")
 
     def add_custom_guild_options(self, guild_id: int, **kwargs):
         """
@@ -486,23 +450,21 @@ class AntiSpamHandler:
         """
         options = self._ensure_options(**kwargs)
 
-        guild = Guild(
-            self.bot, guild_id, options, logger=self.logger, custom_options=True
-        )
+        guild = Guild(self.bot, guild_id, options, logger=logging, custom_options=True)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
-            self.logger.warning(
+            logging.warning(
                 f"I cannot ensure I have permissions to kick/ban ban people in guild: {guild_id}"
             )
 
             self.guilds = guild
-            self.logger.info(f"Created Guild: {guild.id}")
+            logging.info(f"Created Guild: {guild.id}")
         else:
             guild.options = options
             guild.has_custom_options = True
 
-        self.logger.info(f"Set custom options for guild: {guild_id}")
+        logging.info(f"Set custom options for guild: {guild_id}")
 
     def get_guild_options(self, guild_id: int) -> tuple:
         """
@@ -543,7 +505,7 @@ class AntiSpamHandler:
         doing damage.
 
         """
-        guild = Guild(self.bot, guild_id, self.options, logger=self.logger)
+        guild = Guild(self.bot, guild_id, self.options, logger=logging)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
@@ -568,7 +530,7 @@ class AntiSpamHandler:
         are created
 
         """
-        guild = Guild(self.bot, guild_id, self.options, logger=self.logger)
+        guild = Guild(self.bot, guild_id, self.options, logger=logging)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
@@ -805,5 +767,5 @@ class AntiSpamHandler:
             if guild == value:
                 raise DuplicateObject
 
-        self.logger.debug(f"Added guild: {value}")
+        logging.debug(f"Added guild: {value}")
         self._guilds.append(value)
