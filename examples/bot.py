@@ -9,7 +9,7 @@ bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 file = read_json("token")
 
 # Generally you only need/want AntiSpamHandler(bot)
-bot.handler = AntiSpamHandler(bot, 1, ignore_bots=False)
+bot.handler = AntiSpamHandler(bot, ignore_bots=False)
 
 
 @bot.event
@@ -20,7 +20,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    bot.handler.propagate(message)
+    await bot.handler.propagate(message)
     await bot.process_commands(message)
 
 
