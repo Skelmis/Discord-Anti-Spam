@@ -30,19 +30,22 @@ jobs:
     - name: Run tests with code coverage
       run: |
         coverage run --source=AntiSpam/ -m unittest discover testing/
-    - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        flag-name: run-${{ matrix.python-version }}
-        parallel: true
-
-  finish:
+    - name: Upload Coverage
+      run: |
+        coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
+        COVERALLS_PARALLEL: true
+  coveralls:
+    name: Finish Coveralls
     needs: build
     runs-on: ubuntu-latest
+    container: python:3-slim
     steps:
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.github_token }}
-        parallel-finished: true
+    - name: Finished
+      run: |
+        pip3 install --upgrade coveralls
+        coveralls --finish
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
