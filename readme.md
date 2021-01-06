@@ -9,7 +9,7 @@
 [![Discord](https://img.shields.io/discord/780784732484141077.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/BqPNSH2jPg)
 
 Ever felt the need to handle spammers in your discord, but don't have the time or effort to do so yourself? 
-This package aims to help solve that issue by handling all the required logic under the hood, as well as handling the spammers heh.
+This package aims to help solve that issue by handling all the required logic under the hood, as well as handling the spammers.
 
 ---
 How to use this right now?
