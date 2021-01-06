@@ -55,7 +55,7 @@ Now, there will no doubt be bugs & changes etc. But, you can use this as is now 
 - Scalable -> Multi guild support out of the box
 - Test Driven -> CI with Github Actions
 
-Testing is done at python3.8 and above, due to the usage of unittest.IsolatedAsyncioTestCase which
+Testing is done at python3.8 and above, due to the usage of `unittest.IsolatedAsyncioTestCase` which
 is not available at lower python versions. The package itself however, should work with
 any version of discord.py rewrite and above.
 
