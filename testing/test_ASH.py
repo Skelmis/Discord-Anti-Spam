@@ -698,5 +698,25 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(TypeError):
             self.ash.add_custom_guild_options(1234, testing=1)
 
+    async def test_warnOnly(self):
+        ash = AntiSpamHandler(get_mocked_bot(), warn_only=True)
+        self.assertEqual(ash.options["warn_only"], True)
+        self.assertEqual(self.ash.options["warn_only"], False)
+
+        ash = AntiSpamHandler(get_mocked_bot(), warn_only=None)
+        self.assertEqual(ash.options["warn_only"], False)
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(get_mocked_bot(), warn_only=1)
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(get_mocked_bot(), warn_only="1")
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(get_mocked_bot(), warn_only=dict())
+
+        with self.assertRaises(ValueError):
+            AntiSpamHandler(get_mocked_bot(), warn_only=[])
+
 
 # TODO In test assignments, test it actually get assigned to the options dict
