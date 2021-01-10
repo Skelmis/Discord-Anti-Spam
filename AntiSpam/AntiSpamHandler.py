@@ -110,6 +110,10 @@ class AntiSpamHandler:
 
         ignore_bots: True
             Should bots bypass anti-spam?
+
+        warn_only: False
+            Whether or not to only warn users,
+            this means it will not kick or ban them
     """
 
     # TODO Add options for group spamming, rather then just per member.
@@ -169,6 +173,8 @@ class AntiSpamHandler:
             The users (ID Form), that bypass anti-spam
         ignore_bots : bool, optional
             Should bots bypass anti-spam?
+        warn_only : bool, optional
+            Only warn users?
         """
         # Just gotta casually ignore_type check everything.
         if not isinstance(bot, commands.Bot) and not isinstance(bot, MagicMock):
@@ -440,6 +446,8 @@ class AntiSpamHandler:
             The users (ID Form), that bypass anti-spam
         ignore_bots : bool, optional
             Should bots bypass anti-spam?
+        warn_only : bool, optional
+            Only warn users?
 
         Notes
         =====
@@ -561,6 +569,7 @@ class AntiSpamHandler:
         ignore_roles=None,
         ignore_guilds=None,
         ignore_bots=None,
+        warn_only=None,
     ):
         """
         Given the relevant arguments,
@@ -669,6 +678,9 @@ class AntiSpamHandler:
         if not isinstance(ignore_bots, bool) and ignore_bots is not None:
             raise ValueError("Expected ignore_bots of type bool")
 
+        if not isinstance(warn_only, bool) and warn_only is not None:
+            raise ValueError("Expected warn_only of type bool")
+
         # Now we have ignore_type checked everything, lets do some logic
         if ignore_bots is None:
             ignore_bots = Static.DEFAULTS.get("ignore_bots")
@@ -739,6 +751,7 @@ class AntiSpamHandler:
             "ignore_roles": ignore_roles or Static.DEFAULTS.get("ignore_roles"),
             "ignore_guilds": ignore_guilds or Static.DEFAULTS.get("ignore_guilds"),
             "ignore_bots": ignore_bots,
+            "warn_only": warn_only or Static.DEFAULTS.get("warn_only"),
         }
 
     # <-- Getter & Setters -->

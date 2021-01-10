@@ -209,11 +209,16 @@ class User:
             logging.debug(f"Message: ({message.id}) requires some form of punishment")
             # We need to punish the member with something
             was_punished = True
+            punish_bypass = False
+
+            if self.options["warn_only"]:
+                punish_bypass = True
 
             if (
                 self.duplicate_counter >= self.options["warn_threshold"]
                 and self.warn_count < self.options["kick_threshold"]
                 and self.kick_count < self.options["ban_threshold"]
+                or punish_bypass
             ):
                 logging.debug(f"Attempting to warn: {message.author_id}")
                 """
