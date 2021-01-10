@@ -349,7 +349,7 @@ class User:
         # Ensure we can actually punish the user, for this
         # we just check our top role is higher then them
         elif guild.me.top_role.position < member.top_role.position:
-            logging.warn(
+            logging.warning(
                 f"I might not be able to punish {member.display_name}({member.id}) in {guild.name}({guild.id}) "
                 "because they are higher then me, which means I could lack the ability to kick/ban them."
             )
@@ -359,7 +359,7 @@ class User:
                 await value.delete()
             except discord.HTTPException:
                 # Failed to delete message
-                await logging.warn(
+                await logging.warning(
                     f"Failed to delete message {value.id} in guild {value.guild.id}"
                 )
 
@@ -374,7 +374,7 @@ class User:
                     dc_channel,
                     f"Sending a message to {member.mention} about their {method} failed.",
                 )
-                logging.warn(f"Failed to message User: ({member.id}) about {method}")
+                logging.warning(f"Failed to message User: ({member.id}) about {method}")
             finally:
 
                 # Even if we can't tell them they are being punished
@@ -399,7 +399,7 @@ class User:
                         dc_channel,
                         f"I do not have permission to kick: {member.mention}",
                     )
-                    logging.warn(f"Required Permissions are missing for: {method}")
+                    logging.warning(f"Required Permissions are missing for: {method}")
                     if m is not None:
                         if method == Static.KICK:
                             user_failed_message = transform_message(
@@ -431,7 +431,9 @@ class User:
                         dc_channel,
                         f"An error occurred trying to {method}: {member.mention}",
                     )
-                    logging.warn(f"An error occurred trying to {method}: {member.id}")
+                    logging.warning(
+                        f"An error occurred trying to {method}: {member.id}"
+                    )
                     if m is not None:
                         if method == Static.KICK:
                             user_failed_message = transform_message(
