@@ -40,15 +40,9 @@ class TestGuild(unittest.TestCase):
         """
         Simply setup our Guild obj before usage
         """
-        self.guild = Guild(
-            None, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
-        )
-        self.guild.users = User(
-            None, 20, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
-        )
-        self.guild.users = User(
-            None, 21, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
-        )
+        self.guild = Guild(None, 15, Static.DEFAULTS)
+        self.guild.users = User(None, 20, 15, Static.DEFAULTS)
+        self.guild.users = User(None, 21, 15, Static.DEFAULTS)
 
     def test_intAssignment(self):
         self.assertEqual(self.guild.id, 15)
@@ -69,9 +63,7 @@ class TestGuild(unittest.TestCase):
 
     def test_userAssignment(self):
         self.assertEqual(len(self.guild.users), 2)
-        self.guild.users = User(
-            None, 22, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
-        )
+        self.guild.users = User(None, 22, 15, Static.DEFAULTS)
         self.assertEqual(len(self.guild.users), 3)
 
     def test_userRaises(self):
@@ -80,15 +72,11 @@ class TestGuild(unittest.TestCase):
 
     def test_userRaisesDuplicate(self):
         with self.assertRaises(DuplicateObject):
-            self.guild.users = User(
-                None, 21, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
-            )
+            self.guild.users = User(None, 21, 15, Static.DEFAULTS)
 
     def test_messageRaisesMismatch(self):
         with self.assertRaises(ObjectMismatch):
-            self.guild.users = User(
-                None, 22, 16, Static.DEFAULTS, logger=logging.getLogger(__name__)
-            )
+            self.guild.users = User(None, 22, 16, Static.DEFAULTS)
 
     def test_str(self):
         self.assertEqual(

@@ -57,10 +57,9 @@ class User:
         "bot",
         "in_guild",
         "duplicate_counter",
-        "logger",
     ]
 
-    def __init__(self, bot, id, guild_id, options, *, logger):
+    def __init__(self, bot, id, guild_id, options):
         """
         Set the relevant information in order to maintain
         and use a per User object for a guild
@@ -85,7 +84,6 @@ class User:
         self.warn_count = 0
         self.kick_count = 0
         self.duplicate_counter = 1
-        logging = logger
 
     def __repr__(self):
         return (
@@ -150,6 +148,15 @@ class User:
         if not isinstance(value, discord.Message) and not isinstance(value, MagicMock):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
+        # Setup our return values for the end user to use
+        return_data = {
+            "was_punished_this_message": False,
+            "was_warned": False,
+            "was_kicked": False,
+            "was_banned": False,
+            "status": "Unknown",
+        }
+
         # Here we just check if the user is still in the guild by checking if the in_guild attribute is False.
         # Because if its False then we don't need to process the message.
         if not self.in_guild:
@@ -200,15 +207,13 @@ class User:
         if not self.in_guild:
             return
 
-        was_punished = False
-
         self.messages = message
         logging.info(f"Created Message: {message.id}")
 
         if self.duplicate_counter >= self.options["message_duplicate_count"]:
             logging.debug(f"Message: ({message.id}) requires some form of punishment")
             # We need to punish the member with something
-            was_punished = True
+            return_data["was_punished_this_message"] = True
             punish_bypass = False
 
             if self.options["warn_only"]:
@@ -240,6 +245,9 @@ class User:
                     self.warn_count -= 1
                     raise e
 
+                return_data["was_warned"] = True
+                return_data["status"] = "User was warned."
+
             elif (
                 self.warn_count >= self.options["kick_threshold"]
                 and self.kick_count < self.options["ban_threshold"]
@@ -263,6 +271,8 @@ class User:
                 await self._punish_user(
                     value, user_message, guild_message, Static.KICK,
                 )
+                return_data["was_kicked"] = True
+                return_data["status"] = "User was kicked."
 
             elif self.kick_count >= self.options["ban_threshold"]:
                 # Set this to False here to stop processing other messages, we can revert on failure
@@ -285,16 +295,16 @@ class User:
                     value, user_message, guild_message, Static.BAN,
                 )
 
+                return_data["was_banned"] = True
+                return_data["status"] = "User was banned."
+
             else:
                 raise LogicError
 
-        return {
-            "warn_count": self.warn_count,
-            "kick_count": self.warn_count,
-            "duplicate_counter": self.get_correct_duplicate_count(),
-            "was_punished_this_message": was_punished,
-            "status": "Success",
-        }
+        return_data["warn_count"] = self.warn_count
+        return_data["kick_count"] = self.kick_count
+        return_data["duplicate_counter"] = self.get_correct_duplicate_count()
+        return return_data
 
     async def _punish_user(self, value, user_message, guild_message, method):
         """
@@ -364,7 +374,7 @@ class User:
                 await value.delete()
             except discord.HTTPException:
                 # Failed to delete message
-                await logging.warning(
+                logging.warning(
                     f"Failed to delete message {value.id} in guild {value.guild.id}"
                 )
 
@@ -498,7 +508,7 @@ class User:
 
         def _is_still_valid(message):
             """
-            Given a message, figure out if it hasnt
+            Given a message, figure out if it hasn't
             expired yet based on timestamps
             """
             difference = current_time - message.creation_time
@@ -522,7 +532,7 @@ class User:
         self._messages = deepcopy(current_messages)
 
         # Now if we have outstanding messages we need
-        # to process them and see if we need to deincrement
+        # to process them and see if we need to decrement
         # the duplicate counter as we are removing them from
         # the queue otherwise everything stacks up
         for outstanding_message in outstanding_messages:

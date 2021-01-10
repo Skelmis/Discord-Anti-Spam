@@ -49,7 +49,7 @@ class Guild:
         "has_custom_options",
     ]
 
-    def __init__(self, bot, id, options, *, logger, custom_options=False):
+    def __init__(self, bot, id, options, *, custom_options=False):
         """
 
         Parameters
@@ -60,8 +60,6 @@ class Guild:
             This guilds id
         options : dict
             The options for this guild
-        logger : Python logger
-            The logger to output logs to
         custom_options : bool
             Whether this guild has custom options or not
         """
@@ -70,7 +68,6 @@ class Guild:
         self._users = []
         self.options = options
 
-        logging = logger
         self.has_custom_options = custom_options
 
     def __repr__(self):
@@ -143,13 +140,7 @@ class Guild:
         ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
-        user = User(
-            self._bot,
-            message.author.id,
-            message.guild.id,
-            self.options,
-            logger=logging,
-        )
+        user = User(self._bot, message.author.id, message.guild.id, self.options,)
         try:
             user = next(iter(u for u in self._users if u == user))
         except StopIteration:

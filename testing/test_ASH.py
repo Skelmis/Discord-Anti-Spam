@@ -50,12 +50,8 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         Simply setup our Ash obj before usage
         """
         self.ash = AntiSpamHandler(get_mocked_bot(name="bot", id=98987))
-        self.ash.guilds = Guild(
-            None, 12, Static.DEFAULTS, logger=logging.getLogger(__name__)
-        )
-        self.ash.guilds = Guild(
-            None, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
-        )
+        self.ash.guilds = Guild(None, 12, Static.DEFAULTS)
+        self.ash.guilds = Guild(None, 15, Static.DEFAULTS)
 
     async def test_defaults(self):
         self.assertEqual(self.ash.options, Static.DEFAULTS)
@@ -65,9 +61,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             self.ash.guilds = "1"
 
         with self.assertRaises(DuplicateObject):
-            self.ash.guilds = Guild(
-                None, 15, Static.DEFAULTS, logger=logging.getLogger(__name__)
-            )
+            self.ash.guilds = Guild(None, 15, Static.DEFAULTS)
 
     @unittest.skip
     async def test_verboseType(self):

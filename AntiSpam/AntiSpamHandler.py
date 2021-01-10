@@ -265,7 +265,7 @@ class AntiSpamHandler:
             f"Propagating message for: {message.author.name}({message.author.id})"
         )
 
-        guild = Guild(self.bot, message.guild.id, self.options, logger=logging)
+        guild = Guild(self.bot, message.guild.id, self.options)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
@@ -458,7 +458,7 @@ class AntiSpamHandler:
         """
         options = self._ensure_options(**kwargs)
 
-        guild = Guild(self.bot, guild_id, options, logger=logging, custom_options=True)
+        guild = Guild(self.bot, guild_id, options, custom_options=True)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
@@ -513,7 +513,7 @@ class AntiSpamHandler:
         doing damage.
 
         """
-        guild = Guild(self.bot, guild_id, self.options, logger=logging)
+        guild = Guild(self.bot, guild_id, self.options)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
@@ -538,7 +538,7 @@ class AntiSpamHandler:
         are created
 
         """
-        guild = Guild(self.bot, guild_id, self.options, logger=logging)
+        guild = Guild(self.bot, guild_id, self.options)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
