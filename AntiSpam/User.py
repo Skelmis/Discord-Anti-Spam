@@ -304,7 +304,7 @@ class User:
         return_data["warn_count"] = self.warn_count
         return_data["kick_count"] = self.kick_count
         return_data["duplicate_counter"] = self.get_correct_duplicate_count()
-        return return_data  # TODO Document this return
+        return return_data
 
     async def _punish_user(self, value, user_message, guild_message, method):
         """
