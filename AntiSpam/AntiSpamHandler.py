@@ -35,7 +35,9 @@ from AntiSpam.Exceptions import (
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,
+    LogicError,
 )
+from AntiSpam.User import User
 from AntiSpam.static import Static
 
 """
@@ -192,6 +194,18 @@ class AntiSpamHandler:
         This method is the base level intake for messages, then
         propagating it out to the relevant guild or creating one
         if that is required
+
+        Return dict
+        {
+            "was_punished_this_message": boolean,
+            "was_warned": boolean,
+            "was_kicked": boolean,
+            "was_banned": boolean,
+            "status": string,
+            "warn_count": integer,
+            "kick_count": integer,
+            "duplicate_counter": integer
+        }
 
         Parameters
         ==========
@@ -546,6 +560,56 @@ class AntiSpamHandler:
         else:
             guild.options = self.options
             guild.has_custom_options = False
+
+    def reset_user_count(self, user_id: int, guild_id: int, counter: str) -> None:
+        """
+        Reset an internal counter attached
+        to a User object
+
+        Parameters
+        ----------
+        user_id : int
+            The user to reset
+        guild_id : int
+            The guild they are attached to
+        counter : str
+            A str denoting which count
+            to reset, Options are:\n
+            warn_counter -> Reset the warn count\n
+            kick_counter -> Reset the kick count
+
+        Raises
+        ======
+        LogicError
+            Invalid count to reset
+
+        Notes
+        =====
+        Silently ignores if the User or
+        Guild does not exist. This is because
+        in the packages mind, the counts are
+        'reset' since the default value is
+        the reset value.
+
+        """
+        guild = Guild(self.bot, guild_id, self.options)
+        try:
+            guild = next(iter(g for g in self.guilds if g == guild))
+        except StopIteration:
+            return
+
+        user = User(self.bot, user_id, guild_id=guild_id, options=guild.options)
+        try:
+            user = next(iter(u for u in guild.users if u == user))
+        except StopIteration:
+            return
+
+        if counter.lower() == Static.WARNCOUNTER:
+            user.warn_count = 0
+        elif counter.lower() == Static.KICKCOUNTER:
+            user.kick_count = 0
+        else:
+            raise LogicError("Invalid counter argument, please select a valid counter.")
 
     def _ensure_options(
         self,

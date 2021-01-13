@@ -59,3 +59,5 @@ class Static:
     }
     BAN = "ban"
     KICK = "kick"
+    WARNCOUNTER = "warn_counter"
+    KICKCOUNTER = "kick_counter"
