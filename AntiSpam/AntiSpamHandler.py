@@ -575,8 +575,8 @@ class AntiSpamHandler:
         counter : str
             A str denoting which count
             to reset, Options are:\n
-            warn_counter -> Reset the warn count\n
-            kick_counter -> Reset the kick count
+            ``warn_counter`` -> Reset the warn count\n
+            ``kick_counter`` -> Reset the kick count
 
         Raises
         ======
