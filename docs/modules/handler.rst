@@ -10,10 +10,14 @@ This handler propagation method also returns the following dictionary for you to
     :linenos:
 
     {
-        "warn_count": self.warn_count,
-        "kick_count": self.warn_count,
-        "duplicate_counter": self.get_correct_duplicate_count(),
-        "was_punished_this_message": was_punished,
+        "was_punished_this_message": boolean,
+        "was_warned": boolean,
+        "was_kicked": boolean,
+        "was_banned": boolean,
+        "status": string,
+        "warn_count": integer,
+        "kick_count": integer,
+        "duplicate_counter": integer
     }
 
 .. automodule:: AntiSpam.AntiSpamHandler

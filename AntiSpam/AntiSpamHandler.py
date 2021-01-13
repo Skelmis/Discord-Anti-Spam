@@ -195,17 +195,7 @@ class AntiSpamHandler:
         propagating it out to the relevant guild or creating one
         if that is required
 
-        Return dict
-        {
-            "was_punished_this_message": boolean,
-            "was_warned": boolean,
-            "was_kicked": boolean,
-            "was_banned": boolean,
-            "status": string,
-            "warn_count": integer,
-            "kick_count": integer,
-            "duplicate_counter": integer
-        }
+        For what this returns please see the top of this page.
 
         Parameters
         ==========
