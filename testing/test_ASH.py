@@ -32,6 +32,7 @@ from AntiSpam.Exceptions import (
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,
+    LogicError,
 )
 from AntiSpam.static import Static
 from AntiSpam.Guild import Guild
@@ -711,6 +712,54 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
         with self.assertRaises(ValueError):
             AntiSpamHandler(get_mocked_bot(), warn_only=[])
+
+    async def test_resetWarnCounter(self):
+        # GIVEN / SETUP
+        user = User(get_mocked_bot(), 123454321, 12, Static.DEFAULTS)
+        self.ash.guilds[0].users = user
+        self.assertEqual(1, len(self.ash.guilds[0].users))
+        self.assertEqual(0, self.ash.guilds[0].users[0].warn_count)
+        self.ash.guilds[0].users[0].warn_count += 1
+        self.assertEqual(1, self.ash.guilds[0].users[0].warn_count)
+
+        # WHEN / TESTING
+        self.ash.reset_user_count(123454321, 12, Static.WARNCOUNTER)
+
+        # THEN / ASSERTIONS
+        self.assertEqual(0, self.ash.guilds[0].users[0].warn_count)
+
+    async def test_resetKickCounter(self):
+        # GIVEN / SETUP
+        user = User(get_mocked_bot(), 123454321, 12, Static.DEFAULTS)
+        self.ash.guilds[0].users = user
+        self.assertEqual(1, len(self.ash.guilds[0].users))
+        self.assertEqual(0, self.ash.guilds[0].users[0].kick_count)
+        self.ash.guilds[0].users[0].kick_count += 1
+        self.assertEqual(1, self.ash.guilds[0].users[0].kick_count)
+
+        # WHEN / TESTING
+        self.ash.reset_user_count(123454321, 12, Static.KICKCOUNTER)
+
+        # THEN / ASSERTIONS
+        self.assertEqual(0, self.ash.guilds[0].users[0].kick_count)
+
+    async def test_resetCountersRaises(self):
+        # SETUP
+        user = User(get_mocked_bot(), 123454321, 12, Static.DEFAULTS)
+        self.ash.guilds[0].users = user
+
+        # ASSERTIONS / TESTING
+        with self.assertRaises(LogicError):
+            self.ash.reset_user_count(123454321, 12, "Who knows")
+
+        # Invalid guild, should work silently
+        self.ash.reset_user_count(123454321, 15, "Who knows")
+
+        # Invalid user, should work silently
+        self.ash.reset_user_count(1234, 12, "Who knows")
+
+        # Invalid both, should work silently
+        self.ash.reset_user_count(1234, 15, "Who knows")
 
 
 # TODO In test assignments, test it actually get assigned to the options dict
