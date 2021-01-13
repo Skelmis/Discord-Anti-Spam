@@ -32,7 +32,7 @@ jobs:
         coverage run --source=AntiSpam/ -m unittest discover testing/
     - name: Upload Coverage
       run: |
-        coveralls
+        coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
