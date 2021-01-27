@@ -20,11 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-import io
 import logging
-import sys
 import unittest
-from pprint import pprint
 
 from discord.ext import commands
 
@@ -778,8 +775,6 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         for num in range(6):
             return_value = await ash.propagate(get_mocked_message(message_id=num))
             data.append(return_value)
-
-        pprint(data)
 
         # THEN / ASSERTIONS
         self.assertEqual(len(data), 6)
