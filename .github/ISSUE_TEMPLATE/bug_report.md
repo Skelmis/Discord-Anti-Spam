@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Enviroment(please complete the following information):**
  - OS: [e.g. Windows]
- - Pacakge Version: [e.g. 0.1.1] `(pip show discord-anti-spam)`
+ - Package Version: [e.g. 0.1.1] `(pip show discord-anti-spam)`
 
 **Additional context**
 Add any other context about the problem here.
