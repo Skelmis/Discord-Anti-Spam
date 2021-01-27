@@ -14,6 +14,7 @@ Welcome to DPY Anti-Spam's documentation!
    modules/options.rst
    modules/examples.rst
    modules/logging.rst
+   modules/optimisation.rst
 
 .. toctree::
    :maxdepth: 2
