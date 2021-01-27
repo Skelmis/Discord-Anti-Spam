@@ -24,6 +24,7 @@ import io
 import logging
 import sys
 import unittest
+from pprint import pprint
 
 from discord.ext import commands
 
@@ -761,5 +762,30 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         # Invalid both, should work silently
         self.ash.reset_user_count(1234, 15, "Who knows")
 
+    async def test_ensureOptionsRaisingModes(self):
+        with self.assertRaises(BaseASHException):
+            self.ash._ensure_options(warn_only=True, no_punish=True)
 
-# TODO In test assignments, test it actually get assigned to the options dict
+        self.ash._ensure_options(warn_only=False, no_punish=True)
+        self.ash._ensure_options(warn_only=True, no_punish=False)
+
+    async def test_noPunishMode(self):
+        # SETUP
+        ash = AntiSpamHandler(get_mocked_bot(), no_punish=True)
+
+        # WHEN / TESTING
+        data = []
+        for num in range(6):
+            return_value = await ash.propagate(get_mocked_message(message_id=num))
+            data.append(return_value)
+
+        pprint(data)
+
+        # THEN / ASSERTIONS
+        self.assertEqual(len(data), 6)
+
+        # TODO Fix this while fixing #39
+        self.assertEqual(data[0]["should_be_punished_this_message"], False)
+        self.assertEqual(data[2]["should_be_punished_this_message"], False)
+        self.assertEqual(data[3]["should_be_punished_this_message"], True)
+        self.assertEqual(data[5]["should_be_punished_this_message"], True)

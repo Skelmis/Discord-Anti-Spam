@@ -10,7 +10,7 @@ This handler propagation method also returns the following dictionary for you to
     :linenos:
 
     {
-        "was_punished_this_message": boolean,
+        "should_be_punished_this_message": boolean,
         "was_warned": boolean,
         "was_kicked": boolean,
         "was_banned": boolean,

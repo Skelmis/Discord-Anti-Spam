@@ -150,7 +150,7 @@ class User:
 
         # Setup our return values for the end user to use
         return_data = {
-            "was_punished_this_message": False,
+            "should_be_punished_this_message": False,
             "was_warned": False,
             "was_kicked": False,
             "was_banned": False,
@@ -197,6 +197,7 @@ class User:
                 The handler works off an internal message duplicate counter 
                 so just increment that and then let our logic process it
                 """
+                # TODFO
                 self.duplicate_counter += 1
                 message.is_duplicate = True
 
@@ -213,17 +214,23 @@ class User:
         if self.duplicate_counter >= self.options["message_duplicate_count"]:
             logging.debug(f"Message: ({message.id}) requires some form of punishment")
             # We need to punish the member with something
-            return_data["was_punished_this_message"] = True
-            punish_bypass = False
+            return_data["should_be_punished_this_message"] = True
+            only_warn = False
 
             if self.options["warn_only"]:
-                punish_bypass = True
+                only_warn = True
 
-            if (
+            if self.options["no_punish"]:
+                # no_punish, just return saying they should be punished
+                return_data[
+                    "status"
+                ] = "User should be punished, however, was not due to no_punish being True"
+
+            elif (
                 self.duplicate_counter >= self.options["warn_threshold"]
                 and self.warn_count < self.options["kick_threshold"]
                 and self.kick_count < self.options["ban_threshold"]
-                or punish_bypass
+                or only_warn
             ):
                 logging.debug(f"Attempting to warn: {message.author_id}")
                 """
@@ -311,7 +318,6 @@ class User:
         A generic method to handle multiple methods of punishment for a user.
 
         Currently supports: kicking, banning
-        TODO: mutes
 
         Parameters
         ----------

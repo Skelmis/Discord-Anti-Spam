@@ -116,6 +116,18 @@ class AntiSpamHandler:
         warn_only: False
             Whether or not to only warn users,
             this means it will not kick or ban them
+
+        no_punish: False
+            Don't punish anyone, simply return
+            whether or not they should be punished
+            within propagate.
+            This essentially lets the end user
+            handle punishments themselves.
+
+            To check if someone should be punished, use the returned
+            value from the ``propagate`` method. If should_be_punished_this_message
+            is True then this package believes they should be punished.
+            Otherwise just ignore that message since it shouldn't be punished.
     """
 
     # TODO Add options for group spamming, rather then just per member.
@@ -177,6 +189,10 @@ class AntiSpamHandler:
             Should bots bypass anti-spam?
         warn_only : bool, optional
             Only warn users?
+        no_punish : bool, optional
+            Dont punish users?
+            Return if they should be punished or
+            not without actually punishing them
         """
         # Just gotta casually ignore_type check everything.
         if not isinstance(bot, commands.Bot) and not isinstance(bot, MagicMock):
@@ -452,6 +468,10 @@ class AntiSpamHandler:
             Should bots bypass anti-spam?
         warn_only : bool, optional
             Only warn users?
+        no_punish : bool, optional
+            Dont punish users?
+            Return if they should be punished or
+            not without actually punishing them
 
         Notes
         =====
@@ -624,6 +644,7 @@ class AntiSpamHandler:
         ignore_guilds=None,
         ignore_bots=None,
         warn_only=None,
+        no_punish=None,
     ):
         """
         Given the relevant arguments,
@@ -735,6 +756,14 @@ class AntiSpamHandler:
         if not isinstance(warn_only, bool) and warn_only is not None:
             raise ValueError("Expected warn_only of type bool")
 
+        if not isinstance(no_punish, bool) and no_punish is not None:
+            raise ValueError("Expected no_punish of type bool")
+
+        if warn_only and no_punish:
+            raise BaseASHException(
+                "Cannot do BOTH warn_only and no_punish. Pick one and try again"
+            )
+
         # Now we have ignore_type checked everything, lets do some logic
         if ignore_bots is None:
             ignore_bots = Static.DEFAULTS.get("ignore_bots")
@@ -806,6 +835,7 @@ class AntiSpamHandler:
             "ignore_guilds": ignore_guilds or Static.DEFAULTS.get("ignore_guilds"),
             "ignore_bots": ignore_bots,
             "warn_only": warn_only or Static.DEFAULTS.get("warn_only"),
+            "no_punish": no_punish or Static.DEFAULTS.get("no_punish"),
         }
 
     # <-- Getter & Setters -->

@@ -39,6 +39,7 @@ How to use templating in a string
     :linenos:
 
     from discord.ext import commands
+
     from AntiSpam import AntiSpamHandler
 
     bot = commands.Bot(command_prefix="!")
@@ -65,6 +66,7 @@ How to use templating in embeds
 
 
     from discord.ext import commands
+
     from AntiSpam import AntiSpamHandler
 
     bot = commands.Bot(command_prefix="!")
@@ -81,7 +83,7 @@ How to use templating in embeds
             {"name": "Current kicks:", "value": "$KICKCOUNT", "inline": False},
         ],
     }
-    bot.handler = AntiSpamHandler(bot, 1, ignore_bots=False, guild_warn_message=warn_embed_dict)
+    bot.handler = AntiSpamHandler(bot, guild_warn_message=warn_embed_dict)
 
     @bot.event
     async def on_ready():

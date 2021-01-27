@@ -56,6 +56,7 @@ class Static:
         "ignore_guilds": [],
         "ignore_bots": True,
         "warn_only": False,
+        "no_punish": False,
     }
     BAN = "ban"
     KICK = "kick"

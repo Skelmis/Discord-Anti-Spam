@@ -9,7 +9,14 @@ from testing.mocks.MockMember import get_mocked_member, get_mocked_bot
 from testing.mocks.MockChannel import get_mocked_channel
 
 
-def get_mocked_message(*, is_in_guild=True, member_kwargs=None, guild_kwargs=None):
+def get_mocked_message(
+    *,
+    is_in_guild=True,
+    member_kwargs=None,
+    guild_kwargs=None,
+    message_id=None,
+    message_content=None
+):
     """
     Return a mocked, usable message object
     """
@@ -44,5 +51,8 @@ def get_mocked_message(*, is_in_guild=True, member_kwargs=None, guild_kwargs=Non
     mock_message.channel = get_mocked_channel()
 
     mock_message.created_at = datetime.datetime.now()
+
+    mock_message.id = message_id or 12341234
+    mock_message.clean_content = message_content or "This is the message content"
 
     return mock_message
