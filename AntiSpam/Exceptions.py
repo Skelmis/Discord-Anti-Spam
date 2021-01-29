@@ -51,3 +51,7 @@ class LogicError(BaseASHException):
 
 class MissingGuildPermissions(BaseASHException):
     """I need both permissions to kick & ban people from this guild in order to work!"""
+
+
+class UserNotFound(BaseASHException):
+    """A User matching this id and guild id could not be found in the cache."""
