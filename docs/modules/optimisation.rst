@@ -8,6 +8,10 @@ Going forward, I plan on adding things you *should* be using on a task
 every day or so to cleanup caches. However, at the end of the day it
 will entirely come down to the end user.
 
+When using ``AntiSpamTracker`` you can periodically call ``AntiSpamTracker.clean_cache()``
+to clean up the associated internal dictionary.
+
+
 Implementation Notes
 ^^^^^^^^^^^^^^^^^^^^
 

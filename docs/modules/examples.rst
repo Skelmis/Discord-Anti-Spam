@@ -96,3 +96,39 @@ How to use templating in embeds
 
     if __name__ == "__main__":
         bot.run("Bot Token")
+
+
+Custom Punishments
+------------------
+
+.. code-block:: python
+    :linenos:
+
+    from discord.ext import commands
+
+    from AntiSpam import AntiSpamHandler
+
+    bot = commands.Bot(command_prefix="!")
+    bot.handler = AntiSpamHandler(bot, guild_warn_message=warn, no_punish=True)
+    bot.tracker = AntiSpamTracker(bot.handler, 3)
+    # 3 Being how many 'punishment requests' before is_spamming returns True
+
+    @bot.event
+    async def on_ready():
+        print(f"-----\nLogged in as: {bot.user.name} : {bot.user.id}\n-----")
+
+    @bot.event
+    async def on_message(message):
+        if message.author.bot:
+            return
+
+        data = await bot.handler.propagate(message)
+        bot.tracker.update_cache(message, data)
+
+        if bot.tracker.is_spamming(message):
+          # Do things like mute the user
+
+        await bot.process_commands(message)
+
+    if __name__ == "__main__":
+        bot.run("Bot Token")

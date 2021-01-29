@@ -129,7 +129,6 @@ class AntiSpamTracker:
             self.user_tracking[guild_id][user_id] = []
 
         self.user_tracking[guild_id][user_id].append(timestamp)
-        print(self.user_tracking)
 
     def get_user_count(self, message: discord.Message) -> int:
         """
@@ -213,7 +212,29 @@ class AntiSpamTracker:
 
         self.user_tracking[guild_id][user_id] = deepcopy(current_timestamps)
 
-    # TODO def clean_cache - Removes things that are empty lists
+    def clean_cache(self) -> None:
+        """
+        Cleans the entire internal cache
+        removing any empty users, and empty
+        guilds by extension
+
+        Notes
+        -----
+        This is more part of the Optimising Package Usage section,
+        run this once a week/day or somethin depending on how big
+        your bot is. I haven't profiled things.
+        """
+        for guild_id, guild in deepcopy(self.user_tracking).items():
+            for user_id, user in deepcopy(guild).items():
+                self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
+
+                if len(user) == 0:
+                    self.user_tracking[guild_id].pop(user_id)
+
+            if self.user_tracking[guild_id] == dict():
+                self.user_tracking.pop(guild_id)
+
+        logging.debug("Successfully cleaned the cache")
 
     def _get_guild_valid_interval(self, guild_id):
         """
@@ -238,7 +259,7 @@ class AntiSpamTracker:
 
         return self.user_tracking[guild_id]["valid_interval"]
 
-    async def is_spamming(self, message: discord.Message) -> bool:
+    def is_spamming(self, message: discord.Message) -> bool:
         """
         Given a message, deduce and return if a user
         is classed as 'spamming' or not based on ``punish_min_amount``
@@ -254,11 +275,14 @@ class AntiSpamTracker:
             True if the User is spamming else False
 
         """
-        user_count = await self.get_user_count(message=message)
-        if user_count >= self.punish_min_amount:
+        try:
+            user_count = self.get_user_count(message=message)
+            if user_count >= self.punish_min_amount:
+                return False
+        except UserNotFound:
             return False
-
-        return True
+        else:
+            return True
 
     async def do_punishment(self, message: discord.Message, *args, **kwargs) -> None:
         """
