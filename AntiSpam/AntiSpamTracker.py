@@ -46,6 +46,8 @@ class AntiSpamTracker:
      - Initialize this class and simply use the bool ``is_spamming()`` and do punishments based off that
      - Initialize this class and simply use ``get_user_count()`` to get the number of times the user should be punished and do your own logic
 
+    *This mainly just depends on how granular you want to be within your code base.*
+
     The way it works, is everytime you call ``propagate`` you simply pass the returned
     data into `update_cache` and it will update said Members cache if AntiSpamHandler
     thinks that they should be punished. Now, you set ``spam_amount_to_punish``
@@ -66,9 +68,7 @@ class AntiSpamTracker:
     AntiSpamHandler. (They will also update the AntiSpamHandler dont worry)
 
     - ``add_custom_guild_options``
-    - ``get_guild_options``
     - ``remove_custom_guild_options``
-    # TODO Implement these
     """
 
     __slots__ = [
@@ -79,27 +79,39 @@ class AntiSpamTracker:
     ]
 
     def __init__(
-        self, anti_spam_handler: AntiSpamHandler, spam_amount_to_punish
+        self,
+        anti_spam_handler: AntiSpamHandler,
+        spam_amount_to_punish,
+        valid_timestamp_interval=None,
     ) -> None:
         """
         Initialize this class and get it ready for usage.
 
         Parameters
         ----------
+        anti_spam_handler : AntiSpamHandler
+            Your AntiSpamHandler instance
         spam_amount_to_punish : int
             A number denoting the minimum value required
             per user in order trip `is_spamming`
 
             **NOTE this is in milliseconds**
-        anti_spam_handler : AntiSpamHandler
-            Your AntiSpamHandler instance
+        valid_timestamp_interval : int
+            How long a timestamp should remain 'valid' for.
+            Defaults to ``AntiSpamHandler.options.get("message_interval")``
         """
         self.punish_min_amount = int(spam_amount_to_punish)
 
         self.anti_spam_handler = anti_spam_handler
-        self.valid_global_interval = anti_spam_handler.options.get("message_interval")
+        self.valid_global_interval = (
+            valid_timestamp_interval
+            or anti_spam_handler.options.get("message_interval")
+        )
+        self.valid_global_interval = int(self.valid_global_interval)
 
         self.user_tracking = {}
+
+        logging.info("AntiSpamTracker is initialized and ready to go")
 
     def update_cache(self, message: discord.Message, data: dict) -> None:
         """
@@ -129,6 +141,7 @@ class AntiSpamTracker:
             self.user_tracking[guild_id][user_id] = []
 
         self.user_tracking[guild_id][user_id].append(timestamp)
+        logging.debug(f"Cache updated for user ({user_id}) in guild ({guild_id})")
 
     def get_user_count(self, message: discord.Message) -> int:
         """
@@ -302,3 +315,46 @@ class AntiSpamTracker:
 
         """
         pass
+
+    # <!-- Stuff I take over from AntiSpamHandler -->
+    def add_custom_guild_options(self, guild_id: int, **kwargs):
+        """
+        To see how to use this, refer to ``AntiSpam.AntiSpamHandler.AntiSpamHandler.add_custom_guild_options``
+
+        See Also
+        --------
+        AntiSpam.AntiSpamHandler.AntiSpamHandler.add_custom_guild_options :
+            The method that this calls under the hood
+
+        """
+        if kwargs.get("message_interval"):
+            if guild_id not in self.user_tracking:
+                self.user_tracking[guild_id] = {}
+
+            self.user_tracking[guild_id]["valid_interval"] = kwargs.get(
+                "message_interval"
+            )
+            logging.debug(f"Set custom 'valid_interval' for guild: {guild_id}")
+
+        self.anti_spam_handler.add_custom_guild_options(guild_id=guild_id, **kwargs)
+
+        logging.debug("Did method 'add_custom_guild_options'")
+
+    def remove_custom_guild_options(self, guild_id: int):
+        """
+        To see how to use this, refer to ``AntiSpam.AntiSpamHandler.AntiSpamHandler.remove_custom_guild_options``
+
+        See Also
+        --------
+        AntiSpam.AntiSpamHandler.AntiSpamHandler.remove_custom_guild_options :
+            The method that this calls under the hood
+
+        """
+        if guild_id in self.user_tracking:
+            if "valid_interval" in self.user_tracking[guild_id]:
+                self.user_tracking[guild_id].pop("valid_interval")
+                logging.debug(f"Removed custom 'valid_interval' for guild: {guild_id}")
+
+        self.anti_spam_handler.add_custom_guild_options(guild_id=guild_id)
+
+        logging.debug("Did method 'remove_custom_guild_options'")

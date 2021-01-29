@@ -473,6 +473,11 @@ class AntiSpamHandler:
             Return if they should be punished or
             not without actually punishing them
 
+        Warnings
+        --------
+        If using ``AntiSpamTracker``, please call this
+        method on that class instance. Not this one.
+
         Notes
         =====
         This will override any current settings, if you wish
@@ -553,6 +558,11 @@ class AntiSpamHandler:
         ----------
         guild_id : int
             The guild to reset
+
+        Warnings
+        --------
+        If using ``AntiSpamTracker``, please call this
+        method on that class instance. Not this one.
 
         Notes
         -----
