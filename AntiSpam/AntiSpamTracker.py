@@ -269,6 +269,43 @@ class AntiSpamTracker:
 
         self.user_tracking[guild_id][user_id] = deepcopy(current_timestamps)
 
+    def remove_punishments(self, message: discord.Message):
+        """
+        After you punish someone, call this method
+        to 'clean up' there punishments.
+        
+        Parameters
+        ----------
+        message : discord.Message
+            The message to extract user from
+
+        Raises
+        ------
+        TypeError
+            Invalid arg
+
+        Notes
+        -----
+        If the user can't be found in cache,
+        it executes the same as if the user
+        could be found in cache for what should
+        be somewhat obvious reasons. (They shouldn't
+        exist after this method finishes)
+        """
+        if not isinstance(message, (discord.Message, MagicMock)):
+            raise TypeError("Expected message of type: discord.Message")
+
+        user_id = message.author.id
+        guild_id = message.guild.id
+
+        if guild_id not in self.user_tracking:
+            return
+
+        if user_id not in self.user_tracking[guild_id]:
+            return
+
+        self.user_tracking[guild_id].pop(user_id)
+
     def clean_cache(self) -> None:
         """
         Cleans the entire internal cache
@@ -307,6 +344,11 @@ class AntiSpamTracker:
         -------
         int
             The correct interval time
+
+        Notes
+        -----
+        Silently ignores if a guild doesnt exist.
+        There is a global default for a reason.
         """
         if guild_id not in self.user_tracking:
             return self.valid_global_interval
@@ -338,11 +380,11 @@ class AntiSpamTracker:
         try:
             user_count = self.get_user_count(message=message)
             if user_count >= self.punish_min_amount:
-                return False
+                return True
         except UserNotFound:
             return False
         else:
-            return True
+            return False
 
     async def do_punishment(self, message: discord.Message, *args, **kwargs) -> None:
         """
@@ -373,6 +415,13 @@ class AntiSpamTracker:
         AntiSpam.AntiSpamHandler.AntiSpamHandler.add_custom_guild_options :
             The method that this calls under the hood
 
+        Notes
+        -----
+        Not unit-tested, I just assume it works
+        since add_custom_guild_options is unit-tested.
+        If this doesnt work as intended, please open
+        an issue.
+
         """
         if kwargs.get("message_interval"):
             if guild_id not in self.user_tracking:
@@ -395,6 +444,13 @@ class AntiSpamTracker:
         --------
         AntiSpam.AntiSpamHandler.AntiSpamHandler.remove_custom_guild_options :
             The method that this calls under the hood
+
+        Notes
+        -----
+        Not unit-tested, I just assume it works
+        since add_custom_guild_options is unit-tested.
+        If this doesnt work as intended, please open
+        an issue.
 
         """
         if guild_id in self.user_tracking:

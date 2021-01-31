@@ -31,6 +31,7 @@ from testing.mocks.MockMessage import get_mocked_message
 
 
 class TestAsh(unittest.IsolatedAsyncioTestCase):
+    # TODO Utilise the built_in setup func
     async def test_initialization(self):
         # Test AntiSpamHandler type assertion
         with self.assertRaises(TypeError):
@@ -148,3 +149,56 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         ast.clean_cache()
 
         self.assertEqual(ast.user_tracking, dict())
+
+    async def test_getGuildValidInterval(self):
+        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 3)
+        self.assertEqual(ast._get_guild_valid_interval(123456789), 30000)
+        ast.update_cache(
+            get_mocked_message(), {"should_be_punished_this_message": True}
+        )
+
+        self.assertEqual(ast._get_guild_valid_interval(123456789), 30000)
+
+        ast.user_tracking[123456789]["valid_interval"] = 15000
+        self.assertEqual(ast._get_guild_valid_interval(123456789), 15000)
+
+    async def test_isSpamming(self):
+        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 5)
+        self.assertEqual(ast.is_spamming(get_mocked_message()), False)
+
+        ast.update_cache(
+            get_mocked_message(), {"should_be_punished_this_message": True}
+        )
+        self.assertEqual(ast.is_spamming(get_mocked_message()), False)
+
+        for i in range(3):
+            ast.update_cache(
+                get_mocked_message(), {"should_be_punished_this_message": True}
+            )
+        # Cap is 5, should have 4 messages rn
+        self.assertEqual(ast.is_spamming(get_mocked_message()), False)
+        self.assertEqual(4, len(ast.user_tracking[123456789][12345]))
+
+        ast.update_cache(
+            get_mocked_message(), {"should_be_punished_this_message": True}
+        )
+        self.assertEqual(ast.is_spamming(get_mocked_message()), True)
+
+        ast.update_cache(
+            get_mocked_message(), {"should_be_punished_this_message": True}
+        )
+        self.assertEqual(ast.is_spamming(get_mocked_message()), True)
+
+    async def test_removePunishment(self):
+        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 5)
+
+        ast.remove_punishments(get_mocked_message())
+
+        ast.update_cache(
+            get_mocked_message(), {"should_be_punished_this_message": True}
+        )
+        self.assertEqual(1, ast.get_user_count(get_mocked_message()))
+
+        ast.remove_punishments(get_mocked_message())
+        with self.assertRaises(UserNotFound):
+            ast.get_user_count(get_mocked_message())
