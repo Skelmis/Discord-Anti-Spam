@@ -15,7 +15,8 @@ class MyCustomTracker(AntiSpamTracker):
         user_id = message.author.id
         guild_id = message.guild.id
 
-        self.user_tracking[guild_id][user_id]["has_been_muted"] = False
+        if "has_been_muted" not in self.user_tracking[guild_id][user_id]:
+            self.user_tracking[guild_id][user_id]["has_been_muted"] = False
 
     def get_user_has_been_muted(self, message: discord.Message) -> bool:
         """
