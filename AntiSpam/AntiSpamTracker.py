@@ -25,6 +25,7 @@ LICENSE
 import datetime
 import logging
 from copy import deepcopy
+from unittest.mock import MagicMock
 
 import discord
 
@@ -99,10 +100,29 @@ class AntiSpamTracker:
         valid_timestamp_interval : int
             How long a timestamp should remain 'valid' for.
             Defaults to ``AntiSpamHandler.options.get("message_interval")``
+
+        Raises
+        ------
+        TypeError
+            Invalid Arg Type
+        ValueError
+            Invalid Arg Type
         """
         self.punish_min_amount = int(spam_amount_to_punish)
 
+        if not isinstance(anti_spam_handler, AntiSpamHandler):
+            raise TypeError("Expected anti_spam_handler of type AntiSpamHandler")
+
         self.anti_spam_handler = anti_spam_handler
+
+        if valid_timestamp_interval is not None:
+            if isinstance(valid_timestamp_interval, (str, float)):
+                valid_timestamp_interval = int(valid_timestamp_interval)
+            elif isinstance(valid_timestamp_interval, int):
+                pass
+            else:
+                raise TypeError("Expected valid_timestamp_interval of type int")
+
         self.valid_global_interval = (
             valid_timestamp_interval
             or anti_spam_handler.options.get("message_interval")
@@ -112,6 +132,21 @@ class AntiSpamTracker:
         self.user_tracking = {}
 
         logging.info("AntiSpamTracker is initialized and ready to go")
+
+    def __str__(self):
+        guilds = len(self.user_tracking)
+        users = 0
+        for guild in self.user_tracking.values():
+            users += len(guild)
+
+        return_value = f"AntiSpamTracker(AntiSpamHandler Instance, {self.punish_min_amount}, {self.valid_global_interval})"
+        return_value += f"\nGuilds: {guilds} | Users (Non Unique): {users}"
+        return return_value
+
+    def __repr__(self):
+        return_value = f"AntiSpamTracker(AntiSpamHandler Instance, {self.punish_min_amount}, {self.valid_global_interval})\n"
+        return_value += str(self.user_tracking)
+        return return_value
 
     def update_cache(self, message: discord.Message, data: dict) -> None:
         """
@@ -125,6 +160,12 @@ class AntiSpamTracker:
         data : dict
             The data returned from `propagate`
         """
+        if not isinstance(message, (discord.Message, MagicMock)):
+            raise TypeError("Expected message of type: discord.Message")
+
+        if not isinstance(data, dict):
+            raise TypeError("Expected data of type: dict")
+
         user_id = message.author.id
         guild_id = message.guild.id
         timestamp = datetime.datetime.now(datetime.timezone.utc)
@@ -167,6 +208,9 @@ class AntiSpamTracker:
             The User for the ``message`` could not be found
 
         """
+        if not isinstance(message, (discord.Message, MagicMock)):
+            raise TypeError("Expected message of type: discord.Message")
+
         user_id = message.author.id
         guild_id = message.guild.id
 
@@ -241,10 +285,10 @@ class AntiSpamTracker:
             for user_id, user in deepcopy(guild).items():
                 self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
 
-                if len(user) == 0:
+                if len(self.user_tracking[guild_id][user_id]) == 0:
                     self.user_tracking[guild_id].pop(user_id)
 
-            if self.user_tracking[guild_id] == dict():
+            if not bool(self.user_tracking[guild_id]):
                 self.user_tracking.pop(guild_id)
 
         logging.debug("Successfully cleaned the cache")
@@ -288,6 +332,9 @@ class AntiSpamTracker:
             True if the User is spamming else False
 
         """
+        if not isinstance(message, (discord.Message, MagicMock)):
+            raise TypeError("Expected message of type: discord.Message")
+
         try:
             user_count = self.get_user_count(message=message)
             if user_count >= self.punish_min_amount:

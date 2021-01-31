@@ -46,7 +46,7 @@ def get_mocked_message(
         else:
             mock_message.guild = get_mocked_guild(name="Guild")
     else:
-        mock_message.guild = False
+        mock_message.guild = None
 
     mock_message.channel = get_mocked_channel()
 
