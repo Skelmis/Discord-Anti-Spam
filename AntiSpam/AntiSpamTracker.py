@@ -418,7 +418,7 @@ class AntiSpamTracker:
         Notes
         -----
         Not unit-tested, I just assume it works
-        since add_custom_guild_options is unit-tested.
+        since ``add_custom_guild_options`` is unit-tested.
         If this doesnt work as intended, please open
         an issue.
 
@@ -448,7 +448,7 @@ class AntiSpamTracker:
         Notes
         -----
         Not unit-tested, I just assume it works
-        since add_custom_guild_options is unit-tested.
+        since ``add_custom_guild_options`` is unit-tested.
         If this doesnt work as intended, please open
         an issue.
 
