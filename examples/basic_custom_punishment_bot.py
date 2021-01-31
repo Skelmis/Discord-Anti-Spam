@@ -29,7 +29,7 @@ async def on_message(message):
         # Insert code to tell admins
 
         # ETC
-        pass
+        bot.tracker.remove_punishments(message)
 
     await bot.process_commands(message)
 

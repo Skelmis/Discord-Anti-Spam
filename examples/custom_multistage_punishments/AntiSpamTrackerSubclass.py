@@ -76,6 +76,9 @@ class MyCustomTracker(AntiSpamTracker):
             await channel.send(f"Hey {user.mention}! I am kicking you for spam.")
             await asyncio.sleep(2.5)
             await guild.kick(user, reason="Kicked for spam.")
+            self.remove_punishments(
+                message
+            )  # cleanup on the assumption they won't 'just come back'
 
         elif self.is_spamming(message=message):
             self.user_tracking[guild_id][user_id]["has_been_muted"] = True
