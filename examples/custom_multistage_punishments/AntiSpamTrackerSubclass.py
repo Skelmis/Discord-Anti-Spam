@@ -1,4 +1,4 @@
-"""Our subclass of AntiSpamTracker"""
+"""Our subclass of AntiSpamTracker - I haven't tested this. That is up to you to do. Use this as a 'blueprint'"""
 import asyncio
 from copy import deepcopy
 
