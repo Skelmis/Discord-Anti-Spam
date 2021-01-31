@@ -100,8 +100,10 @@ class MyCustomTracker(AntiSpamTracker):
             for user_id, user in deepcopy(guild).items():
                 self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
 
-                if len(user) == 0 and not user.get("has_been_muted", True):
+                if len(self.user_tracking[guild_id][user_id]) == 0 and not user.get(
+                    "has_been_muted", True
+                ):
                     self.user_tracking[guild_id].pop(user_id)
 
-            if self.user_tracking[guild_id] == dict():
+            if not bool(self.user_tracking[guild_id]):
                 self.user_tracking.pop(guild_id)
