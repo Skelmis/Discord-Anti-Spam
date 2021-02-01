@@ -86,6 +86,12 @@ def dict_to_embed(data, message, counts):
     Returns
     -------
     discord.Embed
+
+    Notes
+    -----
+    For you smart-ass's out there. This does use ``discord.Embed.from_dict()``
+    except this also lets you use templated strings within fields you
+    smart cookies
     """
     allowed_avatars = ["$USERAVATAR", "$BOTAVATAR", "$GUILDICON"]
 
