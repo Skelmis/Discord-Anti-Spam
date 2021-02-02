@@ -196,7 +196,7 @@ class AntiSpamHandler:
         """
         # Just gotta casually ignore_type check everything.
         if not isinstance(bot, (commands.Bot, commands.AutoShardedBot)) and not isinstance(bot, MagicMock):
-            raise ValueError("Expected channel of type commands.Bot")
+            raise ValueError("Expected channel of type commands.Bot or commands.AutoShardedBot")
 
         self.options = self._ensure_options(**kwargs)
 
