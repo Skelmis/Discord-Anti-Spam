@@ -24,7 +24,7 @@ LICENSE
 """
 import logging
 from copy import deepcopy
-from typing import Optional
+from typing import Optional, Union
 from unittest.mock import MagicMock
 
 import discord
@@ -137,7 +137,7 @@ class AntiSpamHandler:
     #      and that's how it will be implemented internally most likely
     # TODO Add the ability to toggle dm messages for log messages (To affected users)
 
-    def __init__(self, bot: commands.Bot or commands.AutoShardedBot or discord.Client or discord.AutoShardedClient, **kwargs):
+    def __init__(self, bot: Union[commands.Bot, commands.AutoShardedBot, discord.Client, discord.AutoShardedClient], **kwargs):
         """
         This is the first initialization of the entire spam handler,
         this is also where the initial options are set
