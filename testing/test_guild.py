@@ -21,9 +21,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
-import sys
 import unittest
-import logging
 
 from AntiSpam.Guild import Guild
 from AntiSpam.User import User

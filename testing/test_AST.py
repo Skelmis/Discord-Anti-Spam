@@ -35,11 +35,13 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
     async def test_initialization(self):
         # Test AntiSpamHandler type assertion
         with self.assertRaises(TypeError):
+            # noinspection PyTypeChecker
             AntiSpamTracker(1, 2)
 
         AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 3)
 
         with self.assertRaises(TypeError):
+            # noinspection PyArgumentList
             AntiSpamTracker()
 
         ash = AntiSpamHandler(get_mocked_bot())
@@ -56,6 +58,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(ast.punish_min_amount, 3)
 
         with self.assertRaises(TypeError):
+            # noinspection PyTypeChecker
             AntiSpamTracker(ash, 3, dict())
 
     async def test_updateCache(self):
@@ -76,9 +79,11 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(False, bool(ast.user_tracking))
 
         with self.assertRaises(TypeError):
+            # noinspection PyTypeChecker
             ast.update_cache(1, dict())
 
         with self.assertRaises(TypeError):
+            # noinspection PyTypeChecker
             ast.update_cache(get_mocked_message(), 1)
 
         ast.user_tracking = {}

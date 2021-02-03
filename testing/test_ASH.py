@@ -20,7 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-import logging
 import unittest
 import discord
 
@@ -63,56 +62,6 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(DuplicateObject):
             self.ash.guilds = Guild(None, 15, Static.DEFAULTS)
 
-    @unittest.skip
-    async def test_verboseType(self):
-        with self.assertRaises(ValueError):
-            AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level="x")
-
-        ash = AntiSpamHandler(
-            commands.Bot(command_prefix="!"), verbose_level=logging.INFO
-        )
-        self.assertIsNotNone(ash)
-
-    @unittest.skip
-    async def test_verboseLevelRange(self):
-        with self.assertRaises(ValueError, msg="Invalid verbose level (To low)"):
-            AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=-1)
-
-        with self.assertRaises(ValueError, msg="Invalid verbose level (To high)"):
-            AntiSpamHandler(commands.Bot(command_prefix="!"), verbose_level=6)
-
-    @unittest.skip
-    async def test_verboseAssignment(self):
-        ash = AntiSpamHandler(
-            commands.Bot(command_prefix="!"), verbose_level=logging.NOTSET
-        )
-        self.assertEqual(ash.logger.level, 0)
-
-        ash = AntiSpamHandler(
-            commands.Bot(command_prefix="!"), verbose_level=logging.DEBUG
-        )
-        self.assertEqual(ash.logger.level, 10)
-
-        ash = AntiSpamHandler(
-            commands.Bot(command_prefix="!"), verbose_level=logging.INFO
-        )
-        self.assertEqual(ash.logger.level, 20)
-
-        ash = AntiSpamHandler(
-            commands.Bot(command_prefix="!"), verbose_level=logging.WARNING
-        )
-        self.assertEqual(ash.logger.level, 30)
-
-        ash = AntiSpamHandler(
-            commands.Bot(command_prefix="!"), verbose_level=logging.ERROR
-        )
-        self.assertEqual(ash.logger.level, 40)
-
-        ash = AntiSpamHandler(
-            commands.Bot(command_prefix="!"), verbose_level=logging.CRITICAL
-        )
-        self.assertEqual(ash.logger.level, 50)
-
     async def test_messageAccuracyType(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(
@@ -142,24 +91,31 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_botAssignment(self):
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             AntiSpamHandler(None)
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             AntiSpamHandler(1)
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             AntiSpamHandler("1")
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             AntiSpamHandler({1: 2})
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             AntiSpamHandler([1, None])
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             AntiSpamHandler(True)
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             AntiSpamHandler(False)
 
         AntiSpamHandler(commands.Bot(command_prefix="!"))
@@ -288,7 +244,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message="hi")
         AntiSpamHandler(commands.Bot(command_prefix="!"), user_ban_message=dict())
 
-    async def test_userFailedKickmessage(self):
+    async def test_userFailedKickMessage(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(
                 commands.Bot(command_prefix="!"), user_failed_kick_message=1
@@ -309,7 +265,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             commands.Bot(command_prefix="!"), user_failed_kick_message=dict()
         )
 
-    async def test_userFailedBanmessage(self):
+    async def test_userFailedBanMessage(self):
         with self.assertRaises(ValueError):
             AntiSpamHandler(commands.Bot(command_prefix="!"), user_failed_ban_message=1)
 
@@ -490,7 +446,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots=True)
         AntiSpamHandler(commands.Bot(command_prefix="!"), ignore_bots=None)
 
-    # TODO Add a ensureRaises test for each setable option...
+    # TODO Add a ensureRaises test for each set-able option...
     # TODO Capture standard out and ensure the logger is working,
     #      but only at the correct levels
 
@@ -518,13 +474,13 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_guildWarnMessageEmbed(self):
         # Just tests this runs
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), guild_warn_message={})
+        AntiSpamHandler(commands.Bot(command_prefix="!"), guild_warn_message={})
 
     async def test_deleteSpam(self):
         with self.assertRaises(ValueError):
-            ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam={})
+            AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam={})
 
-        ash = AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam=True)
+        AntiSpamHandler(commands.Bot(command_prefix="!"), delete_spam=True)
 
     async def test_propagateRoleIgnoring(self):
         """
@@ -540,15 +496,19 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_propagateTypes(self):
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             await self.ash.propagate(1)
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             await self.ash.propagate(None)
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             await self.ash.propagate("Hi!")
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             await self.ash.propagate(True)
 
     async def test_propagateDmIgnore(self):
@@ -658,9 +618,11 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_ignoreMethodExceptions(self):
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             self.ash.add_ignored_item("LOL", "test")
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             self.ash.remove_ignored_item("LOL", "test")
 
         with self.assertRaises(BaseASHException):
@@ -670,9 +632,11 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             self.ash.remove_ignored_item(1, "testing")
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             self.ash.add_ignored_item(1, [])
 
         with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
             self.ash.remove_ignored_item(1, [])
 
     async def test_customGuildOptions(self):
@@ -690,7 +654,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_ASHRandomVar(self):
         with self.assertRaises(TypeError):
-            AntiSpamHandler(get_mocked_bot(), logging.NOTSET, lol=1)
+            AntiSpamHandler(get_mocked_bot(), lol=1)
 
         with self.assertRaises(TypeError):
             self.ash.add_custom_guild_options(1234, testing=1)
