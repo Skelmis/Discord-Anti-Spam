@@ -137,15 +137,15 @@ class AntiSpamHandler:
     #      and that's how it will be implemented internally most likely
     # TODO Add the ability to toggle dm messages for log messages (To affected users)
 
-    def __init__(self, bot: commands.Bot, **kwargs):
+    def __init__(self, bot: commands.Bot or commands.AutoShardedBot or discord.Client or discord.AutoShardedClient, **kwargs):
         """
         This is the first initialization of the entire spam handler,
         this is also where the initial options are set
 
         Parameters
         ----------
-        bot : commands.Bot
-            The commands.Bot instance
+        bot : commands.Bot or commands.AutoShardedBot or disocrd.Client or discord.AutoShardedClient
+            The commands.Bot or commands.AutoSharedBot or discord.Client or discord.AutoShardedClient instance
         warn_threshold : int, optional
             This is the amount of messages in a row that result in a warning within the message_interval
         kick_threshold : int, optional
@@ -195,8 +195,9 @@ class AntiSpamHandler:
             not without actually punishing them
         """
         # Just gotta casually ignore_type check everything.
-        if not isinstance(bot, (commands.Bot, commands.AutoShardedBot)) and not isinstance(bot, MagicMock):
-            raise ValueError("Expected channel of type commands.Bot or commands.AutoShardedBot")
+        if not isinstance(bot, (commands.Bot, commands.AutoShardedBot, discord.Client,
+        discord.AutoShardedClient)) and not isinstance(bot, MagicMock):
+            raise ValueError("Expected bot of type commands.Bot, commands.AutoShardedBot, discord.Client or discord.AutoShardedClient")
 
         self.options = self._ensure_options(**kwargs)
 
