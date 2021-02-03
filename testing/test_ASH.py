@@ -162,6 +162,9 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             AntiSpamHandler(False)
 
         AntiSpamHandler(commands.Bot(command_prefix="!"))
+        AntiSpamHandler(commands.Bot(command_prefix="!"))
+        AntiSpamHandler(discord.Client)
+        AntiSpamHandler(discord.AutoShardedClient)
 
     async def test_warnThreshold(self):
         with self.assertRaises(ValueError):
