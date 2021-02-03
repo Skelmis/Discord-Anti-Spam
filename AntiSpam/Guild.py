@@ -23,6 +23,7 @@ DEALINGS IN THE SOFTWARE.
 LICENSE
 """
 import logging
+from copy import deepcopy
 from unittest.mock import MagicMock
 
 import discord
@@ -66,7 +67,7 @@ class Guild:
         self.id = int(id)
         self._bot = bot
         self._users = []
-        self.options = options
+        self.options = deepcopy(options)
 
         self.has_custom_options = custom_options
 

@@ -27,15 +27,15 @@ import unittest
 from AntiSpam.User import User
 from AntiSpam.Message import Message
 from AntiSpam.static import Static
-from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch
+from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch, LogicError
 
 
-class TestUser(unittest.TestCase):
+class TestUser(unittest.IsolatedAsyncioTestCase):
     """
     Used to test the user object
     """
 
-    def setUp(self):
+    async def asyncSetUp(self):
         """
         Simply setup our User obj before usage
         """
@@ -43,22 +43,22 @@ class TestUser(unittest.TestCase):
         self.user.messages = Message(0, "Hello world", 0, 2, 3)
         self.user.messages = Message(1, "Foo Bar", 0, 2, 3)
 
-    def test_botAssignment(self):
+    async def test_botAssignment(self):
         # Given we don't want to populate an entire bot,
         # lets just check its assigned correctly
         self.assertIsNone(self.user.bot)
 
-    def test_intAssignment(self):
+    async def test_intAssignment(self):
         self.assertIsInstance(self.user.id, int)
         self.assertIsInstance(self.user.guild_id, int)
 
-    def test_listAssignment(self):
+    async def test_listAssignment(self):
         self.assertIsInstance(self.user.messages, list)
 
-    def test_dictAssignment(self):
+    async def test_dictAssignment(self):
         self.assertIsInstance(self.user.options, dict)
 
-    def test_valueAssignment(self):
+    async def test_valueAssignment(self):
         self.assertEqual(self.user.id, 0)
         self.assertEqual(self.user.guild_id, 3)
         self.assertEqual(self.user.options, Static.DEFAULTS)
@@ -69,31 +69,31 @@ class TestUser(unittest.TestCase):
         self.assertEqual(self.user.id, 10)
         self.assertEqual(self.user.guild_id, 10)
 
-    def test_properties(self):
+    async def test_properties(self):
         with self.assertRaises(ValueError):
             self.user.id = "1"
 
         with self.assertRaises(ValueError):
             self.user.guild_id = "1"
 
-    def test_messageAssignment(self):
+    async def test_messageAssignment(self):
         self.assertEqual(len(self.user.messages), 2)
         self.user.messages = Message(3, "Test", 0, 2, 3)
         self.assertEqual(len(self.user.messages), 3)
 
-    def test_messageRaises(self):
+    async def test_messageRaises(self):
         with self.assertRaises(ValueError):
             self.user.messages = 1
 
-    def test_messageRaisesDuplicate(self):
+    async def test_messageRaisesDuplicate(self):
         with self.assertRaises(DuplicateObject):
             self.user.messages = Message(1, "Testing", 0, 2, 3)
 
-    def test_messageRaisesMismatch(self):
+    async def test_messageRaisesMismatch(self):
         with self.assertRaises(ObjectMismatch):
             self.user.messages = Message(20, "Testing", 20, 20, 20)
 
-    def test_repr(self):
+    async def test_repr(self):
         self.assertEqual(
             repr(self.user),
             (
@@ -102,24 +102,24 @@ class TestUser(unittest.TestCase):
             ),
         )
 
-    def test_str(self):
+    async def test_str(self):
         self.assertEqual(
             str(self.user), f"{self.user.__class__.__name__} object for {self.user.id}."
         )
 
-    def test_eqEqual(self):
+    async def test_eqEqual(self):
         obj = User(None, 0, 3, Static.DEFAULTS)
         self.assertTrue(self.user == obj)
 
-    def test_eqNotEqual(self):
+    async def test_eqNotEqual(self):
         obj = User(None, 2, 2, Static.DEFAULTS)
         self.assertFalse(self.user == obj)
 
-    def test_eqRaises(self):
+    async def test_eqRaises(self):
         with self.assertRaises(ValueError):
             self.assertFalse(self.user == 1)
 
-    def test_duplicateCounter(self):
+    async def test_duplicateCounter(self):
         self.assertNotEqual(
             self.user.duplicate_counter, self.user.get_correct_duplicate_count()
         )
@@ -128,10 +128,55 @@ class TestUser(unittest.TestCase):
             self.user.duplicate_counter - 1, self.user.get_correct_duplicate_count()
         )
 
-    def test_cleanUp(self):
+    async def test_cleanUp(self):
         x = len(self.user.messages)
         self.user.clean_up(datetime.datetime.now(datetime.timezone.utc))
         self.assertEqual(x, len(self.user.messages))
+
+    async def test__increment_duplicate_count(self):
+        self.assertEqual(self.user.duplicate_counter, 1)
+        self.user._increment_duplicate_count(Message(2, "A test message", 0, 2, 3))
+        self.assertEqual(self.user.duplicate_counter, 2)
+
+        self.user._increment_duplicate_count(Message(2, "A test message", 0, 2, 3), 2)
+        self.assertEqual(self.user.duplicate_counter, 4)
+
+        self.user.options["per_channel_spam"] = True
+        self.assertEqual(self.user.duplicate_channel_counter_dict, dict())
+
+        self.user._increment_duplicate_count(Message(2, "A test message", 0, 2, 3))
+        self.assertEqual(self.user.duplicate_channel_counter_dict, {2: 1})
+        self.user._increment_duplicate_count(Message(2, "A test message", 0, 2, 3), 2)
+        self.assertEqual(self.user.duplicate_channel_counter_dict, {2: 3})
+
+    async def test__get_duplicate_count(self):
+        result = self.user._get_duplicate_count(Message(3, "A test message", 0, 2, 3))
+        self.assertEqual(result, 1)
+
+        self.user.options["per_channel_spam"] = True
+        result = self.user._get_duplicate_count(Message(3, "A test message", 0, 2, 3))
+        self.assertEqual(result, 1)
+
+        self.user._increment_duplicate_count(Message(2, "A test message", 0, 2, 3))
+        self.user._increment_duplicate_count(Message(2, "A test message", 0, 2, 3))
+        result = self.user._get_duplicate_count(Message(3, "A test message", 0, 2, 3))
+        self.assertEqual(result, 3)
+
+        # This channel shouldn't exist / have duplicates
+        result = self.user._get_duplicate_count(Message(3, "A test message", 0, 1, 3))
+        self.assertEqual(result, 1)
+
+        with self.assertRaises(LogicError):
+            # noinspection PyTypeChecker
+            self.user._get_duplicate_count("hi")
+
+        with self.assertRaises(TypeError):
+            # noinspection PyTypeChecker
+            self.user._get_duplicate_count(channel_id=dict())
+
+        with self.assertRaises(LogicError):
+            # noinspection PyTypeChecker
+            self.user._get_duplicate_count()
 
 
 if __name__ == "__main__":

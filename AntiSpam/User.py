@@ -80,7 +80,7 @@ class User:
         self.bot = bot
         self.guild_id = int(guild_id)
         self._messages = []
-        self.options = options
+        self.options = deepcopy(options)
         self.in_guild = True  # Indicates if a user is in the guild or not
         self.warn_count = 0
         self.kick_count = 0
@@ -502,16 +502,22 @@ class User:
         finally:
             self.in_guild = True
 
-    def get_correct_duplicate_count(self):
+    def get_correct_duplicate_count(self, channel_id: int = None):
         """
         Given the internal math has an extra number cos
         accuracy this simply returns the correct value
 
+        Parameters
+        ----------
+        channel_id : int
+            The channel to get duplicate counters in
+
         Returns
         -------
-        self.duplicate_counter - 1
+        int
+            The correct duplicate count
         """
-        return self.duplicate_counter - 1
+        return self._get_duplicate_count(channel_id=channel_id)
 
     def clean_up(self, current_time):
         """
@@ -563,7 +569,50 @@ class User:
             # Just use the regular int, should save overhead
             # for those who dont use per_channel_spam
             self.duplicate_counter += amount
-            return
+
+        # We need a custom channel to save shit in
+        elif message.channel_id not in self.duplicate_channel_counter_dict:
+            self.duplicate_channel_counter_dict[message.channel_id] = (
+                amount + 1
+            )  # since we need an extra 1 by default
+
+        else:
+            self.duplicate_channel_counter_dict[message.channel_id] += amount
+
+    def _get_duplicate_count(
+        self, message: Message = None, channel_id: int = None
+    ) -> int:
+        """A helper method to get the correct duplicate counter based on settings"""
+        if message is not None and isinstance(message, Message):
+            channel_id = message.channel_id
+        elif channel_id is not None:
+            channel_id = int(channel_id)
+        else:
+            raise LogicError("Expected channel_id, not sure why this is None")
+
+        is_per_channel = self.options.get("per_channel_spam")
+        if not is_per_channel:
+            return self.duplicate_counter
+
+        if channel_id not in self.duplicate_channel_counter_dict:
+            return 1
+
+        else:
+            return self.duplicate_channel_counter_dict[channel_id]
+
+    def _remove_duplicate_count(self, message: Message, amount: int = 1):
+        """Used when cleaning the cache, to only lower the correct counter"""
+        is_per_channel = self.options.get("per_channel_spam")
+        if not is_per_channel:
+            self.duplicate_counter -= amount
+
+        elif message.channel_id not in self.duplicate_channel_counter_dict:
+            logging.warning(
+                "Failed to de-increment duplicate count as the channel id doesnt exist"
+            )
+
+        else:
+            self.duplicate_channel_counter_dict[message.channel_id] -= amount
 
     @property
     def id(self):
