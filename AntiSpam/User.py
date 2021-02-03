@@ -57,6 +57,7 @@ class User:
         "bot",
         "in_guild",
         "duplicate_counter",
+        "duplicate_channel_counter_dict",
     ]
 
     def __init__(self, bot, id, guild_id, options):
@@ -84,6 +85,7 @@ class User:
         self.warn_count = 0
         self.kick_count = 0
         self.duplicate_counter = 1
+        self.duplicate_channel_counter_dict = {}
 
     def __repr__(self):
         return (
@@ -190,6 +192,14 @@ class User:
                 raise DuplicateObject
 
             elif (
+                self.options.get("per_channel_spam")
+                and message.channel_id != message_obj.channel_id
+            ):
+                # This user's spam should only be counted per channel
+                # and these messages are in different channel
+                continue
+
+            elif (
                 fuzz.token_sort_ratio(message.content, message_obj.content)
                 >= self.options["message_duplicate_accuracy"]
             ):
@@ -197,7 +207,6 @@ class User:
                 The handler works off an internal message duplicate counter 
                 so just increment that and then let our logic process it
                 """
-                # TODFO
                 self.duplicate_counter += 1
                 message.is_duplicate = True
 
@@ -546,6 +555,15 @@ class User:
                 self.duplicate_counter -= 1
                 logging.debug(f"Removing duplicate Message: {outstanding_message.id}")
             logging.debug(f"Removing Message: {outstanding_message.id}")
+
+    def _increment_duplicate_count(self, message: Message, amount: int = 1):
+        """A helper method to increment the correct duplicate counter, global or not."""
+        is_per_channel = self.options.get("per_channel_spam")
+        if not is_per_channel:
+            # Just use the regular int, should save overhead
+            # for those who dont use per_channel_spam
+            self.duplicate_counter += amount
+            return
 
     @property
     def id(self):

@@ -128,6 +128,10 @@ class AntiSpamHandler:
             value from the ``propagate`` method. If should_be_punished_this_message
             is True then this package believes they should be punished.
             Otherwise just ignore that message since it shouldn't be punished.
+
+        per_channel_spam: False
+            Track spam as per channel,
+            rather then per guild.
     """
 
     # TODO Add options for group spamming, rather then just per member.
@@ -202,6 +206,9 @@ class AntiSpamHandler:
             Dont punish users?
             Return if they should be punished or
             not without actually punishing them
+        per_channel_spam : bool, optional
+            Track spam as per channel,
+            rather then per guild
         """
         # Just gotta casually ignore_type check everything.
         if not isinstance(
@@ -491,6 +498,9 @@ class AntiSpamHandler:
             Dont punish users?
             Return if they should be punished or
             not without actually punishing them
+        per_channel_spam : bool, optional
+            Track spam as per channel,
+            rather then per guild
 
         Warnings
         --------
@@ -674,6 +684,7 @@ class AntiSpamHandler:
         ignore_bots=None,
         warn_only=None,
         no_punish=None,
+        per_channel_spam=None,
     ):
         """
         Given the relevant arguments,
@@ -788,6 +799,9 @@ class AntiSpamHandler:
         if not isinstance(no_punish, bool) and no_punish is not None:
             raise ValueError("Expected no_punish of type bool")
 
+        if not isinstance(per_channel_spam, bool) and per_channel_spam is not None:
+            raise ValueError("Expected per_channel_spam of type bool")
+
         if warn_only and no_punish:
             raise BaseASHException(
                 "Cannot do BOTH warn_only and no_punish. Pick one and try again"
@@ -865,6 +879,8 @@ class AntiSpamHandler:
             "ignore_bots": ignore_bots,
             "warn_only": warn_only or Static.DEFAULTS.get("warn_only"),
             "no_punish": no_punish or Static.DEFAULTS.get("no_punish"),
+            "per_channel_spam": per_channel_spam
+            or Static.DEFAULTS.get("per_channel_spam"),
         }
 
     # <-- Getter & Setters -->

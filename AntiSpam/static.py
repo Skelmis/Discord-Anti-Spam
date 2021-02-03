@@ -57,6 +57,7 @@ class Static:
         "ignore_bots": True,
         "warn_only": False,
         "no_punish": False,
+        "per_channel_spam": False,
     }
     BAN = "ban"
     KICK = "kick"
