@@ -22,6 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 import logging
 import unittest
+import discord
 
 from discord.ext import commands
 
@@ -162,6 +163,9 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             AntiSpamHandler(False)
 
         AntiSpamHandler(commands.Bot(command_prefix="!"))
+        AntiSpamHandler(commands.AutoShardedBot(command_prefix="!"))
+        AntiSpamHandler(discord.Client())
+        AntiSpamHandler(discord.AutoShardedClient())
 
     async def test_warnThreshold(self):
         with self.assertRaises(ValueError):
