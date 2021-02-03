@@ -35,6 +35,10 @@ A short utility for random functions which don't fit into an object
 
 def embed_to_string(embed) -> str:
     """
+    Return the content of an embed,
+    built to only return fields the package
+    cares about for spam related issues
+
     Parameters
     ----------
     embed : discord.Embed
@@ -69,7 +73,7 @@ def embed_to_string(embed) -> str:
     return content
 
 
-def dict_to_embed(data, message, counts):
+def dict_to_embed(data, message, counts) -> discord.Embed:
     """
     Given a dictionary, will attempt to build a
     valid discord.Embed object to return

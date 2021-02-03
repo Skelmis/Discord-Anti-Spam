@@ -137,7 +137,16 @@ class AntiSpamHandler:
     #      and that's how it will be implemented internally most likely
     # TODO Add the ability to toggle dm messages for log messages (To affected users)
 
-    def __init__(self, bot: Union[commands.Bot, commands.AutoShardedBot, discord.Client, discord.AutoShardedClient], **kwargs):
+    def __init__(
+        self,
+        bot: Union[
+            commands.Bot,
+            commands.AutoShardedBot,
+            discord.Client,
+            discord.AutoShardedClient,
+        ],
+        **kwargs,
+    ):
         """
         This is the first initialization of the entire spam handler,
         this is also where the initial options are set
@@ -195,9 +204,18 @@ class AntiSpamHandler:
             not without actually punishing them
         """
         # Just gotta casually ignore_type check everything.
-        if not isinstance(bot, (commands.Bot, commands.AutoShardedBot, discord.Client,
-        discord.AutoShardedClient)) and not isinstance(bot, MagicMock):
-            raise ValueError("Expected bot of type commands.Bot, commands.AutoShardedBot, discord.Client or discord.AutoShardedClient")
+        if not isinstance(
+            bot,
+            (
+                commands.Bot,
+                commands.AutoShardedBot,
+                discord.Client,
+                discord.AutoShardedClient,
+            ),
+        ) and not isinstance(bot, MagicMock):
+            raise ValueError(
+                "Expected bot of type commands.Bot, commands.AutoShardedBot, discord.Client or discord.AutoShardedClient"
+            )
 
         self.options = self._ensure_options(**kwargs)
 
