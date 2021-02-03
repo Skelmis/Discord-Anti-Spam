@@ -22,6 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 import logging
 import unittest
+import discord
 
 from discord.ext import commands
 
