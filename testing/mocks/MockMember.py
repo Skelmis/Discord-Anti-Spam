@@ -11,7 +11,7 @@ def get_mocked_member(*, name=None, id=None, bot=False):
     Return a mocked, usable message object
     """
     name = name or "Mocked Member"
-    id = int(id) if id else 12345
+    id = int(id) if id or id == 0 else 12345
 
     mock = MagicMock(name="Member Mock")
     mock.id = id

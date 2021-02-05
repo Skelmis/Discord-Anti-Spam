@@ -517,7 +517,7 @@ class User:
         int
             The correct duplicate count
         """
-        return self._get_duplicate_count(channel_id=channel_id)
+        return self._get_duplicate_count(channel_id=channel_id) - 1
 
     def clean_up(self, current_time):
         """
@@ -583,16 +583,16 @@ class User:
         self, message: Message = None, channel_id: int = None
     ) -> int:
         """A helper method to get the correct duplicate counter based on settings"""
+        is_per_channel = self.options.get("per_channel_spam")
+        if not is_per_channel:
+            return self.duplicate_counter
+
         if message is not None and isinstance(message, Message):
             channel_id = message.channel_id
         elif channel_id is not None:
             channel_id = int(channel_id)
         else:
-            raise LogicError("Expected channel_id, not sure why this is None")
-
-        is_per_channel = self.options.get("per_channel_spam")
-        if not is_per_channel:
-            return self.duplicate_counter
+            raise LogicError("Both message and channel_id are none, weird.")
 
         if channel_id not in self.duplicate_channel_counter_dict:
             return 1

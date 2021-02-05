@@ -28,6 +28,7 @@ from AntiSpam.User import User
 from AntiSpam.Message import Message
 from AntiSpam.static import Static
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch, LogicError
+from testing.mocks.MockMessage import get_mocked_message
 
 
 class TestUser(unittest.IsolatedAsyncioTestCase):
@@ -143,11 +144,13 @@ class TestUser(unittest.IsolatedAsyncioTestCase):
 
         self.user.options["per_channel_spam"] = True
         self.assertEqual(self.user.duplicate_channel_counter_dict, dict())
+        print(self.user.duplicate_channel_counter_dict)
 
         self.user._increment_duplicate_count(Message(2, "A test message", 0, 2, 3))
-        self.assertEqual(self.user.duplicate_channel_counter_dict, {2: 1})
+        print(self.user.duplicate_channel_counter_dict)
+        self.assertEqual(self.user.duplicate_channel_counter_dict, {2: 2})
         self.user._increment_duplicate_count(Message(2, "A test message", 0, 2, 3), 2)
-        self.assertEqual(self.user.duplicate_channel_counter_dict, {2: 3})
+        self.assertEqual(self.user.duplicate_channel_counter_dict, {2: 4})
 
     async def test__get_duplicate_count(self):
         result = self.user._get_duplicate_count(Message(3, "A test message", 0, 2, 3))
@@ -177,6 +180,29 @@ class TestUser(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(LogicError):
             # noinspection PyTypeChecker
             self.user._get_duplicate_count()
+
+    async def test__remove_duplicate_count(self):
+        self.assertEqual(self.user.duplicate_counter, 1)
+        self.user._remove_duplicate_count(Message(2, "A test message", 0, 2, 3))
+        self.assertEqual(self.user.duplicate_counter, 0)
+
+        self.user.options["per_channel_spam"] = True
+        msg = Message(2, "A test message", 0, 2, 3)
+        self.user._increment_duplicate_count(msg)
+        self.user._increment_duplicate_count(msg)
+        self.assertEqual(self.user._get_duplicate_count(msg), 3)
+
+    async def test_propagate(self):
+        m = get_mocked_message(
+            message_id=0, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
+        )
+        # TODO Use AsyncMock or Monkeypatch __await__
+        for i in range(5):
+            await self.user.propagate(
+                get_mocked_message(
+                    message_id=i, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
+                )
+            )
 
 
 if __name__ == "__main__":
