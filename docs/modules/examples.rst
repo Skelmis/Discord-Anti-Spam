@@ -24,7 +24,7 @@ Super duper basic bot
 
     @bot.event
     async def on_message(message):
-        bot.handler.propagate(message)
+        await bot.handler.propagate(message)
         await bot.process_commands(message)
 
 
