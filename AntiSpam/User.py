@@ -624,7 +624,13 @@ class User:
             logging.debug(f"Removing Message: {outstanding_message.id}")
 
     def _increment_duplicate_count(self, message: Message, amount: int = 1):
-        """A helper method to increment the correct duplicate counter, global or not."""
+        """A helper method to increment the correct duplicate counter, global or not.
+        
+        Warnings
+        --------
+        This is not yet implemented yet. You shouldn't
+        be touching this class yourself anyway but still.
+        """
         is_per_channel = self.options.get("per_channel_spam")
         if not is_per_channel:
             # Just use the regular int, should save overhead
@@ -643,7 +649,13 @@ class User:
     def _get_duplicate_count(
         self, message: Message = None, channel_id: int = None
     ) -> int:
-        """A helper method to get the correct duplicate counter based on settings"""
+        """A helper method to get the correct duplicate counter based on settings
+        
+        Warnings
+        --------
+        This is not yet implemented yet. You shouldn't
+        be touching this class yourself anyway but still.
+        """
         is_per_channel = self.options.get("per_channel_spam")
         if not is_per_channel:
             return self.duplicate_counter
@@ -662,7 +674,13 @@ class User:
             return self.duplicate_channel_counter_dict[channel_id]
 
     def _remove_duplicate_count(self, message: Message, amount: int = 1):
-        """Used when cleaning the cache, to only lower the correct counter"""
+        """Used when cleaning the cache, to only lower the correct counter
+        
+        Warnings
+        --------
+        This is not yet implemented yet. You shouldn't
+        be touching this class yourself anyway but still.
+        """
         is_per_channel = self.options.get("per_channel_spam")
         if not is_per_channel:
             self.duplicate_counter -= amount
