@@ -39,7 +39,7 @@ from AntiSpam.Exceptions import (
     MissingGuildPermissions,
 )
 from AntiSpam.static import Static
-from AntiSpam.Util import embed_to_string, send_to_obj, transform_message
+from AntiSpam.Util import embed_to_string, transform_message
 
 
 class User:
@@ -256,7 +256,10 @@ class User:
                     {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
                 try:
-                    await send_to_obj(channel, guild_message)
+                    if isinstance(guild_message, discord.Embed):
+                        await channel.send(embed=guild_message)
+                    else:
+                        await channel.send(guild_message)
                 except Exception as e:
                     self.warn_count -= 1
                     raise e
@@ -398,11 +401,13 @@ class User:
         try:
             # Attempt to message the punished member, about their punishment
             try:
-                m = await send_to_obj(member, user_message)
+                if isinstance(user_message, discord.Embed):
+                    m = await member.send(embed=user_message)
+                else:
+                    m = await member.send(user_message)
             except discord.HTTPException:
-                await send_to_obj(
-                    dc_channel,
-                    f"Sending a message to {member.mention} about their {method} failed.",
+                await dc_channel.send(
+                    f"Sending a message to {member.mention} about their {method} failed."
                 )
                 logging.warning(f"Failed to message User: ({member.id}) about {method}")
             finally:
@@ -425,9 +430,8 @@ class User:
                 except discord.Forbidden:
                     self.in_guild = True
                     self.kick_count -= 1
-                    await send_to_obj(
-                        dc_channel,
-                        f"I do not have permission to kick: {member.mention}",
+                    await dc_channel.send(
+                        f"I do not have permission to kick: {member.mention}"
                     )
                     logging.warning(f"Required Permissions are missing for: {method}")
                     if m is not None:
@@ -449,17 +453,17 @@ class User:
                                     "kick_count": self.kick_count,
                                 },
                             )
-                        await send_to_obj(
-                            member, user_failed_message,
-                        )
+                        if isinstance(user_failed_message, discord.Embed):
+                            await member.send(embed=user_failed_message)
+                        else:
+                            await member.send(user_failed_message)
                         await m.delete()
 
                 except discord.HTTPException:
                     self.in_guild = True
                     self.kick_count -= 1
-                    await send_to_obj(
-                        dc_channel,
-                        f"An error occurred trying to {method}: {member.mention}",
+                    await dc_channel.send(
+                        f"An error occurred trying to {method}: {member.mention}"
                     )
                     logging.warning(
                         f"An error occurred trying to {method}: {member.id}"
@@ -483,14 +487,18 @@ class User:
                                     "kick_count": self.kick_count,
                                 },
                             )
-                        await send_to_obj(
-                            member, user_failed_message,
-                        )
+                        if isinstance(user_failed_message, discord.Embed):
+                            await member.send(embed=user_failed_message)
+                        else:
+                            await member.send(user_failed_message)
                         await m.delete()
 
                 else:
                     try:
-                        await send_to_obj(dc_channel, guild_message)
+                        if isinstance(guild_message, discord.Embed):
+                            await dc_channel.send(embed=guild_message)
+                        else:
+                            await dc_channel.send(guild_message)
                     except discord.HTTPException:
                         logging.error(
                             f"Failed to send message.\n"

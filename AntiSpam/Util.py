@@ -213,37 +213,3 @@ def transform_message(item, value, counts):
         return substitute_args(item, value, counts)
 
     return dict_to_embed(deepcopy(item), value, counts)
-
-
-async def send_to_obj(messageable_obj, message) -> discord.Message:
-    """
-    Send a given message to an abc.messageable object
-
-    This does not handle exceptions, they should be handled
-    on call as I did not want to overdo this method with
-    the required params to notify users.
-
-    Parameters
-    ----------
-    messageable_obj : abc.Messageable
-        Where to send message
-    message : str, dict
-        The message to send
-        Can either be a straight string or a discord.Embed
-
-    Raises
-    ------
-    discord.HTTPException
-        Failed to send
-    discord.Forbidden
-        Lacking permissions to send
-
-    Returns
-    =======
-    discord.Message
-        The sent messages object
-
-    """
-    if isinstance(message, discord.Embed):
-        return await messageable_obj.send(embed=message)
-    return await messageable_obj.send(message)
