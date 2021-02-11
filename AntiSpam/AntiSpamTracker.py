@@ -166,6 +166,9 @@ class AntiSpamTracker:
         if not isinstance(data, dict):
             raise TypeError("Expected data of type: dict")
 
+        if not message.guild:
+            return
+
         user_id = message.author.id
         guild_id = message.guild.id
         timestamp = datetime.datetime.now(datetime.timezone.utc)

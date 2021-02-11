@@ -64,6 +64,11 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
     async def test_updateCache(self):
         ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 3)
 
+        ast.update_cache(
+            get_mocked_message(is_in_guild=False),
+            {"should_be_punished_this_message": True},
+        )
+
         self.assertEqual(False, bool(ast.user_tracking))
         ast.update_cache(
             get_mocked_message(), {"should_be_punished_this_message": True}
