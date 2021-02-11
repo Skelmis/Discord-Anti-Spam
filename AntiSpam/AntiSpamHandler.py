@@ -132,6 +132,21 @@ class AntiSpamHandler:
         per_channel_spam: False
             Track spam as per channel,
             rather then per guild.
+            
+        guild_warn_message_delete_after: None
+            The time to delete the ``guild_warn_message`` message
+            
+        user_kick_message_delete_after: None
+            The time to delete the ``user_kick_message`` message
+            
+        guild_kick_message_delete_after: None
+            The time to delete the ``guild_kick_message`` message
+            
+        user_ban_message_delete_after: None
+            The time to delete the ``user_ban_message`` message
+            
+        guild_ban_message_delete_after: None
+            The time to delete the ``guild_ban_message`` message
     """
 
     # TODO Add options for group spamming, rather then just per member.
@@ -209,6 +224,16 @@ class AntiSpamHandler:
         per_channel_spam : bool, optional
             Track spam as per channel,
             rather then per guild
+        guild_warn_message_delete_after : int, optional
+            The time to delete the ``guild_warn_message`` message
+        user_kick_message_delete_after : int, optional
+            The time to delete the ``user_kick_message`` message
+        guild_kick_message_delete_after : int, optional
+            The time to delete the ``guild_kick_message`` message
+        user_ban_message_delete_after : int, optional
+            The time to delete the ``user_ban_message`` message
+        guild_ban_message_delete_after : int, optional
+            The time to delete the ``guild_ban_message`` message
         """
         # Just gotta casually ignore_type check everything.
         if not isinstance(
@@ -501,6 +526,16 @@ class AntiSpamHandler:
         per_channel_spam : bool, optional
             Track spam as per channel,
             rather then per guild
+        guild_warn_message_delete_after : int, optional
+            The time to delete the ``guild_warn_message`` message
+        user_kick_message_delete_after : int, optional
+            The time to delete the ``user_kick_message`` message
+        guild_kick_message_delete_after : int, optional
+            The time to delete the ``guild_kick_message`` message
+        user_ban_message_delete_after : int, optional
+            The time to delete the ``user_ban_message`` message
+        guild_ban_message_delete_after : int, optional
+            The time to delete the ``guild_ban_message`` message
 
         Warnings
         --------
@@ -685,6 +720,11 @@ class AntiSpamHandler:
         warn_only=None,
         no_punish=None,
         per_channel_spam=None,
+        guild_warn_message_delete_after=None,
+        user_kick_message_delete_after=None,
+        guild_kick_message_delete_after=None,
+        user_ban_message_delete_after=None,
+        guild_ban_message_delete_after=None,
     ):
         """
         Given the relevant arguments,
@@ -802,6 +842,36 @@ class AntiSpamHandler:
         if not isinstance(per_channel_spam, bool) and per_channel_spam is not None:
             raise ValueError("Expected per_channel_spam of type bool")
 
+        if (
+            not isinstance(guild_warn_message_delete_after, int)
+            and guild_warn_message_delete_after is not None
+        ):
+            raise ValueError("Expected guild_warn_message_delete_after of type int")
+
+        if (
+            not isinstance(user_kick_message_delete_after, int)
+            and user_kick_message_delete_after is not None
+        ):
+            raise ValueError("Expected user_kick_message_delete_after of type int")
+
+        if (
+            not isinstance(guild_kick_message_delete_after, int)
+            and guild_kick_message_delete_after is not None
+        ):
+            raise ValueError("Expected guild_kick_message_delete_after of type int")
+
+        if (
+            not isinstance(user_ban_message_delete_after, int)
+            and user_ban_message_delete_after is not None
+        ):
+            raise ValueError("Expected user_ban_message_delete_after of type int")
+
+        if (
+            not isinstance(guild_ban_message_delete_after, int)
+            and guild_ban_message_delete_after is not None
+        ):
+            raise ValueError("Expected guild_ban_message_delete_after of type int")
+
         if warn_only and no_punish:
             raise BaseASHException(
                 "Cannot do BOTH warn_only and no_punish. Pick one and try again"
@@ -881,6 +951,16 @@ class AntiSpamHandler:
             "no_punish": no_punish or Static.DEFAULTS.get("no_punish"),
             "per_channel_spam": per_channel_spam
             or Static.DEFAULTS.get("per_channel_spam"),
+            "guild_warn_message_delete_after": guild_warn_message_delete_after
+            or Static.DEFAULTS.get("guild_warn_message_delete_after"),
+            "user_kick_message_delete_after": user_kick_message_delete_after
+            or Static.DEFAULTS.get("user_kick_message_delete_after"),
+            "guild_kick_message_delete_after": guild_kick_message_delete_after
+            or Static.DEFAULTS.get("guild_kick_message_delete_after"),
+            "user_ban_message_delete_after": user_ban_message_delete_after
+            or Static.DEFAULTS.get("user_ban_message_delete_after"),
+            "guild_ban_message_delete_after": guild_ban_message_delete_after
+            or Static.DEFAULTS.get("guild_ban_message_delete_after"),
         }
 
     # <-- Getter & Setters -->

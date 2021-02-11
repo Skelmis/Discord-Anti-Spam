@@ -257,9 +257,19 @@ class User:
                 )
                 try:
                     if isinstance(guild_message, discord.Embed):
-                        await channel.send(embed=guild_message)
+                        await channel.send(
+                            embed=guild_message,
+                            delete_after=self.options.get(
+                                "guild_warn_message_delete_after"
+                            ),
+                        )
                     else:
-                        await channel.send(guild_message)
+                        await channel.send(
+                            guild_message,
+                            delete_after=self.options.get(
+                                "guild_warn_message_delete_after"
+                            ),
+                        )
                 except Exception as e:
                     self.warn_count -= 1
                     raise e
@@ -288,7 +298,12 @@ class User:
                     {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
                 await self._punish_user(
-                    value, user_message, guild_message, Static.KICK,
+                    value,
+                    user_message,
+                    guild_message,
+                    Static.KICK,
+                    self.options.get("user_kick_message_delete_after"),
+                    self.options.get("guild_kick_message_delete_after"),
                 )
                 return_data["was_kicked"] = True
                 return_data["status"] = "User was kicked."
@@ -311,7 +326,12 @@ class User:
                     {"warn_count": self.warn_count, "kick_count": self.kick_count},
                 )
                 await self._punish_user(
-                    value, user_message, guild_message, Static.BAN,
+                    value,
+                    user_message,
+                    guild_message,
+                    Static.BAN,
+                    self.options.get("user_ban_message_delete_after"),
+                    self.options.get("guild_ban_message_delete_after"),
                 )
 
                 return_data["was_banned"] = True
@@ -325,7 +345,15 @@ class User:
         return_data["duplicate_counter"] = self.get_correct_duplicate_count()
         return return_data
 
-    async def _punish_user(self, value, user_message, guild_message, method):
+    async def _punish_user(
+        self,
+        value,
+        user_message,
+        guild_message,
+        method,
+        user_delete_after=None,
+        channel_delete_after=None,
+    ):
         """
         A generic method to handle multiple methods of punishment for a user.
 
@@ -341,6 +369,12 @@ class User:
             A message to send in the guild for whoever is being punished
         method : str
             A string denoting the ignore_type of punishment
+        user_delete_after : int, optional
+            An int value denoting the time to 
+            delete user sent messages after
+        channel_delete_after : int, optional
+            An int value denoting the time to
+            delete channel sent messages after
 
         Raises
         ======
@@ -402,12 +436,15 @@ class User:
             # Attempt to message the punished member, about their punishment
             try:
                 if isinstance(user_message, discord.Embed):
-                    m = await member.send(embed=user_message)
+                    m = await member.send(
+                        embed=user_message, delete_after=user_delete_after
+                    )
                 else:
-                    m = await member.send(user_message)
+                    m = await member.send(user_message, delete_after=user_delete_after)
             except discord.HTTPException:
                 await dc_channel.send(
-                    f"Sending a message to {member.mention} about their {method} failed."
+                    f"Sending a message to {member.mention} about their {method} failed.",
+                    delete_after=channel_delete_after,
                 )
                 logging.warning(f"Failed to message User: ({member.id}) about {method}")
             finally:
@@ -431,7 +468,8 @@ class User:
                     self.in_guild = True
                     self.kick_count -= 1
                     await dc_channel.send(
-                        f"I do not have permission to kick: {member.mention}"
+                        f"I do not have permission to kick: {member.mention}",
+                        delete_after=channel_delete_after,
                     )
                     logging.warning(f"Required Permissions are missing for: {method}")
                     if m is not None:
@@ -454,16 +492,22 @@ class User:
                                 },
                             )
                         if isinstance(user_failed_message, discord.Embed):
-                            await member.send(embed=user_failed_message)
+                            await member.send(
+                                embed=user_failed_message,
+                                delete_after=user_delete_after,
+                            )
                         else:
-                            await member.send(user_failed_message)
+                            await member.send(
+                                user_failed_message, delete_after=user_delete_after,
+                            )
                         await m.delete()
 
                 except discord.HTTPException:
                     self.in_guild = True
                     self.kick_count -= 1
                     await dc_channel.send(
-                        f"An error occurred trying to {method}: {member.mention}"
+                        f"An error occurred trying to {method}: {member.mention}",
+                        delete_after=channel_delete_after,
                     )
                     logging.warning(
                         f"An error occurred trying to {method}: {member.id}"
@@ -488,17 +532,26 @@ class User:
                                 },
                             )
                         if isinstance(user_failed_message, discord.Embed):
-                            await member.send(embed=user_failed_message)
+                            await member.send(
+                                embed=user_failed_message,
+                                delete_after=user_delete_after,
+                            )
                         else:
-                            await member.send(user_failed_message)
+                            await member.send(
+                                user_failed_message, delete_after=user_delete_after,
+                            )
                         await m.delete()
 
                 else:
                     try:
                         if isinstance(guild_message, discord.Embed):
-                            await dc_channel.send(embed=guild_message)
+                            await dc_channel.send(
+                                embed=guild_message, delete_after=channel_delete_after,
+                            )
                         else:
-                            await dc_channel.send(guild_message)
+                            await dc_channel.send(
+                                guild_message, delete_after=channel_delete_after,
+                            )
                     except discord.HTTPException:
                         logging.error(
                             f"Failed to send message.\n"

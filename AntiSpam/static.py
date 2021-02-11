@@ -58,6 +58,11 @@ class Static:
         "warn_only": False,
         "no_punish": False,
         "per_channel_spam": False,
+        "guild_warn_message_delete_after": None,
+        "user_kick_message_delete_after": None,
+        "guild_kick_message_delete_after": None,
+        "user_ban_message_delete_after": None,
+        "guild_ban_message_delete_after": None,
     }
     BAN = "ban"
     KICK = "kick"
