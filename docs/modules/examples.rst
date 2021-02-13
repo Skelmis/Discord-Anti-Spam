@@ -24,7 +24,7 @@ Super duper basic bot
 
     @bot.event
     async def on_message(message):
-        bot.handler.propagate(message)
+        await bot.handler.propagate(message)
         await bot.process_commands(message)
 
 
@@ -51,7 +51,7 @@ How to use templating in a string
 
     @bot.event
     async def on_message(message):
-        bot.handler.propagate(message)
+        await bot.handler.propagate(message)
         await bot.process_commands(message)
 
     if __name__ == "__main__":
@@ -91,7 +91,7 @@ How to use templating in embeds
 
     @bot.event
     async def on_message(message):
-        bot.handler.propagate(message)
+        await bot.handler.propagate(message)
         await bot.process_commands(message)
 
     if __name__ == "__main__":
