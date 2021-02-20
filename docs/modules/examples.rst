@@ -69,7 +69,7 @@ Cog Based Usage
     class AntiSpamCog(commands.Cog):
         def __init__(self, bot):
             self.bot = bot
-            self.bot.handler = AntiSpamHandler(bot)
+            self.bot.handler = AntiSpamHandler(self.bot)
 
         @commands.Cog.listener()
         async def on_ready():
@@ -78,7 +78,6 @@ Cog Based Usage
         @commands.Cog.listener()
         async def on_message(message):
             await self.bot.handler.propagate(message)
-            await bot.process_commands(message)
 
     def setup(bot):
         bot.add_cog(AntiSpamCog(bot))
