@@ -191,18 +191,70 @@ class TestUser(unittest.IsolatedAsyncioTestCase):
         self.user._increment_duplicate_count(msg)
         self.assertEqual(self.user._get_duplicate_count(msg), 3)
 
-    @unittest.expectedFailure
-    async def test_propagate(self):
+    async def test_propagatePunish(self):
+        """Checks the propagate method tries to punish at correct times"""
         m = get_mocked_message(
             message_id=0, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
         )
-        # TODO Use AsyncMock or Monkeypatch __await__
-        for i in range(5):
-            await self.user.propagate(
-                get_mocked_message(
-                    message_id=i, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-                )
+        data = await self.user.propagate(m)
+        self.assertEqual(data["should_be_punished_this_message"], False)
+
+        m = get_mocked_message(
+            message_id=1, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
+        )
+        data = await self.user.propagate(m)
+        self.assertEqual(data["should_be_punished_this_message"], False)
+
+        m = get_mocked_message(
+            message_id=2, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
+        )
+        data = await self.user.propagate(m)
+        self.assertEqual(data["should_be_punished_this_message"], False)
+
+        m = get_mocked_message(
+            message_id=3, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
+        )
+        data = await self.user.propagate(m)
+        self.assertEqual(data["should_be_punished_this_message"], True)
+
+        m = get_mocked_message(
+            message_id=4, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
+        )
+        data = await self.user.propagate(m)
+        self.assertEqual(data["should_be_punished_this_message"], True)
+
+    async def test_propagateWarn(self):
+        """Tests it warns for the correct amount"""
+        for i in range(3):
+            m = get_mocked_message(
+                message_id=i, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
             )
+            data = await self.user.propagate(m)
+
+        # Shouldn't be punished yet. But one off
+        self.assertEqual(data["should_be_punished_this_message"], False)
+
+        m = get_mocked_message(
+            message_id=4, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
+        )
+        data = await self.user.propagate(m)
+        self.assertEqual(data["should_be_punished_this_message"], True)
+        self.assertEqual(data["was_warned"], True)
+
+        m = get_mocked_message(
+            message_id=5, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
+        )
+        data = await self.user.propagate(m)
+        self.assertEqual(data["should_be_punished_this_message"], True)
+        self.assertEqual(data["was_warned"], True)
+
+        # TODO Fix this, it fails cos its cooooool
+        m = get_mocked_message(
+            message_id=6, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
+        )
+        data = await self.user.propagate(m)
+        self.assertEqual(data["should_be_punished_this_message"], False)
+        self.assertEqual(data["was_warned"], True)
 
 
 if __name__ == "__main__":

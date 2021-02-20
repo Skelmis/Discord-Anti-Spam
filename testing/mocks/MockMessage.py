@@ -54,6 +54,7 @@ def get_mocked_message(
     mock_message.created_at = datetime.datetime.now()
 
     mock_message.id = message_id or 12341234
-    mock_message.clean_content = message_content or "This is the message content"
+    mock_message.clean_content = message_content or "This is the clean message content"
+    mock_message.content = message_content or "This is the message content"
 
     return mock_message

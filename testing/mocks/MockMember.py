@@ -1,14 +1,17 @@
 """
 This 'mocks' a discord.Member so we can use it for testing
 """
+import discord
 from unittest.mock import AsyncMock
+
+from discord.ext import commands
 
 from testing.mocks.MockRole import get_mocked_role
 
 
 def get_mocked_member(*, name=None, id=None, bot=False):
     """
-    Return a mocked, usable message object
+    Return a mocked, usable member object
     """
     name = name or "Mocked Member"
     id = int(id) if id or id == 0 else 12345
@@ -26,7 +29,7 @@ def get_mocked_member(*, name=None, id=None, bot=False):
 
 def get_mocked_user(*, name=None, id=None, bot=False):
     """
-    Return a mocked, usable message object
+    Return a mocked, usable user object
     """
     name = name or "Mocked Member"
     id = int(id) if id else 12345

@@ -489,7 +489,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         ash = AntiSpamHandler(
             get_mocked_member(name="bot", id="87678"), ignore_roles=[151515]
         )
-
+        print(get_mocked_bot().user.id)
         result = await ash.propagate(get_mocked_message())
 
         self.assertEqual(result["status"], "Ignoring this role: 151515")
