@@ -57,6 +57,32 @@ How to use templating in a string
     if __name__ == "__main__":
         bot.run("Bot Token")
 
+Cog Based Usage
+---------------
+
+.. code-block:: python
+    :linenos:
+
+    from discord.ext import commands
+    from AntiSpam import AntiSpamHandler
+
+    class AntiSpamCog(commands.Cog):
+        def __init__(self, bot):
+            self.bot = bot
+            self.bot.handler = AntiSpamHandler(bot)
+
+        @commands.Cog.listener()
+        async def on_ready():
+            print("AntiSpamCog is ready!\n-----\n")
+
+        @commands.Cog.listener()
+        async def on_message(message):
+            await self.bot.handler.propagate(message)
+            await bot.process_commands(message)
+
+    def setup(bot):
+        bot.add_cog(AntiSpamCog(bot))
+
 
 How to use templating in embeds
 -------------------------------

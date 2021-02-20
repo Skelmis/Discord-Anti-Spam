@@ -752,3 +752,6 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(data[2]["should_be_punished_this_message"], False)
         self.assertEqual(data[3]["should_be_punished_this_message"], True)
         self.assertEqual(data[5]["should_be_punished_this_message"], True)
+
+
+# TODO test delete_after options
