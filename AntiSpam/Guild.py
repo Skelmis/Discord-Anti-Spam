@@ -24,7 +24,7 @@ LICENSE
 """
 import logging
 from copy import deepcopy
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 
 import discord
 
@@ -137,7 +137,7 @@ class Guild:
             A dictionary of useful information about the user in question
         """
         if not isinstance(message, discord.Message) and not isinstance(
-            message, MagicMock
+            message, AsyncMock
         ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 

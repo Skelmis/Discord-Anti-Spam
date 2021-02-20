@@ -25,7 +25,7 @@ LICENSE
 import logging
 from copy import deepcopy
 from typing import Optional, Union
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 
 import discord
 from discord.ext import commands
@@ -244,7 +244,7 @@ class AntiSpamHandler:
                 discord.Client,
                 discord.AutoShardedClient,
             ),
-        ) and not isinstance(bot, MagicMock):
+        ) and not isinstance(bot, AsyncMock):
             raise ValueError(
                 "Expected bot of type commands.Bot, commands.AutoShardedBot, discord.Client or discord.AutoShardedClient"
             )
@@ -275,7 +275,7 @@ class AntiSpamHandler:
             A dictionary of useful information about the user in question
         """
         if not isinstance(message, discord.Message) and not isinstance(
-            message, MagicMock
+            message, AsyncMock
         ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 

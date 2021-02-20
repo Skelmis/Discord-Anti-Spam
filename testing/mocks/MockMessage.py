@@ -2,7 +2,7 @@
 This 'mocks' a discord.Message so we can use it for testing
 """
 import datetime
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 
 from testing.mocks.MockGuild import get_mocked_guild
 from testing.mocks.MockMember import get_mocked_member, get_mocked_bot
@@ -20,7 +20,7 @@ def get_mocked_message(
     """
     Return a mocked, usable message object
     """
-    mock_message = MagicMock(name="Message Mock")
+    mock_message = AsyncMock(name="Message Mock")
     if member_kwargs:
         if member_kwargs.get("bot") is True:
             mem_id = member_kwargs.get("id")

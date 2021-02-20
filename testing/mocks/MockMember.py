@@ -1,7 +1,7 @@
 """
 This 'mocks' a discord.Member so we can use it for testing
 """
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 
 from testing.mocks.MockRole import get_mocked_role
 
@@ -13,7 +13,7 @@ def get_mocked_member(*, name=None, id=None, bot=False):
     name = name or "Mocked Member"
     id = int(id) if id or id == 0 else 12345
 
-    mock = MagicMock(name="Member Mock")
+    mock = AsyncMock(name="Member Mock")
     mock.id = id
     mock.display_name = name
     mock.mention = f"<@{id}>"
@@ -31,7 +31,7 @@ def get_mocked_user(*, name=None, id=None, bot=False):
     name = name or "Mocked Member"
     id = int(id) if id else 12345
 
-    mock = MagicMock(name="Member Mock")
+    mock = AsyncMock(name="Member Mock")
     mock.id = id
     mock.display_name = name
     mock.mention = f"<@{id}>"
@@ -41,7 +41,7 @@ def get_mocked_user(*, name=None, id=None, bot=False):
 
 
 def get_mocked_bot(*, name=None, id=None):
-    mock = MagicMock(name="Bot Mock")
+    mock = AsyncMock(name="Bot Mock")
     name = name or "Mocked Bot"
     id = int(id) if id else 98987
 

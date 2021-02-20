@@ -25,7 +25,7 @@ LICENSE
 import datetime
 import logging
 from copy import deepcopy
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 
 import discord
 
@@ -160,7 +160,7 @@ class AntiSpamTracker:
         data : dict
             The data returned from `propagate`
         """
-        if not isinstance(message, (discord.Message, MagicMock)):
+        if not isinstance(message, (discord.Message, AsyncMock)):
             raise TypeError("Expected message of type: discord.Message")
 
         if not isinstance(data, dict):
@@ -211,7 +211,7 @@ class AntiSpamTracker:
             The User for the ``message`` could not be found
 
         """
-        if not isinstance(message, (discord.Message, MagicMock)):
+        if not isinstance(message, (discord.Message, AsyncMock)):
             raise TypeError("Expected message of type: discord.Message")
 
         user_id = message.author.id
@@ -295,7 +295,7 @@ class AntiSpamTracker:
         be somewhat obvious reasons. (They shouldn't
         exist after this method finishes)
         """
-        if not isinstance(message, (discord.Message, MagicMock)):
+        if not isinstance(message, (discord.Message, AsyncMock)):
             raise TypeError("Expected message of type: discord.Message")
 
         user_id = message.author.id
@@ -377,7 +377,7 @@ class AntiSpamTracker:
             True if the User is spamming else False
 
         """
-        if not isinstance(message, (discord.Message, MagicMock)):
+        if not isinstance(message, (discord.Message, AsyncMock)):
             raise TypeError("Expected message of type: discord.Message")
 
         try:

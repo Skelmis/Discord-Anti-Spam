@@ -1,7 +1,7 @@
 """
 This 'mocks' a discord.Guild so we can use it for testing
 """
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 
 from testing.mocks.MockMember import get_mocked_member
 
@@ -13,7 +13,7 @@ def get_mocked_guild(*, name=None, id=None):
     name = name or "Mocked Guild"
     id = int(id) if id else 123456789
 
-    mock = MagicMock(name="Guild Mock")
+    mock = AsyncMock(name="Guild Mock")
     mock.id = id
     mock.name = name
     mock.mention = f"<@{id}>"

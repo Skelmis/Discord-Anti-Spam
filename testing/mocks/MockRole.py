@@ -1,7 +1,7 @@
 """
 This 'mocks' a discord.Role so we can use it for testing
 """
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock
 
 
 def get_mocked_role(*, name=None, id=None):
@@ -11,7 +11,7 @@ def get_mocked_role(*, name=None, id=None):
     name = name or "Mocked Role"
     id = int(id) if id else 151515
 
-    mock = MagicMock(name="Role Mock")
+    mock = AsyncMock(name="Role Mock")
     mock.id = id
     mock.name = name
     mock.mention = f"<@&{id}>"
