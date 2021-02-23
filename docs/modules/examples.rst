@@ -72,11 +72,11 @@ Cog Based Usage
             self.bot.handler = AntiSpamHandler(self.bot)
 
         @commands.Cog.listener()
-        async def on_ready():
+        async def on_ready(self):
             print("AntiSpamCog is ready!\n-----\n")
 
         @commands.Cog.listener()
-        async def on_message(message):
+        async def on_message(self, message):
             await self.bot.handler.propagate(message)
 
     def setup(bot):
