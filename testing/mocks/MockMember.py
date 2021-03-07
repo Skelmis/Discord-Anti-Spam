@@ -23,6 +23,7 @@ def get_mocked_member(*, name=None, id=None, bot=False):
     mock.bot = bot
 
     mock.roles = [get_mocked_role(), get_mocked_role(name="test role 2", id=252525)]
+    mock.top_role.position = 5
 
     return mock
 

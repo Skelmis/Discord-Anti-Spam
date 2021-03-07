@@ -248,13 +248,13 @@ class TestUser(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(data["should_be_punished_this_message"], True)
         self.assertEqual(data["was_warned"], True)
 
-        # TODO Fix this, it fails cos its cooooool
         m = get_mocked_message(
             message_id=6, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
         )
         data = await self.user.propagate(m)
-        self.assertEqual(data["should_be_punished_this_message"], False)
-        self.assertEqual(data["was_warned"], True)
+        self.assertEqual(data["should_be_punished_this_message"], True)
+        self.assertEqual(data["was_warned"], False)
+        self.assertEqual(data["was_kicked"], True)
 
 
 if __name__ == "__main__":
