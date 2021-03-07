@@ -21,6 +21,6 @@ def get_mocked_guild(*, name=None, id=None):
     mock.mention = f"<@{id}>"
 
     mock.me = get_mocked_member(name="Bot", id=54321)
-    mock.me.top_role.position = 1
+    mock.me.top_role.position = 100 # Bot should have higher role by default
 
     return mock

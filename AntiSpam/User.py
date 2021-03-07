@@ -147,7 +147,7 @@ class User:
         value : discord.Message
             The message that needs to be propagated out
         """
-        if not isinstance(value, discord.Message) and not isinstance(value, AsyncMock):
+        if not isinstance(value, (discord.Message, AsyncMock)):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
         # Setup our return values for the end user to use
