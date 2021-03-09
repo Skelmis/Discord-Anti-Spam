@@ -43,5 +43,5 @@ def get_mocked_channel(*, name=None, id=None):
     return mock
 
 
-#print(MockedChannel().to_mock().id)
-#print(get_mocked_channel().id)
+# print(MockedChannel().to_mock().id)
+# print(get_mocked_channel().id)

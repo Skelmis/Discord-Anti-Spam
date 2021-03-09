@@ -153,6 +153,9 @@ Custom Punishments
         if bot.tracker.is_spamming(message):
           # Do things like mute the user
 
+          # Reset the spam counter
+          bot.tracker.remove_punishments(message)
+
         await bot.process_commands(message)
 
     if __name__ == "__main__":
