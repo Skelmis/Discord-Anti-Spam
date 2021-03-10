@@ -14,7 +14,7 @@ logging for discord.py and any other modules which use it.
     :linenos:
 
     logging.basicConfig(
-        format="%(asctime)s | %(levelname)s | %(module)s | %(message)s",
+        format="%(levelname)s | %(asctime)s | %(module)s | %(message)s",
         datefmt="%d/%m/%Y %I:%M:%S %p",
         level=logging.INFO,
     )
@@ -33,7 +33,7 @@ A more full example,
     from jsonLoader import read_json
 
     logging.basicConfig(
-        format="%(asctime)s | %(levelname)s | %(module)s | %(message)s",
+        format="%(levelname)s | %(asctime)s | %(module)s | %(message)s",
         datefmt="%d/%m/%Y %I:%M:%S %p",
         level=logging.INFO,
     )
