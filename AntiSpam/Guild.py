@@ -31,6 +31,8 @@ import discord
 from AntiSpam.User import User
 from AntiSpam.Exceptions import ObjectMismatch, DuplicateObject
 
+log = logging.getLogger(__name__)
+
 """
 This is used to maintain a collection of User's in a relevant guild
 """
@@ -146,7 +148,7 @@ class Guild:
             user = next(iter(u for u in self._users if u == user))
         except StopIteration:
             self.users = user
-            logging.info(f"Created User: {user.id}")
+            log.info(f"Created User: {user.id}")
 
         return await user.propagate(message)
 

@@ -40,6 +40,8 @@ from AntiSpam.Exceptions import (
 from AntiSpam.User import User
 from AntiSpam.static import Static
 
+log = logging.getLogger(__name__)
+
 """
 The overall handler & entry point from any discord bot,
 this is responsible for handling interaction with Guilds etc
@@ -254,7 +256,7 @@ class AntiSpamHandler:
         self.bot = bot
         self._guilds = []
 
-        logging.info("Package initialized successfully")
+        log.info("Package initialized successfully")
 
     async def propagate(self, message: discord.Message) -> Optional[dict]:
         """
@@ -277,31 +279,32 @@ class AntiSpamHandler:
         if not isinstance(message, discord.Message) and not isinstance(
             message, AsyncMock
         ):
+            log.debug("Invalid value given to propagate")
             raise ValueError("Expected message of ignore_type: discord.Message")
 
         # Ensure we only moderate actual guild messages
         if not message.guild:
-            logging.debug("Message was not in a guild")
+            log.debug("Message was not in a guild")
             return {"status": "Ignoring messages from dm's"}
 
         # The bot is immune to spam
         if message.author.id == self.bot.user.id:
-            logging.debug("Message was from myself")
+            log.debug("Message was from myself")
             return {"status": "Ignoring messages from myself (the bot)"}
 
         if isinstance(message.author, discord.User):
-            logging.warning(f"Given message with an author of type User")
+            log.warning(f"Given message with an author of type User")
 
         # Return if ignored bot
         if self.options["ignore_bots"] and message.author.bot:
-            logging.debug(
+            log.debug(
                 f"I ignore bots, and this is a bot message: {message.author.id}"
             )
             return {"status": "Ignoring messages from bots"}
 
         # Return if ignored member
         if message.author.id in self.options["ignore_users"]:
-            logging.debug(
+            log.debug(
                 f"The user who sent this message is ignored: {message.author.id}"
             )
             return {"status": f"Ignoring this user: {message.author.id}"}
@@ -311,7 +314,7 @@ class AntiSpamHandler:
             message.channel.id in self.options["ignore_channels"]
             or message.channel.name in self.options["ignore_channels"]
         ):
-            logging.debug(f"{message.channel} is ignored")
+            log.debug(f"{message.channel} is ignored")
             return {"status": f"Ignoring this channel: {message.channel.id}"}
 
         # Return if member has an ignored role
@@ -320,19 +323,19 @@ class AntiSpamHandler:
             user_roles.extend([role.name for role in message.author.roles])
             for item in user_roles:
                 if item in self.options.get("ignore_roles"):
-                    logging.debug(f"{item} is a part of ignored roles")
+                    log.debug(f"{item} is a part of ignored roles")
                     return {"status": f"Ignoring this role: {item}"}
         except AttributeError:
-            logging.warning(
+            log.warning(
                 f"Could not compute ignore_roles for {message.author.name}({message.author.id})"
             )
 
         # Return if ignored guild
         if message.guild.id in self.options.get("ignore_guilds"):
-            logging.debug(f"{message.guild.id} is an ignored guild")
+            log.debug(f"{message.guild.id} is an ignored guild")
             return {"status": f"Ignoring this guild: {message.guild.id}"}
 
-        logging.debug(
+        log.debug(
             f"Propagating message for: {message.author.name}({message.author.id})"
         )
 
@@ -347,7 +350,7 @@ class AntiSpamHandler:
                 raise MissingGuildPermissions
 
             self.guilds = guild
-            logging.info(f"Created Guild: {guild.id}")
+            log.info(f"Created Guild: {guild.id}")
 
         return await guild.propagate(message)
 
@@ -404,7 +407,7 @@ class AntiSpamHandler:
         else:
             raise BaseASHException("Invalid ignore ignore_type")
 
-        logging.debug(f"Ignored {ignore_type}: {item}")
+        log.debug(f"Ignored {ignore_type}: {item}")
 
     def remove_ignored_item(self, item: int, ignore_type: str) -> None:
         """
@@ -465,7 +468,7 @@ class AntiSpamHandler:
         else:
             raise BaseASHException("Invalid ignore ignore_type")
 
-        logging.debug(f"Un-Ignored {ignore_type}: {item}")
+        log.debug(f"Un-Ignored {ignore_type}: {item}")
 
     def add_custom_guild_options(self, guild_id: int, **kwargs):
         """
@@ -555,17 +558,17 @@ class AntiSpamHandler:
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
         except StopIteration:
-            logging.warning(
+            log.warning(
                 f"I cannot ensure I have permissions to kick/ban ban people in guild: {guild_id}"
             )
 
             self.guilds = guild
-            logging.info(f"Created Guild: {guild.id}")
+            log.info(f"Created Guild: {guild.id}")
         else:
             guild.options = options
             guild.has_custom_options = True
 
-        logging.info(f"Set custom options for guild: {guild_id}")
+        log.info(f"Set custom options for guild: {guild_id}")
 
     def get_guild_options(self, guild_id: int) -> tuple:
         """
@@ -989,5 +992,5 @@ class AntiSpamHandler:
             if guild == value:
                 raise DuplicateObject
 
-        logging.debug(f"Added guild: {value}")
+        log.debug(f"Added guild: {value}")
         self._guilds.append(value)

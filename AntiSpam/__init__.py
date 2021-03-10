@@ -23,3 +23,6 @@ DEALINGS IN THE SOFTWARE.
 from AntiSpam.AntiSpamHandler import AntiSpamHandler
 from AntiSpam.AntiSpamTracker import AntiSpamTracker
 from AntiSpam.Exceptions import *
+
+import logging
+logging.getLogger(__name__).addHandler(logging.NullHandler())

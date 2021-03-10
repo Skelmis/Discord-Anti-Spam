@@ -32,6 +32,7 @@ import discord
 from . import AntiSpamHandler
 from .Exceptions import UserNotFound
 
+log = logging.getLogger(__name__)
 
 class AntiSpamTracker:
     """
@@ -131,7 +132,7 @@ class AntiSpamTracker:
 
         self.user_tracking = {}
 
-        logging.info("AntiSpamTracker is initialized and ready to go")
+        log.info("AntiSpamTracker is initialized and ready to go")
 
     def __str__(self):
         guilds = len(self.user_tracking)
@@ -185,7 +186,7 @@ class AntiSpamTracker:
             self.user_tracking[guild_id][user_id] = []
 
         self.user_tracking[guild_id][user_id].append(timestamp)
-        logging.debug(f"Cache updated for user ({user_id}) in guild ({guild_id})")
+        log.debug(f"Cache updated for user ({user_id}) in guild ({guild_id})")
 
     def get_user_count(self, message: discord.Message) -> int:
         """
@@ -243,7 +244,7 @@ class AntiSpamTracker:
             The id of the user to clean up
 
         """
-        logging.debug("Attempting to remove outdated timestamp's")
+        log.debug("Attempting to remove outdated timestamp's")
         current_time = datetime.datetime.now(datetime.timezone.utc)
 
         def _is_still_valid(timestamp):
@@ -266,7 +267,7 @@ class AntiSpamTracker:
             if _is_still_valid(timestamp):
                 current_timestamps.append(timestamp)
 
-        logging.debug(
+        log.debug(
             f"Removed {len(self.user_tracking[guild_id][user_id]) - len(current_timestamps)} 'timestamps'"
         )
 
@@ -331,7 +332,7 @@ class AntiSpamTracker:
             if not bool(self.user_tracking[guild_id]):
                 self.user_tracking.pop(guild_id)
 
-        logging.debug("Successfully cleaned the cache")
+        log.debug("Successfully cleaned the cache")
 
     def _get_guild_valid_interval(self, guild_id):
         """
@@ -433,11 +434,11 @@ class AntiSpamTracker:
             self.user_tracking[guild_id]["valid_interval"] = kwargs.get(
                 "message_interval"
             )
-            logging.debug(f"Set custom 'valid_interval' for guild: {guild_id}")
+            log.debug(f"Set custom 'valid_interval' for guild: {guild_id}")
 
         self.anti_spam_handler.add_custom_guild_options(guild_id=guild_id, **kwargs)
 
-        logging.debug("Did method 'add_custom_guild_options'")
+        log.debug("Did method 'add_custom_guild_options'")
 
     def remove_custom_guild_options(self, guild_id: int):
         """
@@ -459,8 +460,8 @@ class AntiSpamTracker:
         if guild_id in self.user_tracking:
             if "valid_interval" in self.user_tracking[guild_id]:
                 self.user_tracking[guild_id].pop("valid_interval")
-                logging.debug(f"Removed custom 'valid_interval' for guild: {guild_id}")
+                log.debug(f"Removed custom 'valid_interval' for guild: {guild_id}")
 
         self.anti_spam_handler.add_custom_guild_options(guild_id=guild_id)
 
-        logging.debug("Did method 'remove_custom_guild_options'")
+        log.debug("Did method 'remove_custom_guild_options'")
