@@ -5,7 +5,7 @@ import datetime
 from unittest.mock import AsyncMock
 
 from testing.mocks.MockGuild import MockedGuild
-from testing.mocks.MockMember import get_mocked_member, get_mocked_bot
+from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockChannel import MockedChannel
 
 
@@ -25,17 +25,17 @@ def get_mocked_message(
         if member_kwargs.get("bot") is True:
             mem_id = member_kwargs.get("id")
             mem_id = 98987 if not mem_id and mem_id != 0 else mem_id
-            mock_message.author = get_mocked_member(
-                name=member_kwargs.get("name", "Mocked Bot"), id=mem_id, bot=True,
-            )
+            mock_message.author = MockedMember(
+                name=member_kwargs.get("name", "Mocked Bot"), member_id=mem_id, is_bot=True
+            ).to_mock()
         else:
             mem_id = member_kwargs.get("id")
             mem_id = 12345 if not mem_id and mem_id != 0 else mem_id
-            mock_message.author = get_mocked_member(
-                name=member_kwargs.get("name", "Skelmis"), id=mem_id,
-            )
+            mock_message.author = MockedMember(
+                name=member_kwargs.get("name", "Skelmis"), member_id=mem_id,
+            ).to_mock()
     else:
-        mock_message.author = get_mocked_member(name="Skelmis", id=12345)
+        mock_message.author = MockedMember(name="Skelmis", member_id=12345).to_mock()
     mock_message.bot = False
 
     if is_in_guild:

@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 
 import discord
 
-from testing.mocks.MockMember import get_mocked_member
+from testing.mocks.MockMember import MockedMember
 
 
 class MockedGuild:
@@ -22,7 +22,7 @@ class MockedGuild:
         mock.name = self.name
         mock.id = self.id
 
-        mock.me = get_mocked_member(name="Bot", id=54321)
+        mock.me = MockedMember(name="Bot", member_id=54321).to_mock()
         mock.me.top_role.position = 100  # Bot should have higher role by default
 
         return mock

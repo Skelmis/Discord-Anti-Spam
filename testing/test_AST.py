@@ -26,7 +26,7 @@ import asyncio
 import unittest
 
 from AntiSpam import AntiSpamHandler, AntiSpamTracker, UserNotFound
-from testing.mocks.MockMember import get_mocked_bot
+from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockMessage import get_mocked_message
 
 
@@ -38,13 +38,13 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             # noinspection PyTypeChecker
             AntiSpamTracker(1, 2)
 
-        AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 3)
+        AntiSpamTracker(AntiSpamHandler(MockedMember(mock_type="bot").to_mock()), 3)
 
         with self.assertRaises(TypeError):
             # noinspection PyArgumentList
             AntiSpamTracker()
 
-        ash = AntiSpamHandler(get_mocked_bot())
+        ash = AntiSpamHandler(MockedMember(mock_type="bot").to_mock())
         message_interval = ash.options.get("message_interval")
         ast = AntiSpamTracker(ash, 3)
         self.assertEqual(message_interval, ast.valid_global_interval)
@@ -62,7 +62,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             AntiSpamTracker(ash, 3, dict())
 
     async def test_updateCache(self):
-        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 3)
+        ast = AntiSpamTracker(AntiSpamHandler(MockedMember(mock_type="bot").to_mock()), 3)
 
         ast.update_cache(
             get_mocked_message(is_in_guild=False),
@@ -105,7 +105,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(2, len(ast.user_tracking[123456789][12345]))
 
     async def test_getUserCount(self):
-        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 3)
+        ast = AntiSpamTracker(AntiSpamHandler(MockedMember(mock_type="bot").to_mock()), 3)
         ast.update_cache(
             get_mocked_message(), {"should_be_punished_this_message": True}
         )
@@ -130,7 +130,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             ast.get_user_count(message)
 
     async def test_removeOutdatedTimestamps(self):
-        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 3, 50)
+        ast = AntiSpamTracker(AntiSpamHandler(MockedMember(mock_type="bot").to_mock()), 3, 50)
         ast.update_cache(
             get_mocked_message(), {"should_be_punished_this_message": True}
         )
@@ -144,7 +144,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(ast.get_user_count(get_mocked_message()), 0)
 
     async def test_cleanCache(self):
-        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 3, 50)
+        ast = AntiSpamTracker(AntiSpamHandler(MockedMember(mock_type="bot").to_mock()), 3, 50)
         ast.update_cache(
             get_mocked_message(), {"should_be_punished_this_message": True}
         )
@@ -161,7 +161,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(ast.user_tracking, dict())
 
     async def test_getGuildValidInterval(self):
-        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 3)
+        ast = AntiSpamTracker(AntiSpamHandler(MockedMember(mock_type="bot").to_mock()), 3)
         self.assertEqual(ast._get_guild_valid_interval(123456789), 30000)
         ast.update_cache(
             get_mocked_message(), {"should_be_punished_this_message": True}
@@ -173,7 +173,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(ast._get_guild_valid_interval(123456789), 15000)
 
     async def test_isSpamming(self):
-        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 5)
+        ast = AntiSpamTracker(AntiSpamHandler(MockedMember(mock_type="bot").to_mock()), 5)
         self.assertEqual(ast.is_spamming(get_mocked_message()), False)
 
         ast.update_cache(
@@ -200,7 +200,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(ast.is_spamming(get_mocked_message()), True)
 
     async def test_removePunishment(self):
-        ast = AntiSpamTracker(AntiSpamHandler(get_mocked_bot()), 5)
+        ast = AntiSpamTracker(AntiSpamHandler(MockedMember(mock_type="bot").to_mock()), 5)
 
         ast.remove_punishments(get_mocked_message())
 
