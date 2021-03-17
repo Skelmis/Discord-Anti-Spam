@@ -147,6 +147,10 @@ class User:
         ==========
         value : discord.Message
             The message that needs to be propagated out
+
+        Warnings
+        ========
+        Calling this method yourself will bypass all checks
         """
         if not isinstance(value, (discord.Message, AsyncMock)):
             raise ValueError("Expected message of ignore_type: discord.Message")

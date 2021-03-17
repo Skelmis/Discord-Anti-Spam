@@ -137,6 +137,10 @@ class Guild:
         =======
         dict
             A dictionary of useful information about the user in question
+
+        Warnings
+        ========
+        Calling this method yourself will bypass all checks
         """
         if not isinstance(message, discord.Message) and not isinstance(
             message, AsyncMock

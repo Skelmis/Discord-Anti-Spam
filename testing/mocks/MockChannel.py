@@ -16,10 +16,8 @@ class MockedChannel:
 
     def to_mock(self):
         """Returns an AsyncMock matching the spec for this class"""
+        # we still have to set stuff manually but changing values is nicer
         mock = AsyncMock()
-        for k, v in self.__dict__.items():
-            print(k, v)
-            mock[k] = v
 
         print(dir(mock))
         mock.id = self.id
