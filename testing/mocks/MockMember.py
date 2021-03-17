@@ -9,6 +9,29 @@ from discord.ext import commands
 from testing.mocks.MockRole import get_mocked_role
 
 
+class MockedMember:
+    def __init__(self, name=None, member_id=None, is_bot=False):
+        self.name = name or "Mocked Member"
+        self.id = int(member_id) if member_id else 12345
+        self.mention = f"<@{self.id}>"
+        self.is_bot = is_bot
+
+    def to_mock(self):
+        """Returns an AsyncMock matching the spec for this class"""
+        # we still have to set stuff manually but changing values is nicer
+        mock = AsyncMock(name="Member Mock")
+
+        mock.name = self.name
+        mock.display_name = self.name
+        mock.id = self.id
+        mock.bot = self.is_bot
+
+        mock.roles = [get_mocked_role(), get_mocked_role(name="test role 2", id=252525)]
+        mock.top_role.position = 5
+        # TODO Make ^ be conditional on the type of mock (Member, User, Bot)
+
+        return mock
+
 def get_mocked_member(*, name=None, id=None, bot=False):
     """
     Return a mocked, usable member object
