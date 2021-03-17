@@ -3,17 +3,22 @@ This 'mocks' a discord.Role so we can use it for testing
 """
 from unittest.mock import AsyncMock
 
+import discord
 
-def get_mocked_role(*, name=None, id=None):
-    """
-    Return a mocked, usable role object
-    """
-    name = name or "Mocked Role"
-    id = int(id) if id else 151515
 
-    mock = AsyncMock(name="Role Mock")
-    mock.id = id
-    mock.name = name
-    mock.mention = f"<@&{id}>"
+class MockedRole:
+    def __init__(self, name=None, role_id=None):
+        self.name = name or "Mocked Role"
+        self.id = int(role_id) if role_id else 151515
+        self.mention = f"<@&{self.id}>"
 
-    return mock
+    def to_mock(self):
+        """Returns an AsyncMock matching the spec for this class"""
+        # we still have to set stuff manually but changing values is nicer
+        mock = AsyncMock(name="Role Mock", spec=discord.Role)
+
+        mock.name = self.name
+        mock.id = self.id
+        mock.mention = f"<@&{self.id}>"
+
+        return mock

@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 from discord.ext import commands
 
-from testing.mocks.MockRole import get_mocked_role
+from testing.mocks.MockRole import MockedRole
 
 
 class MockedMember:
@@ -26,7 +26,7 @@ class MockedMember:
         mock.id = self.id
         mock.bot = self.is_bot
 
-        mock.roles = [get_mocked_role(), get_mocked_role(name="test role 2", id=252525)]
+        mock.roles = [MockedRole().to_mock(), MockedRole(name="test role 2", role_id=252525).to_mock()]
         mock.top_role.position = 5
         # TODO Make ^ be conditional on the type of mock (Member, User, Bot)
 
@@ -45,7 +45,7 @@ def get_mocked_member(*, name=None, id=None, bot=False):
     mock.mention = f"<@{id}>"
     mock.bot = bot
 
-    mock.roles = [get_mocked_role(), get_mocked_role(name="test role 2", id=252525)]
+    mock.roles = [MockedRole().to_mock(), MockedRole(name="test role 2", role_id=252525).to_mock()]
     mock.top_role.position = 5
 
     return mock
@@ -78,8 +78,8 @@ def get_mocked_bot(*, name=None, id=None):
     mock.user.bot = True
 
     mock.user.roles = [
-        get_mocked_role(),
-        get_mocked_role(name="test role 2", id=252525),
+        MockedRole(),
+        MockedRole(name="test role 2", role_id=252525).to_mock(),
     ]
 
     return mock
