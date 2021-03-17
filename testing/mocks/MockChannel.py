@@ -5,8 +5,6 @@ from unittest.mock import AsyncMock
 
 import discord
 
-from testing.mocks.MockRole import get_mocked_role
-
 
 class MockedChannel:
     def __init__(self, name=None, channel_id=None):

@@ -4,7 +4,7 @@ This 'mocks' a discord.Message so we can use it for testing
 import datetime
 from unittest.mock import AsyncMock
 
-from testing.mocks.MockGuild import get_mocked_guild
+from testing.mocks.MockGuild import MockedGuild
 from testing.mocks.MockMember import get_mocked_member, get_mocked_bot
 from testing.mocks.MockChannel import MockedChannel
 
@@ -40,12 +40,12 @@ def get_mocked_message(
 
     if is_in_guild:
         if guild_kwargs:
-            mock_message.guild = get_mocked_guild(
+            mock_message.guild = MockedGuild(
                 name=guild_kwargs.get("name", "Guild"),
-                id=guild_kwargs.get("id", 123456789),
-            )
+                guild_id=guild_kwargs.get("id", 123456789),
+            ).to_mock()
         else:
-            mock_message.guild = get_mocked_guild(name="Guild")
+            mock_message.guild = MockedGuild(name="Guild").to_mock()
     else:
         mock_message.guild = None
 
