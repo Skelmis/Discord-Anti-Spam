@@ -17,29 +17,10 @@ class MockedChannel:
     def to_mock(self):
         """Returns an AsyncMock matching the spec for this class"""
         # we still have to set stuff manually but changing values is nicer
-        mock = AsyncMock()
+        mock = AsyncMock(name="Channel Mock", spec=discord.TextChannel)
 
-        print(dir(mock))
+        mock.name = self.name
         mock.id = self.id
-        print(dir(mock))
+        mock.mention = f"<@&{self.id}>"
 
         return mock
-
-
-def get_mocked_channel(*, name=None, id=None):
-    """
-    Return a mocked, usable channel object
-    """
-    name = name or "Mocked Channel"
-    id = int(id) if id else 98987
-
-    mock = AsyncMock(name="Channel Mock", spec=discord.TextChannel)
-    mock.id = id
-    mock.name = name
-    mock.mention = f"<@&{id}>"
-
-    return mock
-
-
-# print(MockedChannel().to_mock().id)
-# print(get_mocked_channel().id)

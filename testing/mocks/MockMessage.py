@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 from testing.mocks.MockGuild import get_mocked_guild
 from testing.mocks.MockMember import get_mocked_member, get_mocked_bot
-from testing.mocks.MockChannel import get_mocked_channel
+from testing.mocks.MockChannel import MockedChannel
 
 
 def get_mocked_message(
@@ -49,7 +49,7 @@ def get_mocked_message(
     else:
         mock_message.guild = None
 
-    mock_message.channel = get_mocked_channel()
+    mock_message.channel = MockedChannel().to_mock()
 
     mock_message.created_at = datetime.datetime.now()
 
