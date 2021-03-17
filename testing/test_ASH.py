@@ -742,7 +742,6 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         # WHEN / TESTING
         data = []
         for num in range(6):
-            x =get_mocked_message(message_id=num)
             return_value = await ash.propagate(get_mocked_message(message_id=num))
             data.append(return_value)
 
@@ -750,7 +749,6 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(data), 6)
 
         # TODO Fix this while fixing #39
-        print(data)
         self.assertEqual(data[0]["should_be_punished_this_message"], False)
         self.assertEqual(data[2]["should_be_punished_this_message"], False)
         self.assertEqual(data[3]["should_be_punished_this_message"], True)
