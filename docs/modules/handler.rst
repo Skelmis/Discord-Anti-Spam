@@ -6,6 +6,8 @@ As such this should be the only thing you interact with.**
 
 This handler propagation method also returns the following dictionary for you to use:
 
+.. currentmodule:: AntiSpam.AntiSpamHandler
+
 .. code-block:: python
     :linenos:
 
@@ -20,6 +22,7 @@ This handler propagation method also returns the following dictionary for you to
         "duplicate_counter": integer
     }
 
-.. automodule:: AntiSpam.AntiSpamHandler
+
+.. autoclass:: AntiSpamHandler
     :members:
     :special-members: __init__
