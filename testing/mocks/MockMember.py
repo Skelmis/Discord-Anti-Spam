@@ -38,7 +38,10 @@ class MockedMember:
             ]
             return mock
         elif self.type == "member":
-            mock.roles = [MockedRole().to_mock(), MockedRole(name="test role 2", role_id=252525).to_mock()]
+            mock.roles = [
+                MockedRole().to_mock(),
+                MockedRole(name="test role 2", role_id=252525).to_mock(),
+            ]
             mock.top_role.position = 5
 
         mock.name = self.name
@@ -48,5 +51,3 @@ class MockedMember:
         mock.mention = f"<@{self.id}>"
 
         return mock
-
-

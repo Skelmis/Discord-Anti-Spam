@@ -36,7 +36,7 @@ from AntiSpam.static import Static
 from AntiSpam.Guild import Guild
 from AntiSpam.User import User
 from testing.mocks.MockMember import MockedMember
-from testing.mocks.MockMessage import get_mocked_message
+from testing.mocks.MockMessage import MockedMessage
 
 
 class TestAsh(unittest.IsolatedAsyncioTestCase):
@@ -487,10 +487,10 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         Tests if the propagate method ignores the correct roles
         """
         ash = AntiSpamHandler(
-            MockedMember(name="bot", member_id="87678").to_mock(), ignore_roles=[151515]
+            MockedMember(name="bot", member_id=87678).to_mock(), ignore_roles=[151515]
         )
         print(MockedMember(mock_type="bot").to_mock().user.id)
-        result = await ash.propagate(get_mocked_message())
+        result = await ash.propagate(MockedMessage().to_mock())
 
         self.assertEqual(result["status"], "Ignoring this role: 151515")
 
@@ -512,29 +512,28 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             await self.ash.propagate(True)
 
     async def test_propagateDmIgnore(self):
-        result = await self.ash.propagate(get_mocked_message(is_in_guild=False))
+        result = await self.ash.propagate(MockedMessage(is_in_guild=False).to_mock())
         self.assertEqual(result["status"], "Ignoring messages from dm's")
 
     async def test_propagateBotIgnore(self):
         result = await self.ash.propagate(
-            get_mocked_message(member_kwargs={"bot": True, "id": 98987})
+            MockedMessage(author_is_bot=True, author_id=98987).to_mock()
         )
-        #self.assertEqual(result["status"], "Ignoring messages from myself (the bot)")
+        self.assertEqual(result["status"], "Ignoring messages from myself (the bot)")
 
         result_two = await self.ash.propagate(
-            get_mocked_message(member_kwargs={"bot": True, "id": 98798})
+            MockedMessage(author_is_bot=True, author_id=98798).to_mock()
         )
-        x = get_mocked_message(member_kwargs={"bot": True, "id": 98798})
         self.assertEqual(result_two["status"], "Ignoring messages from bots")
 
     async def test_propagateUserIgnore(self):
         self.ash.add_ignored_item(12345, "member")
 
-        result = await self.ash.propagate(get_mocked_message())
+        result = await self.ash.propagate(MockedMessage().to_mock())
         self.assertEqual(result["status"], "Ignoring this user: 12345")
 
         result_two = await self.ash.propagate(
-            get_mocked_message(member_kwargs={"id": 5433221})
+            MockedMessage(author_id=5433221).to_mock()
         )
         self.assertNotEqual(result_two["status"], "Ignoring this user: 12345")
 
@@ -542,7 +541,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.ash.add_ignored_item(123456789, "guild")
         self.assertEqual(self.ash.options["ignore_guilds"], [123456789])
 
-        result = await self.ash.propagate(get_mocked_message())
+        result = await self.ash.propagate(MockedMessage().to_mock())
         self.assertEqual(result["status"], "Ignoring this guild: 123456789")
 
         self.ash.remove_ignored_item(123456789, "guild")
@@ -552,7 +551,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.ash.add_ignored_item(98987, "channel")
         self.assertEqual(self.ash.options["ignore_channels"], [98987])
 
-        result = await self.ash.propagate(get_mocked_message())
+        result = await self.ash.propagate(MockedMessage().to_mock())
         self.assertEqual(result["status"], "Ignoring this channel: 98987")
 
         self.ash.remove_ignored_item(98987, "channel")
@@ -560,15 +559,15 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_propagateGuildCreation(self):
         self.assertEqual(len(self.ash.guilds), 2)
-        await self.ash.propagate(get_mocked_message(guild_kwargs={"id": 15}))
+        await self.ash.propagate(MockedMessage(guild_id=15).to_mock())
         self.assertEqual(len(self.ash.guilds), 2)
 
-        await self.ash.propagate(get_mocked_message())
+        await self.ash.propagate(MockedMessage().to_mock())
         self.assertEqual(len(self.ash.guilds), 3)
 
     async def test_propagateGuildPerms(self):
         ash = AntiSpamHandler(MockedMember(mock_type="bot").to_mock())
-        message = get_mocked_message()
+        message = MockedMessage().to_mock()
         message.guild.me.guild_permissions.kick_members = False
         message.guild.me.guild_permissions.ban_members = True
         with self.assertRaises(
@@ -742,7 +741,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         # WHEN / TESTING
         data = []
         for num in range(6):
-            return_value = await ash.propagate(get_mocked_message(message_id=num))
+            return_value = await ash.propagate(MockedMessage(message_id=num).to_mock())
             data.append(return_value)
 
         # THEN / ASSERTIONS

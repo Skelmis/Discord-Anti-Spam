@@ -4,57 +4,66 @@ This 'mocks' a discord.Message so we can use it for testing
 import datetime
 from unittest.mock import AsyncMock
 
+import discord
+
 from testing.mocks.MockGuild import MockedGuild
 from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockChannel import MockedChannel
 
 
-def get_mocked_message(
-    *,
-    is_in_guild=True,
-    member_kwargs=None,
-    guild_kwargs=None,
-    message_id=None,
-    message_content=None
-):
-    """
-    Return a mocked, usable message object
-    """
-    mock_message = AsyncMock(name="Message Mock")
-    if member_kwargs:
-        if member_kwargs.get("bot") is True:
-            mem_id = member_kwargs.get("id")
-            mem_id = 98987 if not mem_id and mem_id != 0 else mem_id
-            mock_message.author = MockedMember(
-                name=member_kwargs.get("name", "Mocked Bot"), member_id=mem_id, is_bot=True
-            ).to_mock()
+class MockedMessage:
+    def __init__(
+        self,
+        *,
+        message_id=12341234,
+        message_content="This is the message content",
+        message_clean_content="This is the clean message content",
+        author_name="Skelmis",
+        author_id=12345,
+        author_is_bot=False,
+        is_in_guild=True,
+        guild_name="Guild",
+        guild_id=123456789
+    ):
+        self.author = {"name": author_name, "id": author_id, "is_bot": author_is_bot}
+        if author_is_bot:
+            # Backwards compat
+            self.author["name"] = (
+                "Mocked Bot" if author_name == "Skelmis" else author_name
+            )
+            self.author["id"] = 98987 if author_id == 12345 else author_id
+
+        self.is_in_guild = is_in_guild
+        self.guild = {"name": guild_name, "id": guild_id}
+
+        # Message related things
+        self.message_id = message_id
+        self.content = message_content
+        self.clean_content = message_clean_content
+
+    def to_mock(self):
+        """Returns an AsyncMock matching the spec for this class"""
+        # we still have to set stuff manually but changing values is nicer
+        mock = AsyncMock(name="Message Mock", spec=discord.Message)
+
+        # Author section
+        mock.author = MockedMember(
+            name=self.author["name"],
+            member_id=self.author["id"],
+            is_bot=self.author["is_bot"],
+        ).to_mock()
+
+        # Guild options and 'is_in_guild' are mutually exclusive
+        if not self.is_in_guild:
+            mock.guild = None
         else:
-            mem_id = member_kwargs.get("id")
-            mem_id = 12345 if not mem_id and mem_id != 0 else mem_id
-            mock_message.author = MockedMember(
-                name=member_kwargs.get("name", "Skelmis"), member_id=mem_id,
-            ).to_mock()
-    else:
-        mock_message.author = MockedMember(name="Skelmis", member_id=12345).to_mock()
-    mock_message.bot = False
+            mock.guild = MockedGuild(name=self.guild["name"], guild_id=self.guild["id"]).to_mock()
 
-    if is_in_guild:
-        if guild_kwargs:
-            mock_message.guild = MockedGuild(
-                name=guild_kwargs.get("name", "Guild"),
-                guild_id=guild_kwargs.get("id", 123456789),
-            ).to_mock()
-        else:
-            mock_message.guild = MockedGuild(name="Guild").to_mock()
-    else:
-        mock_message.guild = None
+        mock.channel = MockedChannel().to_mock()
+        mock.created_at = datetime.datetime.now()
 
-    mock_message.channel = MockedChannel().to_mock()
+        mock.id = self.message_id
+        mock.content = self.content
+        mock.clean_content = self.clean_content
 
-    mock_message.created_at = datetime.datetime.now()
-
-    mock_message.id = message_id or 12341234
-    mock_message.clean_content = message_content or "This is the clean message content"
-    mock_message.content = message_content or "This is the message content"
-
-    return mock_message
+        return mock
