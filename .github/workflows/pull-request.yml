@@ -38,7 +38,7 @@ jobs:
         COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
         COVERALLS_PARALLEL: true
   coveralls:
-    name: Finish Coveralls
+    name: Coveralls
     needs: build
     runs-on: ubuntu-latest
     container: python:3-slim
