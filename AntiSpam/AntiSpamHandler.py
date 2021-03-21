@@ -735,7 +735,7 @@ class AntiSpamHandler:
         
         -----
         
-        Note that is method is expensive in both time and memory.
+        Note that is method is expensive in both time and memory (For big bots).
         It has to iterate over every single stored class
         instance within the library and store it in a dictionary.
         
