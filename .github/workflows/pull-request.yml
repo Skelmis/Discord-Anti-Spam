@@ -1,6 +1,6 @@
 
 # This workflow will install Python dependencies and run tests
-name: DPY-Anti-Spam pull request workflow
+name: "Unittests"
 on:
   pull_request:
     branches: [ master ]
