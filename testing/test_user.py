@@ -28,7 +28,7 @@ from AntiSpam.User import User
 from AntiSpam.Message import Message
 from AntiSpam.static import Static
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch, LogicError
-from testing.mocks.MockMessage import get_mocked_message
+from testing.mocks.MockMessage import MockedMessage
 
 
 class TestUser(unittest.IsolatedAsyncioTestCase):
@@ -193,64 +193,47 @@ class TestUser(unittest.IsolatedAsyncioTestCase):
 
     async def test_propagatePunish(self):
         """Checks the propagate method tries to punish at correct times"""
-        m = get_mocked_message(
-            message_id=0, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-        )
+        m = MockedMessage(message_id=0, author_id=0, guild_id=3).to_mock()
         data = await self.user.propagate(m)
         self.assertEqual(data["should_be_punished_this_message"], False)
 
-        m = get_mocked_message(
-            message_id=1, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-        )
+        m = MockedMessage(message_id=1, author_id=0, guild_id=3).to_mock()
         data = await self.user.propagate(m)
         self.assertEqual(data["should_be_punished_this_message"], False)
 
-        m = get_mocked_message(
-            message_id=2, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-        )
+        m = MockedMessage(message_id=2, author_id=0, guild_id=3).to_mock()
         data = await self.user.propagate(m)
         self.assertEqual(data["should_be_punished_this_message"], False)
 
-        m = get_mocked_message(
-            message_id=3, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-        )
+        m = MockedMessage(message_id=3, author_id=0, guild_id=3).to_mock()
         data = await self.user.propagate(m)
         self.assertEqual(data["should_be_punished_this_message"], True)
 
-        m = get_mocked_message(
-            message_id=4, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-        )
+        m = MockedMessage(message_id=4, author_id=0, guild_id=3).to_mock()
         data = await self.user.propagate(m)
         self.assertEqual(data["should_be_punished_this_message"], True)
 
     async def test_propagateWarn(self):
         """Tests it warns for the correct amount"""
         for i in range(3):
-            m = get_mocked_message(
-                message_id=i, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-            )
+            m = MockedMessage(message_id=i, author_id=0, guild_id=3).to_mock()
             data = await self.user.propagate(m)
 
         # Shouldn't be punished yet. But one off
+        # noinspection PyUnboundLocalVariable
         self.assertEqual(data["should_be_punished_this_message"], False)
 
-        m = get_mocked_message(
-            message_id=4, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-        )
+        m = MockedMessage(message_id=4, author_id=0, guild_id=3).to_mock()
         data = await self.user.propagate(m)
         self.assertEqual(data["should_be_punished_this_message"], True)
         self.assertEqual(data["was_warned"], True)
 
-        m = get_mocked_message(
-            message_id=5, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-        )
+        m = MockedMessage(message_id=5, author_id=0, guild_id=3).to_mock()
         data = await self.user.propagate(m)
         self.assertEqual(data["should_be_punished_this_message"], True)
         self.assertEqual(data["was_warned"], True)
 
-        m = get_mocked_message(
-            message_id=6, member_kwargs={"id": 0}, guild_kwargs={"id": 3}
-        )
+        m = MockedMessage(message_id=6, author_id=0, guild_id=3).to_mock()
         data = await self.user.propagate(m)
         self.assertEqual(data["should_be_punished_this_message"], True)
         self.assertEqual(data["was_warned"], False)

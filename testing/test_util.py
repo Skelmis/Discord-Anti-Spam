@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import unittest
 
 from AntiSpam.Util import *
-from testing.mocks.MockMessage import get_mocked_message
+from testing.mocks.MockMessage import MockedMessage
 
 
 class TestUtil(unittest.TestCase):
@@ -58,7 +58,7 @@ class TestUtil(unittest.TestCase):
             ],
         }
 
-        mock_message = get_mocked_message()
+        mock_message = MockedMessage().to_mock()
 
         test_embed = dict_to_embed(
             warn_embed_dict, mock_message, {"warn_count": 1, "kick_count": 2}
@@ -89,7 +89,7 @@ class TestUtil(unittest.TestCase):
             ],
         }
 
-        mock_message = get_mocked_message()
+        mock_message = MockedMessage().to_mock()
         warn_dict = {"warn_count": 1, "kick_count": 2}
 
         test_embed = transform_message(warn_embed_dict, mock_message, warn_dict)
