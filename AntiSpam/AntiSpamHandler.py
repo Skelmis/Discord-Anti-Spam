@@ -297,16 +297,12 @@ class AntiSpamHandler:
 
         # Return if ignored bot
         if self.options["ignore_bots"] and message.author.bot:
-            log.debug(
-                f"I ignore bots, and this is a bot message: {message.author.id}"
-            )
+            log.debug(f"I ignore bots, and this is a bot message: {message.author.id}")
             return {"status": "Ignoring messages from bots"}
 
         # Return if ignored member
         if message.author.id in self.options["ignore_users"]:
-            log.debug(
-                f"The user who sent this message is ignored: {message.author.id}"
-            )
+            log.debug(f"The user who sent this message is ignored: {message.author.id}")
             return {"status": f"Ignoring this user: {message.author.id}"}
 
         # Return if ignored channel
@@ -697,6 +693,68 @@ class AntiSpamHandler:
             user.kick_count = 0
         else:
             raise LogicError("Invalid counter argument, please select a valid counter.")
+
+    def load_from_dict(self, data: dict) -> None:
+        """
+        Can be used as an entry point when starting your bot
+        to reload a previous state so you don't lose all of
+        the previous punishment records, etc, etc
+        
+        Parameters
+        ----------
+        data : dict
+            The data to load AntiSpamHandler from
+
+        Warnings
+        --------
+        Don't provide data that was not given to you
+        outside of the ``save_to_dict`` method unless
+        you are maintaining the correct format.
+
+        """
+        pass
+
+    async def save_to_dict(self) -> dict:
+        """
+        Creates a 'save point' of the current
+        state for this handler which can then be
+        used to restore state at a later date
+        
+        Returns
+        -------
+        dict
+            The saved state in a dictionary form.
+            You can give this to ``load_from_dict``
+            to reload the saved state
+            
+        Notes
+        -----
+        For most expected use-case's the returned ``Messages``
+        will be outdated, however, they are included
+        as it is technically part of the current state.
+        
+        -----
+        
+        Note that is method is expensive in both time and memory.
+        It has to iterate over every single stored class
+        instance within the library and store it in a dictionary.
+        
+        For bigger bots, it is likely better you create this process
+        yourself using generators in order to reduce overhead.
+        
+        Warnings
+        --------
+        Due to the already expensive nature of this method,
+        all returned option dictionaries are not deepcopied.
+        Modifying them during runtime will cause this library
+        to begin using that modified copy.
+
+        """
+        data = {"options": self.options, "guilds": []}
+        for guild in self._guilds:
+            data["guilds"].append(await guild.save_to_dict())
+
+        return data
 
     def _ensure_options(
         self,

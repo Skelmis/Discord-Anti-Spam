@@ -43,6 +43,7 @@ from AntiSpam.Util import embed_to_string, transform_message
 
 log = logging.getLogger(__name__)
 
+
 class User:
     """A class dedicated to maintaining a member, and any relevant messages in a single guild.
 
@@ -350,6 +351,49 @@ class User:
         return_data["duplicate_counter"] = self.get_correct_duplicate_count()
         return return_data
 
+    async def save_to_dict(self) -> dict:
+        """
+        Returns a dictionary that can be used to
+        reload state at a later date
+        
+        Returns
+        -------
+        dict
+            The state to reload from
+        """
+        data = {
+            "id": self.id,
+            "options": self.options,
+            "guild_id": self.guild_id,
+            "is_in_guild": self.in_guild,
+            "warn_count": self.warn_count,
+            "kick_count": self.kick_count,
+            "duplicate_count": self.duplicate_counter,
+            "duplicate_channel_counter_dict": self.duplicate_channel_counter_dict,
+            "messages": [],
+        }
+
+        for message in self._messages:
+            data["messages"].append(
+                {
+                    "id": message.id,
+                    "content": message.content,
+                    "guild_id": message.guild_id,
+                    "author_id": message.author_id,
+                    "channel_id": message.channel_id,
+                    "is_duplicate": message.is_duplicate,
+                    "creation_time": message.creation_time.strftime(
+                        "%f:%S:%M:%H:%d:%Y"
+                    ),
+                }
+            )
+            """
+            "%f:%S:%M:%H:%d:%m:%Y"
+            microsecond:second:minute:hour:day:month:year
+            """
+
+        return data
+
     async def _punish_user(
         self,
         value,
@@ -515,9 +559,7 @@ class User:
                         f"An error occurred trying to {method}: {member.mention}",
                         delete_after=channel_delete_after,
                     )
-                    log.warning(
-                        f"An error occurred trying to {method}: {member.id}"
-                    )
+                    log.warning(f"An error occurred trying to {method}: {member.id}")
                     if m is not None:
                         if method == Static.KICK:
                             user_failed_message = transform_message(

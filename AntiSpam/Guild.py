@@ -48,7 +48,6 @@ class Guild:
         "_bot",
         "_users",
         "options",
-        "logger",
         "has_custom_options",
     ]
 
@@ -155,6 +154,28 @@ class Guild:
             log.info(f"Created User: {user.id}")
 
         return await user.propagate(message)
+
+    async def save_to_dict(self) -> dict:
+        """
+        Returns a dictionary that can be used
+        to reload state at a later time
+        
+        Returns
+        -------
+        dict
+            The data required to reload state
+        """
+        data = {
+            "id": self.id,
+            "options": self.options,
+            "has_custom_options": self.has_custom_options,
+            "users": [],
+        }
+
+        for user in self._users:
+            data["users"].append(await user.save_to_dict())
+
+        return data
 
     @property
     def id(self):
