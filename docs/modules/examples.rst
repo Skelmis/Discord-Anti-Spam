@@ -132,6 +132,7 @@ Custom Punishments
     from discord.ext import commands
 
     from AntiSpam import AntiSpamHandler
+    from AntiSpam.ext import AntiSpamTracker
 
     bot = commands.Bot(command_prefix="!")
     bot.handler = AntiSpamHandler(bot, guild_warn_message=warn, no_punish=True)
