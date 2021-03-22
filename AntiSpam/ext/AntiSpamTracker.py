@@ -29,10 +29,11 @@ from unittest.mock import AsyncMock
 
 import discord
 
-from . import AntiSpamHandler
-from .Exceptions import UserNotFound
+from AntiSpam import AntiSpamHandler
+from AntiSpam.Exceptions import UserNotFound
 
 log = logging.getLogger(__name__)
+
 
 class AntiSpamTracker:
     """
@@ -277,7 +278,7 @@ class AntiSpamTracker:
         """
         After you punish someone, call this method
         to 'clean up' there punishments.
-        
+
         Parameters
         ----------
         message : discord.Message

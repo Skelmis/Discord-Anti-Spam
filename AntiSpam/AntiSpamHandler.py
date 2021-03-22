@@ -134,19 +134,19 @@ class AntiSpamHandler:
         per_channel_spam: False
             Track spam as per channel,
             rather then per guild.
-            
+
         guild_warn_message_delete_after: None
             The time to delete the ``guild_warn_message`` message
-            
+
         user_kick_message_delete_after: None
             The time to delete the ``user_kick_message`` message
-            
+
         guild_kick_message_delete_after: None
             The time to delete the ``guild_kick_message`` message
-            
+
         user_ban_message_delete_after: None
             The time to delete the ``user_ban_message`` message
-            
+
         guild_ban_message_delete_after: None
             The time to delete the ``guild_ban_message`` message
     """
@@ -238,15 +238,18 @@ class AntiSpamHandler:
             The time to delete the ``guild_ban_message`` message
         """
         # Just gotta casually ignore_type check everything.
-        if not isinstance(
-            bot,
-            (
-                commands.Bot,
-                commands.AutoShardedBot,
-                discord.Client,
-                discord.AutoShardedClient,
-            ),
-        ) and not isinstance(bot, AsyncMock):
+        if (
+            not isinstance(
+                bot,
+                (
+                    commands.Bot,
+                    commands.AutoShardedBot,
+                    discord.Client,
+                    discord.AutoShardedClient,
+                ),
+            )
+            and not isinstance(bot, AsyncMock)
+        ):
             raise ValueError(
                 "Expected bot of type commands.Bot, commands.AutoShardedBot, discord.Client or discord.AutoShardedClient"
             )
@@ -270,7 +273,7 @@ class AntiSpamHandler:
         ==========
         message : discord.Message
             The message that needs to be propagated out
-        
+
         Returns
         =======
         dict
@@ -586,7 +589,7 @@ class AntiSpamHandler:
             (dict, boolean),
             where dict is the options and boolean is whether
             or not these options are custom
-        
+
         Raises
         ------
         BaseASHException
@@ -699,7 +702,7 @@ class AntiSpamHandler:
         Can be used as an entry point when starting your bot
         to reload a previous state so you don't lose all of
         the previous punishment records, etc, etc
-        
+
         Parameters
         ----------
         data : dict
@@ -719,29 +722,29 @@ class AntiSpamHandler:
         Creates a 'save point' of the current
         state for this handler which can then be
         used to restore state at a later date
-        
+
         Returns
         -------
         dict
             The saved state in a dictionary form.
             You can give this to ``load_from_dict``
             to reload the saved state
-            
+
         Notes
         -----
         For most expected use-case's the returned ``Messages``
         will be outdated, however, they are included
         as it is technically part of the current state.
-        
+
         -----
-        
+
         Note that is method is expensive in both time and memory.
         It has to iterate over every single stored class
         instance within the library and store it in a dictionary.
-        
+
         For bigger bots, it is likely better you create this process
         yourself using generators in order to reduce overhead.
-        
+
         Warnings
         --------
         Due to the already expensive nature of this method,

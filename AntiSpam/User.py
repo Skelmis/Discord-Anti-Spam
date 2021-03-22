@@ -45,9 +45,7 @@ log = logging.getLogger(__name__)
 
 
 class User:
-    """A class dedicated to maintaining a member, and any relevant messages in a single guild.
-
-    """
+    """A class dedicated to maintaining a member, and any relevant messages in a single guild."""
 
     __slots__ = [
         "_id",
@@ -189,7 +187,11 @@ class User:
             content = value.clean_content
 
         message = Message(
-            value.id, content, value.author.id, value.channel.id, value.guild.id,
+            value.id,
+            content,
+            value.author.id,
+            value.channel.id,
+            value.guild.id,
         )
 
         for message_obj in self.messages:
@@ -210,7 +212,7 @@ class User:
                 >= self.options["message_duplicate_accuracy"]
             ):
                 """
-                The handler works off an internal message duplicate counter 
+                The handler works off an internal message duplicate counter
                 so just increment that and then let our logic process it
                 """
                 self.duplicate_counter += 1
@@ -355,7 +357,7 @@ class User:
         """
         Returns a dictionary that can be used to
         reload state at a later date
-        
+
         Returns
         -------
         dict
@@ -419,7 +421,7 @@ class User:
         method : str
             A string denoting the ignore_type of punishment
         user_delete_after : int, optional
-            An int value denoting the time to 
+            An int value denoting the time to
             delete user sent messages after
         channel_delete_after : int, optional
             An int value denoting the time to
@@ -548,7 +550,8 @@ class User:
                             )
                         else:
                             await member.send(
-                                user_failed_message, delete_after=user_delete_after,
+                                user_failed_message,
+                                delete_after=user_delete_after,
                             )
                         await m.delete()
 
@@ -586,7 +589,8 @@ class User:
                             )
                         else:
                             await member.send(
-                                user_failed_message, delete_after=user_delete_after,
+                                user_failed_message,
+                                delete_after=user_delete_after,
                             )
                         await m.delete()
 
@@ -594,11 +598,13 @@ class User:
                     try:
                         if isinstance(guild_message, discord.Embed):
                             await dc_channel.send(
-                                embed=guild_message, delete_after=channel_delete_after,
+                                embed=guild_message,
+                                delete_after=channel_delete_after,
                             )
                         else:
                             await dc_channel.send(
-                                guild_message, delete_after=channel_delete_after,
+                                guild_message,
+                                delete_after=channel_delete_after,
                             )
                     except discord.HTTPException:
                         log.error(
@@ -673,7 +679,7 @@ class User:
 
     def _increment_duplicate_count(self, message: Message, amount: int = 1):
         """A helper method to increment the correct duplicate counter, global or not.
-        
+
         Warnings
         --------
         This is not yet implemented yet. You shouldn't
@@ -698,7 +704,7 @@ class User:
         self, message: Message = None, channel_id: int = None
     ) -> int:
         """A helper method to get the correct duplicate counter based on settings
-        
+
         Warnings
         --------
         This is not yet implemented yet. You shouldn't
@@ -723,7 +729,7 @@ class User:
 
     def _remove_duplicate_count(self, message: Message, amount: int = 1):
         """Used when cleaning the cache, to only lower the correct counter
-        
+
         Warnings
         --------
         This is not yet implemented yet. You shouldn't
