@@ -153,11 +153,6 @@ class AntiSpamHandler:
 
     # TODO Add options for group spamming, rather then just per member.
     #      This could possibly be implemented at a Guild() level
-    # TODO Add the ability to lockdown channels in certain situations
-    # TODO Add bypass's for modes, so bypass warn mode. (Can be avoided by simply setting warn higher then kick)
-    #      and that's how it will be implemented internally most likely
-    # TODO Add the ability to toggle dm messages for log messages (To affected users)
-
     def __init__(
         self,
         bot: Union[
@@ -945,7 +940,6 @@ class AntiSpamHandler:
         if ignore_bots is None:
             ignore_bots = Static.DEFAULTS.get("ignore_bots")
 
-        # TODO Implement #16
         if ignore_roles is not None:
             placeholder_ignore_roles = []
             for item in ignore_roles:

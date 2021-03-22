@@ -493,7 +493,6 @@ class User:
                 else:
                     m = await member.send(user_message, delete_after=user_delete_after)
             except discord.HTTPException:
-                # TODO Consider making this a custom delete_after option? possibly failure_delete_after
                 await dc_channel.send(
                     f"Sending a message to {member.mention} about their {method} failed.",
                     delete_after=channel_delete_after,
