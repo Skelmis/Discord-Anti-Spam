@@ -15,7 +15,14 @@ Welcome to DPY Anti-Spam's documentation!
    modules/examples.rst
    modules/logging.rst
    modules/optimisation.rst
-   modules/custom_punishment.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Extension Framework
+
+   modules/ext/base.rst
+   modules/ext/schema.rst
+   modules/ext/custom_punishment.rst
 
 .. toctree::
    :maxdepth: 2

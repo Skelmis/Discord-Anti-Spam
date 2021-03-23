@@ -4,7 +4,8 @@ from copy import deepcopy
 
 import discord
 
-from AntiSpam import AntiSpamTracker, UserNotFound
+from AntiSpam import UserNotFound
+from AntiSpam.ext import AntiSpamTracker
 
 
 class MyCustomTracker(AntiSpamTracker):

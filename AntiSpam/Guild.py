@@ -39,9 +39,7 @@ This is used to maintain a collection of User's in a relevant guild
 
 
 class Guild:
-    """Represents a guild that maintains a collection of User's
-
-    """
+    """Represents a guild that maintains a collection of User's"""
 
     __slots__ = [
         "_id",
@@ -131,7 +129,7 @@ class Guild:
         ==========
         message : discord.Message
             The message that needs to be propagated out
-        
+
         Returns
         =======
         dict
@@ -146,7 +144,12 @@ class Guild:
         ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
-        user = User(self._bot, message.author.id, message.guild.id, self.options,)
+        user = User(
+            self._bot,
+            message.author.id,
+            message.guild.id,
+            self.options,
+        )
         try:
             user = next(iter(u for u in self._users if u == user))
         except StopIteration:
@@ -159,7 +162,7 @@ class Guild:
         """
         Returns a dictionary that can be used
         to reload state at a later time
-        
+
         Returns
         -------
         dict

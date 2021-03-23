@@ -31,9 +31,7 @@ Used to store a message object, essentially a glorified dictionary
 
 
 class Message:
-    """Represents a lower level object needed to maintain messages
-
-    """
+    """Represents a lower level object needed to maintain messages"""
 
     __slots__ = [
         "_id",
