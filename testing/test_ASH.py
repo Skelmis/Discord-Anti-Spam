@@ -38,6 +38,8 @@ from AntiSpam.User import User
 from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockMessage import MockedMessage
 
+from json_loader import read_json
+
 
 class TestAsh(unittest.IsolatedAsyncioTestCase):
     """
@@ -48,7 +50,9 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         """
         Simply setup our Ash obj before usage
         """
-        self.ash = AntiSpamHandler(MockedMember(name="bot", member_id=98987, mock_type="bot").to_mock())
+        self.ash = AntiSpamHandler(
+            MockedMember(name="bot", member_id=98987, mock_type="bot").to_mock()
+        )
         self.ash.guilds = Guild(None, 12, Static.DEFAULTS)
         self.ash.guilds = Guild(None, 15, Static.DEFAULTS)
 
@@ -681,7 +685,9 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_resetWarnCounter(self):
         # GIVEN / SETUP
-        user = User(MockedMember(mock_type="bot").to_mock(), 123454321, 12, Static.DEFAULTS)
+        user = User(
+            MockedMember(mock_type="bot").to_mock(), 123454321, 12, Static.DEFAULTS
+        )
         self.ash.guilds[0].users = user
         self.assertEqual(1, len(self.ash.guilds[0].users))
         self.assertEqual(0, self.ash.guilds[0].users[0].warn_count)
@@ -696,7 +702,9 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_resetKickCounter(self):
         # GIVEN / SETUP
-        user = User(MockedMember(mock_type="bot").to_mock(), 123454321, 12, Static.DEFAULTS)
+        user = User(
+            MockedMember(mock_type="bot").to_mock(), 123454321, 12, Static.DEFAULTS
+        )
         self.ash.guilds[0].users = user
         self.assertEqual(1, len(self.ash.guilds[0].users))
         self.assertEqual(0, self.ash.guilds[0].users[0].kick_count)
@@ -711,7 +719,9 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_resetCountersRaises(self):
         # SETUP
-        user = User(MockedMember(mock_type="bot").to_mock(), 123454321, 12, Static.DEFAULTS)
+        user = User(
+            MockedMember(mock_type="bot").to_mock(), 123454321, 12, Static.DEFAULTS
+        )
         self.ash.guilds[0].users = user
 
         # ASSERTIONS / TESTING
@@ -752,6 +762,14 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(data[2]["should_be_punished_this_message"], False)
         self.assertEqual(data[3]["should_be_punished_this_message"], True)
         self.assertEqual(data[5]["should_be_punished_this_message"], True)
+
+    async def test_statefulLoading(self):
+        data = read_json("unittests")
+        ash = await AntiSpamHandler.load_from_dict(
+            MockedMember(name="bot", member_id=98987, mock_type="bot").to_mock(), data
+        )
+        result = await ash.save_to_dict()
+        self.assertEqual(data, result)
 
 
 # TODO test delete_after options
