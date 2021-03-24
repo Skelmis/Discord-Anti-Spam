@@ -689,7 +689,8 @@ class AntiSpamHandler:
         else:
             raise LogicError("Invalid counter argument, please select a valid counter.")
 
-    def load_from_dict(self, data: dict) -> None:
+    @staticmethod
+    async def load_from_dict(bot, data: dict):  # TODO typehint this correct
         """
         Can be used as an entry point when starting your bot
         to reload a previous state so you don't lose all of
@@ -697,17 +698,39 @@ class AntiSpamHandler:
 
         Parameters
         ----------
+        bot : commands.Bot
+            The bot instance
         data : dict
             The data to load AntiSpamHandler from
+            
+        Returns
+        -------
+        AntiSpamHandler
+            A new AntiSpamHandler instance where
+            the state is equal to the provided dict
 
         Warnings
         --------
         Don't provide data that was not given to you
         outside of the ``save_to_dict`` method unless
         you are maintaining the correct format.
+        
+        Notes
+        -----
+        This method does not check for data conformity.
+        Any invalid input will error.
+        
+        -----
+        
+        This is fairly computationally expensive. It deepcopies
+        nearly everything lol.
 
         """
-        pass
+        ash = AntiSpamHandler(bot=bot, **data["options"])
+        for guild in data["guilds"]:
+            ash.guilds = await Guild.load_from_dict(bot, guild)
+
+        return ash
 
     async def save_to_dict(self) -> dict:
         """
@@ -1040,9 +1063,8 @@ class AntiSpamHandler:
         if not isinstance(value, Guild):
             raise ValueError("Expected Guild object")
 
-        for guild in self._guilds:
-            if guild == value:
-                raise DuplicateObject
+        if value in self._guilds:
+            raise DuplicateObject
 
         log.debug(f"Added guild: {value}")
         self._guilds.append(value)

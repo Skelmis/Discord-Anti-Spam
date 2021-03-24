@@ -4,6 +4,7 @@
 
 notes.txt
 *.json
+!/testing/unittests.json
 examples/dev_test.py
 
 /assets

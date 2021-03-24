@@ -1,0 +1,350 @@
+{
+    "options": {
+        "warn_threshold": 3,
+        "kick_threshold": 2,
+        "ban_threshold": 2,
+        "message_interval": 30000,
+        "guild_warn_message": {
+            "title": "**Dear $USERNAME**",
+            "description": "You are being warned for spam, please stop!",
+            "timestamp": true,
+            "color": 16711680,
+            "footer": {
+                "text": "$BOTNAME",
+                "icon_url": "$BOTAVATAR"
+            },
+            "author": {
+                "name": "$GUILDNAME",
+                "icon_url": "$GUILDICON"
+            },
+            "fields": [
+                {
+                    "name": "Current warns:",
+                    "value": "$WARNCOUNT",
+                    "inline": false
+                },
+                {
+                    "name": "Current kicks:",
+                    "value": "$KICKCOUNT",
+                    "inline": false
+                }
+            ]
+        },
+        "guild_kick_message": "$USERNAME was kicked for spamming/sending duplicate messages.",
+        "guild_ban_message": "$USERNAME was banned for spamming/sending duplicate messages.",
+        "user_kick_message": "Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/sending duplicate messages.",
+        "user_ban_message": "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/sending duplicate messages.",
+        "user_failed_kick_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+        "user_failed_ban_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+        "message_duplicate_count": 5,
+        "message_duplicate_accuracy": 90,
+        "delete_spam": true,
+        "ignore_perms": [
+            8
+        ],
+        "ignore_users": [],
+        "ignore_channels": [],
+        "ignore_roles": [],
+        "ignore_guilds": [],
+        "ignore_bots": true,
+        "warn_only": false,
+        "no_punish": false,
+        "per_channel_spam": false,
+        "guild_warn_message_delete_after": 10,
+        "user_kick_message_delete_after": null,
+        "guild_kick_message_delete_after": null,
+        "user_ban_message_delete_after": null,
+        "guild_ban_message_delete_after": null
+    },
+    "guilds": [
+        {
+            "id": 780784732484141077,
+            "options": {
+                "warn_threshold": 3,
+                "kick_threshold": 2,
+                "ban_threshold": 2,
+                "message_interval": 30000,
+                "guild_warn_message": {
+                    "title": "**Dear $USERNAME**",
+                    "description": "You are being warned for spam, please stop!",
+                    "timestamp": true,
+                    "color": 16711680,
+                    "footer": {
+                        "text": "$BOTNAME",
+                        "icon_url": "$BOTAVATAR"
+                    },
+                    "author": {
+                        "name": "$GUILDNAME",
+                        "icon_url": "$GUILDICON"
+                    },
+                    "fields": [
+                        {
+                            "name": "Current warns:",
+                            "value": "$WARNCOUNT",
+                            "inline": false
+                        },
+                        {
+                            "name": "Current kicks:",
+                            "value": "$KICKCOUNT",
+                            "inline": false
+                        }
+                    ]
+                },
+                "guild_kick_message": "$USERNAME was kicked for spamming/sending duplicate messages.",
+                "guild_ban_message": "$USERNAME was banned for spamming/sending duplicate messages.",
+                "user_kick_message": "Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/sending duplicate messages.",
+                "user_ban_message": "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/sending duplicate messages.",
+                "user_failed_kick_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                "user_failed_ban_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                "message_duplicate_count": 5,
+                "message_duplicate_accuracy": 90,
+                "delete_spam": true,
+                "ignore_perms": [
+                    8
+                ],
+                "ignore_users": [],
+                "ignore_channels": [],
+                "ignore_roles": [],
+                "ignore_guilds": [],
+                "ignore_bots": true,
+                "warn_only": false,
+                "no_punish": false,
+                "per_channel_spam": false,
+                "guild_warn_message_delete_after": 10,
+                "user_kick_message_delete_after": null,
+                "guild_kick_message_delete_after": null,
+                "user_ban_message_delete_after": null,
+                "guild_ban_message_delete_after": null
+            },
+            "has_custom_options": false,
+            "users": [
+                {
+                    "id": 271612318947868673,
+                    "options": {
+                        "warn_threshold": 3,
+                        "kick_threshold": 2,
+                        "ban_threshold": 2,
+                        "message_interval": 30000,
+                        "guild_warn_message": {
+                            "title": "**Dear $USERNAME**",
+                            "description": "You are being warned for spam, please stop!",
+                            "timestamp": true,
+                            "color": 16711680,
+                            "footer": {
+                                "text": "$BOTNAME",
+                                "icon_url": "$BOTAVATAR"
+                            },
+                            "author": {
+                                "name": "$GUILDNAME",
+                                "icon_url": "$GUILDICON"
+                            },
+                            "fields": [
+                                {
+                                    "name": "Current warns:",
+                                    "value": "$WARNCOUNT",
+                                    "inline": false
+                                },
+                                {
+                                    "name": "Current kicks:",
+                                    "value": "$KICKCOUNT",
+                                    "inline": false
+                                }
+                            ]
+                        },
+                        "guild_kick_message": "$USERNAME was kicked for spamming/sending duplicate messages.",
+                        "guild_ban_message": "$USERNAME was banned for spamming/sending duplicate messages.",
+                        "user_kick_message": "Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/sending duplicate messages.",
+                        "user_ban_message": "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/sending duplicate messages.",
+                        "user_failed_kick_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                        "user_failed_ban_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                        "message_duplicate_count": 5,
+                        "message_duplicate_accuracy": 90,
+                        "delete_spam": true,
+                        "ignore_perms": [
+                            8
+                        ],
+                        "ignore_users": [],
+                        "ignore_channels": [],
+                        "ignore_roles": [],
+                        "ignore_guilds": [],
+                        "ignore_bots": true,
+                        "warn_only": false,
+                        "no_punish": false,
+                        "per_channel_spam": false,
+                        "guild_warn_message_delete_after": 10,
+                        "user_kick_message_delete_after": null,
+                        "guild_kick_message_delete_after": null,
+                        "user_ban_message_delete_after": null,
+                        "guild_ban_message_delete_after": null
+                    },
+                    "guild_id": 780784732484141077,
+                    "is_in_guild": true,
+                    "warn_count": 0,
+                    "kick_count": 0,
+                    "duplicate_count": 1,
+                    "duplicate_channel_counter_dict": {},
+                    "messages": [
+                        {
+                            "id": 824259735758831647,
+                            "content": "hahah",
+                            "guild_id": 780784732484141077,
+                            "author_id": 271612318947868673,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "071089:56:33:12:24:2021"
+                        },
+                        {
+                            "id": 824259754586931240,
+                            "content": "https://tenor.com/view/petty-bratz-fab-gif-13092559",
+                            "guild_id": 780784732484141077,
+                            "author_id": 271612318947868673,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "557088:00:34:12:24:2021"
+                        },
+                        {
+                            "id": 824259811167436822,
+                            "content": "I need more then 1 data point lol",
+                            "guild_id": 780784732484141077,
+                            "author_id": 271612318947868673,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "125092:14:34:12:24:2021"
+                        },
+                        {
+                            "id": 824259831988748330,
+                            "content": "spooood",
+                            "guild_id": 780784732484141077,
+                            "author_id": 271612318947868673,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "128089:19:34:12:24:2021"
+                        },
+                        {
+                            "id": 824259857199661067,
+                            "content": "?save unittests",
+                            "guild_id": 780784732484141077,
+                            "author_id": 271612318947868673,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "062087:25:34:12:24:2021"
+                        }
+                    ]
+                },
+                {
+                    "id": 668423998777982997,
+                    "options": {
+                        "warn_threshold": 3,
+                        "kick_threshold": 2,
+                        "ban_threshold": 2,
+                        "message_interval": 30000,
+                        "guild_warn_message": {
+                            "title": "**Dear $USERNAME**",
+                            "description": "You are being warned for spam, please stop!",
+                            "timestamp": true,
+                            "color": 16711680,
+                            "footer": {
+                                "text": "$BOTNAME",
+                                "icon_url": "$BOTAVATAR"
+                            },
+                            "author": {
+                                "name": "$GUILDNAME",
+                                "icon_url": "$GUILDICON"
+                            },
+                            "fields": [
+                                {
+                                    "name": "Current warns:",
+                                    "value": "$WARNCOUNT",
+                                    "inline": false
+                                },
+                                {
+                                    "name": "Current kicks:",
+                                    "value": "$KICKCOUNT",
+                                    "inline": false
+                                }
+                            ]
+                        },
+                        "guild_kick_message": "$USERNAME was kicked for spamming/sending duplicate messages.",
+                        "guild_ban_message": "$USERNAME was banned for spamming/sending duplicate messages.",
+                        "user_kick_message": "Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/sending duplicate messages.",
+                        "user_ban_message": "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/sending duplicate messages.",
+                        "user_failed_kick_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                        "user_failed_ban_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+                        "message_duplicate_count": 5,
+                        "message_duplicate_accuracy": 90,
+                        "delete_spam": true,
+                        "ignore_perms": [
+                            8
+                        ],
+                        "ignore_users": [],
+                        "ignore_channels": [],
+                        "ignore_roles": [],
+                        "ignore_guilds": [],
+                        "ignore_bots": true,
+                        "warn_only": false,
+                        "no_punish": false,
+                        "per_channel_spam": false,
+                        "guild_warn_message_delete_after": 10,
+                        "user_kick_message_delete_after": null,
+                        "guild_kick_message_delete_after": null,
+                        "user_ban_message_delete_after": null,
+                        "guild_ban_message_delete_after": null
+                    },
+                    "guild_id": 780784732484141077,
+                    "is_in_guild": true,
+                    "warn_count": 0,
+                    "kick_count": 0,
+                    "duplicate_count": 1,
+                    "duplicate_channel_counter_dict": {},
+                    "messages": [
+                        {
+                            "id": 824259787151769600,
+                            "content": "ah",
+                            "guild_id": 780784732484141077,
+                            "author_id": 668423998777982997,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "322089:08:34:12:24:2021"
+                        },
+                        {
+                            "id": 824259817660088330,
+                            "content": "I am speeeeed",
+                            "guild_id": 780784732484141077,
+                            "author_id": 668423998777982997,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "600569:15:34:12:24:2021"
+                        },
+                        {
+                            "id": 824259832009457674,
+                            "content": "Neowing",
+                            "guild_id": 780784732484141077,
+                            "author_id": 668423998777982997,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "011097:19:34:12:24:2021"
+                        },
+                        {
+                            "id": 824259841086193687,
+                            "content": "Brrr",
+                            "guild_id": 780784732484141077,
+                            "author_id": 668423998777982997,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "225596:21:34:12:24:2021"
+                        },
+                        {
+                            "id": 824259852418678804,
+                            "content": "Bwoahhhh",
+                            "guild_id": 780784732484141077,
+                            "author_id": 668423998777982997,
+                            "channel_id": 780789244250816524,
+                            "is_duplicate": false,
+                            "creation_time": "883070:23:34:12:24:2021"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

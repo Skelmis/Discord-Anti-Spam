@@ -214,6 +214,6 @@ class Message:
     @is_duplicate.setter
     def is_duplicate(self, value):
         if not isinstance(value, bool):
-            raise ValueError("isDuplicate should be a bool")
+            raise ValueError("is_duplicate should be a bool")
 
         self._is_duplicate = value

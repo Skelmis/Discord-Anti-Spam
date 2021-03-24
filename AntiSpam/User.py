@@ -187,11 +187,7 @@ class User:
             content = value.clean_content
 
         message = Message(
-            value.id,
-            content,
-            value.author.id,
-            value.channel.id,
-            value.guild.id,
+            value.id, content, value.author.id, value.channel.id, value.guild.id,
         )
 
         for message_obj in self.messages:
@@ -352,6 +348,56 @@ class User:
         return_data["kick_count"] = self.kick_count
         return_data["duplicate_counter"] = self.get_correct_duplicate_count()
         return return_data
+
+    @staticmethod
+    async def load_from_dict(bot, user_data):
+        """
+        Loads a new user obj from a dict
+        
+        Parameters
+        ----------
+        bot : commands.Bot
+            The bot
+        user_data : dict
+            The data to load state from
+
+        Returns
+        -------
+        User
+
+        """
+        user = User(
+            bot=bot,
+            id=user_data["id"],
+            guild_id=user_data["guild_id"],
+            options=deepcopy(user_data["options"]),
+        )
+        user.in_guild = user_data["is_in_guild"]
+        user.warn_count = user_data["warn_count"]
+        user.kick_count = user_data["kick_count"]
+        user.duplicate_counter = user_data["duplicate_count"]
+        user.duplicate_channel_counter_dict = deepcopy(
+            user_data["duplicate_channel_counter_dict"]
+        )
+
+        for message_data in user_data["messages"]:
+            # Do this to save overhead in the message object
+            # and keep it as small as possible
+            message = Message(
+                id=message_data["id"],
+                content=message_data["content"],
+                guild_id=message_data["guild_id"],
+                author_id=message_data["author_id"],
+                channel_id=message_data["channel_id"],
+            )
+            message.is_duplicate = message_data["is_duplicate"]
+            message._creation_time = datetime.datetime.strptime(
+                message_data["creation_time"], "%f:%S:%M:%H:%d:%Y"
+            )
+
+            user.messages = message
+
+        return user
 
     async def save_to_dict(self) -> dict:
         """
@@ -549,8 +595,7 @@ class User:
                             )
                         else:
                             await member.send(
-                                user_failed_message,
-                                delete_after=user_delete_after,
+                                user_failed_message, delete_after=user_delete_after,
                             )
                         await m.delete()
 
@@ -588,8 +633,7 @@ class User:
                             )
                         else:
                             await member.send(
-                                user_failed_message,
-                                delete_after=user_delete_after,
+                                user_failed_message, delete_after=user_delete_after,
                             )
                         await m.delete()
 
@@ -597,13 +641,11 @@ class User:
                     try:
                         if isinstance(guild_message, discord.Embed):
                             await dc_channel.send(
-                                embed=guild_message,
-                                delete_after=channel_delete_after,
+                                embed=guild_message, delete_after=channel_delete_after,
                             )
                         else:
                             await dc_channel.send(
-                                guild_message,
-                                delete_after=channel_delete_after,
+                                guild_message, delete_after=channel_delete_after,
                             )
                     except discord.HTTPException:
                         log.error(

@@ -144,12 +144,7 @@ class Guild:
         ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
-        user = User(
-            self._bot,
-            message.author.id,
-            message.guild.id,
-            self.options,
-        )
+        user = User(self._bot, message.author.id, message.guild.id, self.options,)
         try:
             user = next(iter(u for u in self._users if u == user))
         except StopIteration:
@@ -157,6 +152,35 @@ class Guild:
             log.info(f"Created User: {user.id}")
 
         return await user.propagate(message)
+
+    @staticmethod
+    async def load_from_dict(bot, guild_data):
+        """
+        Loads the guild based on the passed data
+        
+        Parameters
+        ----------
+        bot : commands.Bot
+            The bot
+        guild_data : dict
+            The data to load from
+            
+        Returns
+        -------
+        Guild
+
+        """
+        guild = Guild(
+            bot=bot,
+            id=guild_data["id"],
+            options=deepcopy(guild_data["options"]),
+            custom_options=guild_data["has_custom_options"],
+        )
+
+        for user in guild_data["users"]:
+            guild.users = await User.load_from_dict(bot, user)
+
+        return guild
 
     async def save_to_dict(self) -> dict:
         """
@@ -212,8 +236,7 @@ class Guild:
         if self.id != value.guild_id:
             raise ObjectMismatch
 
-        for user in self._users:
-            if user == value:
-                raise DuplicateObject
+        if value in self._users:
+            raise DuplicateObject
 
         self._users.append(value)
