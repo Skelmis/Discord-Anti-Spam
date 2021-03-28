@@ -144,7 +144,12 @@ class Guild:
         ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
-        user = User(self._bot, message.author.id, message.guild.id, self.options,)
+        user = User(
+            self._bot,
+            message.author.id,
+            message.guild.id,
+            self.options,
+        )
         try:
             user = next(iter(u for u in self._users if u == user))
         except StopIteration:
@@ -157,14 +162,14 @@ class Guild:
     async def load_from_dict(bot, guild_data):
         """
         Loads the guild based on the passed data
-        
+
         Parameters
         ----------
         bot : commands.Bot
             The bot
         guild_data : dict
             The data to load from
-            
+
         Returns
         -------
         Guild

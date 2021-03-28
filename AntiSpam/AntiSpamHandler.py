@@ -22,6 +22,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import inspect
 import logging
 from copy import deepcopy
 from typing import Optional, Union
@@ -30,12 +31,13 @@ from unittest.mock import AsyncMock
 import discord
 from discord.ext import commands
 
+from AntiSpam import BaseExtension
 from AntiSpam.Guild import Guild
 from AntiSpam.Exceptions import (
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,
-    LogicError,
+    LogicError, ExtensionError,
 )
 from AntiSpam.User import User
 from AntiSpam.static import Static
@@ -233,15 +235,18 @@ class AntiSpamHandler:
             The time to delete the ``guild_ban_message`` message
         """
         # Just gotta casually ignore_type check everything.
-        if not isinstance(
-            bot,
-            (
-                commands.Bot,
-                commands.AutoShardedBot,
-                discord.Client,
-                discord.AutoShardedClient,
-            ),
-        ) and not isinstance(bot, AsyncMock):
+        if (
+            not isinstance(
+                bot,
+                (
+                    commands.Bot,
+                    commands.AutoShardedBot,
+                    discord.Client,
+                    discord.AutoShardedClient,
+                ),
+            )
+            and not isinstance(bot, AsyncMock)
+        ):
             raise ValueError(
                 "Expected bot of type commands.Bot, commands.AutoShardedBot, discord.Client or discord.AutoShardedClient"
             )
@@ -250,6 +255,9 @@ class AntiSpamHandler:
 
         self.bot = bot
         self._guilds = []
+
+        self.pre_invoke_extensions = []
+        self.after_invoke_extensions = []
 
         log.info("Package initialized successfully")
 
@@ -702,7 +710,7 @@ class AntiSpamHandler:
             The bot instance
         data : dict
             The data to load AntiSpamHandler from
-            
+
         Returns
         -------
         AntiSpamHandler
@@ -714,14 +722,14 @@ class AntiSpamHandler:
         Don't provide data that was not given to you
         outside of the ``save_to_dict`` method unless
         you are maintaining the correct format.
-        
+
         Notes
         -----
         This method does not check for data conformity.
         Any invalid input will error.
-        
+
         -----
-        
+
         This is fairly computationally expensive. It deepcopies
         nearly everything lol.
 
@@ -773,6 +781,42 @@ class AntiSpamHandler:
             data["guilds"].append(await guild.save_to_dict())
 
         return data
+
+    def register_extension(self, extension) -> None:
+        """
+        Registers an extension for usage for within the package
+
+        Parameters
+        ----------
+        extension
+            The extension to register
+
+        Notes
+        -----
+        This must be a class instance, and must
+        subclass ``BaseExtension``
+        """
+        if not issubclass(extension, BaseExtension):
+            raise ExtensionError("Expected extension that subclassed BaseExtension")
+
+        if not inspect.iscoroutinefunction(getattr(extension, "propagate")):
+            raise ExtensionError("Expected coro method for propagate")
+
+        is_pre_invoke = getattr(extension, "is_pre_invoke", True)
+
+        propagate_signature = inspect.signature(getattr(extension, "propagate"))
+        takes_params = len(propagate_signature.parameters)
+
+        # TODO Test this!
+        if is_pre_invoke and takes_params != 2:
+            raise ExtensionError("Pre-invoke propagate take should `self, message`")
+        elif not is_pre_invoke and takes_params != 3:
+            raise ExtensionError("After-invoke propagate should take `self, message, data`")
+
+        if is_pre_invoke:
+            self.pre_invoke_extensions.append(extension)
+        elif not is_pre_invoke:
+            self.after_invoke_extensions.append(extension)
 
     def _ensure_options(
         self,

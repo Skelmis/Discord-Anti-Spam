@@ -6,6 +6,8 @@ This framework can be used to hook into the ``propagate`` method and run
 as either a **pre-invoke** or **after-invoke** (Where **invoke** is
 the built in **propagate**)
 
+All registered extensions **must** subclass ``BaseExtension``
+
 An extension can do anything, from AntiProfanity to AntiInvite.
 Assuming it is class based and follows the required schema you
 can easily develop your own extension that can be run whenever the

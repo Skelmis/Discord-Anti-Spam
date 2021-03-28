@@ -20,6 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import asyncio
 import unittest
 import discord
 
@@ -763,7 +764,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(data[3]["should_be_punished_this_message"], True)
         self.assertEqual(data[5]["should_be_punished_this_message"], True)
 
-    @unittest.expectedFailure # Not sure why, but adding ignored users appears to interact accross tests
+    @unittest.expectedFailure  # Not sure why, but adding ignored users appears to interact accross tests
     async def test_statefulLoading(self):
         data = read_json("unittests")
         test_ash = await AntiSpamHandler.load_from_dict(
