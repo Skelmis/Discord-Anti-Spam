@@ -31,13 +31,14 @@ from unittest.mock import AsyncMock
 import discord
 from discord.ext import commands
 
-from AntiSpam import BaseExtension
+from AntiSpam.ext import BaseExtension
 from AntiSpam.Guild import Guild
 from AntiSpam.Exceptions import (
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,
-    LogicError, ExtensionError,
+    LogicError,
+    ExtensionError,
 )
 from AntiSpam.User import User
 from AntiSpam.static import Static
@@ -796,8 +797,12 @@ class AntiSpamHandler:
         This must be a class instance, and must
         subclass ``BaseExtension``
         """
-        if not issubclass(extension, BaseExtension):
-            raise ExtensionError("Expected extension that subclassed BaseExtension")
+        if not issubclass(type(extension), BaseExtension):
+            raise ExtensionError(
+                "Expected extension that subclassed BaseExtension and was a class instance not class reference"
+            )
+
+        # TODO Try explicitly check its actually a class instance rather then inferring it?
 
         if not inspect.iscoroutinefunction(getattr(extension, "propagate")):
             raise ExtensionError("Expected coro method for propagate")
@@ -811,7 +816,9 @@ class AntiSpamHandler:
         if is_pre_invoke and takes_params != 2:
             raise ExtensionError("Pre-invoke propagate take should `self, message`")
         elif not is_pre_invoke and takes_params != 3:
-            raise ExtensionError("After-invoke propagate should take `self, message, data`")
+            raise ExtensionError(
+                "After-invoke propagate should take `self, message, data`"
+            )
 
         if is_pre_invoke:
             self.pre_invoke_extensions.append(extension)

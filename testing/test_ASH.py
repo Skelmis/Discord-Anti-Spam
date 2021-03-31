@@ -26,12 +26,12 @@ import discord
 
 from discord.ext import commands
 
-from AntiSpam import AntiSpamHandler
+from AntiSpam import AntiSpamHandler, BaseExtension
 from AntiSpam.Exceptions import (
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,
-    LogicError,
+    LogicError, ExtensionError,
 )
 from AntiSpam.static import Static
 from AntiSpam.Guild import Guild
@@ -772,6 +772,17 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         )
         result = await test_ash.save_to_dict()
         self.assertEqual(data, result)
+
+    async def test_registerPreInvoke(self):
+        class PreInvoke(BaseExtension):
+            pass
+
+        self.assertEqual(len(self.ash.pre_invoke_extensions), 0)
+        self.ash.register_extension(PreInvoke())
+        self.assertEqual(len(self.ash.pre_invoke_extensions), 1)
+
+        with self.assertRaises(ExtensionError):
+            self.ash.register_extension(PreInvoke)
 
 
 # TODO test delete_after options
