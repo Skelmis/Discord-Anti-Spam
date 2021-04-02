@@ -135,27 +135,28 @@ Custom Punishments
     from AntiSpam.ext import AntiSpamTracker
 
     bot = commands.Bot(command_prefix="!")
-    bot.handler = AntiSpamHandler(bot, guild_warn_message=warn, no_punish=True)
-    bot.tracker = AntiSpamTracker(bot.handler, 3)
-    # 3 Being how many 'punishment requests' before is_spamming returns True
+    bot.handler = AntiSpamHandler(bot, no_punish=True)
+    bot.tracker = AntiSpamTracker(bot.handler, 3) # 3 Being how many 'punishment requests' before is_spamming returns True
+    bot.handler.register_extension(bot.tracker)
+
 
     @bot.event
     async def on_ready():
+        # On ready, print some details to standard out
         print(f"-----\nLogged in as: {bot.user.name} : {bot.user.id}\n-----")
+
 
     @bot.event
     async def on_message(message):
-        if message.author.bot:
-            return
-
-        data = await bot.handler.propagate(message)
-        bot.tracker.update_cache(message, data)
+        await bot.handler.propagate(message)
 
         if bot.tracker.is_spamming(message):
-          # Do things like mute the user
+            # Insert code to mute the user
 
-          # Reset the spam counter
-          bot.tracker.remove_punishments(message)
+            # Insert code to tell admins
+
+            # ETC
+            bot.tracker.remove_punishments(message)
 
         await bot.process_commands(message)
 
