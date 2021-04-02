@@ -224,23 +224,23 @@ class User:
         self.messages = message
         log.info(f"Created Message: {message.id}")
 
-        if (
-            self.options.get("delete_spam") is True
-            and self.options.get("no_punish") is False
-        ):
-            try:
-                await value.delete()
-            except discord.HTTPException:
-                # Failed to delete message
-                log.warning(
-                    f"Failed to delete message {value.id} in guild {value.guild.id}"
-                )
-
         if self.duplicate_counter >= self.options["message_duplicate_count"]:
             log.debug(f"Message: ({message.id}) requires some form of punishment")
             # We need to punish the member with something
             return_data["should_be_punished_this_message"] = True
             only_warn = False
+
+            if (
+                self.options.get("delete_spam") is True
+                and self.options.get("no_punish") is False
+            ):
+                try:
+                    await value.delete()
+                except discord.HTTPException:
+                    # Failed to delete message
+                    log.warning(
+                        f"Failed to delete message {value.id} in guild {value.guild.id}"
+                    )
 
             if self.options["warn_only"]:
                 only_warn = True
