@@ -19,7 +19,9 @@ This handler propagation method also returns the following dictionary for you to
         "status": string,
         "warn_count": integer,
         "kick_count": integer,
-        "duplicate_counter": integer
+        "duplicate_counter": integer,
+        "pre_invoke_extensions": list,
+        "after_invoke_extensions": list,
     }
 
 

@@ -31,7 +31,6 @@ from unittest.mock import AsyncMock
 import discord
 from discord.ext import commands
 
-from AntiSpam.ext import BaseExtension
 from AntiSpam.Guild import Guild
 from AntiSpam.Exceptions import (
     DuplicateObject,
@@ -40,6 +39,7 @@ from AntiSpam.Exceptions import (
     LogicError,
     ExtensionError,
 )
+from AntiSpam.BaseExtension import BaseExtension
 from AntiSpam.User import User
 from AntiSpam.static import Static
 
@@ -349,7 +349,19 @@ class AntiSpamHandler:
             self.guilds = guild
             log.info(f"Created Guild: {guild.id}")
 
-        return await guild.propagate(message)
+        data = {"pre_invoke_extensions": [], "after_invoke_extensions": []}
+
+        for pre_invoke_ext in self.pre_invoke_extensions.values():
+            pre_invoke_return = await pre_invoke_ext.propagate(message)
+            data["pre_invoke_extensions"].append(pre_invoke_return)
+
+        main_return = await guild.propagate(message)
+
+        for after_invoke_ext in self.after_invoke_extensions.values():
+            after_invoke_return = await after_invoke_ext.propagate(message, main_return)
+            data["after_invoke_extensions"].append(after_invoke_return)
+
+        return {**main_return, **data}
 
     def add_ignored_item(self, item: int, ignore_type: str) -> None:
         """
@@ -805,6 +817,7 @@ class AntiSpamHandler:
         subclass ``BaseExtension``
         """
         if not issubclass(type(extension), BaseExtension):
+            log.debug("Failed to load extension due to class type issues")
             raise ExtensionError(
                 "Expected extension that subclassed BaseExtension and was a class instance not class reference"
             )
@@ -812,6 +825,7 @@ class AntiSpamHandler:
         # TODO Try explicitly check its actually a class instance rather then inferring it?
 
         if not inspect.iscoroutinefunction(getattr(extension, "propagate")):
+            log.debug("Failed to load extension due to a failed propagate inspect")
             raise ExtensionError("Expected coro method for propagate")
 
         is_pre_invoke = getattr(extension, "is_pre_invoke", True)
@@ -819,27 +833,34 @@ class AntiSpamHandler:
         propagate_signature = inspect.signature(getattr(extension, "propagate"))
         takes_params = len(propagate_signature.parameters)
 
+        # TODO Fix this
+        """
         if is_pre_invoke and takes_params != 2:
+            log.debug("Extension propagate failed to take the required arguments")
             raise ExtensionError("Pre-invoke propagate take should `self, message`")
         elif not is_pre_invoke and takes_params != 3:
+            log.debug("Extension propagate failed to take the required arguments")
             raise ExtensionError(
                 "After-invoke propagate should take `self, message, data`"
             )
+        """
 
         cls_name = extension.__class__.__name__.lower()
 
         if (
             self.pre_invoke_extensions.get(cls_name)
             or self.after_invoke_extensions.get(cls_name)
-            and not force_overwrite
-        ):
+        ) and not force_overwrite:
+            log.debug("Duplicate extension load attempt")
             raise ExtensionError(
                 "Error loading extension, an extension with this name already exists!"
             )
 
         if is_pre_invoke:
+            log.info(f"Loading pre-invoke extension: {cls_name}")
             self.pre_invoke_extensions[cls_name] = extension
         elif not is_pre_invoke:
+            log.info(f"Loading after-invoke extension: {cls_name}")
             self.after_invoke_extensions[cls_name] = extension
 
     def unregister_extension(self, extension_name: str) -> None:
@@ -869,7 +890,12 @@ class AntiSpamHandler:
             self.after_invoke_extensions.pop(extension_name.lower())
         except KeyError:
             if not has_popped_pre_invoke:
+                log.debug(
+                    f"Failed to unload extension {extension_name} as it isn't loaded"
+                )
                 raise ExtensionError("An extension matching this name doesn't exist!")
+
+        log.info(f"Unregistered extension {extension_name}")
 
     def _ensure_options(
         self,

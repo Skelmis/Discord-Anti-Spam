@@ -22,8 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 from AntiSpam.AntiSpamHandler import AntiSpamHandler
 from AntiSpam.Exceptions import *
-
-from .ext import BaseExtension
+from AntiSpam.BaseExtension import BaseExtension
 
 import logging
 

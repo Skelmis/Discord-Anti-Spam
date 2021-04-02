@@ -224,7 +224,10 @@ class User:
         self.messages = message
         log.info(f"Created Message: {message.id}")
 
-        if self.options.get("delete_spam") is True:
+        if (
+            self.options.get("delete_spam") is True
+            and self.options.get("no_punish") is False
+        ):
             try:
                 await value.delete()
             except discord.HTTPException:

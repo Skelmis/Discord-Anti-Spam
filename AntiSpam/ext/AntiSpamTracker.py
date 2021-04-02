@@ -28,14 +28,16 @@ from copy import deepcopy
 from unittest.mock import AsyncMock
 
 import discord
+import typing
 
 from AntiSpam import AntiSpamHandler
+from AntiSpam.BaseExtension import BaseExtension
 from AntiSpam.Exceptions import UserNotFound
 
 log = logging.getLogger(__name__)
 
 
-class AntiSpamTracker:
+class AntiSpamTracker(BaseExtension):
     """
     A class devoted to people who want to handle punishments themselves.
 
@@ -110,6 +112,9 @@ class AntiSpamTracker:
         ValueError
             Invalid Arg Type
         """
+        super().__init__()
+        self.is_pre_invoke = False
+
         self.punish_min_amount = int(spam_amount_to_punish)
 
         if not isinstance(anti_spam_handler, AntiSpamHandler):
@@ -149,6 +154,16 @@ class AntiSpamTracker:
         return_value = f"AntiSpamTracker(AntiSpamHandler Instance, {self.punish_min_amount}, {self.valid_global_interval})\n"
         return_value += str(self.user_tracking)
         return return_value
+
+    async def propagate(
+        self, message: discord.Message, data: typing.Optional[dict] = None
+    ) -> dict:
+        """
+        Overwrite the base extension to call ``update_cache``
+        internally so it can be used as an extension
+        """
+        self.update_cache(message, data)
+        return {"status": "Cache updated"}
 
     def update_cache(self, message: discord.Message, data: dict) -> None:
         """

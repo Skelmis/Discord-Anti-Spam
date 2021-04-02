@@ -802,6 +802,9 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ExtensionError):
             self.ash.register_extension(AfterInvokeProp())
 
+        # Cleanup
+        self.ash.unregister_extension("PreInvoke")
+
         self.ash.register_extension(PreInvoke())
         with self.assertRaises(ExtensionError):
             self.ash.register_extension(PreInvoke())

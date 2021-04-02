@@ -3,14 +3,15 @@ from discord.ext import commands
 
 from AntiSpam import AntiSpamHandler
 from AntiSpam.ext import AntiSpamTracker
-from testing.jsonLoader import read_json
+from jsonLoader import read_json
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 file = read_json("token")
 
-bot.handler = AntiSpamHandler(bot)
+bot.handler = AntiSpamHandler(bot, no_punish=True)
 bot.tracker = AntiSpamTracker(bot.handler, 3)
+bot.handler.register_extension(bot.tracker)
 
 
 @bot.event
@@ -21,8 +22,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    data = await bot.handler.propagate(message)
-    bot.tracker.update_cache(message, data)
+    await bot.handler.propagate(message)
 
     if bot.tracker.is_spamming(message):
         # Insert code to mute the user
