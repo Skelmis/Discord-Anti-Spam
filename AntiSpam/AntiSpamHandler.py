@@ -152,6 +152,7 @@ class AntiSpamHandler:
 
         guild_ban_message_delete_after: None
             The time to delete the ``guild_ban_message`` message
+
     """
 
     # TODO Add options for group spamming, rather then just per member.
@@ -246,10 +247,22 @@ class AntiSpamHandler:
             ),
         ) and not isinstance(bot, AsyncMock):
             raise ValueError(
-                "Expected bot of type commands.Bot, commands.AutoShardedBot, discord.Client or discord.AutoShardedClient"
+                "Expected bot of type commands.Bot, commands.AutoShardedBot, "
+                "discord.Client or discord.AutoShardedClient"
             )
 
         self.options = self._ensure_options(**kwargs)
+
+        if self.options.get("no_punish") and (
+            self.options.get("delete_spam"),
+            self.options.get("warn_only"),
+            self.options.get("per_channel_spam"),
+        ):
+            log.warning(
+                "You are attempting to create an AntiSpamHandler with options that are mutually exclusive. "
+                "Please note `no_punish` will over rule any other options you attempt to set which are "
+                "mutually exclusive."
+            )
 
         self.bot = bot
         self._guilds = []
