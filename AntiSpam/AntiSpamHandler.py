@@ -22,6 +22,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import inspect
 import logging
 from copy import deepcopy
 from typing import Optional, Union
@@ -30,12 +31,14 @@ from unittest.mock import AsyncMock
 import discord
 from discord.ext import commands
 
+from AntiSpam.ext import BaseExtension
 from AntiSpam.Guild import Guild
 from AntiSpam.Exceptions import (
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,
     LogicError,
+    ExtensionError,
 )
 from AntiSpam.User import User
 from AntiSpam.static import Static
@@ -250,6 +253,9 @@ class AntiSpamHandler:
 
         self.bot = bot
         self._guilds = []
+
+        self.pre_invoke_extensions = {}
+        self.after_invoke_extensions = {}
 
         log.info("Package initialized successfully")
 
@@ -702,7 +708,7 @@ class AntiSpamHandler:
             The bot instance
         data : dict
             The data to load AntiSpamHandler from
-            
+
         Returns
         -------
         AntiSpamHandler
@@ -714,14 +720,14 @@ class AntiSpamHandler:
         Don't provide data that was not given to you
         outside of the ``save_to_dict`` method unless
         you are maintaining the correct format.
-        
+
         Notes
         -----
         This method does not check for data conformity.
         Any invalid input will error.
-        
+
         -----
-        
+
         This is fairly computationally expensive. It deepcopies
         nearly everything lol.
 
@@ -773,6 +779,97 @@ class AntiSpamHandler:
             data["guilds"].append(await guild.save_to_dict())
 
         return data
+
+    def register_extension(self, extension, force_overwrite=False) -> None:
+        """
+        Registers an extension for usage for within the package
+
+        Parameters
+        ----------
+        extension
+            The extension to register
+        force_overwrite : bool
+            Whether to overwrite any duplicates currently stored.
+
+            Think of this as calling ``unregister_extension`` and
+            then proceeding to call this method.
+
+        Raises
+        ------
+        ExtensionError
+            An extension with this name is already loaded
+
+        Notes
+        -----
+        This must be a class instance, and must
+        subclass ``BaseExtension``
+        """
+        if not issubclass(type(extension), BaseExtension):
+            raise ExtensionError(
+                "Expected extension that subclassed BaseExtension and was a class instance not class reference"
+            )
+
+        # TODO Try explicitly check its actually a class instance rather then inferring it?
+
+        if not inspect.iscoroutinefunction(getattr(extension, "propagate")):
+            raise ExtensionError("Expected coro method for propagate")
+
+        is_pre_invoke = getattr(extension, "is_pre_invoke", True)
+
+        propagate_signature = inspect.signature(getattr(extension, "propagate"))
+        takes_params = len(propagate_signature.parameters)
+
+        if is_pre_invoke and takes_params != 2:
+            raise ExtensionError("Pre-invoke propagate take should `self, message`")
+        elif not is_pre_invoke and takes_params != 3:
+            raise ExtensionError(
+                "After-invoke propagate should take `self, message, data`"
+            )
+
+        cls_name = extension.__class__.__name__.lower()
+
+        if (
+            self.pre_invoke_extensions.get(cls_name)
+            or self.after_invoke_extensions.get(cls_name)
+            and not force_overwrite
+        ):
+            raise ExtensionError(
+                "Error loading extension, an extension with this name already exists!"
+            )
+
+        if is_pre_invoke:
+            self.pre_invoke_extensions[cls_name] = extension
+        elif not is_pre_invoke:
+            self.after_invoke_extensions[cls_name] = extension
+
+    def unregister_extension(self, extension_name: str) -> None:
+        """
+        Used to unregister or remove an extension that is
+        currently loaded into AntiSpamHandler
+
+        Parameters
+        ----------
+        extension_name : str
+            The name of the class you want to unregister
+
+        Raises
+        ------
+        ExtensionError
+            This extension isn't loaded
+
+        """
+        has_popped_pre_invoke = False
+        try:
+            self.pre_invoke_extensions.pop(extension_name.lower())
+            has_popped_pre_invoke = True
+        except KeyError:
+            pass
+
+        try:
+            self.after_invoke_extensions.pop(extension_name.lower())
+        except KeyError:
+            if not has_popped_pre_invoke:
+                raise ExtensionError("An extension matching this name doesn't exist!")
 
     def _ensure_options(
         self,

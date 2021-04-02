@@ -5,6 +5,8 @@ All extensions that aim to be used as a registered
 extension *within* ``AntiSpamHandler`` should
 have at least the following class layout.
 
+All registered extensions **must** subclass ``BaseExtension``
+
 
 Pre-invoke Schema
 -----------------

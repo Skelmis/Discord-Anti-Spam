@@ -20,17 +20,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import asyncio
 import unittest
 import discord
 
 from discord.ext import commands
 
-from AntiSpam import AntiSpamHandler
+from AntiSpam import AntiSpamHandler, BaseExtension
 from AntiSpam.Exceptions import (
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,
     LogicError,
+    ExtensionError,
 )
 from AntiSpam.static import Static
 from AntiSpam.Guild import Guild
@@ -38,7 +40,7 @@ from AntiSpam.User import User
 from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockMessage import MockedMessage
 
-from json_loader import read_json
+from json_loader import read_json, write_json
 
 
 class TestAsh(unittest.IsolatedAsyncioTestCase):
@@ -766,11 +768,57 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
     @unittest.skip
     async def test_statefulLoading(self):
         data = read_json("unittests")
-        ash = await AntiSpamHandler.load_from_dict(
+        test_ash = await AntiSpamHandler.load_from_dict(
             MockedMember(name="bot", member_id=98987, mock_type="bot").to_mock(), data
         )
-        result = await ash.save_to_dict()
+        result = await test_ash.save_to_dict()
         self.assertEqual(data, result)
+
+    async def test_registerPreInvoke(self):
+        class PreInvoke:
+            pass
+
+        with self.assertRaises(ExtensionError):
+            self.ash.register_extension(PreInvoke())
+
+        class PreInvoke(BaseExtension):
+            pass
+
+        self.assertEqual(len(self.ash.pre_invoke_extensions), 0)
+        self.ash.register_extension(PreInvoke())
+        self.assertEqual(len(self.ash.pre_invoke_extensions), 1)
+
+        with self.assertRaises(ExtensionError):
+            self.ash.register_extension(PreInvoke)
+
+        class AfterInvokeProp(BaseExtension):
+            def __init__(self):
+                super().__init__()
+                self.is_pre_invoke = False
+
+            async def propagate(self, message) -> dict:
+                pass
+
+        with self.assertRaises(ExtensionError):
+            self.ash.register_extension(AfterInvokeProp())
+
+        self.ash.register_extension(PreInvoke())
+        with self.assertRaises(ExtensionError):
+            self.ash.register_extension(PreInvoke())
+        self.ash.register_extension(PreInvoke(), force_overwrite=True)
+
+    async def test_unregisterExtension(self):
+        class PreInvoke(BaseExtension):
+            pass
+
+        with self.assertRaises(ExtensionError):
+            self.ash.unregister_extension("PreInvoke")
+
+        self.ash.register_extension(PreInvoke())
+
+        self.assertEqual(len(self.ash.pre_invoke_extensions), 1)
+        self.ash.unregister_extension("PreInvoke")
+        self.assertEqual(len(self.ash.pre_invoke_extensions), 0)
 
 
 # TODO test delete_after options

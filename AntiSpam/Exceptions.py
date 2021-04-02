@@ -55,3 +55,7 @@ class MissingGuildPermissions(BaseASHException):
 
 class UserNotFound(BaseASHException):
     """A User matching this id and guild id could not be found in the cache."""
+
+
+class ExtensionError(BaseASHException):
+    """An error occurred that was related to an extension and not AntiSpamHandler"""
