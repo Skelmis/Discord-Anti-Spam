@@ -236,6 +236,7 @@ class User:
             ):
                 try:
                     await value.delete()
+                    log.debug(f"Deleted message: {value.id}")
                 except discord.HTTPException:
                     # Failed to delete message
                     log.warning(
