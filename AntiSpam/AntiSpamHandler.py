@@ -637,6 +637,7 @@ class AntiSpamHandler:
         except StopIteration:
             raise BaseASHException("This guild does not exist")
         else:
+            log.debug(f"Returned guild options for {guild_id}")
             return deepcopy(guild.options), guild.has_custom_options
 
     def remove_custom_guild_options(self, guild_id: int) -> None:
@@ -669,6 +670,8 @@ class AntiSpamHandler:
         else:
             guild.options = self.options
             guild.has_custom_options = False
+
+            log.debug(f"Reset guild options for {guild_id}")
 
     def reset_user_count(self, user_id: int, guild_id: int, counter: str) -> None:
         """
@@ -715,8 +718,10 @@ class AntiSpamHandler:
 
         if counter.lower() == Static.WARNCOUNTER:
             user.warn_count = 0
+            log.debug(f"Reset the warn count for user: {user_id}")
         elif counter.lower() == Static.KICKCOUNTER:
             user.kick_count = 0
+            log.debug(f"Reset the kick count for user: {user_id}")
         else:
             raise LogicError("Invalid counter argument, please select a valid counter.")
 
@@ -761,6 +766,7 @@ class AntiSpamHandler:
         for guild in data["guilds"]:
             ash.guilds = await Guild.load_from_dict(bot, guild)
 
+        log.info("Loaded AntiSpamHandler from state")
         return ash
 
     async def save_to_dict(self) -> dict:
@@ -802,6 +808,8 @@ class AntiSpamHandler:
         data = {"options": self.options, "guilds": []}
         for guild in self._guilds:
             data["guilds"].append(await guild.save_to_dict())
+
+        log.info("Saved AntiSpamHandler state")
 
         return data
 

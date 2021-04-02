@@ -408,6 +408,9 @@ class User:
             )
 
             user.messages = message
+            log.debug(f"Created Message ({message.id}) from saved state")
+
+        log.debug(f"Created User ({user.id}) from saved state")
 
         return user
 

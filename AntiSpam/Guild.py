@@ -144,12 +144,7 @@ class Guild:
         ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
-        user = User(
-            self._bot,
-            message.author.id,
-            message.guild.id,
-            self.options,
-        )
+        user = User(self._bot, message.author.id, message.guild.id, self.options,)
         try:
             user = next(iter(u for u in self._users if u == user))
         except StopIteration:
@@ -185,6 +180,8 @@ class Guild:
         for user in guild_data["users"]:
             guild.users = await User.load_from_dict(bot, user)
 
+        log.debug(f"Created Guild ({guild.id}) from saved state")
+
         return guild
 
     async def save_to_dict(self) -> dict:
@@ -206,6 +203,8 @@ class Guild:
 
         for user in self._users:
             data["users"].append(await user.save_to_dict())
+
+        log.debug(f"Saved state for guild: {self.id}")
 
         return data
 
