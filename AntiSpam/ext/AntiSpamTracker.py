@@ -231,6 +231,9 @@ class AntiSpamTracker(BaseExtension):
         if not isinstance(message, (discord.Message, AsyncMock)):
             raise TypeError("Expected message of type: discord.Message")
 
+        if not message.guild:
+            raise UserNotFound("Can't find user's from dm's")
+
         user_id = message.author.id
         guild_id = message.guild.id
 
@@ -315,6 +318,9 @@ class AntiSpamTracker(BaseExtension):
         if not isinstance(message, (discord.Message, AsyncMock)):
             raise TypeError("Expected message of type: discord.Message")
 
+        if not message.guild:
+            return
+
         user_id = message.author.id
         guild_id = message.guild.id
 
@@ -396,6 +402,9 @@ class AntiSpamTracker(BaseExtension):
         """
         if not isinstance(message, (discord.Message, AsyncMock)):
             raise TypeError("Expected message of type: discord.Message")
+
+        if not message.guild:
+            return False
 
         try:
             user_count = self.get_user_count(message=message)
