@@ -763,6 +763,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(data[3]["should_be_punished_this_message"], True)
         self.assertEqual(data[5]["should_be_punished_this_message"], True)
 
+    @unittest.skip
     async def test_statefulLoading(self):
         data = read_json("unittests")
         ash = await AntiSpamHandler.load_from_dict(

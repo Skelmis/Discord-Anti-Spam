@@ -224,6 +224,15 @@ class User:
         self.messages = message
         log.info(f"Created Message: {message.id}")
 
+        if self.options.get("delete_spam") is True:
+            try:
+                await value.delete()
+            except discord.HTTPException:
+                # Failed to delete message
+                log.warning(
+                    f"Failed to delete message {value.id} in guild {value.guild.id}"
+                )
+
         if self.duplicate_counter >= self.options["message_duplicate_count"]:
             log.debug(f"Message: ({message.id}) requires some form of punishment")
             # We need to punish the member with something
@@ -517,15 +526,6 @@ class User:
                 f"I might not be able to punish {member.display_name}({member.id}) in {guild.name}({guild.id}) "
                 "because they are higher then me, which means I could lack the ability to kick/ban them."
             )
-
-        if self.options.get("delete_spam") is True:
-            try:
-                await value.delete()
-            except discord.HTTPException:
-                # Failed to delete message
-                log.warning(
-                    f"Failed to delete message {value.id} in guild {value.guild.id}"
-                )
 
         m = None
 
