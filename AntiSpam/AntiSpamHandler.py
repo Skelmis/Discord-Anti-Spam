@@ -727,7 +727,9 @@ class AntiSpamHandler:
             raise LogicError("Invalid counter argument, please select a valid counter.")
 
     @staticmethod
-    def load_from_dict(bot, data: dict):  # TODO typehint this correct
+    def load_from_dict(
+        bot, data: dict, *, raise_on_exception: bool = True
+    ):  # TODO typehint this correct
         """
         Can be used as an entry point when starting your bot
         to reload a previous state so you don't lose all of
@@ -739,6 +741,14 @@ class AntiSpamHandler:
             The bot instance
         data : dict
             The data to load AntiSpamHandler from
+        raise_on_exception : bool
+            Whether or not to raise if an issue is encountered
+            while trying to rebuild ``AntiSpamHandler`` from a saved state
+
+            If you set this to False, and an exception occurs during the
+            build process. This will return an ``AntiSpamhandler`` instance
+            **without** any of the saved state and is equivalent to simply
+            doing ``AntiSpamHandler(bot)``
 
         Returns
         -------
@@ -755,7 +765,14 @@ class AntiSpamHandler:
         Notes
         -----
         This method does not check for data conformity.
-        Any invalid input will error.
+        Any invalid input will error unless you set
+        ``raise_on_exception`` to ``False`` in which case
+        the following occurs
+
+        If you set ``raise_on_exception`` to ``False``, and an exception occurs during the
+        build process. This method will return an ``AntiSpamhandler`` instance
+        **without** any of the saved state and is equivalent to simply
+        doing ``AntiSpamHandler(bot)``
 
         -----
 
@@ -763,11 +780,22 @@ class AntiSpamHandler:
         nearly everything lol.
 
         """
-        ash = AntiSpamHandler(bot=bot, **data["options"])
-        for guild in data["guilds"]:
-            ash.guilds = Guild.load_from_dict(bot, guild)
+        try:
+            ash = AntiSpamHandler(bot=bot, **data["options"])
+            for guild in data["guilds"]:
+                ash.guilds = Guild.load_from_dict(bot, guild)
 
-        log.info("Loaded AntiSpamHandler from state")
+            log.info("Loaded AntiSpamHandler from state")
+        except Exception as e:
+            if raise_on_exception:
+                log.debug("Raising exception when attempting to load from state")
+                raise e
+
+            ash = AntiSpamHandler(bot=bot)
+            log.info(
+                "Failed to load AntiSpamHandler from state, returning a generic instance"
+            )
+
         return ash
 
     async def save_to_dict(self) -> dict:
