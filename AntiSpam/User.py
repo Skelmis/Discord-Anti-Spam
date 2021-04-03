@@ -363,7 +363,7 @@ class User:
         return return_data
 
     @staticmethod
-    async def load_from_dict(bot, user_data):
+    def load_from_dict(bot, user_data):
         """
         Loads a new user obj from a dict
 

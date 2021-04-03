@@ -154,7 +154,7 @@ class Guild:
         return await user.propagate(message)
 
     @staticmethod
-    async def load_from_dict(bot, guild_data):
+    def load_from_dict(bot, guild_data):
         """
         Loads the guild based on the passed data
 

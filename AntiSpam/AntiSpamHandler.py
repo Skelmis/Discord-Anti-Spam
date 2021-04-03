@@ -378,6 +378,7 @@ class AntiSpamHandler:
 
     def add_ignored_item(self, item: int, ignore_type: str) -> None:
         """
+        TODO Document this better with ignore_type notations
         Add an item to the relevant ignore list
 
         Parameters
@@ -726,7 +727,7 @@ class AntiSpamHandler:
             raise LogicError("Invalid counter argument, please select a valid counter.")
 
     @staticmethod
-    async def load_from_dict(bot, data: dict):  # TODO typehint this correct
+    def load_from_dict(bot, data: dict):  # TODO typehint this correct
         """
         Can be used as an entry point when starting your bot
         to reload a previous state so you don't lose all of
@@ -764,7 +765,7 @@ class AntiSpamHandler:
         """
         ash = AntiSpamHandler(bot=bot, **data["options"])
         for guild in data["guilds"]:
-            ash.guilds = await Guild.load_from_dict(bot, guild)
+            ash.guilds = Guild.load_from_dict(bot, guild)
 
         log.info("Loaded AntiSpamHandler from state")
         return ash
