@@ -178,7 +178,7 @@ class Guild:
         )
 
         for user in guild_data["users"]:
-            guild.users = await User.load_from_dict(bot, user)
+            guild.users = User.load_from_dict(bot, user)
 
         log.debug(f"Created Guild ({guild.id}) from saved state")
 
