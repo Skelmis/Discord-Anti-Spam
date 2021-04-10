@@ -166,21 +166,21 @@ class User:
         # Here we just check if the user is still in the guild by checking if the in_guild attribute is False.
         # Because if its False then we don't need to process the message.
         if not self.in_guild:
-            return
+            return {"status": "Bypassing message check since the user isnt in a guild"}
 
         self.clean_up(datetime.datetime.now(datetime.timezone.utc))
 
         # No point saving empty messages, although discord shouldn't allow them anyway
         if not bool(value.content and value.content.strip()):
             if not value.embeds:
-                return
+                return {"status": "No point saving empty messages"}
 
             embed = value.embeds[0]
             if not isinstance(embed, discord.Embed):
-                return
+                return {"status": "No point saving empty messages"}
 
             if embed.type.lower() != "rich":
-                return
+                return {"status": "No point saving empty messages"}
 
             content = embed_to_string(embed)
         else:
@@ -219,7 +219,7 @@ class User:
 
         # We check this again, because theoretically the above can take awhile to process etc
         if not self.in_guild:
-            return
+            return {"status": "Bypassing message check since the user isnt in a guild"}
 
         self.messages = message
         log.info(f"Created Message: {message.id}")
