@@ -22,6 +22,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import collections.abc
 import datetime
 import logging
 from copy import deepcopy
@@ -32,7 +33,7 @@ import typing
 
 from AntiSpam import AntiSpamHandler
 from AntiSpam.BaseExtension import BaseExtension
-from AntiSpam.Exceptions import UserNotFound
+from AntiSpam.Exceptions import UserNotFound, ExtensionError
 
 log = logging.getLogger(__name__)
 
@@ -112,7 +113,6 @@ class AntiSpamTracker(BaseExtension):
         ValueError
             Invalid Arg Type
         """
-        super().__init__()
         self.is_pre_invoke = False
 
         self.punish_min_amount = int(spam_amount_to_punish)
@@ -433,6 +433,78 @@ class AntiSpamTracker(BaseExtension):
 
         """
         pass
+
+    def save_to_dict(self) -> dict:
+        """
+        Similar to ``AntiSpamHandler.save_to_dict`` this method returns
+        a dictionary which can be used to rebuild the state of the class
+
+        Returns
+        -------
+        dict
+            The dict to rebuild state from
+
+        """
+        user_tracking = {}
+        for guild_id, guild in self.user_tracking.items():
+            user_tracking[guild_id] = {}
+
+            for user_id, timestamp_list in guild.items():
+                user_tracking[guild_id][user_id] = []
+
+                for timestamp in timestamp_list:
+                    user_tracking[guild_id][user_id].append(
+                        timestamp.strftime("%f:%S:%M:%H:%d:%Y")
+                    )
+
+        data = {
+            "min_punish_amount": self.punish_min_amount,
+            "valid_global_interval": self.valid_global_interval,
+            "user_tracking": user_tracking,
+        }
+        return data
+
+    @staticmethod
+    def load_from_dict(anti_spam_handler: AntiSpamHandler, data: dict):
+        """
+        Given a valid input *(from ``save_to_dict``)* build and
+        return a valid AntiSpamTracker state that matches the previously
+        saved state.
+
+        Parameters
+        ----------
+        anti_spam_handler : AntiSpamHandler
+            The AntiSpamHandler instance to attach this to
+        data : dict
+            The state to restore from
+
+        Returns
+        -------
+        AntiSpamTracker
+            A valid AntiSpamTracker instance restored
+            from the state provided to this method
+        """
+        if not isinstance(data, collections.abc.Mapping):
+            raise ExtensionError("Invalid datatype for load_from_dict")
+
+        tracker = AntiSpamTracker(
+            anti_spam_handler, data["min_punish_amount"], data["valid_global_interval"]
+        )
+        user_tracking = {}
+        for guild_id, guild in data["user_tracking"].items():
+            user_tracking[guild_id] = {}
+
+            for user_id, timestamp_list in guild.items():
+                user_tracking[guild_id][user_id] = []
+
+                for timestamp in timestamp_list:
+                    user_tracking[guild_id][user_id].append(
+                        datetime.datetime.strptime(timestamp, "%f:%S:%M:%H:%d:%Y")
+                    )
+
+        tracker.user_tracking = user_tracking
+
+        return tracker
 
     # <!-- Stuff I take over from AntiSpamHandler -->
     def add_custom_guild_options(self, guild_id: int, **kwargs):
