@@ -237,15 +237,18 @@ class AntiSpamHandler:
             The time to delete the ``guild_ban_message`` message
         """
         # Just gotta casually ignore_type check everything.
-        if not isinstance(
-            bot,
-            (
-                commands.Bot,
-                commands.AutoShardedBot,
-                discord.Client,
-                discord.AutoShardedClient,
-            ),
-        ) and not isinstance(bot, AsyncMock):
+        if (
+            not isinstance(
+                bot,
+                (
+                    commands.Bot,
+                    commands.AutoShardedBot,
+                    discord.Client,
+                    discord.AutoShardedClient,
+                ),
+            )
+            and not isinstance(bot, AsyncMock)
+        ):
             raise ValueError(
                 "Expected bot of type commands.Bot, commands.AutoShardedBot, "
                 "discord.Client or discord.AutoShardedClient"
@@ -574,6 +577,9 @@ class AntiSpamHandler:
         to continue using existing settings and merely change some
         I suggest using the get_options method first and then giving
         those values back to this method with the changed arguments
+
+        This is also a somewhat expensive operation at ``O(n)``
+        where ``n`` is the total number of users cached for the guild
         """
         options = self._ensure_options(**kwargs)
 
@@ -662,6 +668,8 @@ class AntiSpamHandler:
         'removed' custom options due to how Guild's
         are created
 
+        This is also a somewhat expensive operation at ``O(n)``
+        where ``n`` is the total number of users cached for the guild
         """
         guild = Guild(self.bot, guild_id, self.options)
         try:

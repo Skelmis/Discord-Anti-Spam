@@ -22,6 +22,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import collections.abc
 import logging
 from copy import deepcopy
 from unittest.mock import AsyncMock
@@ -45,7 +46,7 @@ class Guild:
         "_id",
         "_bot",
         "_users",
-        "options",
+        "_options",
         "has_custom_options",
     ]
 
@@ -66,7 +67,7 @@ class Guild:
         self.id = int(id)
         self._bot = bot
         self._users = []
-        self.options = deepcopy(options)
+        self._options = deepcopy(options)
 
         self.has_custom_options = custom_options
 
@@ -144,7 +145,12 @@ class Guild:
         ):
             raise ValueError("Expected message of ignore_type: discord.Message")
 
-        user = User(self._bot, message.author.id, message.guild.id, self.options,)
+        user = User(
+            self._bot,
+            message.author.id,
+            message.guild.id,
+            self.options,
+        )
         try:
             user = next(iter(u for u in self._users if u == user))
         except StopIteration:
@@ -244,3 +250,17 @@ class Guild:
             raise DuplicateObject
 
         self._users.append(value)
+
+    @property
+    def options(self):
+        return self._options
+
+    @options.setter
+    def options(self, value):
+        if not isinstance(value, collections.abc.Mapping):
+            raise ValueError("Expected dict")
+
+        self._options = deepcopy(value)
+
+        for user in self._users:
+            user.options = value

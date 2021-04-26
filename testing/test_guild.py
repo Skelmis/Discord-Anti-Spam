@@ -22,6 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 
 import unittest
+from copy import deepcopy
 
 from AntiSpam.Guild import Guild
 from AntiSpam.User import User
@@ -90,6 +91,20 @@ class TestGuild(unittest.TestCase):
                 f"Len Stored Users {len(self.guild._users)}'"
             ),
         )
+
+    def test_optionsOnUsers(self):
+        self.assertEqual(self.guild.users[0].options, self.guild.users[1].options)
+        self.assertEqual(Static.DEFAULTS, self.guild.users[0].options)
+
+        options = deepcopy(Static.DEFAULTS)
+        options["per_channel_spam"] = True
+
+        self.guild.options = options
+
+        self.assertNotEqual(Static.DEFAULTS, self.guild.users[0].options)
+
+        self.assertEqual(options, self.guild.users[0].options)
+        self.assertEqual(self.guild.users[0].options, self.guild.users[1].options)
 
 
 if __name__ == "__main__":

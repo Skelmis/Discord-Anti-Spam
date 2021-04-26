@@ -22,6 +22,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import collections
 import logging
 import datetime
 from copy import deepcopy
@@ -44,6 +45,7 @@ from AntiSpam.Util import embed_to_string, transform_message
 log = logging.getLogger(__name__)
 
 
+# noinspection PyUnresolvedReferences
 class User:
     """A class dedicated to maintaining a member, and any relevant messages in a single guild."""
 
@@ -51,7 +53,7 @@ class User:
         "_id",
         "_guild_id",
         "_messages",
-        "options",
+        "_options",
         "warn_count",
         "kick_count",
         "bot",
@@ -80,7 +82,7 @@ class User:
         self.bot = bot
         self.guild_id = int(guild_id)
         self._messages = []
-        self.options = deepcopy(options)
+        self._options = deepcopy(options)
         self.in_guild = True  # Indicates if a user is in the guild or not
         self.warn_count = 0
         self.kick_count = 0
@@ -855,3 +857,14 @@ class User:
                 raise DuplicateObject
 
         self._messages.append(value)
+
+    @property
+    def options(self):
+        return self._options
+
+    @options.setter
+    def options(self, value):
+        if not isinstance(value, collections.abc.Mapping):
+            raise ValueError("Expected dict")
+
+        self._options = deepcopy(value)
