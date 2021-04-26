@@ -22,12 +22,13 @@ DEALINGS IN THE SOFTWARE.
 """
 import datetime
 import unittest
-
+from copy import deepcopy
 
 from AntiSpam.User import User
 from AntiSpam.Message import Message
 from AntiSpam.static import Static
 from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch, LogicError
+from testing.mocks.MockChannel import MockedChannel
 from testing.mocks.MockMessage import MockedMessage
 
 
@@ -238,6 +239,31 @@ class TestUser(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(data["should_be_punished_this_message"], True)
         self.assertEqual(data["was_warned"], False)
         self.assertEqual(data["was_kicked"], True)
+
+    async def test_multiChannelSpam(self):
+        options = deepcopy(Static.DEFAULTS)
+        options["per_channel_spam"] = True
+
+        user = User(None, 0, 3, options)
+        for i in range(3):
+            m = MockedMessage(message_id=i, author_id=0, guild_id=3).to_mock()
+            m.channel = MockedChannel(channel_id=1).to_mock()
+            await user.propagate(m)
+
+        self.assertEqual(user.get_correct_duplicate_count(1), 3)
+
+        message = MockedMessage(author_id=0, guild_id=3).to_mock()
+        message.channel = MockedChannel(channel_id=2).to_mock()
+
+        self.assertEqual(user.get_correct_duplicate_count(2), 0)
+
+        for i in range(5):
+            m = MockedMessage(message_id=i, author_id=0, guild_id=3).to_mock()
+            m.channel = MockedChannel(channel_id=2).to_mock()
+            await user.propagate(m)
+
+        self.assertEqual(user.get_correct_duplicate_count(1), 3)
+        self.assertEqual(user.get_correct_duplicate_count(2), 5)
 
 
 if __name__ == "__main__":

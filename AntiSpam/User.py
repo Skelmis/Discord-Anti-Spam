@@ -215,10 +215,13 @@ class User:
                 The handler works off an internal message duplicate counter
                 so just increment that and then let our logic process it
                 """
-                self.duplicate_counter += 1
+                self._increment_duplicate_count(message)
                 message.is_duplicate = True
 
-                if self.duplicate_counter >= self.options["message_duplicate_count"]:
+                if (
+                    self._get_duplicate_count(message)
+                    >= self.options["message_duplicate_count"]
+                ):
                     break
 
         # We check this again, because theoretically the above can take awhile to process etc
@@ -228,7 +231,10 @@ class User:
         self.messages = message
         log.info(f"Created Message: {message.id}")
 
-        if self.duplicate_counter >= self.options["message_duplicate_count"]:
+        if (
+            self._get_duplicate_count(message)
+            >= self.options["message_duplicate_count"]
+        ):
             log.debug(f"Message: ({message.id}) requires some form of punishment")
             # We need to punish the member with something
             return_data["should_be_punished_this_message"] = True
@@ -257,7 +263,7 @@ class User:
                 ] = "User should be punished, however, was not due to no_punish being True"
 
             elif (
-                self.duplicate_counter >= self.options["warn_threshold"]
+                self._get_duplicate_count(message) >= self.options["warn_threshold"]
                 and self.warn_count < self.options["kick_threshold"]
                 and self.kick_count < self.options["ban_threshold"]
                 or only_warn
@@ -363,7 +369,9 @@ class User:
 
         return_data["warn_count"] = self.warn_count
         return_data["kick_count"] = self.kick_count
-        return_data["duplicate_counter"] = self.get_correct_duplicate_count()
+        return_data["duplicate_counter"] = self.get_correct_duplicate_count(
+            message.channel_id
+        )
         return return_data
 
     @staticmethod
