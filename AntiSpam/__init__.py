@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-__version__ = "0.7.4"
+__version__ = "0.8.0"
 
 from AntiSpam.AntiSpamHandler import AntiSpamHandler
 from AntiSpam.Exceptions import *
@@ -31,4 +31,4 @@ from collections import namedtuple
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 VersionInfo = namedtuple("VersionInfo", "major minor micro releaselevel serial")
-version_info = VersionInfo(major=0, minor=7, micro=4, releaselevel="beta", serial=0)
+version_info = VersionInfo(major=0, minor=8, micro=0, releaselevel="beta", serial=0)
