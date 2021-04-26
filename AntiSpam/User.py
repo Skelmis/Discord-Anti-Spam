@@ -187,7 +187,11 @@ class User:
             content = value.clean_content
 
         message = Message(
-            value.id, content, value.author.id, value.channel.id, value.guild.id,
+            value.id,
+            content,
+            value.author.id,
+            value.channel.id,
+            value.guild.id,
         )
 
         for message_obj in self.messages:
@@ -602,7 +606,8 @@ class User:
                             )
                         else:
                             await member.send(
-                                user_failed_message, delete_after=user_delete_after,
+                                user_failed_message,
+                                delete_after=user_delete_after,
                             )
                         await m.delete()
 
@@ -640,7 +645,8 @@ class User:
                             )
                         else:
                             await member.send(
-                                user_failed_message, delete_after=user_delete_after,
+                                user_failed_message,
+                                delete_after=user_delete_after,
                             )
                         await m.delete()
 
@@ -648,11 +654,13 @@ class User:
                     try:
                         if isinstance(guild_message, discord.Embed):
                             await dc_channel.send(
-                                embed=guild_message, delete_after=channel_delete_after,
+                                embed=guild_message,
+                                delete_after=channel_delete_after,
                             )
                         else:
                             await dc_channel.send(
-                                guild_message, delete_after=channel_delete_after,
+                                guild_message,
+                                delete_after=channel_delete_after,
                             )
                     except discord.HTTPException:
                         log.error(

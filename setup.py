@@ -1,3 +1,5 @@
+import re
+
 import setuptools
 import unittest
 
@@ -11,9 +13,18 @@ def my_test_suite():
 with open("readme.md", "r") as fh:
     long_description = fh.read()
 
+_version_regex = (
+    r"^version = ('|\")((?:[0-9]+\.)*[0-9]+(?:\.?([a-z]+)(?:\.?[0-9])?)?)\1$"
+)
+
+with open("../AntiSpam/__init__.py") as stream:
+    match = re.search(_version_regex, stream.read(), re.MULTILINE)
+
+version = match.group(2)
+
 setuptools.setup(
     name="Discord Anti-Spam",
-    version="0.7.4",
+    version=version,
     author="Skelmis",
     author_email="ethan@koldfusion.xyz",
     description="An easy to use package for anti-spam features in discord.py.",

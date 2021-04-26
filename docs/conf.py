@@ -11,6 +11,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import re
 import sys
 from sphinx.ext.autodoc import between
 
@@ -22,6 +23,15 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "DPY Anti-Spam"
 copyright = "2020, Skelmis"
 author = "Skelmis"
+
+_version_regex = (
+    r"^version = ('|\")((?:[0-9]+\.)*[0-9]+(?:\.?([a-z]+)(?:\.?[0-9])?)?)\1$"
+)
+
+with open("../AntiSpam/__init__.py") as stream:
+    match = re.search(_version_regex, stream.read(), re.MULTILINE)
+
+version = match.group(2)
 
 
 # -- General configuration ---------------------------------------------------
