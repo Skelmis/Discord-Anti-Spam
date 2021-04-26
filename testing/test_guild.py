@@ -93,6 +93,8 @@ class TestGuild(unittest.TestCase):
         )
 
     def test_optionsOnUsers(self):
+        # Tests the property ensuring all users within a guild
+        # also get the option changes
         self.assertEqual(self.guild.users[0].options, self.guild.users[1].options)
         self.assertEqual(Static.DEFAULTS, self.guild.users[0].options)
 
