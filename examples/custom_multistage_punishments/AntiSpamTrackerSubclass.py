@@ -1,5 +1,6 @@
-"""Our subclass of AntiSpamTracker - I haven't tested this. That is up to you to do. Use this as a 'blueprint'"""
+"""Our subclass of AntiSpamTracker"""
 import asyncio
+import datetime
 from copy import deepcopy
 
 import discord
@@ -8,22 +9,34 @@ from AntiSpam import UserNotFound
 from AntiSpam.ext import AntiSpamTracker
 
 
+# noinspection DuplicatedCode
 class MyCustomTracker(AntiSpamTracker):
     def update_cache(self, message: discord.Message, data: dict) -> None:
         """Override this so we can add a custom field to the stored user"""
-        super().update_cache(message=message, data=data)
 
         user_id = message.author.id
         guild_id = message.guild.id
+        timestamp = datetime.datetime.now(datetime.timezone.utc)
+
+        if guild_id not in self.user_tracking:
+            self.user_tracking[guild_id] = {}
+
+        if user_id not in self.user_tracking[guild_id]:
+            self.user_tracking[guild_id][user_id] = {}
 
         if "has_been_muted" not in self.user_tracking[guild_id][user_id]:
             self.user_tracking[guild_id][user_id]["has_been_muted"] = False
+
+        if "timestamps" not in self.user_tracking[guild_id][user_id]:
+            self.user_tracking[guild_id][user_id]["timestamps"] = []
+
+        self.user_tracking[guild_id][user_id]["timestamps"].append(timestamp)
 
     def get_user_has_been_muted(self, message: discord.Message) -> bool:
         """
         Returns if the user for the associated message
         has been muted yet or not.
-        
+
 
         Parameters
         ----------
@@ -65,6 +78,9 @@ class MyCustomTracker(AntiSpamTracker):
             The message to get the attached user from
 
         """
+        if message.author.id == self.anti_spam_handler.bot.user.id:
+            return
+
         user = message.author
         guild = message.guild
         channel = message.channel
@@ -86,10 +102,13 @@ class MyCustomTracker(AntiSpamTracker):
             self.user_tracking[guild_id][user_id]["has_been_muted"] = True
             await channel.send(f"Hey {user.mention}! I am temp muting you for spam.")
 
-            mute_role = guild_id.get_role(12345)  # <-- Add your role id in there
+            guild = self.anti_spam_handler.bot.get_guild(guild_id)
+            mute_role = guild.get_role(
+                836206352966877225
+            )  # <-- Add your role id in there
             await user.add_roles(mute_role, reason="Temp-muted for spam.")
 
-            await asyncio.sleep(300)  # Mute for 5 minutes
+            await asyncio.sleep(30)  # Mute for 5 minutes
             await user.remove_roles(mute_role, reason="Automatic un-mute.")
             await channel.send(
                 f"Hey {user.mention}, I have un-muted you. Don't do it again."
@@ -108,3 +127,49 @@ class MyCustomTracker(AntiSpamTracker):
 
             if not bool(self.user_tracking[guild_id]):
                 self.user_tracking.pop(guild_id)
+
+    def get_user_count(self, message: discord.Message) -> int:
+        if not isinstance(message, discord.Message):
+            raise TypeError("Expected message of type: discord.Message")
+
+        if not message.guild:
+            raise UserNotFound("Can't find user's from dm's")
+
+        user_id = message.author.id
+        guild_id = message.guild.id
+
+        if guild_id not in self.user_tracking:
+            raise UserNotFound
+
+        if user_id not in self.user_tracking[guild_id]:
+            raise UserNotFound
+
+        if "timestamps" not in self.user_tracking[guild_id][user_id]:
+            raise UserNotFound
+
+        self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
+
+        return len(self.user_tracking[guild_id][user_id]["timestamps"])
+
+    def remove_outdated_timestamps(self, guild_id, user_id):
+        current_time = datetime.datetime.now(datetime.timezone.utc)
+
+        def _is_still_valid(timestamp):
+            difference = current_time - timestamp
+            offset = datetime.timedelta(
+                milliseconds=self._get_guild_valid_interval(guild_id=guild_id)
+            )
+
+            if difference >= offset:
+                return False
+            return True
+
+        current_timestamps = []
+
+        for timestamp in self.user_tracking[guild_id][user_id]["timestamps"]:
+            if _is_still_valid(timestamp):
+                current_timestamps.append(timestamp)
+
+        self.user_tracking[guild_id][user_id]["timestamps"] = deepcopy(
+            current_timestamps
+        )

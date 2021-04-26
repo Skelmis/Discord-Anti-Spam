@@ -6,7 +6,7 @@ from examples.jsonLoader import read_json
 
 from AntiSpamTrackerSubclass import MyCustomTracker
 
-bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+bot = commands.Bot(command_prefix=".", intents=discord.Intents.all())
 
 file = read_json("token")
 
