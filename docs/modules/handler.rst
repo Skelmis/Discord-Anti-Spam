@@ -6,7 +6,7 @@ As such this should be the only thing you interact with.**
 
 This handler propagation method also returns the following dictionary for you to use:
 
-.. currentmodule:: AntiSpam.AntiSpamHandler
+.. currentmodule:: antispam.anti_spam_handler
 
 .. code-block:: python
     :linenos:

@@ -7,6 +7,6 @@ Due to this, you can use the ``AntiSpamTracker`` to
 track users yourself and work with punishments of your
 choice!
 
-.. autoclass:: AntiSpam.ext.AntiSpamTracker
+.. autoclass:: antispam.ext.AntiSpamTracker
     :members:
     :special-members: __init__

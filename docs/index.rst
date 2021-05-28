@@ -33,7 +33,7 @@ Welcome to DPY Anti-Spam's documentation!
    modules/message.rst
    modules/util.rst
    modules/exceptions.rst
-   modules/ext/baseextension.rst
+   modules/ext/base_extension.rst
 
 Install Notes
 -------------

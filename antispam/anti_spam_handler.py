@@ -173,7 +173,7 @@ class AntiSpamHandler:
 
         Parameters
         ----------
-        bot : commands.Bot or commands.AutoShardedBot or disocrd.Client or discord.AutoShardedClient
+        bot : commands.Bot or commands.AutoShardedBot or discord.Client or discord.AutoShardedClient
             The commands.Bot or commands.AutoSharedBot or discord.Client or discord.AutoShardedClient instance
         warn_threshold : int, optional
             This is the amount of messages in a row that result in a warning within the message_interval
@@ -407,7 +407,7 @@ class AntiSpamHandler:
         try:
             ignore_type = ignore_type.lower()
         except Exception:
-            raise ValueError("Expeced ignore_type of type: str")
+            raise ValueError("Expected ignore_type of type: str")
 
         try:
             if not isinstance(item, int):
@@ -442,7 +442,7 @@ class AntiSpamHandler:
         Parameters
         ----------
         item : int
-            The id of the thing to unignore
+            The id of the thing to un-ignore
         ignore_type : str
             A string representation of the ignored
             items overall container
@@ -462,7 +462,7 @@ class AntiSpamHandler:
         try:
             ignore_type = ignore_type.lower()
         except Exception:
-            raise ValueError("Expeced ignore_type of type: str")
+            raise ValueError("Expected ignore_type of type: str")
 
         try:
             # TODO Handle more then just ints, take relevant objs as well
@@ -754,7 +754,7 @@ class AntiSpamHandler:
             while trying to rebuild ``AntiSpamHandler`` from a saved state
 
             If you set this to False, and an exception occurs during the
-            build process. This will return an ``AntiSpamhandler`` instance
+            build process. This will return an ``AntiSpamHandler`` instance
             **without** any of the saved state and is equivalent to simply
             doing ``AntiSpamHandler(bot)``
 
@@ -784,7 +784,7 @@ class AntiSpamHandler:
 
         -----
 
-        This is fairly computationally expensive. It deepcopies
+        This is fairly computationally expensive. It deepcopy's
         nearly everything lol.
 
         """
@@ -888,20 +888,11 @@ class AntiSpamHandler:
 
         is_pre_invoke = getattr(extension, "is_pre_invoke", True)
 
-        propagate_signature = inspect.signature(getattr(extension, "propagate"))
-        takes_params = len(propagate_signature.parameters)
+        # propagate_signature = inspect.signature(getattr(extension, "propagate"))
 
-        # TODO Fix this
-        """
-        if is_pre_invoke and takes_params != 2:
-            log.debug("Extension propagate failed to take the required arguments")
-            raise ExtensionError("Pre-invoke propagate take should `self, message`")
-        elif not is_pre_invoke and takes_params != 3:
-            log.debug("Extension propagate failed to take the required arguments")
-            raise ExtensionError(
-                "After-invoke propagate should take `self, message, data`"
-            )
-        """
+        # Just accept that your not gonna be able to check
+        # everything and its ultimately on the end developer
+        # to get this correct rather then server-side validation
 
         cls_name = extension.__class__.__name__.lower()
 
@@ -955,8 +946,8 @@ class AntiSpamHandler:
 
         log.info(f"Unregistered extension {extension_name}")
 
+    @staticmethod
     def _ensure_options(
-        self,
         warn_threshold=None,
         kick_threshold=None,
         ban_threshold=None,

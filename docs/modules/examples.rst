@@ -10,7 +10,7 @@ Super duper basic bot
     import discord
     from discord.ext import commands
 
-    from AntiSpam import AntiSpamHandler
+    from antispam import AntiSpamHandler
 
     bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
     bot.handler = AntiSpamHandler(bot)
@@ -40,7 +40,7 @@ How to use templating in a string
 
     from discord.ext import commands
 
-    from AntiSpam import AntiSpamHandler
+    from antispam import AntiSpamHandler
 
     bot = commands.Bot(command_prefix="!")
     bot.handler = AntiSpamHandler(bot, ban_message="$MENTIONUSER you are hereby banned from $GUILDNAME for spam!")
@@ -64,7 +64,7 @@ Cog Based Usage
     :linenos:
 
     from discord.ext import commands
-    from AntiSpam import AntiSpamHandler
+    from antispam import AntiSpamHandler
 
     class AntiSpamCog(commands.Cog):
         def __init__(self, bot):
@@ -92,7 +92,7 @@ How to use templating in embeds
 
     from discord.ext import commands
 
-    from AntiSpam import AntiSpamHandler
+    from antispam import AntiSpamHandler
 
     bot = commands.Bot(command_prefix="!")
 
@@ -131,8 +131,8 @@ Custom Punishments
 
     from discord.ext import commands
 
-    from AntiSpam import AntiSpamHandler
-    from AntiSpam.ext import AntiSpamTracker
+    from antispam import AntiSpamHandler
+    from antispam.ext import AntiSpamTracker
 
     bot = commands.Bot(command_prefix="!")
     bot.handler = AntiSpamHandler(bot, no_punish=True)

@@ -5,7 +5,7 @@ ASH Exceptions
 
 All exceptions subclass a base exception ``BaseASHException`` which provides functionality for error messages
 
-.. automodule:: AntiSpam.Exceptions
+.. automodule:: antispam.exceptions
     :members:
     :undoc-members:
     :special-members:
