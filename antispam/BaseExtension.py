@@ -10,7 +10,7 @@ class BaseExtension:
         self, message: discord.Message, data: typing.Optional[dict] = None
     ) -> dict:
         """
-        This method is called whenever the base ``AntiSpam.propagate`` is called,
+        This method is called whenever the base ``antispam.propagate`` is called,
         adhering to ``self.is_pre_invoke``
         Parameters
         ----------

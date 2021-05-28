@@ -24,10 +24,10 @@ DEALINGS IN THE SOFTWARE.
 import unittest
 from copy import deepcopy
 
-from AntiSpam.Guild import Guild
-from AntiSpam.User import User
-from AntiSpam.static import Static
-from AntiSpam.Exceptions import DuplicateObject, ObjectMismatch
+from antispam.Guild import Guild
+from antispam.User import User
+from antispam.static import Static
+from antispam.Exceptions import DuplicateObject, ObjectMismatch
 
 
 class TestGuild(unittest.TestCase):

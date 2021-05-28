@@ -26,17 +26,17 @@ import discord
 
 from discord.ext import commands
 
-from AntiSpam import AntiSpamHandler, BaseExtension
-from AntiSpam.Exceptions import (
+from antispam import AntiSpamHandler, BaseExtension
+from antispam.Exceptions import (
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,
     LogicError,
     ExtensionError,
 )
-from AntiSpam.static import Static
-from AntiSpam.Guild import Guild
-from AntiSpam.User import User
+from antispam.static import Static
+from antispam.Guild import Guild
+from antispam.User import User
 from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockMessage import MockedMessage
 

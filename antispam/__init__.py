@@ -22,9 +22,9 @@ DEALINGS IN THE SOFTWARE.
 """
 __version__ = "0.8.0"
 
-from AntiSpam.AntiSpamHandler import AntiSpamHandler
-from AntiSpam.Exceptions import *
-from AntiSpam.BaseExtension import BaseExtension
+from antispam.AntiSpamHandler import AntiSpamHandler
+from antispam.Exceptions import *
+from antispam.BaseExtension import BaseExtension
 
 import logging
 from collections import namedtuple

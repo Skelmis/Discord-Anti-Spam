@@ -25,8 +25,8 @@ DEALINGS IN THE SOFTWARE.
 import asyncio
 import unittest
 
-from AntiSpam import AntiSpamHandler, UserNotFound
-from AntiSpam.ext import AntiSpamTracker
+from antispam import AntiSpamHandler, UserNotFound
+from antispam.ext import AntiSpamTracker
 
 from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockMessage import MockedMessage

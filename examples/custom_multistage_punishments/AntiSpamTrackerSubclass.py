@@ -5,8 +5,8 @@ from copy import deepcopy
 
 import discord
 
-from AntiSpam import UserNotFound
-from AntiSpam.ext import AntiSpamTracker
+from antispam import UserNotFound
+from antispam.ext import AntiSpamTracker
 
 
 # noinspection DuplicatedCode

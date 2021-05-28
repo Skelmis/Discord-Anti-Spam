@@ -32,15 +32,15 @@ import discord
 
 from fuzzywuzzy import fuzz
 
-from AntiSpam.Message import Message
-from AntiSpam.Exceptions import (
+from antispam.Message import Message
+from antispam.Exceptions import (
     DuplicateObject,
     ObjectMismatch,
     LogicError,
     MissingGuildPermissions,
 )
-from AntiSpam.static import Static
-from AntiSpam.Util import embed_to_string, transform_message
+from antispam.static import Static
+from antispam.Util import embed_to_string, transform_message
 
 log = logging.getLogger(__name__)
 

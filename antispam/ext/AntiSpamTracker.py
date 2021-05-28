@@ -31,9 +31,9 @@ from unittest.mock import AsyncMock
 import discord
 import typing
 
-from AntiSpam import AntiSpamHandler
-from AntiSpam.BaseExtension import BaseExtension
-from AntiSpam.Exceptions import UserNotFound, ExtensionError
+from antispam import AntiSpamHandler
+from antispam.BaseExtension import BaseExtension
+from antispam.Exceptions import UserNotFound, ExtensionError
 
 log = logging.getLogger(__name__)
 
@@ -509,11 +509,11 @@ class AntiSpamTracker(BaseExtension):
     # <!-- Stuff I take over from AntiSpamHandler -->
     def add_custom_guild_options(self, guild_id: int, **kwargs):
         """
-        To see how to use this, refer to ``AntiSpam.AntiSpamHandler.AntiSpamHandler.add_custom_guild_options``
+        To see how to use this, refer to ``antispam.AntiSpamHandler.AntiSpamHandler.add_custom_guild_options``
 
         See Also
         --------
-        AntiSpam.AntiSpamHandler.AntiSpamHandler.add_custom_guild_options :
+        antispam.AntiSpamHandler.AntiSpamHandler.add_custom_guild_options :
             The method that this calls under the hood
 
         Notes
@@ -539,11 +539,11 @@ class AntiSpamTracker(BaseExtension):
 
     def remove_custom_guild_options(self, guild_id: int):
         """
-        To see how to use this, refer to ``AntiSpam.AntiSpamHandler.AntiSpamHandler.remove_custom_guild_options``
+        To see how to use this, refer to ``antispam.AntiSpamHandler.AntiSpamHandler.remove_custom_guild_options``
 
         See Also
         --------
-        AntiSpam.AntiSpamHandler.AntiSpamHandler.remove_custom_guild_options :
+        antispam.AntiSpamHandler.AntiSpamHandler.remove_custom_guild_options :
             The method that this calls under the hood
 
         Notes
