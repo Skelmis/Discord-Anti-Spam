@@ -113,7 +113,7 @@ class AntiSpamTracker(BaseExtension):
         ValueError
             Invalid Arg Type
         """
-        self.is_pre_invoke = False
+        super().__init__(is_pre_invoke=False)
 
         self.punish_min_amount = int(spam_amount_to_punish)
 
@@ -266,12 +266,12 @@ class AntiSpamTracker(BaseExtension):
         log.debug("Attempting to remove outdated timestamp's")
         current_time = datetime.datetime.now(datetime.timezone.utc)
 
-        def _is_still_valid(timestamp):
+        def _is_still_valid(timestamp_obj):
             """
             Given a timestamp, figure out if it hasn't
             expired yet
             """
-            difference = current_time - timestamp
+            difference = current_time - timestamp_obj
             offset = datetime.timedelta(
                 milliseconds=self._get_guild_valid_interval(guild_id=guild_id)
             )

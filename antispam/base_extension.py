@@ -3,8 +3,8 @@ import typing
 
 
 class BaseExtension:
-    def __init__(self) -> None:
-        self.is_pre_invoke = True
+    def __init__(self, is_pre_invoke=True) -> None:
+        self.is_pre_invoke = is_pre_invoke
 
     async def propagate(
         self, message: discord.Message, data: typing.Optional[dict] = None

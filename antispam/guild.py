@@ -50,21 +50,21 @@ class Guild:
         "has_custom_options",
     ]
 
-    def __init__(self, bot, id, options, *, custom_options=False):
+    def __init__(self, bot, guild_id, options, *, custom_options=False):
         """
 
         Parameters
         ----------
         bot: commands.Bot
             The global bot instance
-        id : int
+        guild_id : int
             This guilds id
         options : dict
             The options for this guild
         custom_options : bool
             Whether this guild has custom options or not
         """
-        self.id = int(id)
+        self.id = int(guild_id)
         self._bot = bot
         self._users = []
         self._options = deepcopy(options)
@@ -178,7 +178,7 @@ class Guild:
         """
         guild = Guild(
             bot=bot,
-            id=guild_data["id"],
+            guild_id=guild_data["id"],
             options=deepcopy(guild_data["options"]),
             custom_options=guild_data["has_custom_options"],
         )

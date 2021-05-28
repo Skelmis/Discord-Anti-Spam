@@ -62,7 +62,7 @@ class User:
         "duplicate_channel_counter_dict",
     ]
 
-    def __init__(self, bot, id, guild_id, options):
+    def __init__(self, bot, member_id, guild_id, options):
         """
         Set the relevant information in order to maintain
         and use a per User object for a guild
@@ -71,14 +71,14 @@ class User:
         ==========
         bot : commands.bot
             Bot instance
-        id : int
+        member_id : int
             The relevant member id
         guild_id : int
             The guild (id) this member is belonging to
         options : Dict
             The options we need to check against
         """
-        self.id = int(id)
+        self.id = int(member_id)
         self.bot = bot
         self.guild_id = int(guild_id)
         self._messages = []
@@ -395,7 +395,7 @@ class User:
         """
         user = User(
             bot=bot,
-            id=user_data["id"],
+            member_id=user_data["id"],
             guild_id=user_data["guild_id"],
             options=deepcopy(user_data["options"]),
         )
@@ -411,7 +411,7 @@ class User:
             # Do this to save overhead in the message object
             # and keep it as small as possible
             message = Message(
-                id=message_data["id"],
+                message_id=message_data["id"],
                 content=message_data["content"],
                 guild_id=message_data["guild_id"],
                 author_id=message_data["author_id"],
@@ -708,12 +708,12 @@ class User:
         """
         log.debug("Attempting to remove outdated Message's")
 
-        def _is_still_valid(message):
+        def _is_still_valid(message_obj):
             """
             Given a message, figure out if it hasn't
             expired yet based on timestamps
             """
-            difference = current_time - message.creation_time
+            difference = current_time - message_obj.creation_time
             offset = datetime.timedelta(
                 milliseconds=self.options.get("message_interval")
             )

@@ -43,14 +43,14 @@ class Message:
         "_is_duplicate",
     ]
 
-    def __init__(self, id, content, author_id, channel_id, guild_id):
+    def __init__(self, message_id, content, author_id, channel_id, guild_id):
         """
         Set & store a smaller object footprint then a standard
         message object for memory purposes :)
 
         Parameters
         ==========
-        id : int
+        message_id : int
             The id of the message
         content : String
             The actual message content
@@ -71,7 +71,7 @@ class Message:
         This enforces strict types by conversion and ignore_type checking
         pass through of the correct ignore_type is required.
         """
-        self.id = int(id)
+        self.id = int(message_id)
         self.content = str(content)
         self.author_id = int(author_id)
         self.channel_id = int(channel_id)
