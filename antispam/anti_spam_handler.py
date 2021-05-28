@@ -98,6 +98,8 @@ class AntiSpamHandler:
         delete_spam: True
             Whether or not to delete messages marked as spam
 
+            *Won't delete messages if* ``no_punish`` *is* ``True``
+
         ignore_perms: [8]
             The perms (ID Form), that bypass anti-spam
 
