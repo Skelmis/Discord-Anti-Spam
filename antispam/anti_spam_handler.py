@@ -406,7 +406,7 @@ class AntiSpamHandler:
         """
         try:
             ignore_type = ignore_type.lower()
-        except:
+        except Exception:
             raise ValueError("Expeced ignore_type of type: str")
 
         try:
@@ -461,7 +461,7 @@ class AntiSpamHandler:
         """
         try:
             ignore_type = ignore_type.lower()
-        except:
+        except Exception:
             raise ValueError("Expeced ignore_type of type: str")
 
         try:
@@ -501,8 +501,8 @@ class AntiSpamHandler:
         Set a guild's options to a custom set, rather then the base level
         set used and defined in ASH initialization
 
-        Parameters
-        ----------
+        Other Parameters
+        ----------------
         guild_id : int
             The id of the guild to create
         warn_threshold : int, optional
