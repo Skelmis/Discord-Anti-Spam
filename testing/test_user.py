@@ -24,10 +24,10 @@ import datetime
 import unittest
 from copy import deepcopy
 
-from antispam.User import User
-from antispam.Message import Message
+from antispam.user import User
+from antispam.message import Message
 from antispam.static import Static
-from antispam.Exceptions import DuplicateObject, ObjectMismatch, LogicError
+from antispam.exceptions import DuplicateObject, ObjectMismatch, LogicError
 from testing.mocks.MockChannel import MockedChannel
 from testing.mocks.MockMessage import MockedMessage
 

@@ -1,1 +1,1 @@
-from .AntiSpamTracker import AntiSpamTracker
+from .anti_spam_tracker import AntiSpamTracker

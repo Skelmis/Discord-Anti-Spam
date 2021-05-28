@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 import unittest
 
 
-from antispam.Exceptions import *
+from antispam.exceptions import *
 
 
 class TestUser(unittest.TestCase):

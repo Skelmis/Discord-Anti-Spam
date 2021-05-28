@@ -32,8 +32,8 @@ import discord
 import typing
 
 from antispam import AntiSpamHandler
-from antispam.BaseExtension import BaseExtension
-from antispam.Exceptions import UserNotFound, ExtensionError
+from antispam.base_extension import BaseExtension
+from antispam.exceptions import UserNotFound, ExtensionError
 
 log = logging.getLogger(__name__)
 

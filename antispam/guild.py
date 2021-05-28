@@ -29,8 +29,8 @@ from unittest.mock import AsyncMock
 
 import discord
 
-from antispam.User import User
-from antispam.Exceptions import ObjectMismatch, DuplicateObject
+from antispam.user import User
+from antispam.exceptions import ObjectMismatch, DuplicateObject
 
 log = logging.getLogger(__name__)
 

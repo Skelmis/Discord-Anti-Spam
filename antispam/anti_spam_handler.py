@@ -31,16 +31,16 @@ from unittest.mock import AsyncMock
 import discord
 from discord.ext import commands
 
-from antispam.Guild import Guild
-from antispam.Exceptions import (
+from antispam.guild import Guild
+from antispam.exceptions import (
     DuplicateObject,
     BaseASHException,
     MissingGuildPermissions,
     LogicError,
     ExtensionError,
 )
-from antispam.BaseExtension import BaseExtension
-from antispam.User import User
+from antispam.base_extension import BaseExtension
+from antispam.user import User
 from antispam.static import Static
 
 log = logging.getLogger(__name__)
