@@ -1,5 +1,6 @@
+import datetime
 import typing
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 import discord
 
@@ -29,6 +30,12 @@ class MassMentionPunishment:
     user_id: int
     guild_id: int
     is_overall_punishment: bool
+
+
+@dataclass
+class Tracking:
+    mentions: int
+    timestamp: datetime.datetime
 
 
 class AntiMassMention(BaseExtension):
@@ -94,8 +101,11 @@ class AntiMassMention(BaseExtension):
             A dictionary explaining what
             actions have been taken
         """
+        user_id = message.author.id
+        guild_id = message.guild.id
+
         try:
-            user = self.data.get_user(message.guild.id, message.author.id)
+            user = self.data.get_user(guild_id, user_id)
         except UserNotFound:
             user = {"total_mentions": []}
             """
@@ -109,23 +119,81 @@ class AntiMassMention(BaseExtension):
             """
 
         mentions = set(message.mentions)
+        user["total_mentions"].append(
+            Tracking(mentions=len(mentions), timestamp=message.created_at)
+        )
+        self.data.set_user(guild_id, user_id, user)
+        self._clean_mention_timestamps(
+            guild_id=guild_id,
+            user_id=user_id,
+            current_time=datetime.datetime.now(datetime.timezone.utc),
+        )
+
         if len(mentions) >= self.min_mentions_per_message:
+            # They mention too many people in this message so punish
+            payload = MassMentionPunishment(
+                user_id=user_id,
+                guild_id=guild_id,
+                is_overall_punishment=False,
+            )
             self.bot.dispatch(
                 "mass_mention_punishment",
+                payload,
             )
+            return asdict(payload)
 
-        user["total_mentions"].append({len(mentions): message.created_at})
-        self.data.set_user(message.guild.id, message.author.id, user)
+        user = self.data.get_user(guild_id=guild_id, user_id=user_id)
+        if (
+            sum(item.timestamp for item in user["total_mentions"])
+            >= self.total_mentions_before_punishment
+        ):
+            # They have more mentions are cleaning then allowed,
+            # So time to punish them
+            payload = MassMentionPunishment(
+                user_id=user_id,
+                guild_id=guild_id,
+                is_overall_punishment=True,
+            )
+            self.bot.dispatch(
+                "mass_mention_punishment",
+                payload,
+            )
+            return asdict(payload)
 
-    def _clean_mention_timestamps(self, guild_id: int, user_id: int):
+        return {"action": "No action taken"}
+
+    def _clean_mention_timestamps(
+        self, guild_id: int, user_id: int, current_time: datetime.datetime
+    ):
         """
         Cleans the internal cache for a user to only keep current mentions
         Parameters
         ----------
-        guild_id
-        user_id
+        guild_id : int
+            The guild the users in
+        user_id : int
+            The user to clean
 
-        Returns
-        -------
+        Notes
+        -----
+        Expects the user to exist in ``self.data``. This
+        does no form of validation for existence
 
         """
+
+        def _is_still_valid(timestamp):
+            difference = current_time - timestamp
+            offset = datetime.timedelta(milliseconds=self.time_period)
+
+            if difference >= offset:
+                return False
+            return True
+
+        user = self.data.get_user(guild_id=guild_id, user_id=user_id)
+        valid_items = []
+        for item in user["total_mentions"]:
+            if _is_still_valid(item.timestamp):
+                valid_items.append(item)
+
+        user["total_mentions"] = valid_items
+        self.data.set_user(guild_id=guild_id, user_id=user_id)
