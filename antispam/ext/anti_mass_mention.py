@@ -1,10 +1,34 @@
 import typing
+from dataclasses import dataclass
 
 import discord
 
 from antispam.exceptions import UserNotFound
 from antispam.base_extension import BaseExtension
 from antispam.ext.user_tracking import UserTracking
+
+
+@dataclass
+class MassMentionPunishment:
+    """
+    This dataclass is what is dispatched to
+    `on_mass_mention_punishment`
+
+    Parameters
+    ----------
+    user_id : int
+        The associated users id
+    guild_id : int
+        The associated guilds id
+    is_overall_punishment : bool
+        If this is ``True``, it means the user
+        has exceeded ``total_mentions_before_punishment``.
+        Otherwise they have exceeded ``min_mentions_per_message``
+    """
+
+    user_id: int
+    guild_id: int
+    is_overall_punishment: bool
 
 
 class AntiMassMention(BaseExtension):
@@ -36,7 +60,7 @@ class AntiMassMention(BaseExtension):
             before a punishment is issued
             *Inclusive*
         """
-        super().__init__(is_pre_invoke=True)
+        super().__init__()
         self.bot = bot
         self.data = UserTracking()
 
@@ -86,7 +110,9 @@ class AntiMassMention(BaseExtension):
 
         mentions = set(message.mentions)
         if len(mentions) >= self.min_mentions_per_message:
-            bot.dispatch
+            self.bot.dispatch(
+                "mass_mention_punishment",
+            )
 
         user["total_mentions"].append({len(mentions): message.created_at})
         self.data.set_user(message.guild.id, message.author.id, user)
