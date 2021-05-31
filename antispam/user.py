@@ -419,7 +419,7 @@ class User:
             )
             message.is_duplicate = message_data["is_duplicate"]
             message._creation_time = datetime.datetime.strptime(
-                message_data["creation_time"], "%f:%S:%M:%H:%d:%Y"
+                message_data["creation_time"], "%f:%S:%M:%H:%d:%m:%Y"
             )
 
             user.messages = message
@@ -461,7 +461,7 @@ class User:
                     "channel_id": message.channel_id,
                     "is_duplicate": message.is_duplicate,
                     "creation_time": message.creation_time.strftime(
-                        "%f:%S:%M:%H:%d:%Y"
+                        "%f:%S:%M:%H:%d:%m:%Y"
                     ),
                 }
             )
