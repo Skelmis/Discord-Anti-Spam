@@ -29,7 +29,7 @@ jobs:
 # TODO add linting at some point in the future
     - name: Run tests with code coverage
       run: |
-        coverage run --source=AntiSpam/ -m unittest discover testing/
+        coverage run --source=antispam/ -m unittest discover testing/
     - name: Upload Coverage
       run: |
         coveralls --service=github
