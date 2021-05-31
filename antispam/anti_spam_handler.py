@@ -367,17 +367,21 @@ class AntiSpamHandler:
             self.guilds = guild
             log.info(f"Created Guild: {guild.id}")
 
-        data = {"pre_invoke_extensions": [], "after_invoke_extensions": []}
+        data = {"pre_invoke_extensions": {}, "after_invoke_extensions": {}}
 
         for pre_invoke_ext in self.pre_invoke_extensions.values():
             pre_invoke_return = await pre_invoke_ext.propagate(message)
-            data["pre_invoke_extensions"].append(pre_invoke_return)
+            data["pre_invoke_extensions"][
+                pre_invoke_ext.__classe__.__name__
+            ] = pre_invoke_return
 
         main_return = await guild.propagate(message)
 
         for after_invoke_ext in self.after_invoke_extensions.values():
             after_invoke_return = await after_invoke_ext.propagate(message, main_return)
-            data["after_invoke_extensions"].append(after_invoke_return)
+            data["after_invoke_extensions"][
+                after_invoke_ext.__class__.__name__
+            ] = after_invoke_return
 
         return {**main_return, **data}
 
