@@ -1,7 +1,7 @@
 # DPY Anti-Spam
 ---
 
-[![Build Status](https://travis-ci.com/Skelmis/DPY-Anti-Spam.svg?branch=master)](https://travis-ci.com/Skelmis/DPY-Anti-Spam)
+[![Unittests](https://github.com/Skelmis/DPY-Anti-Spam/actions/workflows/unittesting.yml/badge.svg?branch=master)](https://github.com/Skelmis/DPY-Anti-Spam/actions/workflows/unittesting.yml)
 [![Coverage Status](https://coveralls.io/repos/github/Skelmis/DPY-Anti-Spam/badge.svg?branch=master)](https://coveralls.io/github/Skelmis/DPY-Anti-Spam?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Skelmis/DPY-Anti-Spam/graphs/commit-activity)
