@@ -53,8 +53,16 @@ class MissingGuildPermissions(BaseASHException):
     """I need both permissions to kick & ban people from this guild in order to work!"""
 
 
-class UserNotFound(BaseASHException):
+class NotFound(BaseASHException):
+    """Something could not be found."""
+
+
+class UserNotFound(NotFound):
     """A User matching this id and guild id could not be found in the cache."""
+
+
+class GuildNotFound(NotFound):
+    """A Guild matching this guild id could not be found in the cache."""
 
 
 class ExtensionError(BaseASHException):
