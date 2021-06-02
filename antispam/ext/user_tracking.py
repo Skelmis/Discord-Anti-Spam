@@ -52,7 +52,10 @@ class UserTracking:
         UserNotFound
             The given user/guild could not be found internally
         """
-        guild = self._get_guild(guild_id=guild_id)
+        try:
+            guild = self._get_guild(guild_id=guild_id)
+        except GuildNotFound:
+            raise UserNotFound
 
         if user_id not in guild:
             raise UserNotFound

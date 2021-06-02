@@ -1,3 +1,4 @@
+import logging
 import datetime
 import typing
 from dataclasses import dataclass, asdict
@@ -7,6 +8,9 @@ import discord
 from antispam.exceptions import UserNotFound
 from antispam.base_extension import BaseExtension
 from antispam.ext.user_tracking import UserTracking
+
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -47,7 +51,7 @@ class AntiMassMention(BaseExtension):
         *,
         total_mentions_before_punishment: int = 10,
         time_period: int = 15000,
-        min_mentions_per_message: int = 5
+        min_mentions_per_message: int = 5,
     ):
         """
 
@@ -83,6 +87,8 @@ class AntiMassMention(BaseExtension):
         self.total_mentions_before_punishment = total_mentions_before_punishment
         self.time_period = time_period
 
+        log.debug("Initialized AntiMassMessage")
+
     async def propagate(
         self, message: discord.Message, data: typing.Optional[dict] = None
     ) -> dict:
@@ -103,6 +109,8 @@ class AntiMassMention(BaseExtension):
         """
         user_id = message.author.id
         guild_id = message.guild.id
+
+        log.debug(f"Propagating message for {user_id}, guild:{guild_id}")
 
         try:
             user = self.data.get_user(guild_id, user_id)
@@ -126,11 +134,12 @@ class AntiMassMention(BaseExtension):
         self._clean_mention_timestamps(
             guild_id=guild_id,
             user_id=user_id,
-            current_time=datetime.datetime.now(datetime.timezone.utc),
+            current_time=datetime.datetime.now(),
         )
 
         if len(mentions) >= self.min_mentions_per_message:
             # They mention too many people in this message so punish
+            log.info("Dispatching punishment event, is_overall_punishment=False")
             payload = MassMentionPunishment(
                 user_id=user_id,
                 guild_id=guild_id,
@@ -149,6 +158,7 @@ class AntiMassMention(BaseExtension):
         ):
             # They have more mentions are cleaning then allowed,
             # So time to punish them
+            log.info("Dispatching punishment event, is_overall_punishment=True")
             payload = MassMentionPunishment(
                 user_id=user_id,
                 guild_id=guild_id,
@@ -180,6 +190,7 @@ class AntiMassMention(BaseExtension):
         does no form of validation for existence
 
         """
+        log.debug(f"Cleaning timestamps for {user_id}, guild: {guild_id}")
 
         def _is_still_valid(timestamp):
             difference = current_time - timestamp

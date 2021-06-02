@@ -378,7 +378,7 @@ class AntiSpamHandler:
         for pre_invoke_ext in self.pre_invoke_extensions.values():
             pre_invoke_return = await pre_invoke_ext.propagate(message)
             data["pre_invoke_extensions"][
-                pre_invoke_ext.__classe__.__name__
+                pre_invoke_ext.__class__.__name__
             ] = pre_invoke_return
 
         main_return = await guild.propagate(message)
