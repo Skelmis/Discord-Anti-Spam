@@ -155,6 +155,10 @@ class AntiSpamHandler:
         guild_ban_message_delete_after: None
             The time to delete the ``guild_ban_message`` message
 
+        delete_zero_width_chars: True
+            Should zero width characters be removed from messages
+
+
     """
 
     # TODO Add options for group spamming, rather then just per member.
@@ -237,6 +241,8 @@ class AntiSpamHandler:
             The time to delete the ``user_ban_message`` message
         guild_ban_message_delete_after : int, optional
             The time to delete the ``guild_ban_message`` message
+        delete_zero_width_chars : bool
+            Should zero width characters be removed from messages
         """
         # Just gotta casually ignore_type check everything.
         if (
@@ -571,6 +577,8 @@ class AntiSpamHandler:
             The time to delete the ``user_ban_message`` message
         guild_ban_message_delete_after : int, optional
             The time to delete the ``guild_ban_message`` message
+        delete_zero_width_chars : bool
+            Should zero width characters be removed from messages
 
         Warnings
         --------
@@ -982,6 +990,7 @@ class AntiSpamHandler:
         guild_kick_message_delete_after=None,
         user_ban_message_delete_after=None,
         guild_ban_message_delete_after=None,
+        delete_zero_width_chars=None,
     ):
         """
         Given the relevant arguments,
@@ -1134,6 +1143,12 @@ class AntiSpamHandler:
                 "Cannot do BOTH warn_only and no_punish. Pick one and try again"
             )
 
+        if (
+            not isinstance(delete_zero_width_chars, bool)
+            and delete_zero_width_chars is not None
+        ):
+            raise ValueError("Expected `delete_zero_width_chars` of type bool")
+
         # Now we have ignore_type checked everything, lets do some logic
         if ignore_bots is None:
             ignore_bots = Static.DEFAULTS.get("ignore_bots")
@@ -1217,6 +1232,8 @@ class AntiSpamHandler:
             or Static.DEFAULTS.get("user_ban_message_delete_after"),
             "guild_ban_message_delete_after": guild_ban_message_delete_after
             or Static.DEFAULTS.get("guild_ban_message_delete_after"),
+            "delete_zero_width_chars": delete_zero_width_chars
+            or Static.DEFAULTS.get("delete_zero_width_chars"),
         }
 
     # <-- Getter & Setters -->

@@ -196,4 +196,4 @@ class AntiMassMention(BaseExtension):
                 valid_items.append(item)
 
         user["total_mentions"] = valid_items
-        self.data.set_user(guild_id=guild_id, user_id=user_id)
+        self.data.set_user(guild_id=guild_id, user_id=user_id, user_data=user)

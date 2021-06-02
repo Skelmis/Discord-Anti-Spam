@@ -63,6 +63,7 @@ class Static:
         "guild_kick_message_delete_after": None,
         "user_ban_message_delete_after": None,
         "guild_ban_message_delete_after": None,
+        "delete_zero_width_chars": True,
     }
     BAN = "ban"
     KICK = "kick"

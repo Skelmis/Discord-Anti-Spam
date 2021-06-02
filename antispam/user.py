@@ -188,6 +188,16 @@ class User:
         else:
             content = value.clean_content
 
+        if self.options.get("delete_zero_width_chars"):
+            content = (
+                content.replace("u200B", "")
+                .replace("u200C", "")
+                .replace("u200D", "")
+                .replace("u200E", "")
+                .replace("u200F", "")
+                .replace("uFEFF", "")
+            )
+
         message = Message(
             value.id,
             content,
