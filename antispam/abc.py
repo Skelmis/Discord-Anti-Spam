@@ -1,8 +1,8 @@
 from typing import Protocol
 
-from antispam.dataclasses.guild import Guild
-from antispam.dataclasses.member import Member
-from antispam.dataclasses.message import Message
+from .dataclasses import Guild, Member, Message
+
+# TODO These imports might complain about being circles
 
 
 class Cache(Protocol):
