@@ -12,6 +12,12 @@ Ever felt the need to handle spammers in your discord, but don't have the time o
 This package aims to help solve that issue by handling all the required logic under the hood, as well as handling the spammers.
 
 ---
+
+Never would have thought I'd have to say this, but the package on Pypi which is the 'fixed' AntiSpam
+simply copies the code from this package and changes some strings to introduce spelling changes by the
+looks of it. Still points here, either way if you want actual features n such follow the below instructions.
+
+---
 How to use this right now?
 
 Download the codebase:
