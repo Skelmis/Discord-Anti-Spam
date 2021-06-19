@@ -13,3 +13,4 @@ python-levenshtein==0.12.2
 pytweening==1.0.3
 sphinx-rtd-theme==0.5.2
 twine==3.4.1
+wheel
