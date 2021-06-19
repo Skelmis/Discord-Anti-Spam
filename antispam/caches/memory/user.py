@@ -32,7 +32,7 @@ import discord
 
 from fuzzywuzzy import fuzz
 
-from antispam.message import Message
+from antispam.caches.memory.message import Message
 from antispam.exceptions import (
     DuplicateObject,
     ObjectMismatch,

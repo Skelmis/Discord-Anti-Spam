@@ -20,7 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-import asyncio
 import unittest
 import discord
 
@@ -35,12 +34,12 @@ from antispam.exceptions import (
     ExtensionError,
 )
 from antispam.static import Static
-from antispam.guild import Guild
-from antispam.user import User
+from antispam.caches.memory.guild import Guild
+from antispam.caches.memory.user import User
 from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockMessage import MockedMessage
 
-from json_loader import read_json, write_json
+from json_loader import read_json
 
 
 class TestAsh(unittest.IsolatedAsyncioTestCase):

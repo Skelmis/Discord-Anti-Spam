@@ -24,8 +24,8 @@ DEALINGS IN THE SOFTWARE.
 import unittest
 from copy import deepcopy
 
-from antispam.guild import Guild
-from antispam.user import User
+from antispam.caches.memory.guild import Guild
+from antispam.caches.memory.user import User
 from antispam.static import Static
 from antispam.exceptions import DuplicateObject, ObjectMismatch
 

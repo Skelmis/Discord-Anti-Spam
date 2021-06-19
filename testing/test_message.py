@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 import datetime
 import unittest
 
-from antispam.message import Message
+from antispam.caches.memory.message import Message
 
 
 class TestMessage(unittest.TestCase):
