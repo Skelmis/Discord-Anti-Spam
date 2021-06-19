@@ -1,4 +1,4 @@
-from antispam.exceptions import UserNotFound, GuildNotFound
+from antispam.exceptions import MemberNotFound, GuildNotFound
 
 
 class UserTracking:
@@ -55,10 +55,10 @@ class UserTracking:
         try:
             guild = self._get_guild(guild_id=guild_id)
         except GuildNotFound:
-            raise UserNotFound
+            raise MemberNotFound
 
         if user_id not in guild:
-            raise UserNotFound
+            raise MemberNotFound
 
         return guild[user_id]
 

@@ -57,8 +57,8 @@ class NotFound(BaseASHException):
     """Something could not be found."""
 
 
-class UserNotFound(NotFound):
-    """A User matching this id and guild id could not be found in the cache."""
+class MemberNotFound(NotFound):
+    """A Member matching this id and guild id could not be found in the cache."""
 
 
 class GuildNotFound(NotFound):

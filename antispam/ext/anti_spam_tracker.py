@@ -33,7 +33,7 @@ import typing
 
 from antispam import AntiSpamHandler
 from antispam.base_extension import BaseExtension
-from antispam.exceptions import UserNotFound, ExtensionError
+from antispam.exceptions import MemberNotFound, ExtensionError
 
 log = logging.getLogger(__name__)
 
@@ -232,16 +232,16 @@ class AntiSpamTracker(BaseExtension):
             raise TypeError("Expected message of type: discord.Message")
 
         if not message.guild:
-            raise UserNotFound("Can't find user's from dm's")
+            raise MemberNotFound("Can't find user's from dm's")
 
         user_id = message.author.id
         guild_id = message.guild.id
 
         if guild_id not in self.user_tracking:
-            raise UserNotFound
+            raise MemberNotFound
 
         if user_id not in self.user_tracking[guild_id]:
-            raise UserNotFound
+            raise MemberNotFound
 
         self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
 
@@ -410,7 +410,7 @@ class AntiSpamTracker(BaseExtension):
             user_count = self.get_user_count(message=message)
             if user_count >= self.punish_min_amount:
                 return True
-        except UserNotFound:
+        except MemberNotFound:
             return False
         else:
             return False

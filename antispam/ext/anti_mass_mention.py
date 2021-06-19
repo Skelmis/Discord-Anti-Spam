@@ -5,7 +5,7 @@ from dataclasses import dataclass, asdict
 
 import discord
 
-from antispam.exceptions import UserNotFound
+from antispam.exceptions import MemberNotFound
 from antispam.base_extension import BaseExtension
 from antispam.ext.user_tracking import UserTracking
 
@@ -114,7 +114,7 @@ class AntiMassMention(BaseExtension):
 
         try:
             user = self.data.get_user(guild_id, user_id)
-        except UserNotFound:
+        except MemberNotFound:
             user = {"total_mentions": []}
             """
             {

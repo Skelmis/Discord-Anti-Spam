@@ -25,7 +25,7 @@ DEALINGS IN THE SOFTWARE.
 import asyncio
 import unittest
 
-from antispam import AntiSpamHandler, UserNotFound
+from antispam import AntiSpamHandler, MemberNotFound
 from antispam.ext import AntiSpamTracker
 
 from testing.mocks.MockMember import MockedMember
@@ -127,11 +127,11 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         user_count = ast.get_user_count(MockedMessage().to_mock())
         self.assertEqual(user_count, 4)
 
-        with self.assertRaises(UserNotFound):
+        with self.assertRaises(MemberNotFound):
             message = MockedMessage(guild_id=15).to_mock()
             ast.get_user_count(message)
 
-        with self.assertRaises(UserNotFound):
+        with self.assertRaises(MemberNotFound):
             message = MockedMessage(author_id=25).to_mock()
             ast.get_user_count(message)
 
@@ -226,5 +226,5 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(1, ast.get_user_count(MockedMessage().to_mock()))
 
         ast.remove_punishments(MockedMessage().to_mock())
-        with self.assertRaises(UserNotFound):
+        with self.assertRaises(MemberNotFound):
             ast.get_user_count(MockedMessage().to_mock())
