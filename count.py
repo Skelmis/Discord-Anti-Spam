@@ -43,4 +43,4 @@ def countlines(start, lines=0, header=True, begin_start=None):
     return lines
 
 
-countlines(".")
+countlines("./antispam")

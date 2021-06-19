@@ -153,7 +153,7 @@ class AntiMassMention(BaseExtension):
 
         user = self.data.get_user(guild_id=guild_id, user_id=user_id)
         if (
-            sum(item.timestamp for item in user["total_mentions"])
+            sum(item.mentions for item in user["total_mentions"])
             >= self.total_mentions_before_punishment
         ):
             # They have more mentions are cleaning then allowed,

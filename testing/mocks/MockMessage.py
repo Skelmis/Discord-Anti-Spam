@@ -23,7 +23,8 @@ class MockedMessage:
         author_is_bot=False,
         is_in_guild=True,
         guild_name="Guild",
-        guild_id=123456789
+        guild_id=123456789,
+        message_mentions=None,
     ):
         self.author = {"name": author_name, "id": author_id, "is_bot": author_is_bot}
         if author_is_bot:
@@ -41,6 +42,8 @@ class MockedMessage:
         self.content = message_content
         self.clean_content = message_clean_content
 
+        self.message_mentions = message_mentions or list()
+
     def to_mock(self):
         """Returns an AsyncMock matching the spec for this class"""
         # we still have to set stuff manually but changing values is nicer
@@ -57,7 +60,9 @@ class MockedMessage:
         if not self.is_in_guild:
             mock.guild = None
         else:
-            mock.guild = MockedGuild(name=self.guild["name"], guild_id=self.guild["id"]).to_mock()
+            mock.guild = MockedGuild(
+                name=self.guild["name"], guild_id=self.guild["id"]
+            ).to_mock()
 
         mock.channel = MockedChannel().to_mock()
         mock.created_at = datetime.datetime.now()
@@ -65,5 +70,6 @@ class MockedMessage:
         mock.id = self.message_id
         mock.content = self.content
         mock.clean_content = self.clean_content
+        mock.mentions = self.message_mentions
 
         return mock
