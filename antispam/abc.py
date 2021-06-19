@@ -1,8 +1,8 @@
 from typing import Protocol
 
-from .guild import Guild
-from .member import Member
-from .message import Message
+from antispam.dataclasses.guild import Guild
+from antispam.dataclasses.member import Member
+from antispam.dataclasses.message import Message
 
 
 class Cache(Protocol):
