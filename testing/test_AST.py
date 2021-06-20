@@ -26,7 +26,7 @@ import asyncio
 import unittest
 
 from antispam import AntiSpamHandler, MemberNotFound
-from antispam.ext import AntiSpamTracker
+from antispam.plugins import AntiSpamTracker
 
 from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockMessage import MockedMessage

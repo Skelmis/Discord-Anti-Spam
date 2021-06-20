@@ -6,7 +6,7 @@ from copy import deepcopy
 import discord
 
 from antispam import MemberNotFound
-from antispam.ext import AntiSpamTracker
+from antispam.plugins import AntiSpamTracker
 
 
 # noinspection DuplicatedCode

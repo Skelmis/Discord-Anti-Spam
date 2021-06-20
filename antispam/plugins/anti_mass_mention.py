@@ -7,7 +7,7 @@ import discord
 
 from antispam.exceptions import MemberNotFound
 from antispam.base_extension import BaseExtension
-from antispam.ext.user_tracking import UserTracking
+from antispam.plugins.user_tracking import UserTracking
 
 
 log = logging.getLogger(__name__)

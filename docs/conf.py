@@ -28,9 +28,13 @@ author = "Skelmis"
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+# extensions coming with Sphinx (named 'sphinx.plugins.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.coverage", "sphinx.ext.napoleon"]
+extensions = [
+    "sphinx.plugins.autodoc",
+    "sphinx.plugins.coverage",
+    "sphinx.plugins.napoleon",
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -57,7 +61,7 @@ master_doc = "index"
 
 
 def setup(app):
-    # Register a sphinx.ext.autodoc.between listener to ignore everything
+    # Register a sphinx.plugins.autodoc.between listener to ignore everything
     # between lines that contain the word IGNORE
     app.connect("autodoc-process-docstring", between("^.*LICENSE.*$", exclude=True))
     return app

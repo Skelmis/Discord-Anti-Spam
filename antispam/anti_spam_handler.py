@@ -244,6 +244,8 @@ class AntiSpamHandler:
         delete_zero_width_chars : bool
             Should zero width characters be removed from messages
         """
+        # TODO Implement an async cache initialization somehow
+
         # Just gotta casually ignore_type check everything.
         if (
             not isinstance(
