@@ -8,6 +8,13 @@ from .dataclasses import Guild, Member, Message
 class Cache(Protocol):
     """A generic Protocol for any Cache to implement"""
 
+    async def initialize(self, *args, **kwargs) -> None:
+        """
+        This method gets called once when the AntiSpamHandler
+        first loads so that you can do any async initialization
+        you need to do before the cache gets useds
+        """
+
     async def get_guild(self, guild_id: int) -> Guild:
         """Fetch a Guild dataclass populated with members
 
@@ -21,6 +28,18 @@ class Cache(Protocol):
         GuildNotFound
             A Guild could not be found in the cache
             with the given id
+        """
+
+    async def set_guild(self, guild: Guild) -> None:
+        """
+        Stores a Guild in the cache
+
+        This is essentially a UPSERT operation
+
+        Parameters
+        ----------
+        guild : Guild
+            The Guild that needs to be stored
         """
 
     async def get_member(self, member_id: int, guild_id: int) -> Member:
@@ -38,6 +57,19 @@ class Cache(Protocol):
         MemberNotFound
             This Member could not be found on the associated
             Guild within the internal cache
+        """
+
+    async def set_member(self, member: Member) -> None:
+        """
+        Stores a Member internally and attaches them
+        to a Guild, creating the Guild silently if required
+
+        Essentially an UPSERT operation
+
+        Parameters
+        ----------
+        member : Member
+            The Member we want to cache
         """
 
     async def add_message(self, message: Message) -> None:
