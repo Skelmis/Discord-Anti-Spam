@@ -1,6 +1,6 @@
 import unittest
 
-from antispam.plugins import AntiMassMention
+from discord.ext.antispam import AntiMassMention
 from testing.mocks.MockChannel import MockedChannel
 from testing.mocks.MockMember import MockedMember
 from testing.mocks.MockMessage import MockedMessage

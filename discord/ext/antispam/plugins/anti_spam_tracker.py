@@ -31,9 +31,9 @@ from unittest.mock import AsyncMock
 import discord
 import typing
 
-from antispam import AntiSpamHandler
-from antispam.base_extension import BaseExtension
-from antispam.exceptions import MemberNotFound, ExtensionError
+from discord.ext.antispam import AntiSpamHandler
+from discord.ext.antispam.base_extension import BaseExtension
+from discord.ext.antispam.exceptions import MemberNotFound, ExtensionError
 
 log = logging.getLogger(__name__)
 

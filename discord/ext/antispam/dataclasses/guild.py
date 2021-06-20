@@ -3,7 +3,7 @@ from typing import Dict
 import attr
 
 from .member import Member
-from antispam.options import Options
+from discord.ext.antispam.options import Options
 
 
 @attr.s(slots=True)

@@ -5,9 +5,9 @@ from dataclasses import dataclass, asdict
 
 import discord
 
-from antispam.exceptions import MemberNotFound
-from antispam.base_extension import BaseExtension
-from antispam.plugins.user_tracking import UserTracking
+from discord.ext.antispam.exceptions import MemberNotFound
+from discord.ext.antispam.base_extension import BaseExtension
+from discord.ext.antispam.plugins.user_tracking import UserTracking
 
 
 log = logging.getLogger(__name__)

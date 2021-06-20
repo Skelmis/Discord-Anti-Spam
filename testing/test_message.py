@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 import datetime
 import unittest
 
-from antispam.caches.memory.message import Message
+from discord.ext.antispam import Message
 
 
 class TestMessage(unittest.TestCase):

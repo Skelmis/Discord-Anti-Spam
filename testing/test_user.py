@@ -24,10 +24,10 @@ import datetime
 import unittest
 from copy import deepcopy
 
-from antispam.caches.memory.user import User
-from antispam.caches.memory.message import Message
-from antispam.static import Static
-from antispam.exceptions import DuplicateObject, ObjectMismatch, LogicError
+from discord.ext.antispam.caches.memory.user import User
+from discord.ext.antispam import Message
+from discord.ext.antispam import Static
+from discord.ext.antispam import DuplicateObject, ObjectMismatch, LogicError
 from testing.mocks.MockChannel import MockedChannel
 from testing.mocks.MockMessage import MockedMessage
 

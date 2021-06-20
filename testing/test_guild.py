@@ -24,10 +24,10 @@ DEALINGS IN THE SOFTWARE.
 import unittest
 from copy import deepcopy
 
-from antispam.caches.memory.guild import Guild
-from antispam.caches.memory.user import User
-from antispam.static import Static
-from antispam.exceptions import DuplicateObject, ObjectMismatch
+from discord.ext.antispam import Guild
+from discord.ext.antispam.caches.memory.user import User
+from discord.ext.antispam import Static
+from discord.ext.antispam import DuplicateObject, ObjectMismatch
 
 
 class TestGuild(unittest.TestCase):

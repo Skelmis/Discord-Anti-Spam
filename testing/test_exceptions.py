@@ -24,7 +24,7 @@ DEALINGS IN THE SOFTWARE.
 import unittest
 
 
-from antispam.exceptions import *
+from discord.ext.antispam import *
 
 
 class TestUser(unittest.TestCase):

@@ -32,15 +32,15 @@ import discord
 
 from fuzzywuzzy import fuzz
 
-from antispam.caches.memory.message import Message
-from antispam.exceptions import (
+from discord.ext.antispam.caches.memory.message import Message
+from discord.ext.antispam.exceptions import (
     DuplicateObject,
     ObjectMismatch,
     LogicError,
     MissingGuildPermissions,
 )
-from antispam.static import Static
-from antispam.util import embed_to_string, transform_message
+from discord.ext.antispam.static import Static
+from discord.ext.antispam.util import embed_to_string, transform_message
 
 log = logging.getLogger(__name__)
 

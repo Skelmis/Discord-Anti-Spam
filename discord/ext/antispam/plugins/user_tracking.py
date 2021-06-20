@@ -1,4 +1,4 @@
-from antispam.exceptions import MemberNotFound, GuildNotFound
+from discord.ext.antispam.exceptions import MemberNotFound, GuildNotFound
 
 
 class UserTracking:

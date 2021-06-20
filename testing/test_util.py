@@ -22,7 +22,6 @@ DEALINGS IN THE SOFTWARE.
 """
 import unittest
 
-from antispam.util import *
 from testing.mocks.MockMessage import MockedMessage
 
 

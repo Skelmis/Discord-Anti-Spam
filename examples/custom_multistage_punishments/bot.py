@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from antispam import AntiSpamHandler
+from discord.ext.antispam import AntiSpamHandler
 from examples.jsonLoader import read_json
 
 from AntiSpamTrackerSubclass import MyCustomTracker
