@@ -22,8 +22,8 @@ DEALINGS IN THE SOFTWARE.
 """
 __version__ = "0.8.0"
 
-from discord.ext.antispam.anti_spam_handler import AntiSpamHandler
-from discord.ext.antispam.exceptions import *
+from .anti_spam_handler import AntiSpamHandler
+from .exceptions import *
 
 import logging
 from collections import namedtuple
