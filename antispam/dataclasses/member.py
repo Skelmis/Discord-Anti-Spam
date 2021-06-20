@@ -1,8 +1,10 @@
-from typing import List, Dict
+from typing import List, Dict, TypeVar, Generic, Any
 
 import attr
 
 from .message import Message
+
+T = TypeVar("T")
 
 
 @attr.s(slots=True)
@@ -18,3 +20,8 @@ class Member:
     )
     _in_guild: bool = attr.ib(default=True, eq=False)
     messages: List[Message] = attr.ib(default=attr.Factory(list), eq=False)
+
+    # So that plugins can access this data
+    # key -> Plugin.__class__.__name__
+    # Value -> Whatever they want to store
+    addons: Dict[str:Any] = attr.ib(default=attr.Factory(dict), eq=False)
