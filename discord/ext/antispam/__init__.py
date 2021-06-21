@@ -24,6 +24,7 @@ __version__ = "0.8.0"
 
 from .anti_spam_handler import AntiSpamHandler
 from .exceptions import *
+from .dataclasses import Options
 
 import logging
 from collections import namedtuple

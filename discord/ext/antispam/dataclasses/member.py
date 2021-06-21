@@ -1,10 +1,8 @@
-from typing import List, Dict, TypeVar, Generic, Any
+from typing import List, Dict, Any
 
 import attr
 
 from .message import Message
-
-T = TypeVar("T")
 
 
 @attr.s(slots=True)
