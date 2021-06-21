@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set, Dict, Any
 
 import attr
 
@@ -48,11 +48,11 @@ class Options:
     )
     # TODO Implement a log channel
 
-    # Lists
-    ignore_users: List[int] = attr.ib(default=attr.Factory(list))
-    ignore_channels: List[int] = attr.ib(default=attr.Factory(list))
-    ignore_roles: List[int] = attr.ib(default=attr.Factory(list))
-    ignore_guilds: List[int] = attr.ib(default=attr.Factory(list))
+    # Sets
+    ignore_users: Set[int] = attr.ib(default=attr.Factory(set))
+    ignore_channels: Set[int] = attr.ib(default=attr.Factory(set))
+    ignore_roles: Set[int] = attr.ib(default=attr.Factory(set))
+    ignore_guilds: Set[int] = attr.ib(default=attr.Factory(set))
 
     # Booleans
     delete_spam: bool = attr.ib(default=True)
@@ -61,3 +61,6 @@ class Options:
     no_punish: bool = attr.ib(default=False)
     per_channel_spam: bool = attr.ib(default=False)
     delete_zero_width_chars: bool = attr.ib(default=True)
+
+    # Add on option storage for plugins
+    addons: Dict[str:Any] = attr.ib(default=attr.Factory(dict))

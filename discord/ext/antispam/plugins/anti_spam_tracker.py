@@ -523,6 +523,8 @@ class AntiSpamTracker(BaseExtension):
         If this doesnt work as intended, please open
         an issue.
 
+        # TODO Remove this shit so you can just call it on the handler
+
         """
         if kwargs.get("message_interval"):
             if guild_id not in self.user_tracking:
@@ -552,6 +554,8 @@ class AntiSpamTracker(BaseExtension):
         since ``add_custom_guild_options`` is unit-tested.
         If this doesnt work as intended, please open
         an issue.
+
+        # TODO Remove this shit so you can just call it on the handler
 
         """
         if guild_id in self.user_tracking:

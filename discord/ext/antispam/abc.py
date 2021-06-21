@@ -88,3 +88,5 @@ class Cache(Protocol):
         This should silently create any Guild's/Member's
         required to fulfil this transaction
         """
+
+    # TODO Implement Member count resets
