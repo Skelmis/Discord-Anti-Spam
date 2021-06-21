@@ -1,9 +1,9 @@
-from typing import Dict
+from typing import Dict, List
 
 import attr
 
-from .member import Member
-from discord.ext.antispam.options import Options
+from . import Message, Member
+from discord.ext.antispam.dataclasses.options import Options
 
 
 @attr.s(slots=True)
@@ -12,7 +12,7 @@ class Guild:
 
     id: int = attr.ib(eq=True)
     options: Options = attr.ib(eq=False)
-    has_custom_options: bool = attr.ib(
-        default=False
-    )  # TODO Remove this in favour of Options==Options checks
     members: Dict[int:Member] = attr.ib(default=attr.Factory(dict), eq=False)
+
+    # For storing spam at a guild level
+    messages: List[Message] = attr.ib(default=attr.Factory(list), eq=False)

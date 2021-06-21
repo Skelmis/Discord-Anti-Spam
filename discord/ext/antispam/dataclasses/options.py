@@ -3,17 +3,17 @@ from typing import List
 import attr
 
 
-@attr.s(slots=True)
+@attr.s(slots=True, eq=True, kw_only=True)
 class Options:
     """Options for the AntiSpamHandler"""
 
     # Ints
-    warn_threshold: int = attr.ib(default=3, kw_only=True)
-    kick_threshold: int = attr.ib(default=2, kw_only=True)
-    ban_threshold: int = attr.ib(default=2, kw_only=True)
-    message_interval: int = attr.ib(default=30000, kw_only=True)
-    message_duplicate_count: int = attr.ib(default=5, kw_only=True)
-    message_duplicate_accuracy: int = attr.ib(default=90, kw_only=True)
+    warn_threshold: int = attr.ib(default=3)
+    kick_threshold: int = attr.ib(default=2)
+    ban_threshold: int = attr.ib(default=2)
+    message_interval: int = attr.ib(default=30000)
+    message_duplicate_count: int = attr.ib(default=5)
+    message_duplicate_accuracy: int = attr.ib(default=90)
 
     # Strings
     guild_warn_message: str = attr.ib(
@@ -49,15 +49,15 @@ class Options:
     # TODO Implement a log channel
 
     # Lists
-    ignore_users: List[int] = attr.ib(default=attr.Factory(list), kw_only=True)
-    ignore_channels: List[int] = attr.ib(default=attr.Factory(list), kw_only=True)
-    ignore_roles: List[int] = attr.ib(default=attr.Factory(list), kw_only=True)
-    ignore_guilds: List[int] = attr.ib(default=attr.Factory(list), kw_only=True)
+    ignore_users: List[int] = attr.ib(default=attr.Factory(list))
+    ignore_channels: List[int] = attr.ib(default=attr.Factory(list))
+    ignore_roles: List[int] = attr.ib(default=attr.Factory(list))
+    ignore_guilds: List[int] = attr.ib(default=attr.Factory(list))
 
     # Booleans
-    delete_spam: bool = attr.ib(default=True, kw_only=True)
-    ignore_bots: bool = attr.ib(default=True, kw_only=True)
-    warn_only: bool = attr.ib(default=False, kw_only=True)
-    no_punish: bool = attr.ib(default=False, kw_only=True)
-    per_channel_spam: bool = attr.ib(default=False, kw_only=True)
-    delete_zero_width_chars: bool = attr.ib(default=True, kw_only=True)
+    delete_spam: bool = attr.ib(default=True)
+    ignore_bots: bool = attr.ib(default=True)
+    warn_only: bool = attr.ib(default=False)
+    no_punish: bool = attr.ib(default=False)
+    per_channel_spam: bool = attr.ib(default=False)
+    delete_zero_width_chars: bool = attr.ib(default=True)
