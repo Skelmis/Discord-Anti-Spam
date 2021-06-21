@@ -1,10 +1,11 @@
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from .dataclasses import Guild, Member, Message
 
 # TODO These imports might complain about being circles
 
 
+@runtime_checkable
 class Cache(Protocol):
     """A generic Protocol for any Cache to implement"""
 

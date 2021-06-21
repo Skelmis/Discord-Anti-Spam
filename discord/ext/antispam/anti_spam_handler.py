@@ -30,8 +30,11 @@ from unittest.mock import AsyncMock
 
 import discord
 from discord.ext import commands
+from discord.ext.antispam import Options
+from discord.ext.antispam.abc import Cache
 
 from discord.ext.antispam.caches.memory.guild import Guild
+from discord.ext.antispam.caches.memory.memory import Memory
 from discord.ext.antispam.exceptions import (
     DuplicateObject,
     BaseASHException,
@@ -171,105 +174,38 @@ class AntiSpamHandler:
             discord.Client,
             discord.AutoShardedClient,
         ],
-        **kwargs,
+        *,
+        options: Options = None,
+        cache: Cache = None,
     ):
-        """
-        This is the first initialization of the entire spam handler,
-        this is also where the initial options are set
-
-        Parameters
-        ----------
-        bot : commands.Bot or commands.AutoShardedBot or discord.Client or discord.AutoShardedClient
-            The commands.Bot or commands.AutoSharedBot or discord.Client or discord.AutoShardedClient instance
-        warn_threshold : int, optional
-            This is the amount of messages in a row that result in a warning within the message_interval
-        kick_threshold : int, optional
-            The amount of 'warns' before a kick occurs
-        ban_threshold : int, optional
-            The amount of 'kicks' that occur before a ban occurs
-        message_interval : int, optional
-            Amount of time a message is kept before being discarded.
-            Essentially the amount of time (In milliseconds) a message can count towards spam
-        guild_warn_message : Union[str, dict], optional
-            The message to be sent in the guild upon warn_threshold being reached
-        guild_kick_message : Union[str, dict], optional
-            The message to be sent in the guild upon kick_threshold being reached
-        guild_ban_message : Union[str, dict], optional
-            The message to be sent in the guild upon ban_threshold being reached
-        user_kick_message : Union[str, dict], optional
-            The message to be sent to the user who is being warned
-        user_ban_message : Union[str, dict], optional
-            The message to be sent to the user who is being banned
-        user_failed_kick_message : Union[str, dict], optional
-            The message to be sent to the user if the bot fails to kick them
-        user_failed_ban_message : Union[str, dict], optional
-            The message to be sent to the user if the bot fails to ban them
-        message_duplicate_count : int, optional
-            Amount of duplicate messages needed to trip a punishment
-        message_duplicate_accuracy : float, optional
-            How 'close' messages need to be to be registered as duplicates (Out of 100)
-        delete_spam : bool, optional
-            Whether or not to delete any messages marked as spam
-        ignore_perms : list, optional
-            The perms (ID Form), that bypass anti-spam
-        ignore_channels : list, optional
-            The channels (ID Form) that are ignored
-        ignore_roles : list, optional
-            The roles (ID, Name) that are ignored
-        ignore_guilds : list, optional
-            The guilds (ID) that are ignored
-        ignore_users : list, optional
-            The users (ID Form), that bypass anti-spam
-        ignore_bots : bool, optional
-            Should bots bypass anti-spam?
-        warn_only : bool, optional
-            Only warn users?
-        no_punish : bool, optional
-            Dont punish users?
-            Return if they should be punished or
-            not without actually punishing them
-        per_channel_spam : bool, optional
-            Track spam as per channel,
-            rather then per guild
-        guild_warn_message_delete_after : int, optional
-            The time to delete the ``guild_warn_message`` message
-        user_kick_message_delete_after : int, optional
-            The time to delete the ``user_kick_message`` message
-        guild_kick_message_delete_after : int, optional
-            The time to delete the ``guild_kick_message`` message
-        user_ban_message_delete_after : int, optional
-            The time to delete the ``user_ban_message`` message
-        guild_ban_message_delete_after : int, optional
-            The time to delete the ``guild_ban_message`` message
-        delete_zero_width_chars : bool
-            Should zero width characters be removed from messages
-        """
         # TODO Implement an async cache initialization somehow
 
         # Just gotta casually ignore_type check everything.
-        if (
-            not isinstance(
-                bot,
-                (
-                    commands.Bot,
-                    commands.AutoShardedBot,
-                    discord.Client,
-                    discord.AutoShardedClient,
-                ),
-            )
-            and not isinstance(bot, AsyncMock)
+        if not isinstance(
+            bot,
+            (
+                commands.Bot,
+                commands.AutoShardedBot,
+                discord.Client,
+                discord.AutoShardedClient,
+                AsyncMock,
+            ),
         ):
             raise ValueError(
                 "Expected bot of type commands.Bot, commands.AutoShardedBot, "
                 "discord.Client or discord.AutoShardedClient"
             )
 
-        self.options = self._ensure_options(**kwargs)
+        options = options or Options()
+        if not isinstance(options, Options):
+            raise ValueError("Expected `option`s of type `Option`")
 
-        if self.options.get("no_punish") and (
-            self.options.get("delete_spam"),
-            self.options.get("warn_only"),
-            self.options.get("per_channel_spam"),
+        self.options = options
+
+        if self.options.no_punish and (
+            self.options.delete_spam
+            or self.options.warn_only
+            or self.options.per_channel_spam
         ):
             log.warning(
                 "You are attempting to create an AntiSpamHandler with options that are mutually exclusive. "
@@ -277,8 +213,12 @@ class AntiSpamHandler:
                 "mutually exclusive."
             )
 
+        cache = cache or Memory()
+        if not issubclass(type(cache), Cache):
+            raise ValueError("Expected `cache` that inherits from the `Cache` Protocol")
+
         self.bot = bot
-        self._guilds = []
+        self.cache = cache
 
         self.pre_invoke_extensions = {}
         self.after_invoke_extensions = {}
