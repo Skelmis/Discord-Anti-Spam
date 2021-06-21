@@ -40,22 +40,27 @@ class FactoryBuilder:
         )
 
         for message_data in member_data["messages"]:
-            # Do this to save overhead in the message object
-            # and keep it as small as possible
-            message = Message(
-                id=message_data["id"],
-                content=message_data["content"],
-                guild_id=message_data["guild_id"],
-                author_id=message_data["author_id"],
-                channel_id=message_data["channel_id"],
+            member.messages.append(
+                FactoryBuilder.create_message_from_dict(message_data)
             )
-            message.is_duplicate = message_data["is_duplicate"]
-            message._creation_time = datetime.datetime.strptime(
-                message_data["creation_time"], "%f:%S:%M:%H:%d:%m:%Y"
-            )
-            member.messages.append(message)
-            log.debug(f"Created Message ({message.id}) from dict")
 
         log.debug(f"Created Member ({member.id}) from dict")
 
         return member
+
+    @staticmethod
+    def create_message_from_dict(message_data) -> Message:
+        message = Message(
+            id=message_data["id"],
+            content=message_data["content"],
+            guild_id=message_data["guild_id"],
+            author_id=message_data["author_id"],
+            channel_id=message_data["channel_id"],
+        )
+        message.is_duplicate = message_data["is_duplicate"]
+        message._creation_time = datetime.datetime.strptime(
+            message_data["creation_time"], "%f:%S:%M:%H:%d:%m:%Y"
+        )
+        log.debug(f"Created Message ({message.id}) from dict")
+
+        return message

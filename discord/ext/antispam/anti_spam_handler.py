@@ -589,11 +589,6 @@ class AntiSpamHandler:
         **without** any of the saved state and is equivalent to simply
         doing ``AntiSpamHandler(bot)``
 
-        -----
-
-        This is fairly computationally expensive. It deepcopy's
-        nearly everything lol.
-
         """
         # TODO Add `cache` support
         try:
