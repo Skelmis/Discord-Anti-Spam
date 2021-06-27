@@ -12,7 +12,7 @@ class Member:
     id: int = attr.ib(eq=True)
     warn_count: int = attr.ib(default=0, eq=False)
     kick_count: int = attr.ib(default=0, eq=False)
-    duplicate_count: int = attr.ib(default=0, eq=False)
+    duplicate_counter: int = attr.ib(default=1, eq=False)
     duplicate_channel_counter_dict: Dict[int:int] = attr.ib(
         default=attr.Factory(dict), eq=False
     )

@@ -59,8 +59,14 @@ class Options:
     ignore_bots: bool = attr.ib(default=True)
     warn_only: bool = attr.ib(default=False)
     no_punish: bool = attr.ib(default=False)
-    per_channel_spam: bool = attr.ib(default=False)
     delete_zero_width_chars: bool = attr.ib(default=True)
+
+    # Core punishment settings
+    per_channel_spam: bool = attr.ib(default=False)  # False implies per_user_per_guild
+
+    # TODO Implement this
+    # Catches 5 people saying the same thing
+    is_per_channel_per_guild: bool = attr.ib(default=True)
 
     # Add on option storage for plugins
     addons: Dict[str:Any] = attr.ib(default=attr.Factory(dict))

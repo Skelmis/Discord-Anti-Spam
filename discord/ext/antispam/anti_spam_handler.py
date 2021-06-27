@@ -35,14 +35,12 @@ from discord.ext import commands
 
 
 from .abc import Cache
+from discord.ext.antispam.core import Core
 from .dataclasses import Guild, Options
 from .caches import Memory
 from .enums import IgnoreType, ResetType
 from .exceptions import (
-    DuplicateObject,
-    BaseASHException,
     MissingGuildPermissions,
-    LogicError,
     ExtensionError,
     GuildNotFound,
 )
@@ -223,6 +221,7 @@ class AntiSpamHandler:
 
         self.bot = bot
         self.cache = cache
+        self.core = Core(self)
 
         self.pre_invoke_extensions = {}
         self.after_invoke_extensions = {}
@@ -327,7 +326,7 @@ class AntiSpamHandler:
             ] = pre_invoke_return
 
         # TODO This should become the core invokes. Not a singular
-        main_return = await guild.propagate(message)
+        main_return = await self.core.propagate(message)
 
         for after_invoke_ext in self.after_invoke_extensions.values():
             after_invoke_return = await after_invoke_ext.propagate(message, main_return)
