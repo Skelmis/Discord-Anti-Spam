@@ -11,6 +11,7 @@ pymsgbox==1.0.9
 pyscreeze==0.1.27
 python-levenshtein==0.12.2
 pytweening==1.0.3
+snakeviz==2.1.0
 sphinx-rtd-theme==0.5.2
 twine==3.4.1
-wheel
+typed-ast==1.4.2
