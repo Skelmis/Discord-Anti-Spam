@@ -544,23 +544,23 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
     async def test_propagateIgnoreGuild(self):
         self.ash.add_ignored_item(123456789, "guild")
-        self.assertEqual(self.ash.options["ignore_guilds"], [123456789])
+        self.assertEqual(self.ash.options["ignored_guilds"], [123456789])
 
         result = await self.ash.propagate(MockedMessage().to_mock())
         self.assertEqual(result["status"], "Ignoring this guild: 123456789")
 
         self.ash.remove_ignored_item(123456789, "guild")
-        self.assertEqual(self.ash.options["ignore_guilds"], [])
+        self.assertEqual(self.ash.options["ignored_guilds"], [])
 
     async def test_propagateIgnoredChannel(self):
         self.ash.add_ignored_item(98987, "channel")
-        self.assertEqual(self.ash.options["ignore_channels"], [98987])
+        self.assertEqual(self.ash.options["ignored_channels"], [98987])
 
         result = await self.ash.propagate(MockedMessage().to_mock())
         self.assertEqual(result["status"], "Ignoring this channel: 98987")
 
         self.ash.remove_ignored_item(98987, "channel")
-        self.assertEqual(self.ash.options["ignore_channels"], [])
+        self.assertEqual(self.ash.options["ignored_channels"], [])
 
     async def test_propagateGuildCreation(self):
         self.assertEqual(len(self.ash.guilds), 2)
@@ -591,11 +591,11 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         await ash.propagate(message)
 
     async def test_ignoreMethods(self):
-        self.assertEqual(self.ash.options["ignore_users"], [])
-        self.assertEqual(self.ash.options["ignore_channels"], [])
+        self.assertEqual(self.ash.options["ignored_users"], [])
+        self.assertEqual(self.ash.options["ignored_channels"], [])
         self.assertEqual(self.ash.options["ignore_perms"], [8])
-        self.assertEqual(self.ash.options["ignore_guilds"], [])
-        self.assertEqual(self.ash.options["ignore_roles"], [])
+        self.assertEqual(self.ash.options["ignored_guilds"], [])
+        self.assertEqual(self.ash.options["ignored_roles"], [])
 
         self.ash.add_ignored_item(1, "member")
         self.ash.add_ignored_item(2, "channel")
@@ -603,11 +603,11 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.ash.add_ignored_item(4, "guild")
         self.ash.add_ignored_item(5, "role")
 
-        self.assertEqual(self.ash.options["ignore_users"], [1])
-        self.assertEqual(self.ash.options["ignore_channels"], [2])
+        self.assertEqual(self.ash.options["ignored_users"], [1])
+        self.assertEqual(self.ash.options["ignored_channels"], [2])
         self.assertEqual(self.ash.options["ignore_perms"], [8, 3])
-        self.assertEqual(self.ash.options["ignore_guilds"], [4])
-        self.assertEqual(self.ash.options["ignore_roles"], [5])
+        self.assertEqual(self.ash.options["ignored_guilds"], [4])
+        self.assertEqual(self.ash.options["ignored_roles"], [5])
 
         self.ash.remove_ignored_item(1, "member")
         self.ash.remove_ignored_item(2, "channel")
@@ -615,11 +615,11 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.ash.remove_ignored_item(4, "guild")
         self.ash.remove_ignored_item(5, "role")
 
-        self.assertEqual(self.ash.options["ignore_users"], [])
-        self.assertEqual(self.ash.options["ignore_channels"], [])
+        self.assertEqual(self.ash.options["ignored_users"], [])
+        self.assertEqual(self.ash.options["ignored_channels"], [])
         self.assertEqual(self.ash.options["ignore_perms"], [8])
-        self.assertEqual(self.ash.options["ignore_guilds"], [])
-        self.assertEqual(self.ash.options["ignore_roles"], [])
+        self.assertEqual(self.ash.options["ignored_guilds"], [])
+        self.assertEqual(self.ash.options["ignored_roles"], [])
 
     async def test_ignoreMethodExceptions(self):
         with self.assertRaises(ValueError):

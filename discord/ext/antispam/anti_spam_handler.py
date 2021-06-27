@@ -28,6 +28,8 @@ from copy import deepcopy
 from typing import Optional, Union
 from unittest.mock import AsyncMock
 
+from attr import asdict
+
 import discord
 from discord.ext import commands
 
@@ -110,16 +112,16 @@ class AntiSpamHandler:
 
             **Not Implemented**
 
-        ignore_users: []
+        ignored_users: []
             The users (ID Form), that bypass anti-spam
 
-        ignore_channels: []
+        ignored_channels: []
             Channels (ID Form), that bypass anti-spam
 
-        ignore_roles: []
+        ignored_roles: []
             The roles (ID Form), that bypass anti-spam
 
-        ignore_guilds: []
+        ignored_guilds: []
             Guilds (ID Form), that bypass anti-spam
 
         ignore_bots: True
@@ -263,19 +265,19 @@ class AntiSpamHandler:
             log.warning(f"Given message with an author of type User")
 
         # Return if ignored bot
-        if self.options["ignore_bots"] and message.author.bot:
+        if self.options.ignore_bots and message.author.bot:
             log.debug(f"I ignore bots, and this is a bot message: {message.author.id}")
             return {"status": "Ignoring messages from bots"}
 
         # Return if ignored member
-        if message.author.id in self.options["ignore_users"]:
+        if message.author.id in self.options.ignored_users:
             log.debug(f"The user who sent this message is ignored: {message.author.id}")
             return {"status": f"Ignoring this user: {message.author.id}"}
 
         # Return if ignored channel
         if (
-            message.channel.id in self.options["ignore_channels"]
-            or message.channel.name in self.options["ignore_channels"]
+            message.channel.id in self.options.ignored_channels
+            or message.channel.name in self.options.ignored_channels
         ):
             log.debug(f"{message.channel} is ignored")
             return {"status": f"Ignoring this channel: {message.channel.id}"}
@@ -285,16 +287,16 @@ class AntiSpamHandler:
             user_roles = [role.id for role in message.author.roles]
             user_roles.extend([role.name for role in message.author.roles])
             for item in user_roles:
-                if item in self.options.get("ignore_roles"):
+                if item in self.options.ignored_roles:
                     log.debug(f"{item} is a part of ignored roles")
                     return {"status": f"Ignoring this role: {item}"}
         except AttributeError:
             log.warning(
-                f"Could not compute ignore_roles for {message.author.name}({message.author.id})"
+                f"Could not compute ignored_roles for {message.author.name}({message.author.id})"
             )
 
         # Return if ignored guild
-        if message.guild.id in self.options.get("ignore_guilds"):
+        if message.guild.id in self.options.ignored_guilds:
             log.debug(f"{message.guild.id} is an ignored guild")
             return {"status": f"Ignoring this guild: {message.guild.id}"}
 
@@ -302,6 +304,7 @@ class AntiSpamHandler:
             f"Propagating message for: {message.author.name}({message.author.id})"
         )
 
+        # TODO Use cache here
         guild = Guild(self.bot, message.guild.id, self.options)
         try:
             guild = next(iter(g for g in self.guilds if g == guild))
@@ -323,6 +326,7 @@ class AntiSpamHandler:
                 pre_invoke_ext.__class__.__name__
             ] = pre_invoke_return
 
+        # TODO This should become the core invokes. Not a singular
         main_return = await guild.propagate(message)
 
         for after_invoke_ext in self.after_invoke_extensions.values():
@@ -348,7 +352,7 @@ class AntiSpamHandler:
         Raises
         ======
         ValueError
-            item is not of ignore_type int or int convertible
+            item is not of type int or int convertible
 
         Notes
         =====
@@ -364,13 +368,13 @@ class AntiSpamHandler:
             raise ValueError("Expected item of type: int")
 
         if ignore_type == IgnoreType.MEMBER:
-            self.options.ignore_users.add(item)
+            self.options.ignored_users.add(item)
         elif ignore_type == IgnoreType.CHANNEL:
-            self.options.ignore_channels.add(item)
+            self.options.ignored_channels.add(item)
         elif ignore_type == IgnoreType.GUILD:
-            self.options.ignore_guilds.add(item)
+            self.options.ignored_guilds.add(item)
         elif ignore_type == IgnoreType.ROLE:
-            self.options.ignore_roles.add(item)
+            self.options.ignored_roles.add(item)
 
         log.debug(f"Ignored {ignore_type.name}: {item}")
 
@@ -387,20 +391,16 @@ class AntiSpamHandler:
 
         Raises
         ======
-        BaseASHException
-            Invalid ignore ignore_type
         ValueError
-            item is not of ignore_type int or int convertible
+            item is not of type int or int convertible
 
         Notes
         =====
         This will silently ignore any attempts
         to remove an item not ignored.
         """
-        try:
-            ignore_type = ignore_type.lower()
-        except Exception:
-            raise ValueError("Expected ignore_type of type: str")
+        if not isinstance(ignore_type, IgnoreType):
+            raise ValueError("Expected `ignore_type` to be of type IgnoreType")
 
         try:
             item = int(item)
@@ -408,13 +408,13 @@ class AntiSpamHandler:
             raise ValueError("Expected item of type: int")
 
         if ignore_type == IgnoreType.MEMBER:
-            self.options.ignore_users.discard(item)
+            self.options.ignored_users.discard(item)
         elif ignore_type == IgnoreType.CHANNEL:
-            self.options.ignore_channels.discard(item)
+            self.options.ignored_channels.discard(item)
         elif ignore_type == IgnoreType.GUILD:
-            self.options.ignore_guilds.discard(item)
+            self.options.ignored_guilds.discard(item)
         elif ignore_type == IgnoreType.ROLE:
-            self.options.ignore_roles.discard(item)
+            self.options.ignored_roles.discard(item)
 
         log.debug(f"Un-Ignored {ignore_type.name}: {item}")
 
@@ -449,7 +449,7 @@ class AntiSpamHandler:
                 f"I cannot ensure I have permissions to kick/ban ban people in guild: {guild_id}"
             )
             guild = Guild(id=guild_id, options=options)
-            self.cache.set_guild(guild)
+            await self.cache.set_guild(guild)
             log.info(f"Created Guild: {guild.id}")
         else:
             guild.options = options
@@ -524,7 +524,7 @@ class AntiSpamHandler:
             The guild they are attached to
         reset_type : ResetType
             An enum representing the
-            coutner to reset
+            counter to reset
 
         Raises
         ======
@@ -645,9 +645,10 @@ class AntiSpamHandler:
         to begin using that modified copy.
 
         """
-        data = {"options": self.options, "guilds": []}
-        for guild in self._guilds:
-            data["guilds"].append(await guild.save_to_dict())
+        data = {"options": asdict(self.options), "guilds": []}
+        for guild in await self.cache.get_all_guilds():
+            # TODO Check recursive asdict works as expected
+            data["guilds"].append(asdict(guild, recurse=True))
 
         log.info("Saved AntiSpamHandler state")
 

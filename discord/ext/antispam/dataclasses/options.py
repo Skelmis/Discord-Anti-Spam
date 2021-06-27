@@ -49,10 +49,10 @@ class Options:
     # TODO Implement a log channel
 
     # Sets
-    ignore_users: Set[int] = attr.ib(default=attr.Factory(set))
-    ignore_channels: Set[int] = attr.ib(default=attr.Factory(set))
-    ignore_roles: Set[int] = attr.ib(default=attr.Factory(set))
-    ignore_guilds: Set[int] = attr.ib(default=attr.Factory(set))
+    ignored_users: Set[int] = attr.ib(default=attr.Factory(set))
+    ignored_channels: Set[int] = attr.ib(default=attr.Factory(set))
+    ignored_roles: Set[int] = attr.ib(default=attr.Factory(set))
+    ignored_guilds: Set[int] = attr.ib(default=attr.Factory(set))
 
     # Booleans
     delete_spam: bool = attr.ib(default=True)
