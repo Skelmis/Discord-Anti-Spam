@@ -542,6 +542,54 @@ class AntiSpamHandler:
         # TODO Implement this
         await self.cache.reset_member_count(user_id, guild_id, reset_type)
 
+    async def add_guild_log_channel(
+        self, log_channel: Union[int, discord.TextChannel]
+    ) -> None:
+        """
+        Registers a log channel on a guild internally
+
+        Parameters
+        ----------
+        log_channel : Union[int, discord.TextChannel]
+            The channel/id to use a log channel
+
+        Notes
+        -----
+        Not setting a log channel means it will default
+        to ``ctx.channel``
+        """
+        if isinstance(log_channel, int):
+            # Store as obj
+            log_channel = await self.bot.fetch_channel(log_channel)
+
+        try:
+            guild = await self.cache.get_guild(log_channel.guild.id)
+            guild.log_channel = log_channel
+        except GuildNotFound:
+            guild = Guild(
+                id=log_channel.guild.id, options=self.options, log_channel=log_channel
+            )
+
+    def remove_guild_log_channel(self, guild_id: int) -> None:
+        """
+        Removes a registered guild log channel
+
+        Parameters
+        ----------
+        guild_id : int
+            The guild to remove it from
+
+        Notes
+        -----
+        Silently ignores guilds which don't exist
+        """
+        try:
+            guild = await self.cache.get_guild(guild_id)
+            guild.log_channel = None
+            await self.cache.set_guild(guild)
+        except GuildNotFound:
+            pass
+
     @staticmethod
     def load_from_dict(bot, data: dict, *, raise_on_exception: bool = True):
         """
@@ -593,7 +641,26 @@ class AntiSpamHandler:
         try:
             ash = AntiSpamHandler(bot=bot, options=Options(**data["options"]))
             for guild in data["guilds"]:
-                ash.cache.set_guild(FactoryBuilder.create_guild_from_dict(guild))
+                # TODO convert guild.log_channel to a ``discord.TextChannel`` from id
+                try:
+                    await ash.cache.set_guild(
+                        FactoryBuilder.create_guild_from_dict(guild)
+                    )
+                except (
+                    discord.HTTPException,
+                    discord.NotFound,
+                    discord.Forbidden,
+                ) as e:
+                    # Can't find the channel to use a log channel anymore
+                    if raise_on_exception:
+                        raise e
+
+                    # Just try to build the guild without a log channel
+                    # TODO Test this works as expected
+                    guild.pop("log_channel")
+                    await ash.cache.set_guild(
+                        FactoryBuilder.create_guild_from_dict(guild)
+                    )
 
             log.info("Loaded AntiSpamHandler from state")
         except Exception as e:
@@ -647,6 +714,7 @@ class AntiSpamHandler:
         data = {"options": asdict(self.options), "guilds": []}
         for guild in await self.cache.get_all_guilds():
             # TODO Check recursive asdict works as expected
+            # TODO Ensure `asdict` converts `discord.TextChannel` to `discord.TextChannel.id`
             data["guilds"].append(asdict(guild, recurse=True))
 
         log.info("Saved AntiSpamHandler state")
