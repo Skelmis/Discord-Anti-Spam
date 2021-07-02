@@ -1,5 +1,6 @@
+from typing import Optional
+
 import discord
-import typing
 
 
 class BaseExtension:
@@ -7,11 +8,12 @@ class BaseExtension:
         self.is_pre_invoke = is_pre_invoke
 
     async def propagate(
-        self, message: discord.Message, data: typing.Optional[dict] = None
+        self, message: discord.Message, data: Optional[dict] = None
     ) -> dict:
         """
         This method is called whenever the base ``antispam.propagate`` is called,
         adhering to ``self.is_pre_invoke``
+
         Parameters
         ----------
         message
@@ -19,6 +21,8 @@ class BaseExtension:
 
         Returns
         -------
+        dict
+            A dictionary of useful data to the end user
 
         """
         pass

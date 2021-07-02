@@ -1,8 +1,7 @@
-from typing import Dict, List, Any, Union, Optional
+from typing import Dict, Any
 
 import attr
 import discord
-
 
 from .member import Member
 from .options import Options
