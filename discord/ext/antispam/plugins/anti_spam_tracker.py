@@ -22,7 +22,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
-import collections.abc
 import datetime
 import logging
 from copy import deepcopy
@@ -36,7 +35,6 @@ from discord.ext.antispam.base_extension import BaseExtension
 from discord.ext.antispam.dataclasses import Guild, Member
 from discord.ext.antispam.exceptions import (
     MemberNotFound,
-    ExtensionError,
     GuildNotFound,
 )
 from discord.ext.antispam.member_tracking import MemberTracking
@@ -288,7 +286,7 @@ class AntiSpamTracker(BaseExtension):
             """
             difference = current_time - timestamp_obj
             offset = datetime.timedelta(
-                milliseconds=self._get_guild_valid_interval(guild_id=guild_id)
+                milliseconds=await self._get_guild_valid_interval(guild_id=guild_id)
             )
 
             if difference >= offset:
