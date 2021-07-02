@@ -100,3 +100,4 @@ class Cache(Protocol):
         raise NotImplementedError
 
     # TODO Implement Member count resets
+    # TODO Implement a way to get all Guilds / Members

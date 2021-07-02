@@ -1,3 +1,5 @@
+from typing import Any
+
 from discord.ext.antispam.exceptions import MemberNotFound, GuildNotFound
 from discord.ext.antispam.dataclasses import Guild, Member
 from discord.ext.antispam import AntiSpamHandler
@@ -24,7 +26,7 @@ class MemberTracking:
         self.cache = handler.cache
         self.key = caller.__class__.__name__
 
-    async def get_member_data(self, guild_id: int, member_id: int) -> dict:
+    async def get_member_data(self, guild_id: int, member_id: int) -> Any:
         """
         Returns a dictionary of data this caller is allowed to
         access and store how they please
@@ -38,8 +40,8 @@ class MemberTracking:
 
         Returns
         -------
-        dict
-            A dictionary of stored data on this member
+        Any
+            Stored data on this member
             which has been stored by this class
 
         Raises
@@ -47,10 +49,7 @@ class MemberTracking:
         MemberNotFound
             The given user/guild could not be found internally
         """
-        try:
-            guild = await self.cache.get_guild(guild_id=guild_id)
-        except GuildNotFound:
-            raise MemberNotFound from None
+        guild = await self.cache.get_guild(guild_id=guild_id)
 
         try:
             member = guild.members[member_id]
@@ -67,7 +66,7 @@ class MemberTracking:
         return addon_data
 
     async def set_member_data(
-        self, guild_id: int, member_id: int, addon_data: dict
+        self, member_id: int, guild_id: int, addon_data: Any
     ) -> None:
         """
         Stores a member's data within a guild
@@ -79,7 +78,7 @@ class MemberTracking:
             data into
         member_id : int
             The user's id to store
-        addon_data : dict
+        addon_data : Any
             The data to store
 
         Notes
@@ -92,20 +91,20 @@ class MemberTracking:
         except GuildNotFound:
             # Create the guild, and store it
             guild = Guild(id=guild_id, options=self.handler.options)
-            guild.members[member_id] = Member(id=member_id)
+            guild.members[member_id] = Member(id=member_id, guild_id=guild_id)
             await self.cache.set_guild(guild)
 
         # Get/create the member
         try:
             member = guild.members[member_id]
         except KeyError:
-            member = Member(id=member_id)
+            member = Member(id=member_id, guild_id=guild_id)
 
         member.addons[self.key] = addon_data
         guild.members[member_id] = member
         await self.cache.set_member(member)
 
-    async def get_guild_data(self, guild_id: int) -> dict:
+    async def get_guild_data(self, guild_id: int) -> Any:
         """
         Get a dictionary of all data for this guild that
         was stored by this class
@@ -117,6 +116,11 @@ class MemberTracking:
 
         Returns
         -------
+        Any
+            The data stored on this
+
+        Raises
+        ------
         GuildNotFound
             The given guild could not be found
             in the cache
@@ -131,7 +135,7 @@ class MemberTracking:
 
         return addon_data
 
-    async def set_guild_data(self, guild_id: int, addon_data: dict) -> None:
+    async def set_guild_data(self, guild_id: int, addon_data: Any) -> None:
         """
         Stores the given addon data dictionary within the guilds cache
 
@@ -139,7 +143,7 @@ class MemberTracking:
         ----------
         guild_id : int
             The guild to store this on
-        addon_data : dict
+        addon_data : Any
             The data to store on this guild
 
         Notes

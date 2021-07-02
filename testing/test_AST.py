@@ -55,7 +55,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         self.assertNotEqual(message_interval, ast.valid_global_interval)
         self.assertEqual(15000, ast.valid_global_interval)
 
-        self.assertEqual(False, bool(ast.user_tracking))
+        self.assertEqual(False, bool(ast.member_tracking))
 
         self.assertEqual(ast.punish_min_amount, 3)
 
@@ -73,19 +73,19 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             {"should_be_punished_this_message": True},
         )
 
-        self.assertEqual(False, bool(ast.user_tracking))
+        self.assertEqual(False, bool(ast.member_tracking))
         ast.update_cache(
             MockedMessage().to_mock(), {"should_be_punished_this_message": True}
         )
-        self.assertEqual(True, bool(ast.user_tracking))
+        self.assertEqual(True, bool(ast.member_tracking))
 
-        ast.user_tracking = {}  # overwrite so we can test more
+        ast.member_tracking = {}  # overwrite so we can test more
 
-        self.assertEqual(False, bool(ast.user_tracking))
+        self.assertEqual(False, bool(ast.member_tracking))
         ast.update_cache(
             MockedMessage().to_mock(), {"should_be_punished_this_message": False}
         )
-        self.assertEqual(False, bool(ast.user_tracking))
+        self.assertEqual(False, bool(ast.member_tracking))
 
         with self.assertRaises(TypeError):
             # noinspection PyTypeChecker
@@ -95,8 +95,8 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             # noinspection PyTypeChecker
             ast.update_cache(MockedMessage().to_mock(), 1)
 
-        ast.user_tracking = {}
-        self.assertEqual(0, len(ast.user_tracking))
+        ast.member_tracking = {}
+        self.assertEqual(0, len(ast.member_tracking))
 
         ast.update_cache(
             MockedMessage().to_mock(), {"should_be_punished_this_message": True}
@@ -104,9 +104,9 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         ast.update_cache(
             MockedMessage().to_mock(), {"should_be_punished_this_message": True}
         )
-        self.assertEqual(1, len(ast.user_tracking))
-        self.assertEqual(1, len(ast.user_tracking[123456789]))
-        self.assertEqual(2, len(ast.user_tracking[123456789][12345]))
+        self.assertEqual(1, len(ast.member_tracking))
+        self.assertEqual(1, len(ast.member_tracking[123456789]))
+        self.assertEqual(2, len(ast.member_tracking[123456789][12345]))
 
     async def test_getUserCount(self):
         ast = AntiSpamTracker(
@@ -158,17 +158,17 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
         ast.update_cache(
             MockedMessage().to_mock(), {"should_be_punished_this_message": True}
         )
-        self.assertEqual(1, len(ast.user_tracking[123456789][12345]))
+        self.assertEqual(1, len(ast.member_tracking[123456789][12345]))
 
         ast.clean_cache()
-        self.assertEqual(len(ast.user_tracking), 1)
-        self.assertEqual(1, len(ast.user_tracking[123456789][12345]))
+        self.assertEqual(len(ast.member_tracking), 1)
+        self.assertEqual(1, len(ast.member_tracking[123456789][12345]))
 
         await asyncio.sleep(0.06)
         # This should now fully clean the cache
         ast.clean_cache()
 
-        self.assertEqual(ast.user_tracking, dict())
+        self.assertEqual(ast.member_tracking, dict())
 
     async def test_getGuildValidInterval(self):
         ast = AntiSpamTracker(
@@ -181,7 +181,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(ast._get_guild_valid_interval(123456789), 30000)
 
-        ast.user_tracking[123456789]["valid_interval"] = 15000
+        ast.member_tracking[123456789]["valid_interval"] = 15000
         self.assertEqual(ast._get_guild_valid_interval(123456789), 15000)
 
     async def test_isSpamming(self):
@@ -201,7 +201,7 @@ class TestAsh(unittest.IsolatedAsyncioTestCase):
             )
         # Cap is 5, should have 4 messages rn
         self.assertEqual(ast.is_spamming(MockedMessage().to_mock()), False)
-        self.assertEqual(4, len(ast.user_tracking[123456789][12345]))
+        self.assertEqual(4, len(ast.member_tracking[123456789][12345]))
 
         ast.update_cache(
             MockedMessage().to_mock(), {"should_be_punished_this_message": True}

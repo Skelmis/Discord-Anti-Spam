@@ -33,7 +33,13 @@ import typing
 
 from discord.ext.antispam import AntiSpamHandler
 from discord.ext.antispam.base_extension import BaseExtension
-from discord.ext.antispam.exceptions import MemberNotFound, ExtensionError
+from discord.ext.antispam.dataclasses import Guild, Member
+from discord.ext.antispam.exceptions import (
+    MemberNotFound,
+    ExtensionError,
+    GuildNotFound,
+)
+from discord.ext.antispam.member_tracking import MemberTracking
 
 log = logging.getLogger(__name__)
 
@@ -78,7 +84,7 @@ class AntiSpamTracker(BaseExtension):
     """
 
     __slots__ = [
-        "user_tracking",
+        "member_tracking",
         "valid_global_interval",
         "anti_spam_handler",
         "punish_min_amount",
@@ -131,28 +137,17 @@ class AntiSpamTracker(BaseExtension):
                 raise TypeError("Expected valid_timestamp_interval of type int")
 
         self.valid_global_interval = (
-            valid_timestamp_interval
-            or anti_spam_handler.options.get("message_interval")
+            valid_timestamp_interval or anti_spam_handler.options.message_interval
         )
         self.valid_global_interval = int(self.valid_global_interval)
 
-        self.user_tracking = {}
+        self.member_tracking = MemberTracking(handler=anti_spam_handler, caller=self)
 
         log.info("AntiSpamTracker is initialized and ready to go")
 
-    def __str__(self):
-        guilds = len(self.user_tracking)
-        users = 0
-        for guild in self.user_tracking.values():
-            users += len(guild)
-
-        return_value = f"AntiSpamTracker(AntiSpamHandler Instance, {self.punish_min_amount}, {self.valid_global_interval})"
-        return_value += f"\nGuilds: {guilds} | Users (Non Unique): {users}"
-        return return_value
-
     def __repr__(self):
         return_value = f"AntiSpamTracker(AntiSpamHandler Instance, {self.punish_min_amount}, {self.valid_global_interval})\n"
-        return_value += str(self.user_tracking)
+        return_value += str(self.member_tracking)
         return return_value
 
     async def propagate(
@@ -162,10 +157,10 @@ class AntiSpamTracker(BaseExtension):
         Overwrite the base extension to call ``update_cache``
         internally so it can be used as an extension
         """
-        self.update_cache(message, data)
+        await self.update_cache(message, data)
         return {"status": "Cache updated"}
 
-    def update_cache(self, message: discord.Message, data: dict) -> None:
+    async def update_cache(self, message: discord.Message, data: dict) -> None:
         """
         Takes the data returned from `propagate`
         and updates this Class's internal cache
@@ -186,7 +181,7 @@ class AntiSpamTracker(BaseExtension):
         if not message.guild:
             return
 
-        user_id = message.author.id
+        member_id = message.author.id
         guild_id = message.guild.id
         timestamp = datetime.datetime.now(datetime.timezone.utc)
 
@@ -194,15 +189,31 @@ class AntiSpamTracker(BaseExtension):
             # They shouldn't be punished so don't increase cache
             return
 
-        # We now need to increase there cache
-        if guild_id not in self.user_tracking:
-            self.user_tracking[guild_id] = {}
+        # We now need to increase their cache
+        try:
+            guild = await self.member_tracking.get_guild_data(guild_id=guild_id)
+        except GuildNotFound:
+            guild = Guild(id=guild_id, options=self.anti_spam_handler.options)
+            await self.anti_spam_handler.cache.set_guild(guild)
 
-        if user_id not in self.user_tracking[guild_id]:
-            self.user_tracking[guild_id][user_id] = []
+        try:
+            member = guild.members[member_id]
+        except KeyError:
+            member = Member(id=member_id, guild_id=guild_id)
+            guild.members[member_id] = member
+            await self.anti_spam_handler.cache.set_guild(guild)
 
-        self.user_tracking[guild_id][user_id].append(timestamp)
-        log.debug(f"Cache updated for user ({user_id}) in guild ({guild_id})")
+        try:
+            addon_data = member.addons[self.__class__.__name__]
+        except KeyError:
+            addon_data = []
+            member.addons[self.__class__.__name__] = addon_data
+
+        addon_data.append(timestamp)
+        await self.member_tracking.set_member_data(
+            member_id, guild_id, addon_data=addon_data
+        )
+        log.debug(f"Cache updated for user ({member_id}) in guild ({guild_id})")
 
     def get_user_count(self, message: discord.Message) -> int:
         """
@@ -234,20 +245,22 @@ class AntiSpamTracker(BaseExtension):
         if not message.guild:
             raise MemberNotFound("Can't find user's from dm's")
 
-        user_id = message.author.id
+        member_id = message.author.id
         guild_id = message.guild.id
 
-        if guild_id not in self.user_tracking:
-            raise MemberNotFound
+        addon_data = await self.member_tracking.get_member_data(
+            guild_id=guild_id, member_id=member_id
+        )
 
-        if user_id not in self.user_tracking[guild_id]:
-            raise MemberNotFound
+        self.remove_outdated_timestamps(
+            addon_data, member_id=member_id, guild_id=guild_id
+        )
 
-        self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
+        return len(addon_data)
 
-        return len(self.user_tracking[guild_id][user_id])
-
-    def remove_outdated_timestamps(self, guild_id, user_id):
+    async def remove_outdated_timestamps(
+        self, data: typing.List, member_id: int, guild_id: int
+    ) -> None:
         """
         This logic works around checking the current
         time vs a messages creation time. If the message
@@ -257,10 +270,12 @@ class AntiSpamTracker(BaseExtension):
 
         Parameters
         ==========
+        data : List
+            The data to work with
+        member_id : int
+            The id of the member to store on
         guild_id : int
-            The guild's id to clean
-        user_id : int
-            The id of the user to clean up
+            The id of the guild to store on
 
         """
         log.debug("Attempting to remove outdated timestamp's")
@@ -282,17 +297,17 @@ class AntiSpamTracker(BaseExtension):
 
         current_timestamps = []
 
-        for timestamp in self.user_tracking[guild_id][user_id]:
+        for timestamp in data:
             if _is_still_valid(timestamp):
                 current_timestamps.append(timestamp)
 
-        log.debug(
-            f"Removed {len(self.user_tracking[guild_id][user_id]) - len(current_timestamps)} 'timestamps'"
+        log.debug(f"Removed 'timestamps' for member: {member_id}")
+
+        await self.member_tracking.set_member_data(
+            member_id, guild_id, addon_data=current_timestamps
         )
 
-        self.user_tracking[guild_id][user_id] = deepcopy(current_timestamps)
-
-    def remove_punishments(self, message: discord.Message):
+    async def remove_punishments(self, message: discord.Message):
         """
         After you punish someone, call this method
         to 'clean up' there punishments.
@@ -321,18 +336,21 @@ class AntiSpamTracker(BaseExtension):
         if not message.guild:
             return
 
-        user_id = message.author.id
+        member_id = message.author.id
         guild_id = message.guild.id
 
-        if guild_id not in self.user_tracking:
+        try:
+            data = await self.member_tracking.get_guild_data(guild_id)
+        except GuildNotFound:
             return
 
-        if user_id not in self.user_tracking[guild_id]:
-            return
+        try:
+            data.pop(member_id)
+            await self.member_tracking.set_guild_data(guild_id, data)
+        except KeyError:
+            pass
 
-        self.user_tracking[guild_id].pop(user_id)
-
-    def clean_cache(self) -> None:
+    async def clean_cache(self) -> None:
         """
         Cleans the entire internal cache
         removing any empty users, and empty
@@ -343,20 +361,26 @@ class AntiSpamTracker(BaseExtension):
         This is more part of the Optimising Package Usage section,
         run this once a week/day or somethin depending on how big
         your bot is. I haven't profiled things.
+
+        Warnings
+        --------
+        This has not yet been re-implemented
         """
-        for guild_id, guild in deepcopy(self.user_tracking).items():
+        # TODO Impl
+        raise NotImplementedError
+        for guild_id, guild in deepcopy(self.member_tracking).items():
             for user_id, user in deepcopy(guild).items():
                 self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
 
-                if len(self.user_tracking[guild_id][user_id]) == 0:
-                    self.user_tracking[guild_id].pop(user_id)
+                if len(self.member_tracking[guild_id][user_id]) == 0:
+                    self.member_tracking[guild_id].pop(user_id)
 
-            if not bool(self.user_tracking[guild_id]):
-                self.user_tracking.pop(guild_id)
+            if not bool(self.member_tracking[guild_id]):
+                self.member_tracking.pop(guild_id)
 
         log.debug("Successfully cleaned the cache")
 
-    def _get_guild_valid_interval(self, guild_id):
+    async def _get_guild_valid_interval(self, guild_id):
         """
         Returns the correct ``valid_global_interval``
         except on a per guild level taking into account
@@ -376,13 +400,15 @@ class AntiSpamTracker(BaseExtension):
         Silently ignores if a guild doesnt exist.
         There is a global default for a reason.
         """
-        if guild_id not in self.user_tracking:
+        try:
+            guild = await self.member_tracking.get_guild_data(guild_id)
+        except GuildNotFound:
             return self.valid_global_interval
 
-        if "valid_interval" not in self.user_tracking[guild_id]:
+        if "valid_interval" not in guild:
             return self.valid_global_interval
 
-        return self.user_tracking[guild_id]["valid_interval"]
+        return guild["valid_interval"]
 
     def is_spamming(self, message: discord.Message) -> bool:
         """
@@ -433,136 +459,3 @@ class AntiSpamTracker(BaseExtension):
 
         """
         pass
-
-    def save_to_dict(self) -> dict:
-        """
-        Similar to ``AntiSpamHandler.save_to_dict`` this method returns
-        a dictionary which can be used to rebuild the state of the class
-
-        Returns
-        -------
-        dict
-            The dict to rebuild state from
-
-        """
-        user_tracking = {}
-        for guild_id, guild in self.user_tracking.items():
-            user_tracking[guild_id] = {}
-
-            for user_id, timestamp_list in guild.items():
-                user_tracking[guild_id][user_id] = []
-
-                for timestamp in timestamp_list:
-                    user_tracking[guild_id][user_id].append(
-                        timestamp.strftime("%f:%S:%M:%H:%d:%Y")
-                    )
-
-        data = {
-            "min_punish_amount": self.punish_min_amount,
-            "valid_global_interval": self.valid_global_interval,
-            "user_tracking": user_tracking,
-        }
-        return data
-
-    @staticmethod
-    def load_from_dict(anti_spam_handler: AntiSpamHandler, data: dict):
-        """
-        Given a valid input *(from ``save_to_dict``)* build and
-        return a valid AntiSpamTracker state that matches the previously
-        saved state.
-
-        Parameters
-        ----------
-        anti_spam_handler : AntiSpamHandler
-            The AntiSpamHandler instance to attach this to
-        data : dict
-            The state to restore from
-
-        Returns
-        -------
-        AntiSpamTracker
-            A valid AntiSpamTracker instance restored
-            from the state provided to this method
-        """
-        if not isinstance(data, collections.abc.Mapping):
-            raise ExtensionError("Invalid datatype for load_from_dict")
-
-        tracker = AntiSpamTracker(
-            anti_spam_handler, data["min_punish_amount"], data["valid_global_interval"]
-        )
-        user_tracking = {}
-        for guild_id, guild in data["user_tracking"].items():
-            user_tracking[guild_id] = {}
-
-            for user_id, timestamp_list in guild.items():
-                user_tracking[guild_id][user_id] = []
-
-                for timestamp in timestamp_list:
-                    user_tracking[guild_id][user_id].append(
-                        datetime.datetime.strptime(timestamp, "%f:%S:%M:%H:%d:%Y")
-                    )
-
-        tracker.user_tracking = user_tracking
-
-        return tracker
-
-    # <!-- Stuff I take over from AntiSpamHandler -->
-    def add_custom_guild_options(self, guild_id: int, **kwargs):
-        """
-        To see how to use this, refer to ``antispam.AntiSpamHandler.AntiSpamHandler.add_custom_guild_options``
-
-        See Also
-        --------
-        antispam.AntiSpamHandler.AntiSpamHandler.add_custom_guild_options :
-            The method that this calls under the hood
-
-        Notes
-        -----
-        Not unit-tested, I just assume it works
-        since ``add_custom_guild_options`` is unit-tested.
-        If this doesnt work as intended, please open
-        an issue.
-
-        # TODO Remove this shit so you can just call it on the handler
-
-        """
-        if kwargs.get("message_interval"):
-            if guild_id not in self.user_tracking:
-                self.user_tracking[guild_id] = {}
-
-            self.user_tracking[guild_id]["valid_interval"] = kwargs.get(
-                "message_interval"
-            )
-            log.debug(f"Set custom 'valid_interval' for guild: {guild_id}")
-
-        self.anti_spam_handler.add_custom_guild_options(guild_id=guild_id, **kwargs)
-
-        log.debug("Did method 'add_custom_guild_options'")
-
-    def remove_custom_guild_options(self, guild_id: int):
-        """
-        To see how to use this, refer to ``antispam.AntiSpamHandler.AntiSpamHandler.remove_custom_guild_options``
-
-        See Also
-        --------
-        antispam.AntiSpamHandler.AntiSpamHandler.remove_custom_guild_options :
-            The method that this calls under the hood
-
-        Notes
-        -----
-        Not unit-tested, I just assume it works
-        since ``add_custom_guild_options`` is unit-tested.
-        If this doesnt work as intended, please open
-        an issue.
-
-        # TODO Remove this shit so you can just call it on the handler
-
-        """
-        if guild_id in self.user_tracking:
-            if "valid_interval" in self.user_tracking[guild_id]:
-                self.user_tracking[guild_id].pop("valid_interval")
-                log.debug(f"Removed custom 'valid_interval' for guild: {guild_id}")
-
-        self.anti_spam_handler.add_custom_guild_options(guild_id=guild_id)
-
-        log.debug("Did method 'remove_custom_guild_options'")
