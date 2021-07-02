@@ -38,7 +38,7 @@ A short utility for random functions which don't fit into an object
 # TODO Change user -> member
 
 
-def embed_to_string(embed) -> str:
+def embed_to_string(embed: discord.Embed) -> str:
     """
     Return the content of an embed,
     built to only return fields the package
@@ -78,7 +78,7 @@ def embed_to_string(embed) -> str:
     return content
 
 
-def dict_to_embed(data, message, counts) -> discord.Embed:
+def dict_to_embed(data: dict, message: discord.Message, counts: dict) -> discord.Embed:
     """
     Given a dictionary, will attempt to build a
     valid discord.Embed object to return
@@ -155,7 +155,9 @@ def dict_to_embed(data, message, counts) -> discord.Embed:
     return discord.Embed.from_dict(data)
 
 
-def substitute_args(message, value, counts) -> str:
+def substitute_args(
+    message: str, original_message: discord.Message, counts: dict
+) -> str:
     """
     Given the options string, return the string
     with the relevant values substituted in
@@ -164,7 +166,7 @@ def substitute_args(message, value, counts) -> str:
     ----------
     message : str
         The string to substitute with values
-    value : discord.Message
+    original_message : discord.Message
         Where we get our values from to substitute
     counts : dict
         Our current warn & kick counts
@@ -177,25 +179,27 @@ def substitute_args(message, value, counts) -> str:
     """
     return Template(message).safe_substitute(
         {
-            "MENTIONUSER": value.author.mention,
-            "USERNAME": value.author.display_name,
-            "USERID": value.author.id,
-            "BOTNAME": value.guild.me.display_name,
-            "BOTID": value.guild.me.id,
-            "GUILDID": value.guild.id,
-            "GUILDNAME": value.guild.name,
+            "MENTIONUSER": original_message.author.mention,
+            "USERNAME": original_message.author.display_name,
+            "USERID": original_message.author.id,
+            "BOTNAME": original_message.guild.me.display_name,
+            "BOTID": original_message.guild.me.id,
+            "GUILDID": original_message.guild.id,
+            "GUILDNAME": original_message.guild.name,
             "TIMESTAMPNOW": datetime.datetime.now().strftime("%I:%M:%S %p, %d/%m/%Y"),
             "TIMESTAMPTODAY": datetime.datetime.now().strftime("%d/%m/%Y"),
             "WARNCOUNT": counts["warn_count"],
             "KICKCOUNT": counts["kick_count"],
-            "USERAVATAR": value.author.avatar_url,
-            "BOTAVATAR": value.guild.me.avatar_url,
-            "GUILDICON": value.guild.icon_url,
+            "USERAVATAR": original_message.author.avatar_url,
+            "BOTAVATAR": original_message.guild.me.avatar_url,
+            "GUILDICON": original_message.guild.icon_url,
         }
     )
 
 
-def transform_message(item, value, counts):
+def transform_message(
+    item: Union[str, dict], original_message: discord.Message, counts: dict
+) -> Union[str, discord.Embed]:
     """
     Given an item of two possible values, create
     and return the correct thing
@@ -204,20 +208,21 @@ def transform_message(item, value, counts):
     ----------
     item : [str, dict]
         Either a straight string or dict to turn in an embed
-    value : discord.Message
+    original_message : discord.Message
         Where things come from
     counts : dict
         Our current warn & kick counts
 
     Returns
     -------
-    [str, discord.Embed]
+    Union[str, discord.Embed]
+        A template complete message ready for sending
 
     """
     if isinstance(item, str):
-        return substitute_args(item, value, counts)
+        return substitute_args(item, original_message, counts)
 
-    return dict_to_embed(deepcopy(item), value, counts)
+    return dict_to_embed(deepcopy(item), original_message, counts)
 
 
 def visualizer(
