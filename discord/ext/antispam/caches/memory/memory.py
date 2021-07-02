@@ -1,6 +1,6 @@
-from ... import GuildNotFound, MemberNotFound
 from ...abc import Cache
 from ...dataclasses import Message, Member, Guild
+from ...exceptions import GuildNotFound, MemberNotFound
 
 
 class Memory(Cache):

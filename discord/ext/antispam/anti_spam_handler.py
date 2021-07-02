@@ -202,7 +202,7 @@ class AntiSpamHandler:
                 "mutually exclusive."
             )
 
-        cache = cache or Memory()
+        cache = cache or Memory(self)
         if not issubclass(type(cache), Cache):
             raise ValueError("Expected `cache` that inherits from the `Cache` Protocol")
 

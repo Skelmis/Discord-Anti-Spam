@@ -96,7 +96,7 @@ class Core:
 
         if (
             self._get_duplicate_count(member, channel_id=message.channel_id)
-            >= self.options.message_duplicate_count
+            < self.options.message_duplicate_count
         ):
             return CorePayload()
 
@@ -186,6 +186,7 @@ class Core:
             await self._punish_member(
                 original_message,
                 member,
+                guild,
                 user_message,
                 guild_message,
                 True,
@@ -216,6 +217,7 @@ class Core:
             await self._punish_member(
                 original_message,
                 member,
+                guild,
                 user_message,
                 guild_message,
                 False,
@@ -251,11 +253,13 @@ class Core:
         Please see and use :meth:`discord.ext.antispam.AntiSpamHandler`
         """
         # TODO Impl
+        return core_payload
 
     async def _punish_member(
         self,
         original_message: discord.Message,
         member: Member,
+        internal_guild: Guild,
         user_message: Union[str, discord.Embed],
         guild_message: Union[str, discord.Embed],
         is_kick: bool,
@@ -287,8 +291,9 @@ class Core:
             I lack perms to carry out this punishment
         """
         guild = original_message.guild
-        author = original_message.member
-        dc_channel = guild.log_channel or original_message.channel
+        author = original_message.author
+
+        dc_channel = internal_guild.log_channel or original_message.channel
 
         # Check we have perms to punish
         perms = guild.me.guild_permissions
