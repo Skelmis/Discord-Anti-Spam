@@ -116,7 +116,7 @@ class AntiMassMention(BaseExtension):
         log.debug(f"Propagating message for {user_id}, guild:{guild_id}")
 
         try:
-            user = self.data.get_member_data(guild_id, user_id)
+            user = await self.data.get_member_data(guild_id, user_id)
         except MemberNotFound:
             user = {"total_mentions": []}
             """
@@ -154,7 +154,7 @@ class AntiMassMention(BaseExtension):
             )
             return asdict(payload)
 
-        user = self.data.get_member_data(guild_id=guild_id, member_id=user_id)
+        user = await self.data.get_member_data(guild_id=guild_id, member_id=user_id)
         if (
             sum(item.mentions for item in user["total_mentions"])
             >= self.total_mentions_before_punishment
@@ -203,11 +203,13 @@ class AntiMassMention(BaseExtension):
                 return False
             return True
 
-        user = self.data.get_member_data(guild_id=guild_id, member_id=user_id)
+        user = await self.data.get_member_data(guild_id=guild_id, member_id=user_id)
         valid_items = []
         for item in user["total_mentions"]:
             if _is_still_valid(item.timestamp):
                 valid_items.append(item)
 
         user["total_mentions"] = valid_items
-        self.data.set_member_data(guild_id=guild_id, member_id=user_id, user_data=user)
+        await self.data.set_member_data(
+            guild_id=guild_id, member_id=user_id, addon_data=user
+        )

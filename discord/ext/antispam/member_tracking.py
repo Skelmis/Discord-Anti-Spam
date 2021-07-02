@@ -6,7 +6,7 @@ from discord.ext.antispam import AntiSpamHandler
 class MemberTracking:
     """
     This class handles all data storage. You should simply refer
-    to the methods in this class as your means off interacting with
+    to the methods in this class as your means of interacting with
     the internal cache
     """
 
