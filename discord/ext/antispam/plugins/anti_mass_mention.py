@@ -7,10 +7,7 @@ import discord
 
 from discord.ext.antispam.exceptions import MemberNotFound
 from discord.ext.antispam.base_extension import BaseExtension
-from discord.ext.antispam.plugins.member_tracking import MemberTracking
-
-from discord.ext.antispam.abc import Cache
-
+from discord.ext.antispam.member_tracking import MemberTracking
 from discord.ext.antispam import AntiSpamHandler
 
 log = logging.getLogger(__name__)
@@ -63,6 +60,8 @@ class AntiMassMention(BaseExtension):
         ----------
         bot : commands.Bot or commands.AutoShardedBot or discord.Client or discord.AutoShardedClient
             Our bot instance
+        handler : AntiSpamHandler
+            Our AntiSpamHandler instance
         total_mentions_before_punishment : int
             How many mentions within the time period
             before we punish the user
@@ -134,7 +133,7 @@ class AntiMassMention(BaseExtension):
         user["total_mentions"].append(
             Tracking(mentions=len(mentions), timestamp=message.created_at)
         )
-        self.data.set_member_data(guild_id, user_id, user)
+        await self.data.set_member_data(guild_id, user_id, user)
         self._clean_mention_timestamps(
             guild_id=guild_id,
             user_id=user_id,

@@ -1,8 +1,5 @@
 from discord.ext.antispam.exceptions import MemberNotFound, GuildNotFound
 from discord.ext.antispam.dataclasses import Guild, Member
-
-from discord.ext.antispam.abc import Cache
-
 from discord.ext.antispam import AntiSpamHandler
 
 
