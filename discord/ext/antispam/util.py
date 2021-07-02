@@ -22,15 +22,20 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import ast
 import datetime
 from copy import deepcopy
 from string import Template
+from typing import Union
 
 import discord
 
 """
 A short utility for random functions which don't fit into an object
 """
+
+# TODO Type this file
+# TODO Change user -> member
 
 
 def embed_to_string(embed) -> str:
@@ -213,3 +218,36 @@ def transform_message(item, value, counts):
         return substitute_args(item, value, counts)
 
     return dict_to_embed(deepcopy(item), value, counts)
+
+
+def visualizer(
+    content: Union[str, discord.Embed],
+    message: discord.Message,
+    warn_count: int = 1,
+    kick_count: int = 2,
+) -> Union[str, discord.Embed]:
+    """
+    Returns a message transformed as if the handler did it
+
+    Parameters
+    ----------
+    content : Union[str, discord.Embed]
+        What to transform
+    message : discord.Message
+        Where to extract our values from
+    warn_count : int
+        The warns to visualize with
+    kick_count : int
+        The kicks to visualize with
+
+    Returns
+    -------
+    Union[str, discord.Embed]
+        The transformed content
+    """
+    if content.startswith("{"):
+        content = ast.literal_eval(content)
+
+    return transform_message(
+        content, message, {"warn_count": warn_count, "kick_count": kick_count}
+    )

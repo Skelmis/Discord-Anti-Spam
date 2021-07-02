@@ -35,7 +35,7 @@ from discord.ext import commands
 
 
 from .abc import Cache
-from discord.ext.antispam.core import Core
+from .core import Core
 from .dataclasses import Guild, Options
 from .caches import Memory
 from .enums import IgnoreType, ResetType
@@ -82,16 +82,16 @@ class AntiSpamHandler:
         guild_ban_message: "$USERNAME was banned for spamming/sending duplicate messages."
             The message to be sent in the guild upon ban_threshold being reached
 
-        user_kick_message : "Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/sending duplicate messages."
+        member_kick_message : "Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/sending duplicate messages."
             The message to be sent to the user who is being warned
 
-        user_ban_message : "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/sending duplicate messages."
+        member_ban_message : "Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/sending duplicate messages."
             The message to be sent to the user who is being banned
 
-        user_failed_kick_message : "I failed to punish you because I lack permissions, but still you shouldn't spam"
+        member_failed_kick_message : "I failed to punish you because I lack permissions, but still you shouldn't spam"
             The message to be sent to the user if the bot fails to kick them
 
-        user_failed_ban_message : "I failed to punish you because I lack permissions, but still you shouldn't spam"
+        member_failed_ban_message : "I failed to punish you because I lack permissions, but still you shouldn't spam"
             The message to be sent to the user if the bot fails to ban them
 
         message_duplicate_count: 5
@@ -110,7 +110,7 @@ class AntiSpamHandler:
 
             **Not Implemented**
 
-        ignored_users: []
+        ignored_members: []
             The users (ID Form), that bypass anti-spam
 
         ignored_channels: []
@@ -149,13 +149,13 @@ class AntiSpamHandler:
             The time to delete the ``guild_warn_message`` message
 
         user_kick_message_delete_after: None
-            The time to delete the ``user_kick_message`` message
+            The time to delete the ``member_kick_message`` message
 
         guild_kick_message_delete_after: None
             The time to delete the ``guild_kick_message`` message
 
         user_ban_message_delete_after: None
-            The time to delete the ``user_ban_message`` message
+            The time to delete the ``member_ban_message`` message
 
         guild_ban_message_delete_after: None
             The time to delete the ``guild_ban_message`` message
@@ -182,17 +182,8 @@ class AntiSpamHandler:
     ):
         # TODO Implement an async cache initialization somehow
 
-        # Just gotta casually ignore_type check everything.
-        if not isinstance(
-            bot,
-            (
-                commands.Bot,
-                commands.AutoShardedBot,
-                discord.Client,
-                discord.AutoShardedClient,
-                AsyncMock,
-            ),
-        ):
+        # Just gotta casually type check check everything.
+        if not isinstance(bot, discord.Client) and not issubclass(bot, discord.Client):
             raise ValueError(
                 "Expected bot of type commands.Bot, commands.AutoShardedBot, "
                 "discord.Client or discord.AutoShardedClient"
@@ -269,7 +260,7 @@ class AntiSpamHandler:
             return {"status": "Ignoring messages from bots"}
 
         # Return if ignored member
-        if message.author.id in self.options.ignored_users:
+        if message.author.id in self.options.ignored_members:
             log.debug(f"The user who sent this message is ignored: {message.author.id}")
             return {"status": f"Ignoring this user: {message.author.id}"}
 
@@ -367,7 +358,7 @@ class AntiSpamHandler:
             raise ValueError("Expected item of type: int")
 
         if ignore_type == IgnoreType.MEMBER:
-            self.options.ignored_users.add(item)
+            self.options.ignored_members.add(item)
         elif ignore_type == IgnoreType.CHANNEL:
             self.options.ignored_channels.add(item)
         elif ignore_type == IgnoreType.GUILD:
@@ -407,7 +398,7 @@ class AntiSpamHandler:
             raise ValueError("Expected item of type: int")
 
         if ignore_type == IgnoreType.MEMBER:
-            self.options.ignored_users.discard(item)
+            self.options.ignored_members.discard(item)
         elif ignore_type == IgnoreType.CHANNEL:
             self.options.ignored_channels.discard(item)
         elif ignore_type == IgnoreType.GUILD:
@@ -417,7 +408,7 @@ class AntiSpamHandler:
 
         log.debug(f"Un-Ignored {ignore_type.name}: {item}")
 
-    def add_custom_guild_options(self, guild_id: int, options: Options) -> None:
+    async def add_custom_guild_options(self, guild_id: int, options: Options) -> None:
         """
         Set a guild's options to a custom set, rather then the base level
         set used and defined in ASH initialization
@@ -455,7 +446,7 @@ class AntiSpamHandler:
 
         log.info(f"Set custom options for guild: {guild_id}")
 
-    def get_guild_options(self, guild_id: int) -> Options:
+    async def get_guild_options(self, guild_id: int) -> Options:
         """
         Get the options dataclass for a given guild,
         if the guild doesnt exist raise an exception
@@ -484,7 +475,7 @@ class AntiSpamHandler:
         guild = await self.cache.get_guild(guild_id=guild_id)
         return deepcopy(guild.options)
 
-    def remove_custom_guild_options(self, guild_id: int) -> None:
+    async def remove_custom_guild_options(self, guild_id: int) -> None:
         """
         Reset a guilds options to the ASH options
 
@@ -508,7 +499,7 @@ class AntiSpamHandler:
             guild.options = self.options
             log.debug(f"Reset guild options for {guild_id}")
 
-    def reset_user_count(
+    async def reset_user_count(
         self, user_id: int, guild_id: int, reset_type: ResetType
     ) -> None:
         """
@@ -560,7 +551,7 @@ class AntiSpamHandler:
         """
         if isinstance(log_channel, int):
             # Store as obj
-            log_channel = await self.bot.fetch_channel(log_channel)
+            log_channel = await self.bot.fetch_channel(channel_id=log_channel)
 
         try:
             guild = await self.cache.get_guild(log_channel.guild.id)
@@ -570,7 +561,7 @@ class AntiSpamHandler:
                 id=log_channel.guild.id, options=self.options, log_channel=log_channel
             )
 
-    def remove_guild_log_channel(self, guild_id: int) -> None:
+    async def remove_guild_log_channel(self, guild_id: int) -> None:
         """
         Removes a registered guild log channel
 
@@ -591,7 +582,7 @@ class AntiSpamHandler:
             pass
 
     @staticmethod
-    def load_from_dict(bot, data: dict, *, raise_on_exception: bool = True):
+    async def load_from_dict(bot, data: dict, *, raise_on_exception: bool = True):
         """
         Can be used as an entry point when starting your bot
         to reload a previous state so you don't lose all of

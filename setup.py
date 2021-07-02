@@ -32,7 +32,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Skelmis/DPY-Anti-Spam",
     packages=setuptools.find_packages(),
-    install_requires=["fuzzywuzzy>=0.18", "discord.py>=1"],
+    install_requires=["fuzzywuzzy>=0.18", "discord.py>=1", "attrs"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

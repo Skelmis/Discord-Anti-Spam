@@ -13,7 +13,7 @@ class Member:
     warn_count: int = attr.ib(default=0, eq=False)
     kick_count: int = attr.ib(default=0, eq=False)
     duplicate_counter: int = attr.ib(default=1, eq=False)
-    duplicate_channel_counter_dict: Dict[int:int] = attr.ib(
+    duplicate_channel_counter_dict: Dict[int, int] = attr.ib(
         default=attr.Factory(dict), eq=False
     )
     _in_guild: bool = attr.ib(default=True, eq=False)
@@ -22,4 +22,4 @@ class Member:
     # So that plugins can access this data
     # key -> Plugin.__class__.__name__
     # Value -> Whatever they want to store
-    addons: Dict[str:Any] = attr.ib(default=attr.Factory(dict), eq=False)
+    addons: Dict[str, Any] = attr.ib(default=attr.Factory(dict), eq=False)

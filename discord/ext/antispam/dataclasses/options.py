@@ -15,6 +15,13 @@ class Options:
     message_duplicate_count: int = attr.ib(default=5)
     message_duplicate_accuracy: int = attr.ib(default=90)
 
+    # delete_after
+    guild_ban_message_delete_after: int = attr.ib(default=None)
+    guild_kick_message_delete_after: int = attr.ib(default=None)
+    member_ban_message_delete_after: int = attr.ib(default=None)
+    guild_warn_message_delete_after: int = attr.ib(default=None)
+    member_kick_message_delete_after: int = attr.ib(default=None)
+
     # Strings
     guild_warn_message: str = attr.ib(
         default="Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
@@ -28,28 +35,28 @@ class Options:
         default="$USERNAME was banned for spamming/sending duplicate messages.",
         kw_only=True,
     )
-    user_kick_message: str = attr.ib(
+    member_kick_message: str = attr.ib(
         default="Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/"
         "sending duplicate messages.",
         kw_only=True,
     )
-    user_ban_message: str = attr.ib(
+    member_ban_message: str = attr.ib(
         default="Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/"
         "sending duplicate messages.",
         kw_only=True,
     )
-    user_failed_kick_message: str = attr.ib(
+    member_failed_kick_message: str = attr.ib(
         default="I failed to punish you because I lack permissions, but still you shouldn't spam.",
         kw_only=True,
     )
-    user_failed_ban_message: str = attr.ib(
+    member_failed_ban_message: str = attr.ib(
         default="I failed to punish you because I lack permissions, but still you shouldn't spam.",
         kw_only=True,
     )
     # TODO Implement a log channel
 
     # Sets
-    ignored_users: Set[int] = attr.ib(default=attr.Factory(set))
+    ignored_members: Set[int] = attr.ib(default=attr.Factory(set))
     ignored_channels: Set[int] = attr.ib(default=attr.Factory(set))
     ignored_roles: Set[int] = attr.ib(default=attr.Factory(set))
     ignored_guilds: Set[int] = attr.ib(default=attr.Factory(set))
@@ -69,4 +76,4 @@ class Options:
     is_per_channel_per_guild: bool = attr.ib(default=True)
 
     # Add on option storage for plugins
-    addons: Dict[str:Any] = attr.ib(default=attr.Factory(dict))
+    addons: Dict[str, Any] = attr.ib(default=attr.Factory(dict))
