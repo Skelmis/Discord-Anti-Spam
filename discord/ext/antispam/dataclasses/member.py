@@ -10,6 +10,7 @@ class Member:
     """A simplistic dataclass representing a Member"""
 
     id: int = attr.ib(eq=True)
+    guild_id: int = attr.ib(eq=True)
     warn_count: int = attr.ib(default=0, eq=False)
     kick_count: int = attr.ib(default=0, eq=False)
     duplicate_counter: int = attr.ib(default=1, eq=False)

@@ -9,12 +9,17 @@ from .dataclasses import Guild, Member, Message
 class Cache(Protocol):
     """A generic Protocol for any Cache to implement"""
 
+    def __init__(self, handler) -> None:
+        """Stores the handler for later option usage"""
+        self.handler = handler
+
     async def initialize(self, *args, **kwargs) -> None:
         """
         This method gets called once when the AntiSpamHandler
         first loads so that you can do any async initialization
-        you need to do before the cache gets useds
+        you need to do before the cache gets used
         """
+        pass
 
     async def get_guild(self, guild_id: int) -> Guild:
         """Fetch a Guild dataclass populated with members
@@ -30,6 +35,7 @@ class Cache(Protocol):
             A Guild could not be found in the cache
             with the given id
         """
+        raise NotImplementedError
 
     async def set_guild(self, guild: Guild) -> None:
         """
@@ -42,6 +48,7 @@ class Cache(Protocol):
         guild : Guild
             The Guild that needs to be stored
         """
+        raise NotImplementedError
 
     async def get_member(self, member_id: int, guild_id: int) -> Member:
         """Fetch a Member dataclass populated with messages
@@ -58,7 +65,10 @@ class Cache(Protocol):
         MemberNotFound
             This Member could not be found on the associated
             Guild within the internal cache
+        GuildNotFound
+            The relevant guild could not be found
         """
+        raise NotImplementedError
 
     async def set_member(self, member: Member) -> None:
         """
@@ -72,6 +82,7 @@ class Cache(Protocol):
         member : Member
             The Member we want to cache
         """
+        raise NotImplementedError
 
     async def add_message(self, message: Message) -> None:
         """
@@ -88,5 +99,6 @@ class Cache(Protocol):
         This should silently create any Guild's/Member's
         required to fulfil this transaction
         """
+        raise NotImplementedError
 
     # TODO Implement Member count resets

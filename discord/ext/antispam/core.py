@@ -1,36 +1,36 @@
 import datetime
 import logging
 from copy import deepcopy
-from typing import List, Union
+from typing import Union, Optional
 
 import discord
 
 from fuzzywuzzy import fuzz
 
-from . import (
-    AntiSpamHandler,
+from .exceptions import (
+    MissingGuildPermissions,
     MemberNotFound,
     LogicError,
     DuplicateObject,
-    MissingGuildPermissions,
 )
-from .dataclasses import Guild, Member, Message, CorePayload
-from .util import embed_to_string
+from .dataclasses import Member, Message, CorePayload, Guild
+from .util import embed_to_string, transform_message
 
 log = logging.getLogger(__name__)
 
 
+# noinspection PyProtectedMember
 class Core:
     """An abstract way to handle spam tracking on different levels"""
 
     __slots__ = ("handler", "cache", "options")
 
-    def __init__(self, handler: AntiSpamHandler):
+    def __init__(self, handler):
         self.handler = handler
         self.options = handler.options
         self.cache = handler.cache  # Shorthand
 
-    async def propagate(self, message: discord.Message) -> CorePayload:
+    async def propagate(self, message: discord.Message, guild: Guild) -> CorePayload:
         """
         The internal representation of core functionality.
 
@@ -39,32 +39,43 @@ class Core:
         """
 
         # To get here it must have passed checks so simply run the relevant methods
-        guild_r = await self.propagate_user(message)
+        guild_r = await self.propagate_user(message, guild)
 
-        if self.is_per_channel_per_guild:
+        if self.options.is_per_channel_per_guild:
             # TODO Impl
             guild_r = await self.propagate_per_channel_per_guild(message, guild_r)
 
         return guild_r
 
-    async def propagate_user(self, original_message: discord.Message) -> CorePayload:
+    async def propagate_user(
+        self, original_message: discord.Message, guild: Guild
+    ) -> CorePayload:
         """
         The internal representation of core functionality.
 
         Please see and use :meth:`discord.ext.antispam.AntiSpamHandler`
         """
         try:
-            member: Member = await self.cache.get_member(
-                member_id=original_message.author.id, guild_id=original_message.guild.id
-            )
+            if original_message.author.id in guild.members:
+                member = guild.members[original_message.author.id]
+            else:
+                member: Member = await self.cache.get_member(
+                    member_id=original_message.author.id,
+                    guild_id=original_message.guild.id,
+                )
+
             if not member._in_guild:
                 return CorePayload(
                     member_status="Bypassing message check since the member isn't seen to be in a guild"
                 )
+
         except MemberNotFound:
-            return CorePayload(
-                member_status="Bypassing message check since the member isn't seen to be in a guild"
+            # Create a useable member
+            member = Member(
+                id=original_message.author.id, guild_id=original_message.guild.id
             )
+            guild.members[member.id] = member
+            await self.cache.set_guild(guild=guild)
 
         await self.clean_up(
             member=member,
@@ -79,6 +90,7 @@ class Core:
             return CorePayload(
                 member_status="Bypassing message check since the member isn't seen to be in a guild"
             )
+
         member.messages.append(message)
         log.info(f"Created Message {message.id} on {member.id}")
 
@@ -126,11 +138,34 @@ class Core:
             then become a kick and so on
             """
             log.debug(f"Attempting to warn: {message.author_id}")
-            # TODO Finish impl
+            member.warn_count += 1
+            channel = original_message.channel
+            guild_message = transform_message(
+                self.options.guild_warn_message,
+                original_message,
+                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+            )
+            try:
+                if isinstance(guild_message, discord.Embed):
+                    await channel.send(
+                        embed=guild_message,
+                        delete_after=self.options.guild_warn_message_delete_after,
+                    )
+                else:
+                    await channel.send(
+                        guild_message,
+                        delete_after=self.options.guild_warn_message_delete_after,
+                    )
+            except Exception as e:
+                member.warn_count -= 1
+                raise e
+
+            return_payload.member_was_warned = True
+            return_payload.member_status = "Member was warned"
 
         elif (
-            self.warn_count >= self.options.kick_threshold
-            and self.kick_count < self.options.ban_threshold
+            member.warn_count >= self.options.kick_threshold
+            and member.kick_count < self.options.ban_threshold
         ):
             # KICK
             # Set this to False here to stop processing other messages, we can revert on failure
@@ -138,19 +173,55 @@ class Core:
             member.kick_count += 1
             log.debug(f"Attempting to kick: {message.author_id}")
 
-            # TODO Punish
+            guild_message = transform_message(
+                self.options.guild_kick_message,
+                original_message,
+                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+            )
+            user_message = transform_message(
+                self.options.member_kick_message,
+                original_message,
+                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+            )
+            await self._punish_member(
+                original_message,
+                member,
+                user_message,
+                guild_message,
+                True,
+                self.options.member_kick_message_delete_after,
+                self.options.guild_kick_message_delete_after,
+            )
 
             return_payload.member_was_kicked = True
             return_payload.member_status = "Member was kicked"
 
-        elif self.kick_count >= self.options.ban_threshold:
+        elif member.kick_count >= self.options.ban_threshold:
             # BAN
             # Set this to False here to stop processing other messages, we can revert on failure
             member._in_guild = False
-            member.ban_count += 1
+            member.kick_count += 1
             log.debug(f"Attempting to ban: {message.author_id}")
 
-            # TODO Punish
+            guild_message = transform_message(
+                self.options.guild_ban_message,
+                original_message,
+                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+            )
+            user_message = transform_message(
+                self.options.member_ban_message,
+                original_message,
+                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+            )
+            await self._punish_member(
+                original_message,
+                member,
+                user_message,
+                guild_message,
+                False,
+                self.options.member_ban_message_delete_after,
+                self.options.guild_ban_message_delete_after,
+            )
 
             return_payload.member_was_banned = True
             return_payload.member_status = "Member was banned"
@@ -179,12 +250,12 @@ class Core:
 
         Please see and use :meth:`discord.ext.antispam.AntiSpamHandler`
         """
+        # TODO Impl
 
     async def _punish_member(
         self,
         original_message: discord.Message,
         member: Member,
-        guild: Guild,
         user_message: Union[str, discord.Embed],
         guild_message: Union[str, discord.Embed],
         is_kick: bool,
@@ -252,7 +323,7 @@ class Core:
                 "because they are higher then me, which means I could lack the ability to kick/ban them."
             )
 
-        sent_message: discord.Message = None
+        sent_message: Optional[discord.Message] = None
         try:
             if isinstance(user_message, discord.Embed):
                 sent_message = await author.send(
@@ -262,6 +333,7 @@ class Core:
                 sent_message = await author.send(
                     user_message, delete_after=user_delete_after
                 )
+
         except discord.HTTPException:
             # TODO Make this use options log channel
             await dc_channel.send(
@@ -271,7 +343,88 @@ class Core:
             log.warning(
                 f"Failed to message User: ({author.id}) about {'kick' if is_kick else 'ban'}"
             )
-        # TODO Finish impl
+
+        # Even if we can't tell them they are being punished
+        # We still need to punish them, so try that
+        try:
+            if is_kick:
+                await guild.kick(
+                    member, reason="Automated punishment from DPY Anti-Spam."
+                )
+                log.info(f"Kicked User: ({member.id})")
+            else:
+                await guild.ban(
+                    member, reason="Automated punishment from DPY Anti-Spam."
+                )
+                log.info(f"Banned User: ({member.id})")
+
+        except discord.Forbidden as e:
+            # In theory we send the failed punishment method
+            # here, although we check first so I think its fine
+            # to remove it from this part
+            raise e from None
+
+        except discord.HTTPException:
+            member._in_guild = True
+            member.kick_count -= 1
+            await dc_channel.send(
+                f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
+                delete_after=channel_delete_after,
+            )
+            log.warning(
+                f"An error occurred trying to {'kick' if is_kick else 'ban'}: {member.id}"
+            )
+            if sent_message is not None:
+                if is_kick:
+                    user_failed_message = transform_message(
+                        self.options.member_failed_kick_message,
+                        original_message,
+                        {
+                            "warn_count": member.warn_count,
+                            "kick_count": member.kick_count,
+                        },
+                    )
+                else:
+                    user_failed_message = transform_message(
+                        self.options.member_failed_ban_message,
+                        original_message,
+                        {
+                            "warn_count": member.warn_count,
+                            "kick_count": member.kick_count,
+                        },
+                    )
+                if isinstance(user_failed_message, discord.Embed):
+                    await author.send(
+                        embed=user_failed_message,
+                        delete_after=user_delete_after,
+                    )
+                else:
+                    await author.send(
+                        user_failed_message,
+                        delete_after=user_delete_after,
+                    )
+                await sent_message.delete()
+
+        else:
+            try:
+                if isinstance(guild_message, discord.Embed):
+                    await dc_channel.send(
+                        embed=guild_message,
+                        delete_after=channel_delete_after,
+                    )
+                else:
+                    await dc_channel.send(
+                        guild_message,
+                        delete_after=channel_delete_after,
+                    )
+            except discord.HTTPException:
+                log.error(
+                    f"Failed to send message.\n"
+                    f"Guild: {dc_channel.guild.name}({dc_channel.guild.id})\n"
+                    f"Channel: {dc_channel.name}({dc_channel.id})"
+                )
+
+        member._in_guild = True
 
     async def clean_up(self, member: Member, current_time, channel_id: int):
         """

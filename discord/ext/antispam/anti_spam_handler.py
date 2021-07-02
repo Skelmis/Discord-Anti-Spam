@@ -170,12 +170,7 @@ class AntiSpamHandler:
     #      This could possibly be implemented at a Guild() level
     def __init__(
         self,
-        bot: Union[
-            commands.Bot,
-            commands.AutoShardedBot,
-            discord.Client,
-            discord.AutoShardedClient,
-        ],
+        bot,
         *,
         options: Options = None,
         cache: Cache = None,
@@ -183,10 +178,11 @@ class AntiSpamHandler:
         # TODO Implement an async cache initialization somehow
 
         # Just gotta casually type check check everything.
+        # TODO Check this doesnt trip on subclassing Bot n shit
         if not isinstance(bot, discord.Client) and not issubclass(bot, discord.Client):
             raise ValueError(
                 "Expected bot of type commands.Bot, commands.AutoShardedBot, "
-                "discord.Client or discord.AutoShardedClient"
+                "discord.Client or discord.AutoShardedClient (Subclasses are accepted)"
             )
 
         options = options or Options()
@@ -294,18 +290,17 @@ class AntiSpamHandler:
             f"Propagating message for: {message.author.name}({message.author.id})"
         )
 
-        # TODO Use cache here
-        guild = Guild(self.bot, message.guild.id, self.options)
         try:
-            guild = next(iter(g for g in self.guilds if g == guild))
-        except StopIteration:
+            guild = await self.cache.get_guild(guild_id=message.guild.id)
+        except GuildNotFound:
             # Check we have perms to actually create this guild object
             # and punish based upon our guild wide permissions
             perms = message.guild.me.guild_permissions
             if not perms.kick_members or not perms.ban_members:
                 raise MissingGuildPermissions
 
-            self.guilds = guild
+            guild = Guild(id=message.guild.id, options=self.options)
+            await self.cache.set_guild(guild)
             log.info(f"Created Guild: {guild.id}")
 
         data = {"pre_invoke_extensions": {}, "after_invoke_extensions": {}}
@@ -316,8 +311,8 @@ class AntiSpamHandler:
                 pre_invoke_ext.__class__.__name__
             ] = pre_invoke_return
 
-        # TODO This should become the core invokes. Not a singular
-        main_return = await self.core.propagate(message)
+        main_return = await self.core.propagate(message, guild=guild)
+        main_return = asdict(main_return)
 
         for after_invoke_ext in self.after_invoke_extensions.values():
             after_invoke_return = await after_invoke_ext.propagate(message, main_return)
