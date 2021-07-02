@@ -59,7 +59,7 @@ class Core:
             if original_message.author.id in guild.members:
                 member = guild.members[original_message.author.id]
             else:
-                member: Member = await self.cache.get_member(
+                member: Member = await self.cache.get_member_data(
                     member_id=original_message.author.id,
                     guild_id=original_message.guild.id,
                 )

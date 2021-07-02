@@ -7,8 +7,11 @@ import discord
 
 from discord.ext.antispam.exceptions import MemberNotFound
 from discord.ext.antispam.base_extension import BaseExtension
-from discord.ext.antispam.plugins.user_tracking import UserTracking
+from discord.ext.antispam.plugins.member_tracking import MemberTracking
 
+from discord.ext.antispam.abc import Cache
+
+from discord.ext.antispam import AntiSpamHandler
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +24,7 @@ class MassMentionPunishment:
 
     Parameters
     ----------
-    user_id : int
+    member_id : int
         The associated users id
     guild_id : int
         The associated guilds id
@@ -48,6 +51,7 @@ class AntiMassMention(BaseExtension):
     def __init__(
         self,
         bot,
+        handler: AntiSpamHandler,
         *,
         total_mentions_before_punishment: int = 10,
         time_period: int = 15000,
@@ -73,7 +77,7 @@ class AntiMassMention(BaseExtension):
         """
         super().__init__()
         self.bot = bot
-        self.data = UserTracking()
+        self.data = MemberTracking(handler, caller=self)
 
         if min_mentions_per_message > total_mentions_before_punishment:
             raise ValueError(
@@ -113,7 +117,7 @@ class AntiMassMention(BaseExtension):
         log.debug(f"Propagating message for {user_id}, guild:{guild_id}")
 
         try:
-            user = self.data.get_user(guild_id, user_id)
+            user = self.data.get_member_data(guild_id, user_id)
         except MemberNotFound:
             user = {"total_mentions": []}
             """
@@ -130,7 +134,7 @@ class AntiMassMention(BaseExtension):
         user["total_mentions"].append(
             Tracking(mentions=len(mentions), timestamp=message.created_at)
         )
-        self.data.set_user(guild_id, user_id, user)
+        self.data.set_member_data(guild_id, user_id, user)
         self._clean_mention_timestamps(
             guild_id=guild_id,
             user_id=user_id,
@@ -151,7 +155,7 @@ class AntiMassMention(BaseExtension):
             )
             return asdict(payload)
 
-        user = self.data.get_user(guild_id=guild_id, user_id=user_id)
+        user = self.data.get_member_data(guild_id=guild_id, member_id=user_id)
         if (
             sum(item.mentions for item in user["total_mentions"])
             >= self.total_mentions_before_punishment
@@ -200,11 +204,11 @@ class AntiMassMention(BaseExtension):
                 return False
             return True
 
-        user = self.data.get_user(guild_id=guild_id, user_id=user_id)
+        user = self.data.get_member_data(guild_id=guild_id, member_id=user_id)
         valid_items = []
         for item in user["total_mentions"]:
             if _is_still_valid(item.timestamp):
                 valid_items.append(item)
 
         user["total_mentions"] = valid_items
-        self.data.set_user(guild_id=guild_id, user_id=user_id, user_data=user)
+        self.data.set_member_data(guild_id=guild_id, member_id=user_id, user_data=user)
