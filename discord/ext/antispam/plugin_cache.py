@@ -5,7 +5,7 @@ from discord.ext.antispam.dataclasses import Guild, Member
 from discord.ext.antispam import AntiSpamHandler
 
 
-class MemberTracking:
+class PluginCache:
     """
     This class handles all data storage. You should simply refer
     to the methods in this class as your means of interacting with
