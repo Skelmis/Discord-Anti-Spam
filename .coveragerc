@@ -2,3 +2,10 @@
 branch = True
 omit =
     discord/ext/antispam/abc.py
+    discord/ext/antispam/__init__.py
+    discord/ext/antispam/caches/__init__.py
+    discord/ext/antispam/caches/memory/__init__.py
+    discord/ext/antispam/caches/redis/__init__.py
+    discord/ext/antispam/dataclasses/__init__.py
+    discord/ext/antispam/enums/__init__.py
+    discord/ext/antispam/plugins/__init__.py
