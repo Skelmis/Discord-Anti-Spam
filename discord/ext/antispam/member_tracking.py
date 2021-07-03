@@ -47,7 +47,8 @@ class MemberTracking:
         Raises
         ------
         MemberNotFound
-            The given user/guild could not be found internally
+            The given user/guild could not be found
+            internally or they have no stored data
         """
         guild = await self.cache.get_guild(guild_id=guild_id)
 
@@ -59,9 +60,8 @@ class MemberTracking:
         try:
             addon_data = member.addons[self.key]
         except KeyError:
-            addon_data = {}
-            member.addons[self.key] = addon_data
-            await self.cache.set_member(member)
+            # Raise here because the datatype is guaranteed
+            raise MemberNotFound
 
         return addon_data
 
@@ -123,15 +123,14 @@ class MemberTracking:
         ------
         GuildNotFound
             The given guild could not be found
-            in the cache
+            in the cache or it has no stored data
         """
         guild = await self.cache.get_guild(guild_id=guild_id)
         try:
             addon_data = guild.addons[self.key]
         except KeyError:
-            addon_data = {}
-            guild.addons[self.key] = addon_data
-            await self.cache.set_guild(guild)
+            # Raise since datatype is `Any` and we dunno what to return
+            raise GuildNotFound
 
         return addon_data
 
