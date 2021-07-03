@@ -27,17 +27,19 @@ import logging
 from copy import deepcopy
 from unittest.mock import AsyncMock
 
-import discord
+import discord  # noqa
 import typing
 
-from discord.ext.antispam import AntiSpamHandler
-from discord.ext.antispam.base_extension import BaseExtension
-from discord.ext.antispam.dataclasses import Guild, Member
-from discord.ext.antispam.exceptions import (
-    MemberNotFound,
-    GuildNotFound,
+from discord.ext.antispam import AntiSpamHandler  # noqa
+from discord.ext.antispam.base_extension import BaseExtension  # noqa
+from discord.ext.antispam.dataclasses import Guild, Member  # noqa
+from discord.ext.antispam.exceptions import (  # noqa
+    MemberNotFound,  # noqa
+    GuildNotFound,  # noqa
+    MemberAddonNotFound,  # noqa
+    GuildAddonNotFound,  # noqa
 )
-from discord.ext.antispam.plugin_cache import PluginCache
+from discord.ext.antispam.plugin_cache import PluginCache  # noqa
 
 log = logging.getLogger(__name__)
 
@@ -124,6 +126,9 @@ class AntiSpamTracker(BaseExtension):
         if not isinstance(anti_spam_handler, AntiSpamHandler):
             raise TypeError("Expected anti_spam_handler of type AntiSpamHandler")
 
+        if not anti_spam_handler.options.no_punish:
+            log.warning("`no_punish` is not enabled! This will likely lead to issues")
+
         self.anti_spam_handler = anti_spam_handler
 
         if valid_timestamp_interval is not None:
@@ -183,34 +188,31 @@ class AntiSpamTracker(BaseExtension):
         guild_id = message.guild.id
         timestamp = datetime.datetime.now(datetime.timezone.utc)
 
-        if not data.get("should_be_punished_this_message"):
+        if not data.get("member_should_be_punished_this_message"):
             # They shouldn't be punished so don't increase cache
             return
 
         # We now need to increase their cache
         try:
-            guild = await self.member_tracking.get_guild_data(guild_id=guild_id)
-        except GuildNotFound:
-            guild = Guild(id=guild_id, options=self.anti_spam_handler.options)
-            await self.anti_spam_handler.cache.set_guild(guild)
+            addon_data = await self.member_tracking.get_member_data(
+                member_id=member_id, guild_id=guild_id
+            )
 
-        try:
-            member = guild.members[member_id]
-        except KeyError:
+        except MemberNotFound:
+            # Store the new member
             member = Member(id=member_id, guild_id=guild_id)
-            guild.members[member_id] = member
-            await self.anti_spam_handler.cache.set_guild(guild)
-
-        try:
-            addon_data = member.addons[self.__class__.__name__]
-        except KeyError:
+            await self.anti_spam_handler.cache.set_member(member)
             addon_data = []
-            member.addons[self.__class__.__name__] = addon_data
+
+        except MemberAddonNotFound:
+            # Member exists, just an addon doesnt
+            addon_data = []
 
         addon_data.append(timestamp)
         await self.member_tracking.set_member_data(
             member_id, guild_id, addon_data=addon_data
         )
+
         log.debug(f"Cache updated for user ({member_id}) in guild ({guild_id})")
 
     async def get_user_count(self, message: discord.Message) -> int:
@@ -233,7 +235,7 @@ class AntiSpamTracker(BaseExtension):
 
         Raises
         ------
-        UserNotFound
+        MemberNotFound
             The User for the ``message`` could not be found
 
         """
@@ -250,7 +252,7 @@ class AntiSpamTracker(BaseExtension):
             guild_id=guild_id, member_id=member_id
         )
 
-        self.remove_outdated_timestamps(
+        await self.remove_outdated_timestamps(
             addon_data, member_id=member_id, guild_id=guild_id
         )
 
@@ -408,7 +410,7 @@ class AntiSpamTracker(BaseExtension):
 
         return guild["valid_interval"]
 
-    def is_spamming(self, message: discord.Message) -> bool:
+    async def is_spamming(self, message: discord.Message) -> bool:
         """
         Given a message, deduce and return if a user
         is classed as 'spamming' or not based on ``punish_min_amount``
@@ -431,10 +433,10 @@ class AntiSpamTracker(BaseExtension):
             return False
 
         try:
-            user_count = self.get_user_count(message=message)
+            user_count = await self.get_user_count(message=message)
             if user_count >= self.punish_min_amount:
                 return True
-        except MemberNotFound:
+        except (MemberNotFound, MemberAddonNotFound):
             return False
         else:
             return False

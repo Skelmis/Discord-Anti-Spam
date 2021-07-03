@@ -61,8 +61,16 @@ class MemberNotFound(NotFound):
     """A Member matching this id and guild id could not be found in the cache."""
 
 
+class MemberAddonNotFound(NotFound):
+    """This class has not addon stored on this member."""
+
+
 class GuildNotFound(NotFound):
     """A Guild matching this guild id could not be found in the cache."""
+
+
+class GuildAddonNotFound(GuildNotFound):
+    """This class has not addon stored on this guild."""
 
 
 class ExtensionError(BaseASHException):

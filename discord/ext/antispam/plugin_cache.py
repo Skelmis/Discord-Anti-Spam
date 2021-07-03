@@ -1,8 +1,13 @@
 from typing import Any
 
-from discord.ext.antispam.exceptions import MemberNotFound, GuildNotFound
-from discord.ext.antispam.dataclasses import Guild, Member
-from discord.ext.antispam import AntiSpamHandler
+from discord.ext.antispam.exceptions import (  # noqa
+    MemberNotFound,  # noqa
+    GuildNotFound,  # noqa
+    MemberAddonNotFound,  # noqa
+    GuildAddonNotFound,  # noqa
+)
+from discord.ext.antispam.dataclasses import Guild, Member  # noqa
+from discord.ext.antispam import AntiSpamHandler  # noqa
 
 
 class PluginCache:
@@ -61,7 +66,7 @@ class PluginCache:
             addon_data = member.addons[self.key]
         except KeyError:
             # Raise here because the datatype is guaranteed
-            raise MemberNotFound
+            raise MemberAddonNotFound
 
         return addon_data
 
@@ -130,7 +135,7 @@ class PluginCache:
             addon_data = guild.addons[self.key]
         except KeyError:
             # Raise since datatype is `Any` and we dunno what to return
-            raise GuildNotFound
+            raise GuildAddonNotFound
 
         return addon_data
 

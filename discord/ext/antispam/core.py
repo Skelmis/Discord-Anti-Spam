@@ -59,7 +59,7 @@ class Core:
             if original_message.author.id in guild.members:
                 member = guild.members[original_message.author.id]
             else:
-                member: Member = await self.cache.get_member_data(
+                member: Member = await self.cache.get_member(
                     member_id=original_message.author.id,
                     guild_id=original_message.guild.id,
                 )
@@ -121,7 +121,8 @@ class Core:
         if self.options.no_punish:
             # User will handle punishments themselves
             return CorePayload(
-                member_status="Member should be punished, however, was not due to no_punish being True"
+                member_should_be_punished_this_message=True,
+                member_status="Member should be punished, however, was not due to no_punish being True",
             )
 
         if (
