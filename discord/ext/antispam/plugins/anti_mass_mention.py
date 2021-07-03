@@ -1,20 +1,22 @@
 import logging
 import datetime
-import typing
-from dataclasses import dataclass, asdict
 
-import discord
+import attr
+from attr import asdict
 
-from discord.ext.antispam.exceptions import MemberNotFound
-from discord.ext.antispam.base_extension import BaseExtension
-from discord.ext.antispam.member_tracking import MemberTracking
-from discord.ext.antispam import AntiSpamHandler
+import discord  # noqa
+
+from discord.ext.antispam.exceptions import MemberNotFound  # noqa
+from discord.ext.antispam.base_extension import BaseExtension  # noqa
+from discord.ext.antispam.plugin_cache import PluginCache  # noqa
+from discord.ext.antispam import AntiSpamHandler  # noqa
 
 log = logging.getLogger(__name__)
 
 
-@dataclass
+@attr.s
 class MassMentionPunishment:
+    # noinspection PyUnresolvedReferences
     """
     This dataclass is what is dispatched to
     `on_mass_mention_punishment`
@@ -31,15 +33,15 @@ class MassMentionPunishment:
         Otherwise they have exceeded ``min_mentions_per_message``
     """
 
-    member_id: int
-    guild_id: int
-    is_overall_punishment: bool
+    member_id: int = attr.ib()
+    guild_id: int = attr.ib()
+    is_overall_punishment: bool = attr.ib()
 
 
-@dataclass
+@attr.s
 class Tracking:
-    mentions: int
-    timestamp: datetime.datetime
+    mentions: int = attr.ib()
+    timestamp: datetime.datetime = attr.ib()
 
 
 class AntiMassMention(BaseExtension):
@@ -76,7 +78,7 @@ class AntiMassMention(BaseExtension):
         """
         super().__init__()
         self.bot = bot
-        self.data = MemberTracking(handler, caller=self)
+        self.data = PluginCache(handler, caller=self)
 
         if min_mentions_per_message > total_mentions_before_punishment:
             raise ValueError(
@@ -90,19 +92,15 @@ class AntiMassMention(BaseExtension):
         self.total_mentions_before_punishment = total_mentions_before_punishment
         self.time_period = time_period
 
-        log.debug("Initialized AntiMassMessage")
+        log.debug("Initialized AntiMassMention")
 
-    async def propagate(
-        self, message: discord.Message, data: typing.Optional[dict] = None
-    ) -> dict:
+    async def propagate(self, message: discord.Message) -> dict:
         """
         Manages and stores any mass mentions per users
         Parameters
         ----------
         message : discord.Message
             The message to interact with
-        data : None
-            Not expected/wanted
 
         Returns
         -------
@@ -116,9 +114,9 @@ class AntiMassMention(BaseExtension):
         log.debug(f"Propagating message for {member_id}, guild:{guild_id}")
 
         try:
-            user = await self.data.get_member_data(guild_id, member_id)
+            member = await self.data.get_member_data(guild_id, member_id)
         except MemberNotFound:
-            user = {"total_mentions": []}
+            member = {"total_mentions": []}
             """
             {
                 "total_mentions": [
@@ -130,14 +128,14 @@ class AntiMassMention(BaseExtension):
             """
 
         mentions = set(message.mentions)
-        user["total_mentions"].append(
+        member["total_mentions"].append(
             Tracking(mentions=len(mentions), timestamp=message.created_at)
         )
-        await self.data.set_member_data(member_id, guild_id, user)
-        self._clean_mention_timestamps(
+        await self.data.set_member_data(member_id, guild_id, member)
+        await self._clean_mention_timestamps(
             guild_id=guild_id,
             member_id=member_id,
-            current_time=datetime.datetime.now(),
+            current_time=datetime.datetime.now(datetime.timezone.utc),
         )
 
         if len(mentions) >= self.min_mentions_per_message:
@@ -154,9 +152,9 @@ class AntiMassMention(BaseExtension):
             )
             return asdict(payload)
 
-        user = await self.data.get_member_data(guild_id=guild_id, member_id=member_id)
+        member = await self.data.get_member_data(guild_id=guild_id, member_id=member_id)
         if (
-            sum(item.mentions for item in user["total_mentions"])
+            sum(item.mentions for item in member["total_mentions"])
             >= self.total_mentions_before_punishment
         ):
             # They have more mentions are cleaning then allowed,
@@ -175,27 +173,27 @@ class AntiMassMention(BaseExtension):
 
         return {"action": "No action taken"}
 
-    def _clean_mention_timestamps(
+    async def _clean_mention_timestamps(
         self, guild_id: int, member_id: int, current_time: datetime.datetime
     ):
         """
-        Cleans the internal cache for a user to only keep current mentions
+        Cleans the internal cache for a member to only keep current mentions
         Parameters
         ----------
         guild_id : int
             The guild the users in
         member_id : int
-            The user to clean
+            The member to clean
 
         Notes
         -----
-        Expects the user to exist in ``self.data``. This
+        Expects the member to exist in ``self.data``. This
         does no form of validation for existence
 
         """
         log.debug(f"Cleaning timestamps for {member_id}, guild: {guild_id}")
 
-        def _is_still_valid(timestamp):
+        async def _is_still_valid(timestamp):
             difference = current_time - timestamp
             offset = datetime.timedelta(milliseconds=self.time_period)
 
@@ -203,11 +201,13 @@ class AntiMassMention(BaseExtension):
                 return False
             return True
 
-        user = await self.data.get_member_data(guild_id=guild_id, member_id=member_id)
+        member = await self.data.get_member_data(guild_id=guild_id, member_id=member_id)
         valid_items = []
-        for item in user["total_mentions"]:
-            if _is_still_valid(item.timestamp):
+        for item in member["total_mentions"]:
+            # TODO This might break in dpy 2.0
+            make_aware = item.timestamp.replace(tzinfo=datetime.timezone.utc)
+            if await _is_still_valid(make_aware):
                 valid_items.append(item)
 
-        user["total_mentions"] = valid_items
-        await self.data.set_member_data(member_id, guild_id, addon_data=user)
+        member["total_mentions"] = valid_items
+        await self.data.set_member_data(member_id, guild_id, addon_data=member)

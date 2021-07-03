@@ -37,7 +37,7 @@ from discord.ext.antispam.exceptions import (
     MemberNotFound,
     GuildNotFound,
 )
-from discord.ext.antispam.member_tracking import MemberTracking
+from discord.ext.antispam.plugin_cache import PluginCache
 
 log = logging.getLogger(__name__)
 
@@ -139,7 +139,7 @@ class AntiSpamTracker(BaseExtension):
         )
         self.valid_global_interval = int(self.valid_global_interval)
 
-        self.member_tracking = MemberTracking(handler=anti_spam_handler, caller=self)
+        self.member_tracking = PluginCache(handler=anti_spam_handler, caller=self)
 
         log.info("AntiSpamTracker is initialized and ready to go")
 
@@ -213,7 +213,7 @@ class AntiSpamTracker(BaseExtension):
         )
         log.debug(f"Cache updated for user ({member_id}) in guild ({guild_id})")
 
-    def get_user_count(self, message: discord.Message) -> int:
+    async def get_user_count(self, message: discord.Message) -> int:
         """
         Returns how many messages that are still 'valid'
         (counted as spam) a certain user has
@@ -279,7 +279,7 @@ class AntiSpamTracker(BaseExtension):
         log.debug("Attempting to remove outdated timestamp's")
         current_time = datetime.datetime.now(datetime.timezone.utc)
 
-        def _is_still_valid(timestamp_obj):
+        async def _is_still_valid(timestamp_obj):
             """
             Given a timestamp, figure out if it hasn't
             expired yet
@@ -296,7 +296,7 @@ class AntiSpamTracker(BaseExtension):
         current_timestamps = []
 
         for timestamp in data:
-            if _is_still_valid(timestamp):
+            if await _is_still_valid(timestamp):
                 current_timestamps.append(timestamp)
 
         log.debug(f"Removed 'timestamps' for member: {member_id}")
