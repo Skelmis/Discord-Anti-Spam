@@ -179,7 +179,9 @@ class AntiSpamHandler:
 
         # Just gotta casually type check check everything.
         # TODO Check this doesnt trip on subclassing Bot n shit
-        if not isinstance(bot, discord.Client) and not issubclass(bot, discord.Client):
+        if not isinstance(bot, (discord.Client, AsyncMock)) and not issubclass(
+            bot, discord.Client
+        ):
             raise ValueError(
                 "Expected bot of type commands.Bot, commands.AutoShardedBot, "
                 "discord.Client or discord.AutoShardedClient (Subclasses are accepted)"
