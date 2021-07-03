@@ -10,10 +10,12 @@ _version_regex = (
     r"^__version__ = ('|\")((?:[0-9]+\.)*[0-9]+(?:\.?([a-z]+)(?:\.?[0-9])?)?)\1$"
 )
 
-with open("discord/ext/antispam/__init__.py") as stream:
-    match = re.search(_version_regex, stream.read(), re.MULTILINE)
-
-version = match.group(2)
+try:
+    with open("discord/ext/antispam/__init__.py") as stream:
+        match = re.search(_version_regex, stream.read(), re.MULTILINE)
+        version = match.group(2)
+except FileNotFoundError:
+    version = "0.0.0"
 
 setuptools.setup(
     name="Discord Anti-Spam",
