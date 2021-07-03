@@ -41,6 +41,8 @@ from discord.ext.antispam.exceptions import (  # noqa
 )
 from discord.ext.antispam.plugin_cache import PluginCache  # noqa
 
+from discord.ext.antispam.util import get_aware_time
+
 log = logging.getLogger(__name__)
 
 
@@ -186,7 +188,7 @@ class AntiSpamTracker(BaseExtension):
 
         member_id = message.author.id
         guild_id = message.guild.id
-        timestamp = datetime.datetime.now(datetime.timezone.utc)
+        timestamp = get_aware_time()
 
         if not data.get("member_should_be_punished_this_message"):
             # They shouldn't be punished so don't increase cache
@@ -279,7 +281,7 @@ class AntiSpamTracker(BaseExtension):
 
         """
         log.debug("Attempting to remove outdated timestamp's")
-        current_time = datetime.datetime.now(datetime.timezone.utc)
+        current_time = get_aware_time()
 
         async def _is_still_valid(timestamp_obj):
             """

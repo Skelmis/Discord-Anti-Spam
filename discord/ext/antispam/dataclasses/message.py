@@ -2,10 +2,7 @@ import datetime
 
 import attr
 
-
-def get_aware_time() -> datetime.datetime:
-    """Used to get an aware datetime within a factory"""
-    return datetime.datetime.now(datetime.timezone.utc)
+from discord.ext.antispam.util import get_aware_time  # noqa
 
 
 @attr.s(slots=True)

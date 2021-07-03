@@ -11,6 +11,8 @@ from discord.ext.antispam.base_extension import BaseExtension  # noqa
 from discord.ext.antispam.plugin_cache import PluginCache  # noqa
 from discord.ext.antispam import AntiSpamHandler  # noqa
 
+from discord.ext.antispam.util import get_aware_time
+
 log = logging.getLogger(__name__)
 
 
@@ -135,7 +137,7 @@ class AntiMassMention(BaseExtension):
         await self._clean_mention_timestamps(
             guild_id=guild_id,
             member_id=member_id,
-            current_time=datetime.datetime.now(datetime.timezone.utc),
+            current_time=get_aware_time(),
         )
 
         if len(mentions) >= self.min_mentions_per_message:

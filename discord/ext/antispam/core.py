@@ -14,7 +14,7 @@ from .exceptions import (
     DuplicateObject,
 )
 from .dataclasses import Member, Message, CorePayload, Guild
-from .util import embed_to_string, transform_message
+from .util import embed_to_string, transform_message, get_aware_time
 
 log = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ class Core:
 
         await self.clean_up(
             member=member,
-            current_time=datetime.datetime.now(datetime.timezone.utc),
+            current_time=get_aware_time(),
             channel_id=original_message.channel.id,
         )
         message: Message = self._create_message(original_message)
