@@ -6,8 +6,8 @@ notes.txt
 *.json
 !/testing/unittests.json
 !/testing/tracker_tests.json
-examples/dev_test.py
-
+examples/dev.py
+.tox/
 /assets
 
 # IntelliJ project files
