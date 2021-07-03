@@ -31,17 +31,21 @@ class PluginCache:
         self.cache = handler.cache
         self.key = caller.__class__.__name__
 
-    async def get_member_data(self, guild_id: int, member_id: int) -> Any:
+    async def get_member_data(
+        self,
+        member_id: int,
+        guild_id: int,
+    ) -> Any:
         """
         Returns a dictionary of data this caller is allowed to
         access and store how they please
 
         Parameters
         ----------
-        guild_id : int
-            The guild for the user we want
         member_id : int
             The user we want to get data for
+        guild_id : int
+            The guild for the user we want
 
         Returns
         -------

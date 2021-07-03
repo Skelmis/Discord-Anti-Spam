@@ -5,7 +5,7 @@ from ...exceptions import GuildNotFound, MemberNotFound
 
 class Memory(Cache):
     def __init__(self, handler):
-        super().__init__(handler)
+        self.handler = handler
         self.cache = {}
 
     async def initialize(self, *args, **kwargs) -> None:

@@ -179,9 +179,7 @@ class AntiSpamHandler:
 
         # Just gotta casually type check check everything.
         # TODO Check this doesnt trip on subclassing Bot n shit
-        if not isinstance(bot, (discord.Client, AsyncMock)) and not issubclass(
-            bot, discord.Client
-        ):
+        if not isinstance(bot, discord.Client) and not issubclass(bot, discord.Client):
             raise ValueError(
                 "Expected bot of type commands.Bot, commands.AutoShardedBot, "
                 "discord.Client or discord.AutoShardedClient (Subclasses are accepted)"
@@ -235,7 +233,7 @@ class AntiSpamHandler:
         dict
             A dictionary of useful information about the Member in question
         """
-        if not isinstance(message, (discord.Message, AsyncMock)):
+        if not isinstance(message, discord.Message):
             log.debug("Invalid value given to propagate")
             raise ValueError("Expected message of ignore_type: discord.Message")
 

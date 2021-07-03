@@ -114,7 +114,7 @@ class AntiMassMention(BaseExtension):
         log.debug(f"Propagating message for {member_id}, guild:{guild_id}")
 
         try:
-            member = await self.data.get_member_data(guild_id, member_id)
+            member = await self.data.get_member_data(member_id, guild_id)
         except MemberNotFound:
             member = {"total_mentions": []}
             """

@@ -26,6 +26,7 @@ from .anti_spam_handler import AntiSpamHandler
 from .exceptions import *
 from .dataclasses import Options
 from .util import visualizer
+from .plugin_cache import PluginCache
 
 import logging
 from collections import namedtuple
