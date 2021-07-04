@@ -113,4 +113,6 @@ class TestUtil:
         assert embed.to_dict() == test_embed.to_dict()
 
     def test_get_aware_time(self):
-        assert datetime.datetime.now(datetime.timezone.utc) == get_aware_time()
+        assert datetime.datetime.now(datetime.timezone.utc).replace(
+            microsecond=0
+        ) == get_aware_time().replace(microsecond=0)
