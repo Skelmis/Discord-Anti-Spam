@@ -15,9 +15,6 @@ from discord.ext.antispam import (
 
 from discord.ext.antispam.dataclasses import Member, Guild  # noqa
 
-from hypothesis import given
-from hypothesis.strategies import text, dictionaries, floats, lists, datetimes
-
 from .fixtures import create_bot, create_handler, create_plugin_cache, MockClass
 
 
@@ -58,10 +55,10 @@ class TestPluginCache:
 
     # MEMBER SET
     @pytest.mark.asyncio
-    @given(arg=text())
-    async def test_set_member_data_text(self, arg):
-        """Test the cache sets member addon's correct using text"""
+    async def test_set_member_data_dictionaries(self):
+        """Test the cache sets member addon's correct"""
         plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
+        arg = {"test": "tester"}
 
         with pytest.raises(GuildNotFound):
             await plugin_cache.get_member_data(1, 1)
@@ -69,41 +66,6 @@ class TestPluginCache:
         await plugin_cache.set_member_data(1, 1, arg)
 
         assert await plugin_cache.get_member_data(1, 1) == arg
-
-    @pytest.mark.asyncio
-    @given(arg=dictionaries(text(), floats()))
-    async def test_set_member_data_dictionaries(self, arg):
-        """Test the cache sets member addon's correct using dictionaries"""
-        plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
-
-        with pytest.raises(GuildNotFound):
-            await plugin_cache.get_member_data(1, 1)
-
-        await plugin_cache.set_member_data(1, 1, arg)
-
-        assert await plugin_cache.get_member_data(1, 1) == arg
-
-    @pytest.mark.asyncio
-    @given(arg=lists(datetimes()))
-    async def test_set_member_data_dictionaries(self, arg):
-        """Test the cache sets member addon's correct using lists of datetimes"""
-        plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
-
-        with pytest.raises(GuildNotFound):
-            await plugin_cache.get_member_data(1, 1)
-
-        await plugin_cache.set_member_data(1, 1, arg)
-
-        assert await plugin_cache.get_member_data(1, 1) == arg
-
-    @pytest.mark.asyncio
-    async def test_set_member_data_key_error(self, create_plugin_cache):
-        """Tests an edge case on a KeyError guild setting"""
-        await create_plugin_cache.handler.cache.set_guild(Guild(1, Options()))
-
-        await create_plugin_cache.set_member_data(1, 1, 2)
-
-        assert await create_plugin_cache.get_member_data(1, 1) == 2
 
     # GUILD GET
     @pytest.mark.asyncio
@@ -124,36 +86,11 @@ class TestPluginCache:
 
     # GUILD SET
     @pytest.mark.asyncio
-    @given(arg=text())
-    async def test_set_guild_data_text(self, arg):
+    async def test_set_guild_data_text(self):
         """Test the cache sets guild addon's correct using text"""
         plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
 
-        with pytest.raises(GuildNotFound):
-            await plugin_cache.get_guild_data(1)
-
-        await plugin_cache.set_guild_data(1, arg)
-
-        assert await plugin_cache.get_guild_data(1) == arg
-
-    @pytest.mark.asyncio
-    @given(arg=dictionaries(text(), floats()))
-    async def test_set_guild_data_dictionaries(self, arg):
-        """Test the cache sets guild addon's correct using dictionaries"""
-        plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
-
-        with pytest.raises(GuildNotFound):
-            await plugin_cache.get_guild_data(1)
-
-        await plugin_cache.set_guild_data(1, arg)
-
-        assert await plugin_cache.get_guild_data(1) == arg
-
-    @pytest.mark.asyncio
-    @given(arg=lists(datetimes()))
-    async def test_set_guild_data_dictionaries(self, arg):
-        """Test the cache sets guild addon's correct using lists of datetimes"""
-        plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
+        arg = "Hello world"
 
         with pytest.raises(GuildNotFound):
             await plugin_cache.get_guild_data(1)
