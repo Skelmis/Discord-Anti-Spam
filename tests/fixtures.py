@@ -3,6 +3,8 @@ from discord.ext import commands  # noqa
 
 from discord.ext.antispam import AntiSpamHandler, PluginCache  # noqa
 
+from discord.ext.antispam.caches import Memory
+
 
 class MockClass:
     pass
@@ -24,3 +26,8 @@ def create_handler(create_bot):
 def create_plugin_cache(create_handler):
     """Creates a PluginCache instance"""
     return PluginCache(create_handler, MockClass())
+
+
+@pytest.fixture
+def create_memory_cache(create_handler):
+    return Memory(create_handler)

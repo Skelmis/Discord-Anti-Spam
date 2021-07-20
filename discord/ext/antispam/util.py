@@ -68,8 +68,7 @@ def embed_to_string(embed: discord.Embed) -> str:
             content += f"{embed['footer']['text']}\n"
 
     if "author" in embed:
-        if "name" in embed["author"]:
-            content += f"{embed['author']['name']}\n"
+        content += f"{embed['author']['name']}\n"
 
     if "fields" in embed:
         for field in embed["fields"]:
@@ -123,10 +122,10 @@ def dict_to_embed(data: dict, message: discord.Message, counts: dict) -> discord
                 )
 
     if "author" in data:
-        if "name" in data["author"]:
-            data["author"]["name"] = substitute_args(
-                data["author"]["name"], message, counts
-            )
+        # name 'should' be required
+        data["author"]["name"] = substitute_args(
+            data["author"]["name"], message, counts
+        )
 
         if "icon_url" in data["author"]:
             if data["author"]["icon_url"] in allowed_avatars:

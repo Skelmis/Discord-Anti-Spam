@@ -98,3 +98,13 @@ class TestPluginCache:
         await plugin_cache.set_guild_data(1, arg)
 
         assert await plugin_cache.get_guild_data(1) == arg
+
+    @pytest.mark.asyncio
+    async def test_set_member_keyerror(self):
+        """A test to test set_member_data throws a keyerror"""
+        plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
+        await plugin_cache.set_guild_data(1, "A test")
+        with pytest.raises(MemberNotFound):
+            await plugin_cache.get_member_data(1, 1)
+
+        await plugin_cache.set_member_data(1, 1, "A member test")

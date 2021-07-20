@@ -8,6 +8,7 @@ from discord.ext.antispam.util import (
     dict_to_embed,
     transform_message,
     get_aware_time,
+    substitute_args,
 )
 
 from discord.ext.antispam import visualizer  # noqa
@@ -28,6 +29,16 @@ class TestUtil:
             "Hello\nWorld\nThis is weird\nIts almost as if\nI am\nAlive\nThat would be weird tho\nRight?\n"
             == embed_to_string(embed)
         )
+
+    def test_embed_skips_values(self):
+        """Tests we skip the footer and author checks on some cases"""
+        embed = discord.Embed()
+        assert "" == embed_to_string(embed=embed)
+
+        embed = discord.Embed(title="Hello", description="World")
+        embed.set_footer(icon_url="This is weird")
+        embed.set_author(name="test", url="Its almost as if")
+        assert "Hello\nWorld\ntest\n" == embed_to_string(embed)
 
     def test_dict_to_embed(self):
         warn_embed_dict = {
@@ -59,6 +70,65 @@ class TestUtil:
         embed.add_field(name="Current kicks:", value="2", inline=False)
 
         assert embed.to_dict() == test_embed.to_dict()
+
+    def test_edge_dict_to_embed(self):
+        """Tests edge cases for dict_to_embed"""
+        data = {
+            "author": {"icon_url": "$USERAVATAR", "name": "test"},
+            "footer": {"icon_url": "$USERAVATAR"},
+            "timestamp": True,
+        }
+
+        mock_message = MockedMessage().to_mock()
+
+        test_embed = dict_to_embed(
+            data, mock_message, {"warn_count": 1, "kick_count": 2}
+        )
+
+        user_footer = substitute_args(
+            "$USERAVATAR", mock_message, {"warn_count": 1, "kick_count": 2}
+        )
+
+        embed = discord.Embed(timestamp=mock_message.created_at)
+        embed.set_footer(icon_url=user_footer)
+        embed.set_author(
+            name="test",
+            icon_url=user_footer,
+        )
+
+        assert embed.to_dict() == test_embed.to_dict()
+
+    def test_further_edge_cases_for_to_dict(self):
+        data = {
+            "author": {"icon_url": "y", "name": "test"},
+            "footer": {"icon_url": "x"},
+            "timestamp": True,
+        }
+
+        mock_message = MockedMessage().to_mock()
+
+        test_embed = dict_to_embed(
+            data, mock_message, {"warn_count": 1, "kick_count": 2}
+        )
+
+        embed = discord.Embed(timestamp=mock_message.created_at)
+        embed.set_footer(icon_url="x")
+        embed.set_author(
+            name="test",
+            icon_url="y",
+        )
+
+        assert embed.to_dict() == test_embed.to_dict()
+
+    def test_to_dict_colors(self):
+        data = {"colour": 0xFFFFFF, "color": 0x000000}
+        mock_message = MockedMessage().to_mock()
+        data_embed = dict_to_embed(
+            data, mock_message, {"warn_count": 1, "kick_count": 2}
+        )
+        embed = discord.Embed(color=0xFFFFFF)
+
+        assert embed.to_dict() == data_embed.to_dict()
 
     def test_transform_message(self):
         warn_embed_dict = {
