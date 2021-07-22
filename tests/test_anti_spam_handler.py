@@ -5,7 +5,7 @@ from discord.ext import commands  # noqa
 
 from discord.ext.antispam import AntiSpamHandler, Options  # noqa
 
-from .fixtures import create_bot, create_handler
+from .fixtures import create_bot, create_handler, MockClass
 
 
 class TestExceptions:
@@ -28,6 +28,22 @@ class TestExceptions:
         """Tests the handler raises on incorrect option types"""
         with pytest.raises(ValueError):
             AntiSpamHandler(create_bot, options=1)
+
+    def test_cache_typing(self, create_bot):
+        """Tests the cache typing raises on incorrect instances"""
+        with pytest.raises(ValueError):
+            AntiSpamHandler(create_bot, cache=MockClass())
+
+        with pytest.raises(ValueError):
+            AntiSpamHandler(create_bot, cache=MockClass)
+
+        with pytest.raises(ValueError):
+            AntiSpamHandler(create_bot, cache=1)
+
+    def test_add_ignored_item(self, create_handler):
+        """Tests the handler adds ignored items correctly"""
+        # ensure they start empty
+        assert create_handler.options == Options()
 
     """
     How to use hypothesis

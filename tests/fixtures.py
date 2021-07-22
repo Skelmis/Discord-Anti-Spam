@@ -3,6 +3,7 @@ from discord.ext import commands  # noqa
 
 from discord.ext.antispam import AntiSpamHandler, PluginCache  # noqa
 
+from discord.ext.antispam.core import Core
 from discord.ext.antispam.caches import Memory
 
 
@@ -31,3 +32,8 @@ def create_plugin_cache(create_handler):
 @pytest.fixture
 def create_memory_cache(create_handler):
     return Memory(create_handler)
+
+
+@pytest.fixture
+def create_core(create_handler):
+    return Core(create_handler)
