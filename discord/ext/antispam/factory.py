@@ -55,7 +55,7 @@ class FactoryBuilder:
             channel_id=message_data["channel_id"],
         )
         message.is_duplicate = message_data["is_duplicate"]
-        message._creation_time = datetime.datetime.strptime(
+        message.creation_time = datetime.datetime.strptime(
             message_data["creation_time"], "%f:%S:%M:%H:%d:%m:%Y"
         )
         log.debug(f"Created Message ({message.id}) from dict")
