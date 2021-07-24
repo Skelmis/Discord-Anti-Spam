@@ -26,7 +26,7 @@ import inspect
 import logging
 from copy import deepcopy
 from typing import Optional, Union
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 from attr import asdict
 
@@ -177,13 +177,18 @@ class AntiSpamHandler:
     ):
         # TODO Implement an async cache initialization somehow
 
-        # Just gotta casually type check check everything.
-        # TODO Check this doesnt trip on subclassing Bot n shit
-        if not isinstance(bot, discord.Client) and not issubclass(bot, discord.Client):
-            raise ValueError(
-                "Expected bot of type commands.Bot, commands.AutoShardedBot, "
-                "discord.Client or discord.AutoShardedClient (Subclasses are accepted)"
-            )
+        try:
+            # Just gotta casually type check check everything.
+            # TODO Check this doesnt trip on subclassing Bot n shit
+            if not isinstance(
+                bot, (discord.Client, MagicMock, AsyncMock)
+            ) and not issubclass(bot, discord.Client):
+                raise ValueError(
+                    "Expected bot of type commands.Bot, commands.AutoShardedBot, "
+                    "discord.Client or discord.AutoShardedClient (Subclasses are accepted)"
+                )
+        except TypeError as e:
+            raise ValueError from e
 
         options = options or Options()
         if not isinstance(options, Options):
@@ -233,7 +238,7 @@ class AntiSpamHandler:
         dict
             A dictionary of useful information about the Member in question
         """
-        if not isinstance(message, discord.Message):
+        if not isinstance(message, (discord.Message, AsyncMock)):
             log.debug("Invalid value given to propagate")
             raise ValueError("Expected message of ignore_type: discord.Message")
 
@@ -258,7 +263,7 @@ class AntiSpamHandler:
         # Return if ignored member
         if message.author.id in self.options.ignored_members:
             log.debug(f"The user who sent this message is ignored: {message.author.id}")
-            return {"status": f"Ignoring this user: {message.author.id}"}
+            return {"status": f"Ignoring this member: {message.author.id}"}
 
         # Return if ignored channel
         if (
@@ -349,7 +354,7 @@ class AntiSpamHandler:
 
         try:
             item = int(item)
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValueError("Expected item of type: int")
 
         if ignore_type == IgnoreType.MEMBER:
@@ -389,7 +394,7 @@ class AntiSpamHandler:
 
         try:
             item = int(item)
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValueError("Expected item of type: int")
 
         if ignore_type == IgnoreType.MEMBER:
@@ -403,7 +408,7 @@ class AntiSpamHandler:
 
         log.debug(f"Un-Ignored {ignore_type.name}: {item}")
 
-    async def add_custom_guild_options(self, guild_id: int, options: Options) -> None:
+    async def add_guild_options(self, guild_id: int, options: Options) -> None:
         """
         Set a guild's options to a custom set, rather then the base level
         set used and defined in ASH initialization
@@ -470,7 +475,7 @@ class AntiSpamHandler:
         guild = await self.cache.get_guild(guild_id=guild_id)
         return deepcopy(guild.options)
 
-    async def remove_custom_guild_options(self, guild_id: int) -> None:
+    async def remove_guild_options(self, guild_id: int) -> None:
         """
         Reset a guilds options to the ASH options
 
@@ -494,8 +499,8 @@ class AntiSpamHandler:
             guild.options = self.options
             log.debug(f"Reset guild options for {guild_id}")
 
-    async def reset_user_count(
-        self, user_id: int, guild_id: int, reset_type: ResetType
+    async def reset_member_count(
+        self, member_id: int, guild_id: int, reset_type: ResetType
     ) -> None:
         """
         Reset an internal counter attached
@@ -503,18 +508,13 @@ class AntiSpamHandler:
 
         Parameters
         ----------
-        user_id : int
+        member_id : int
             The user to reset
         guild_id : int
             The guild they are attached to
         reset_type : ResetType
             An enum representing the
             counter to reset
-
-        Raises
-        ======
-        LogicError
-            Invalid count to reset
 
         Notes
         =====
@@ -525,8 +525,10 @@ class AntiSpamHandler:
         the reset value.
 
         """
-        # TODO Implement this
-        await self.cache.reset_member_count(user_id, guild_id, reset_type)
+        if not isinstance(reset_type, ResetType):
+            raise ValueError("Expected reset_type of type ResetType")
+
+        await self.cache.reset_member_count(member_id, guild_id, reset_type)
 
     async def add_guild_log_channel(
         self, log_channel: Union[int, discord.TextChannel]
@@ -544,6 +546,9 @@ class AntiSpamHandler:
         Not setting a log channel means it will default
         to ``ctx.channel``
         """
+        if not isinstance(log_channel, (int, discord.TextChannel)):
+            raise ValueError("Expected log_channel with correct type")
+
         if isinstance(log_channel, int):
             # Store as obj
             log_channel = await self.bot.fetch_channel(channel_id=log_channel)
@@ -555,6 +560,7 @@ class AntiSpamHandler:
             guild = Guild(
                 id=log_channel.guild.id, options=self.options, log_channel=log_channel
             )
+            await self.cache.set_guild(guild)
 
     async def remove_guild_log_channel(self, guild_id: int) -> None:
         """
@@ -736,12 +742,6 @@ class AntiSpamHandler:
             raise ExtensionError(
                 "Expected extension that subclassed BaseExtension and was a class instance not class reference"
             )
-
-        # TODO Try explicitly check its actually a class instance rather then inferring it?
-
-        if not inspect.iscoroutinefunction(getattr(extension, "propagate")):
-            log.debug("Failed to load extension due to a failed propagate inspect")
-            raise ExtensionError("Expected coro method for propagate")
 
         is_pre_invoke = getattr(extension, "is_pre_invoke", True)
 
