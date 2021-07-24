@@ -1,6 +1,7 @@
 from typing import Protocol, runtime_checkable
 
 from .dataclasses import Guild, Member, Message
+from .enums import ResetType
 from .enums.state import ASHEnum
 
 
@@ -101,7 +102,7 @@ class Cache(Protocol):
         raise NotImplementedError
 
     async def reset_member_count(
-        self, member_id: int, guild_id: int, reset_type: ASHEnum
+        self, member_id: int, guild_id: int, reset_type: ResetType
     ) -> None:
         """
         Reset the chosen enum type back to the default value
@@ -114,10 +115,6 @@ class Cache(Protocol):
             The guild this member is in
         reset_type : ASHEnum
             An enum denoting the type of reset
-
-        Notes
-        -----
-        ASHEnum.BAN and ASHEnum.KICK are ignored.
 
         """
         raise NotImplementedError

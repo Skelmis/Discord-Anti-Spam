@@ -1,5 +1,6 @@
 from ...abc import Cache
 from ...dataclasses import Message, Member, Guild
+from ...enums import ResetType
 from ...enums.state import ASHEnum
 from ...exceptions import GuildNotFound, MemberNotFound
 
@@ -62,11 +63,8 @@ class Memory(Cache):
         await self.set_member(member)
 
     async def reset_member_count(
-        self, member_id: int, guild_id: int, reset_type: ASHEnum
+        self, member_id: int, guild_id: int, reset_type: ResetType
     ) -> None:
-        if reset_type in {ASHEnum.BAN, ASHEnum.KICK}:
-            return
-
         try:
             member = await self.get_member(member_id, guild_id)
             if ASHEnum.KICK_COUNTER:
