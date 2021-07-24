@@ -1,4 +1,4 @@
-from typing import Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable, List
 
 from .dataclasses import Guild, Member, Message
 from .enums import ResetType
@@ -119,5 +119,32 @@ class Cache(Protocol):
         """
         raise NotImplementedError
 
-    # TODO Implement Member count resets
-    # TODO Implement a way to get all Guilds / Members
+    async def get_all_guilds(self) -> List[Guild]:
+        """
+        Fetches and guilds a list of all guilds
+
+        Returns
+        -------
+        List[Guild]
+            A list of all stored guilds
+        """
+
+    async def get_all_members(self, guild_id: int) -> List[Member]:
+        """
+        Fetches all members within a guild
+
+        Parameters
+        ----------
+        guild_id : int
+            The guild we want members in
+
+        Returns
+        -------
+        List[Member]
+            All members in the given guild
+
+        Raises
+        ------
+        GuildNotFound
+            The given guild was not found
+        """

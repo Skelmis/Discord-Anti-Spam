@@ -1,3 +1,5 @@
+from typing import List
+
 from ...abc import Cache
 from ...dataclasses import Message, Member, Guild
 from ...enums import ResetType
@@ -77,3 +79,10 @@ class Memory(Cache):
         except (MemberNotFound, GuildNotFound):
             # This is fine
             return
+
+    async def get_all_members(self, guild_id: int) -> List[Member]:
+        guild = await self.get_guild(guild_id=guild_id)
+        return list(guild.members.values())
+
+    async def get_all_guilds(self) -> List[Guild]:
+        return list(self.cache.values())
