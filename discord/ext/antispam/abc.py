@@ -1,6 +1,7 @@
 from typing import Protocol, runtime_checkable
 
 from .dataclasses import Guild, Member, Message
+from .enums.state import ASHEnum
 
 
 @runtime_checkable
@@ -96,6 +97,28 @@ class Cache(Protocol):
         -----
         This should silently create any Guild's/Member's
         required to fulfil this transaction
+        """
+        raise NotImplementedError
+
+    async def reset_member_count(
+        self, member_id: int, guild_id: int, reset_type: ASHEnum
+    ) -> None:
+        """
+        Reset the chosen enum type back to the default value
+
+        Parameters
+        ----------
+        member_id : int
+            The Member to reset
+        guild_id : int
+            The guild this member is in
+        reset_type : ASHEnum
+            An enum denoting the type of reset
+
+        Notes
+        -----
+        ASHEnum.BAN and ASHEnum.KICK are ignored.
+
         """
         raise NotImplementedError
 
