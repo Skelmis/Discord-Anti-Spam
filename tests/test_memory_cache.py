@@ -3,6 +3,8 @@ import pytest
 from discord.ext.antispam import GuildNotFound, Options, MemberNotFound  # noqa
 
 from discord.ext.antispam.dataclasses import Guild, Member, Message  # noqa
+
+from discord.ext.antispam.enums import ResetType
 from .fixtures import create_handler, create_memory_cache, create_bot  # noqa
 
 
@@ -75,3 +77,47 @@ class TestMemoryCache:
 
         assert len(create_memory_cache.cache[3].members) == 1
         assert len(create_memory_cache.cache[3].members[4].messages) == 1
+
+    @pytest.mark.asyncio
+    async def test_reset_member_count(self, create_memory_cache):
+        await create_memory_cache.set_member(Member(1, 1, kick_count=1, warn_count=2))
+
+        member = await create_memory_cache.get_member(1, 1)
+        assert (member.kick_count, member.warn_count) == (1, 2)
+
+        await create_memory_cache.reset_member_count(1, 1, ResetType.KICK_COUNTER)
+
+        member = await create_memory_cache.get_member(1, 1)
+        assert (member.kick_count, member.warn_count) == (0, 2)
+
+        await create_memory_cache.reset_member_count(1, 1, ResetType.WARN_COUNTER)
+
+        member = await create_memory_cache.get_member(1, 1)
+        assert (member.kick_count, member.warn_count) == (0, 0)
+
+    @pytest.mark.asyncio
+    async def test_get_all_members(self, create_memory_cache):
+        with pytest.raises(GuildNotFound):
+            await create_memory_cache.get_all_members(1)
+
+        await create_memory_cache.set_member(Member(1, 1))
+        await create_memory_cache.set_member(Member(2, 1))
+        await create_memory_cache.set_member(Member(3, 1))
+
+        members = await create_memory_cache.get_all_members(1)
+        assert len(members) == 3
+        assert members == [Member(1, 1), Member(2, 1), Member(3, 1)]
+
+    @pytest.mark.asyncio
+    async def test_get_all_guilds(self, create_memory_cache):
+        guilds = await create_memory_cache.get_all_guilds()
+        assert len(guilds) == 0
+
+        await create_memory_cache.set_guild(Guild(1, Options()))
+        guilds = await create_memory_cache.get_all_guilds()
+        assert len(guilds) == 1
+
+        await create_memory_cache.set_guild(Guild(2, Options()))
+        guilds = await create_memory_cache.get_all_guilds()
+        assert len(guilds) == 2
+        assert guilds == [Guild(1, Options()), Guild(2, Options())]

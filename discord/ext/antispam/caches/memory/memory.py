@@ -69,9 +69,9 @@ class Memory(Cache):
     ) -> None:
         try:
             member = await self.get_member(member_id, guild_id)
-            if ASHEnum.KICK_COUNTER:
+            if reset_type == ResetType.KICK_COUNTER:
                 member.kick_count = 0
-            elif ASHEnum.WARN_COUNTER:
+            elif reset_type == ResetType.WARN_COUNTER:
                 member.warn_count = 0
 
             await self.set_member(member)
