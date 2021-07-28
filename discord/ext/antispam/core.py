@@ -437,6 +437,17 @@ class Core:
         This logic works around checking the current
         time vs a messages creation time. If the message
         is older by the config amount it can be cleaned up
+
+        Parameters
+        ----------
+        member : Member
+            The member we want to clean up
+        current_time : datetime.datetime
+            A reference time used to clean up
+            past messages against
+        channel_id : int
+            The channel to clean messages in
+            if this is set to per_channel
         """
         log.debug("Attempting to remove outdated Message's")
 
