@@ -472,8 +472,8 @@ class Core:
             else:
                 outstanding_messages.append(message)
 
-        # TODO Try NOT deepcopying here
-        member.messages = deepcopy(current_messages)
+        # TODO This might need to be deepcopied
+        member.messages = current_messages
 
         # Now if we have outstanding messages we need
         # to process them and see if we need to decrement
@@ -600,11 +600,11 @@ class Core:
         is_per_channel = self.options.per_channel_spam
         if not is_per_channel:
             member.duplicate_counter -= amount
+            return
 
-        elif channel_id not in member.duplicate_channel_counter_dict:
+        try:
+            member.duplicate_channel_counter_dict[channel_id] -= amount
+        except KeyError:
             log.warning(
                 "Failed to de-increment duplicate count as the channel id doesnt exist"
             )
-
-        else:
-            member.duplicate_channel_counter_dict[channel_id] -= amount
