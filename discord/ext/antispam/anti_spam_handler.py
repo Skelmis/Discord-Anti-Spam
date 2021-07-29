@@ -329,7 +329,6 @@ class AntiSpamHandler:
 
     def add_ignored_item(self, item: int, ignore_type: IgnoreType) -> None:
         """
-        TODO Document this better with ignore_type notations
         Add an item to the relevant ignore list
 
         Parameters
@@ -363,7 +362,8 @@ class AntiSpamHandler:
             self.options.ignored_channels.add(item)
         elif ignore_type == IgnoreType.GUILD:
             self.options.ignored_guilds.add(item)
-        elif ignore_type == IgnoreType.ROLE:
+        # elif ignore_type == IgnoreType.ROLE:
+        else:
             self.options.ignored_roles.add(item)
 
         log.debug(f"Ignored {ignore_type.name}: {item}")
@@ -403,7 +403,8 @@ class AntiSpamHandler:
             self.options.ignored_channels.discard(item)
         elif ignore_type == IgnoreType.GUILD:
             self.options.ignored_guilds.discard(item)
-        elif ignore_type == IgnoreType.ROLE:
+        # elif ignore_type == IgnoreType.ROLE:
+        else:
             self.options.ignored_roles.discard(item)
 
         log.debug(f"Un-Ignored {ignore_type.name}: {item}")
@@ -765,7 +766,7 @@ class AntiSpamHandler:
         if is_pre_invoke:
             log.info(f"Loading pre-invoke extension: {cls_name}")
             self.pre_invoke_extensions[cls_name] = extension
-        elif not is_pre_invoke:
+        else:
             log.info(f"Loading after-invoke extension: {cls_name}")
             self.after_invoke_extensions[cls_name] = extension
 

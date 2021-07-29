@@ -13,6 +13,7 @@ from discord.ext.antispam import (
     Options,
     GuildNotFound,
     ExtensionError,
+    MissingGuildPermissions,
 )  # noqa
 
 from discord.ext.antispam.enums import IgnoreType, ResetType
@@ -78,6 +79,9 @@ class TestExceptions:
 
         with pytest.raises(ValueError):
             AntiSpamHandler(AntiSpamHandler(create_bot))
+
+        with pytest.raises(ValueError):
+            AntiSpamHandler(MockClass)
 
     def test_add_ignored_item_raises(self, create_handler):
         # Test IGNORE_TYPE
@@ -259,6 +263,24 @@ class TestExceptions:
         assert await mock_bot.fetch_channel.called_with(1)
 
         handler = AntiSpamHandler(mock_bot)
+
+        await handler.add_guild_log_channel(1)
+        g = await handler.cache.get_guild(1)
+        assert g.log_channel.id == 2
+
+    @pytest.mark.asyncio
+    async def test_add_guild_log_channel_exists(self):
+        mock_channel = MagicMock()
+        mock_channel.id = 2
+        mock_channel.guild.id = 1
+
+        mock_bot = MagicMock()
+        mock_bot.fetch_channel = AsyncMock(return_value=mock_channel)
+
+        assert await mock_bot.fetch_channel.called_with(1)
+
+        handler = AntiSpamHandler(mock_bot)
+        await handler.cache.set_guild(Guild(1, Options()))
 
         await handler.add_guild_log_channel(1)
         g = await handler.cache.get_guild(1)
@@ -450,3 +472,88 @@ class TestExceptions:
         return_data = await create_handler.propagate(MockedMessage().to_mock())
         assert return_data["status"] == "Ignoring this channel: 98987"
         create_handler.options.ignored_channels.discard(98987)
+
+    @pytest.mark.asyncio
+    async def test_propagate_guild_ignore(self):
+        bot = AsyncMock()
+        bot.user.id = 919191
+        create_handler = AntiSpamHandler(bot)
+
+        create_handler.options.ignored_guilds.add(1)
+
+        message = MockedMessage(guild_id=1).to_mock()
+        return_data = await create_handler.propagate(message)
+
+        assert return_data["status"] == "Ignoring this guild: 1"
+
+    @pytest.mark.asyncio
+    async def test_propagate_role_ignores(self):
+        bot = AsyncMock()
+        bot.user.id = 919191
+        create_handler = AntiSpamHandler(bot)
+
+        create_handler.options.ignored_roles.add(252525)
+
+        message = MockedMessage().to_mock()
+        return_data = await create_handler.propagate(message)
+        assert return_data["status"] == "Ignoring this role: 252525"
+
+    @pytest.mark.asyncio
+    async def test_propagate_missing_perms(self):
+        bot = AsyncMock()
+        bot.user.id = 919191
+        create_handler = AntiSpamHandler(bot)
+
+        message = MockedMessage().to_mock()
+        message.guild.me.guild_permissions.kick_members = False
+
+        with pytest.raises(MissingGuildPermissions):
+            await create_handler.propagate(message)
+
+        # Reset cache rather then make a new test
+        create_handler.cache.cache = {}
+
+        message.guild.me.guild_permissions.kick_members = True
+        message.guild.me.guild_permissions.ban_members = False
+
+        with pytest.raises(MissingGuildPermissions):
+            await create_handler.propagate(message)
+
+    @pytest.mark.asyncio
+    async def test_propagate_pre_invoke(self):
+        bot = AsyncMock()
+        bot.user.id = 919191
+        create_handler = AntiSpamHandler(bot)
+
+        class PreInvoke(BaseExtension):
+            async def propagate(self, msg):
+                return 1
+
+        create_handler.register_extension(PreInvoke())
+
+        message = MockedMessage().to_mock()
+        return_data = await create_handler.propagate(message)
+
+        assert len(return_data["pre_invoke_extensions"]) == 1
+        assert return_data["pre_invoke_extensions"]["PreInvoke"] == 1
+
+    @pytest.mark.asyncio
+    async def test_propagate_after_invoke(self):
+        bot = AsyncMock()
+        bot.user.id = 919191
+        create_handler = AntiSpamHandler(bot)
+
+        class AfterInvoke(BaseExtension):
+            def __init__(self):
+                super().__init__(False)
+
+            async def propagate(self, msg, data):
+                return 2
+
+        create_handler.register_extension(AfterInvoke())
+
+        message = MockedMessage().to_mock()
+        return_data = await create_handler.propagate(message)
+
+        assert len(return_data["after_invoke_extensions"]) == 1
+        assert return_data["after_invoke_extensions"]["AfterInvoke"] == 2

@@ -44,3 +44,4 @@ def countlines(start, lines=0, header=True, begin_start=None):
 
 
 countlines("./discord/ext/antispam")
+countlines("./tests")

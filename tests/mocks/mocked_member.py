@@ -30,7 +30,7 @@ class MockedMember:
             mock.user.bot = True
 
             mock.user.roles = [
-                MockedRole(),
+                MockedRole().to_mock(),
                 MockedRole(name="test role 2", role_id=252525).to_mock(),
             ]
             return mock
