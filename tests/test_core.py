@@ -126,3 +126,56 @@ class TestCore:
         create_core._remove_duplicate_count(member, 1)
         assert member.duplicate_counter == 2
         assert member.duplicate_channel_counter_dict == {15: 1}
+
+    def test_get_duplicate_count(self, create_core):
+        member = Member(1, 1)
+        member.duplicate_counter = 5
+        member.duplicate_channel_counter_dict = {15: 2}
+
+        assert create_core._get_duplicate_count(member, 1) == 5
+
+        create_core.options = Options(per_channel_spam=True)
+
+        assert create_core._get_duplicate_count(member) == 1
+        assert create_core._get_duplicate_count(member, 5) == 1
+        assert create_core._get_duplicate_count(member, 15) == 2
+
+    def test_increment_duplicate_count(self, create_core):
+        member = Member(1, 1)
+        assert member.duplicate_counter == 1
+
+        create_core._increment_duplicate_count(member, 1)
+        assert member.duplicate_counter == 2
+
+        create_core._increment_duplicate_count(member, 1, 3)
+        assert member.duplicate_counter == 5
+
+        create_core.options = Options(per_channel_spam=True)
+
+        create_core._increment_duplicate_count(member, 1, 1)
+        assert member.duplicate_channel_counter_dict == {1: 2}
+
+    def test_calculate_ratios(self, create_core):
+        member = Member(1, 1)
+        member.messages = [Message(1, 1, 1, 1, "Hello world", datetime.datetime.now())]
+        message = Message(2, 1, 1, 1, "Hello world", datetime.datetime.now())
+
+        assert member.duplicate_counter == 1
+
+        create_core._calculate_ratios(message, member)
+
+        assert member.duplicate_counter == 2
+        assert message.is_duplicate is True
+
+    def test_calculate_ratios_per_channel(self, create_core):
+        member = Member(1, 1)
+        member.messages = [Message(1, 1, 1, 1, "Hello world", datetime.datetime.now())]
+        message = Message(2, 2, 1, 1, "Hello world", datetime.datetime.now())
+        create_core.options = Options(per_channel_spam=True)
+
+        assert member.duplicate_counter == 1
+
+        create_core._calculate_ratios(message, member)
+
+        assert member.duplicate_counter == 1
+        assert message.is_duplicate is False

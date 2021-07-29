@@ -587,13 +587,11 @@ class Core:
         if not is_per_channel:
             return member.duplicate_counter
 
-        channel_id = int(channel_id)
-
-        if channel_id not in member.duplicate_channel_counter_dict:
-            return 1
-
-        else:
+        try:
+            channel_id = int(channel_id)
             return member.duplicate_channel_counter_dict[channel_id]
+        except (KeyError, TypeError):
+            return 1
 
     def _remove_duplicate_count(self, member: Member, channel_id: int, amount: int = 1):
         """Used when cleaning the cache, to only lower the correct counter"""
