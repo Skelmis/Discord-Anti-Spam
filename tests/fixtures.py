@@ -6,6 +6,8 @@ from discord.ext.antispam import AntiSpamHandler, PluginCache  # noqa
 from discord.ext.antispam.core import Core
 from discord.ext.antispam.caches import Memory
 
+from discord.ext.antispam.plugins import AntiMassMention
+
 
 class MockClass:
     pass
@@ -37,3 +39,8 @@ def create_memory_cache(create_handler):
 @pytest.fixture
 def create_core(create_handler):
     return Core(create_handler)
+
+
+@pytest.fixture
+def create_anti_mass_mention(create_bot, create_handler):
+    return AntiMassMention(create_bot, create_handler)

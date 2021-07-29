@@ -9,7 +9,7 @@ import discord  # noqa
 from discord.ext.antispam.exceptions import MemberNotFound  # noqa
 from discord.ext.antispam.base_extension import BaseExtension  # noqa
 from discord.ext.antispam.plugin_cache import PluginCache  # noqa
-from discord.ext.antispam import AntiSpamHandler  # noqa
+from discord.ext.antispam import AntiSpamHandler, GuildNotFound  # noqa
 
 from discord.ext.antispam.util import get_aware_time
 
@@ -79,9 +79,6 @@ class AntiMassMention(BaseExtension):
             *Inclusive*
         """
         super().__init__()
-        self.bot = bot
-        self.data = PluginCache(handler, caller=self)
-
         if min_mentions_per_message > total_mentions_before_punishment:
             raise ValueError(
                 "Expected `min_mentions_per_message` to be less then or equal to `total_mentions_before_punishment`"
@@ -89,6 +86,9 @@ class AntiMassMention(BaseExtension):
 
         if time_period < 1:
             raise ValueError("Expected `time_period` to be positive")
+
+        self.bot = bot
+        self.data = PluginCache(handler, caller=self)
 
         self.min_mentions_per_message = min_mentions_per_message
         self.total_mentions_before_punishment = total_mentions_before_punishment
@@ -117,14 +117,12 @@ class AntiMassMention(BaseExtension):
 
         try:
             member = await self.data.get_member_data(member_id, guild_id)
-        except MemberNotFound:
+        except (MemberNotFound, GuildNotFound):
             member = {"total_mentions": []}
             """
             {
                 "total_mentions": [
-                    {
-                        int amount : Datetime timestamp
-                    }
+                    Tracking(),
                 ]
             }
             """
@@ -189,8 +187,8 @@ class AntiMassMention(BaseExtension):
 
         Notes
         -----
-        Expects the member to exist in ``self.data``. This
-        does no form of validation for existence
+        If the member does not exist in ``self.data``,
+        they are ignored and this method returns
 
         """
         log.debug(f"Cleaning timestamps for {member_id}, guild: {guild_id}")
@@ -203,7 +201,13 @@ class AntiMassMention(BaseExtension):
                 return False
             return True
 
-        member = await self.data.get_member_data(guild_id=guild_id, member_id=member_id)
+        try:
+            member = await self.data.get_member_data(
+                guild_id=guild_id, member_id=member_id
+            )
+        except (GuildNotFound, MemberNotFound):
+            return
+
         valid_items = []
         for item in member["total_mentions"]:
             # TODO This might break in dpy 2.0
