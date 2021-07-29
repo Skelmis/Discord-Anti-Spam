@@ -72,17 +72,6 @@ class AntiSpamTracker(BaseExtension):
     ``propagate`` -> ``update_cache``, if the User should be punished we increment internal counter
 
     ``is_spamming`` -> Checks if the User's internal counter meets ``spam_amount_to_punish`` and returns a bool
-
-    Notes
-    =====
-    This Class recognizes that individual guilds can have different options
-    and will attempt to work with said options to the best of its ability.
-    This is lazily conducted however, so if you wish to use any of the methods
-    listed below please call them on this class rather then on your base
-    AntiSpamHandler. (They will also update the AntiSpamHandler dont worry)
-
-    - ``add_custom_guild_options``
-    - ``remove_custom_guild_options``
     """
 
     __slots__ = [
@@ -108,11 +97,11 @@ class AntiSpamTracker(BaseExtension):
         spam_amount_to_punish : int
             A number denoting the minimum value required
             per user in order trip `is_spamming`
-
-            **NOTE this is in milliseconds**
         valid_timestamp_interval : int
             How long a timestamp should remain 'valid' for.
             Defaults to ``AntiSpamHandler.options.get("message_interval")``
+
+            **NOTE this is in milliseconds**
 
         Raises
         ------
@@ -123,7 +112,12 @@ class AntiSpamTracker(BaseExtension):
         """
         super().__init__(is_pre_invoke=False)
 
-        self.punish_min_amount = int(spam_amount_to_punish)
+        try:
+            self.punish_min_amount = int(spam_amount_to_punish)
+        except (TypeError, ValueError):
+            raise ValueError(
+                "Expected `spam_amount_to_punish` of type int or int convertable"
+            ) from None
 
         if not isinstance(anti_spam_handler, AntiSpamHandler):
             raise TypeError("Expected anti_spam_handler of type AntiSpamHandler")
@@ -135,7 +129,12 @@ class AntiSpamTracker(BaseExtension):
 
         if valid_timestamp_interval is not None:
             if isinstance(valid_timestamp_interval, (str, float)):
-                valid_timestamp_interval = int(valid_timestamp_interval)
+                try:
+                    valid_timestamp_interval = int(valid_timestamp_interval)
+                except (TypeError, ValueError):
+                    raise ValueError(
+                        "Expected valid_timestamp_interval of type int"
+                    ) from None
             elif isinstance(valid_timestamp_interval, int):
                 pass
             else:
@@ -149,11 +148,6 @@ class AntiSpamTracker(BaseExtension):
         self.member_tracking = PluginCache(handler=anti_spam_handler, caller=self)
 
         log.info("AntiSpamTracker is initialized and ready to go")
-
-    def __repr__(self):
-        return_value = f"AntiSpamTracker(AntiSpamHandler Instance, {self.punish_min_amount}, {self.valid_global_interval})\n"
-        return_value += str(self.member_tracking)
-        return return_value
 
     async def propagate(
         self, message: discord.Message, data: typing.Optional[dict] = None
@@ -200,7 +194,7 @@ class AntiSpamTracker(BaseExtension):
                 member_id=member_id, guild_id=guild_id
             )
 
-        except MemberNotFound:
+        except (MemberNotFound, GuildNotFound):
             # Store the new member
             member = Member(id=member_id, guild_id=guild_id)
             await self.anti_spam_handler.cache.set_member(member)
@@ -326,11 +320,8 @@ class AntiSpamTracker(BaseExtension):
 
         Notes
         -----
-        If the user can't be found in cache,
-        it executes the same as if the user
-        could be found in cache for what should
-        be somewhat obvious reasons. (They shouldn't
-        exist after this method finishes)
+        This will actually create a member internally
+        if one doesn't already exist for simplicities sake
         """
         if not isinstance(message, (discord.Message, AsyncMock)):
             raise TypeError("Expected message of type: discord.Message")
@@ -341,48 +332,39 @@ class AntiSpamTracker(BaseExtension):
         member_id = message.author.id
         guild_id = message.guild.id
 
+        await self.member_tracking.set_member_data(member_id, guild_id, addon_data=[])
+
+    async def _set_guild_valid_interval(
+        self, guild_id: int, valid_interval: int
+    ) -> None:
+        """
+        Given an interval, set it internally for
+        usage on a guild. This is essentially like
+        using custom guild options.
+
+        Parameters
+        ----------
+        guild_id : int
+            The guild to set this on
+        valid_interval : int
+            The time interval to use
+
+        Raises
+        ------
+        ValueError
+            valid_interval must be a positive number
+
+        """
         try:
-            data = await self.member_tracking.get_guild_data(guild_id)
+            guild_data = await self.member_tracking.get_guild_data(guild_id)
+            guild_data["valid_interval"] = valid_interval
+            await self.member_tracking.set_guild_data(guild_id, guild_data)
         except GuildNotFound:
-            return
+            await self.member_tracking.set_guild_data(
+                guild_id, {"valid_interval": valid_interval}
+            )
 
-        try:
-            data.pop(member_id)
-            await self.member_tracking.set_guild_data(guild_id, data)
-        except KeyError:
-            pass
-
-    async def clean_cache(self) -> None:
-        """
-        Cleans the entire internal cache
-        removing any empty users, and empty
-        guilds by extension
-
-        Notes
-        -----
-        This is more part of the Optimising Package Usage section,
-        run this once a week/day or somethin depending on how big
-        your bot is. I haven't profiled things.
-
-        Warnings
-        --------
-        This has not yet been re-implemented
-        """
-        # TODO Impl
-        raise NotImplementedError
-        for guild_id, guild in deepcopy(self.member_tracking).items():
-            for user_id, user in deepcopy(guild).items():
-                self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
-
-                if len(self.member_tracking[guild_id][user_id]) == 0:
-                    self.member_tracking[guild_id].pop(user_id)
-
-            if not bool(self.member_tracking[guild_id]):
-                self.member_tracking.pop(guild_id)
-
-        log.debug("Successfully cleaned the cache")
-
-    async def _get_guild_valid_interval(self, guild_id):
+    async def _get_guild_valid_interval(self, guild_id: int) -> int:
         """
         Returns the correct ``valid_global_interval``
         except on a per guild level taking into account
@@ -438,7 +420,7 @@ class AntiSpamTracker(BaseExtension):
             user_count = await self.get_user_count(message=message)
             if user_count >= self.punish_min_amount:
                 return True
-        except (MemberNotFound, MemberAddonNotFound):
+        except (MemberNotFound, MemberAddonNotFound, GuildNotFound):
             return False
         else:
             return False
