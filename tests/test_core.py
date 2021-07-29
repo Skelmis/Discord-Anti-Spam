@@ -26,6 +26,14 @@ class TestCore:
         )
 
     @pytest.mark.asyncio
+    async def test_skip_per_channel_per_guild(self, create_core):
+        create_core.options.is_per_channel_per_guild = False
+        await create_core.cache.set_guild(Guild(1, Options()))
+        await create_core.propagate(
+            MockedMessage(guild_id=1).to_mock(), Guild(1, Options())
+        )
+
+    @pytest.mark.asyncio
     async def test_clean_up(self, create_core):
         member = Member(1, 1)
         messages = [
