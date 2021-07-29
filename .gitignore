@@ -4,7 +4,7 @@
 
 notes.txt
 *.json
-!/testing/unittests.json
+!/tests/raw.json
 !/testing/tracker_tests.json
 examples/dev.py
 .tox/

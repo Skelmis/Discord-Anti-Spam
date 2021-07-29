@@ -71,7 +71,8 @@ class Memory(Cache):
             member = await self.get_member(member_id, guild_id)
             if reset_type == ResetType.KICK_COUNTER:
                 member.kick_count = 0
-            elif reset_type == ResetType.WARN_COUNTER:
+            # elif reset_type == ResetType.WARN_COUNTER:
+            else:
                 member.warn_count = 0
 
             await self.set_member(member)

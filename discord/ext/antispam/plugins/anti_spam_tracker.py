@@ -359,7 +359,7 @@ class AntiSpamTracker(BaseExtension):
             guild_data = await self.member_tracking.get_guild_data(guild_id)
             guild_data["valid_interval"] = valid_interval
             await self.member_tracking.set_guild_data(guild_id, guild_data)
-        except GuildNotFound:
+        except (GuildNotFound, GuildAddonNotFound):
             await self.member_tracking.set_guild_data(
                 guild_id, {"valid_interval": valid_interval}
             )

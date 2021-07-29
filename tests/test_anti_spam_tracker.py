@@ -34,7 +34,9 @@ class TestAntiSpamTracker:
             AntiSpamTracker(create_handler, 1, valid_timestamp_interval=MockClass)
 
     def test_init(self, create_handler):
+        create_handler.options.no_punish = True  # Code coverage
         AntiSpamTracker(create_handler, 1)
+        create_handler.options.no_punish = False
         AntiSpamTracker(create_handler, 1, valid_timestamp_interval=1)
         AntiSpamTracker(create_handler, 1, valid_timestamp_interval=1.0)
 
@@ -188,6 +190,14 @@ class TestAntiSpamTracker:
         get_result = await create_anti_spam_tracker._get_guild_valid_interval(1)
         assert get_result == 15
 
+        # Code coverage to ensure it works within try
+        await create_anti_spam_tracker._set_guild_valid_interval(1, 25)
+        result = await create_anti_spam_tracker.anti_spam_handler.cache.get_guild(1)
+        assert len(result.addons) == 1
+
+        get_result = await create_anti_spam_tracker._get_guild_valid_interval(1)
+        assert get_result == 25
+
     @pytest.mark.asyncio
     async def test_set_guild_interval_without_guild(self, create_anti_spam_tracker):
         await create_anti_spam_tracker._set_guild_valid_interval(1, 15)
@@ -210,6 +220,15 @@ class TestAntiSpamTracker:
         await create_anti_spam_tracker._set_guild_valid_interval(1, 15)
         result_three = await create_anti_spam_tracker._get_guild_valid_interval(1)
         assert result_three == 15
+
+    @pytest.mark.asyncio
+    async def test_get_guild_interval_check(self, create_anti_spam_tracker):
+        await create_anti_spam_tracker.member_tracking.set_guild_data(
+            1, addon_data={"test": []}
+        )
+
+        result_one = await create_anti_spam_tracker._get_guild_valid_interval(1)
+        assert result_one == 30000
 
     @pytest.mark.asyncio
     async def test_is_spamming(self, create_anti_spam_tracker):
