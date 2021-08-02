@@ -1,14 +1,23 @@
 import datetime
+from unittest.mock import AsyncMock
 
+import discord
 import pytest
 
 from discord.ext.antispam.dataclasses import Guild, Member, CorePayload, Message
 
-from discord.ext.antispam import Options
-from .fixtures import create_bot, create_handler, create_memory_cache, create_core
+from discord.ext.antispam import Options, LogicError
+from .fixtures import (
+    create_bot,
+    create_handler,
+    create_memory_cache,
+    create_core,
+    MockClass,
+)
 from .mocks import MockedMessage
 
 
+# noinspection DuplicatedCode
 class TestCore:
     """A class devoted to testing core.py"""
 
@@ -187,3 +196,132 @@ class TestCore:
 
         assert member.duplicate_counter == 1
         assert message.is_duplicate is False
+
+    @pytest.mark.asyncio
+    async def test_propagate_no_punish(self, create_core):
+        await create_core.cache.set_guild(Guild(1, Options()))
+        member = Member(1, 1)
+        await create_core.cache.set_member(member)
+        create_core._increment_duplicate_count(member, 1, 15)
+
+        create_core.options.no_punish = True
+        guild = await create_core.cache.get_guild(1)
+        return_data = await create_core.propagate_user(
+            MockedMessage(guild_id=1, author_id=1).to_mock(), guild
+        )
+        assert return_data == CorePayload(
+            member_should_be_punished_this_message=True,
+            member_status="Member should be punished, however, was not due to no_punish being True",
+        )
+
+    @pytest.mark.asyncio
+    async def test_propagate_warn_only(self, create_core):
+        member = Member(1, 1)
+        await create_core.cache.set_member(member)
+        create_core._increment_duplicate_count(member, 1, 15)
+        guild = await create_core.cache.get_guild(1)
+
+        create_core.options.warn_only = True
+        return_data = await create_core.propagate_user(
+            MockedMessage(guild_id=1, author_id=1).to_mock(), guild
+        )
+        assert return_data == CorePayload(
+            member_should_be_punished_this_message=True,
+            member_status="Member was warned",
+            member_was_warned=True,
+            member_warn_count=1,
+            member_duplicate_count=15,
+        )
+
+        # Test embed coverage
+        create_core.options.guild_warn_message = {"title": "test"}
+        return_data = await create_core.propagate_user(
+            MockedMessage(guild_id=1, author_id=1, message_id=2).to_mock(), guild
+        )
+        assert return_data == CorePayload(
+            member_should_be_punished_this_message=True,
+            member_status="Member was warned",
+            member_was_warned=True,
+            member_warn_count=2,
+            member_duplicate_count=16,
+        )
+
+    @pytest.mark.asyncio
+    async def test_propagate_kicks(self, create_core):
+        member = Member(1, 1)
+        member.warn_count = 3
+        create_core._increment_duplicate_count(member, 1, 7)
+        await create_core.cache.set_member(member)
+        guild = await create_core.cache.get_guild(1)
+
+        return_data = await create_core.propagate_user(
+            MockedMessage(guild_id=1, author_id=1).to_mock(), guild
+        )
+        assert return_data == CorePayload(
+            member_should_be_punished_this_message=True,
+            member_status="Member was kicked",
+            member_was_kicked=True,
+            member_warn_count=3,
+            member_kick_count=1,
+            member_duplicate_count=7,
+        )
+
+    @pytest.mark.asyncio
+    async def test_propagate_bans(self, create_core):
+        member = Member(1, 1)
+        member.warn_count = 3
+        member.kick_count = 3
+        create_core._increment_duplicate_count(member, 1, 7)
+        await create_core.cache.set_member(member)
+        guild = await create_core.cache.get_guild(1)
+
+        return_data = await create_core.propagate_user(
+            MockedMessage(guild_id=1, author_id=1).to_mock(), guild
+        )
+        assert return_data == CorePayload(
+            member_should_be_punished_this_message=True,
+            member_status="Member was banned",
+            member_was_banned=True,
+            member_warn_count=3,
+            member_kick_count=4,
+            member_duplicate_count=7,
+        )
+
+    def test_create_message_raises(self, create_core):
+        message = MockedMessage().to_mock()
+        message.content = None
+        message.embeds = None
+
+        with pytest.raises(LogicError):
+            create_core._create_message(message)
+
+        with pytest.raises(LogicError):
+            # Test embeds that ain't embeds raise
+            message.embeds = [MockClass()]
+            create_core._create_message(message)
+
+        with pytest.raises(LogicError):
+            # test embed type raises
+            embed = discord.Embed()
+            embed.type = "Not rich"
+            message.embeds = [embed]
+            create_core._create_message(message)
+
+    def test_create_message_blank_space(self, create_core):
+        message = MockedMessage(
+            message_clean_content=u"u200Bu200Cu200Du200Eu200FuFEFF Hi"
+        ).to_mock()
+
+        returned_message = create_core._create_message(message)
+        assert returned_message.content == " Hi"
+
+        create_core.options.delete_zero_width_chars = False
+        returned_message = create_core._create_message(message)
+        assert returned_message.content == u"u200Bu200Cu200Du200Eu200FuFEFF Hi"
+
+    def test_create_message_embed(self, create_core):
+        embed = discord.Embed(title="Hello", description="world")
+        mock = MockedMessage(message_clean_content=None, message_content=None).to_mock()
+        mock.embeds = [embed]
+        message = create_core._create_message(mock)
+        assert message.content == "Hello\nworld\n"
