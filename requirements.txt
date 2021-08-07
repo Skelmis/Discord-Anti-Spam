@@ -17,6 +17,6 @@ pytest-asyncio
 discord.py
 hypothesis
 
-Sphinx~=4.0.2
+Sphinx
 attrs==21.2.0
 setuptools==57.0.0
