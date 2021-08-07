@@ -6,7 +6,7 @@ import pytest
 
 from discord.ext.antispam.dataclasses import Guild, Member, CorePayload, Message
 
-from discord.ext.antispam import Options, LogicError
+from discord.ext.antispam import Options, LogicError, MissingGuildPermissions
 from .fixtures import (
     create_bot,
     create_handler,
@@ -325,3 +325,57 @@ class TestCore:
         mock.embeds = [embed]
         message = create_core._create_message(mock)
         assert message.content == "Hello\nworld\n"
+
+    @pytest.mark.asyncio
+    async def test_punish_member_raises(self, create_core):
+        with pytest.raises(MissingGuildPermissions):
+            # Test kick has kick perms
+            message = MockedMessage(author_id=1, guild_id=1).to_mock()
+            message.guild.me.guild_permissions.kick_members = False
+            await create_core._punish_member(
+                message,
+                Member(1, 1),
+                Guild(1, Options()),
+                "test user",
+                "test guild",
+                True,
+            )
+
+        with pytest.raises(MissingGuildPermissions):
+            # Test ban has ban perms
+            message = MockedMessage(author_id=1, guild_id=1).to_mock()
+            message.guild.me.guild_permissions.ban_members = False
+            await create_core._punish_member(
+                message,
+                Member(1, 1),
+                Guild(1, Options()),
+                "test user",
+                "test guild",
+                False,
+            )
+
+        with pytest.raises(MissingGuildPermissions):
+            # Check errors on guild owner
+            message = MockedMessage(author_id=1, guild_id=1).to_mock()
+            message.guild.owner_id = 1
+
+            await create_core._punish_member(
+                message,
+                Member(1, 1),
+                Guild(1, Options()),
+                "test user",
+                "test guild",
+                True,
+            )
+
+    @pytest.mark.asyncio
+    async def test_punish_member(self, create_core):
+        """Adds test coverage"""
+        await create_core._punish_member(
+            MockedMessage(author_id=1, guild_id=1).to_mock(),
+            Member(1, 1),
+            Guild(1, Options()),
+            "test user",
+            "test guild",
+            True,
+        )
