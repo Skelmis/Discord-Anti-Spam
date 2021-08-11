@@ -4,7 +4,7 @@ import discord
 
 from .dataclasses import CorePayload
 
-class BaseExtension:
+class BasePlugin:
     def __init__(self, is_pre_invoke=True) -> None:
         self.is_pre_invoke = is_pre_invoke
 

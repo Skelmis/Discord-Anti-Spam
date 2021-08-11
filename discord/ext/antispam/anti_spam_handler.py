@@ -45,7 +45,7 @@ from .exceptions import (
     GuildNotFound,
 )
 from .factory import FactoryBuilder
-from .base_extension import BaseExtension
+from .base_plugin import BasePlugin
 
 
 log = logging.getLogger(__name__)
@@ -742,12 +742,12 @@ class AntiSpamHandler:
         Notes
         -----
         This must be a class instance, and must
-        subclass ``BaseExtension``
+        subclass ``BasePlugin``
         """
-        if not issubclass(type(extension), BaseExtension):
+        if not issubclass(type(extension), BasePlugin):
             log.debug("Failed to load extension due to class type issues")
             raise ExtensionError(
-                "Expected extension that subclassed BaseExtension and was a class instance not class reference"
+                "Expected extension that subclassed BasePlugin and was a class instance not class reference"
             )
 
         is_pre_invoke = getattr(extension, "is_pre_invoke", True)

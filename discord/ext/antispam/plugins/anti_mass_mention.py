@@ -7,7 +7,7 @@ from attr import asdict
 import discord  # noqa
 
 from discord.ext.antispam.exceptions import MemberNotFound  # noqa
-from discord.ext.antispam.base_extension import BaseExtension  # noqa
+from discord.ext.antispam.base_plugin import BasePlugin  # noqa
 from discord.ext.antispam.plugin_cache import PluginCache  # noqa
 from discord.ext.antispam import AntiSpamHandler, GuildNotFound  # noqa
 

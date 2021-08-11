@@ -31,7 +31,7 @@ import discord  # noqa
 import typing
 
 from discord.ext.antispam import AntiSpamHandler  # noqa
-from discord.ext.antispam.base_extension import BaseExtension  # noqa
+from discord.ext.antispam.base_plugin import BasePlugin  # noqa
 from discord.ext.antispam.dataclasses import Guild, Member  # noqa
 from discord.ext.antispam.exceptions import (  # noqa
     MemberNotFound,  # noqa
