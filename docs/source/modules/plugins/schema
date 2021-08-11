@@ -14,9 +14,9 @@ Pre-invoke Schema
 .. code-block:: python
     :linenos:
 
-    from antispam import BaseExtension
+    from antispam import BasePlugin
 
-    class Placeholder(BaseExtension):
+    class Placeholder(BasePlugin):
         def __init__(self):
             self.is_pre_invoke = True
 
@@ -32,9 +32,9 @@ After-invoke Schema
 .. code-block:: python
     :linenos:
 
-    from antispam import BaseExtension
+    from antispam import BasePlugin
 
-    class Placeholder(BaseExtension):
+    class Placeholder(BasePlugin):
         def __init__(self):
             self.is_pre_invoke = False
 
