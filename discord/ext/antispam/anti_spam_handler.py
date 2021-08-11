@@ -36,7 +36,7 @@ from discord.ext import commands
 
 from .abc import Cache
 from .core import Core
-from .dataclasses import Guild, Options
+from .dataclasses import Guild, Options, CorePayload
 from .caches import Memory
 from .enums import IgnoreType, ResetType
 from .exceptions import (
@@ -220,7 +220,7 @@ class AntiSpamHandler:
 
         log.info("Package initialized successfully")
 
-    async def propagate(self, message: discord.Message) -> Optional[dict]:
+    async def propagate(self, message: discord.Message) -> Optional[Union[CorePayload, dict]]:
         """
         This method is the base level intake for messages, then
         propagating it out to the relevant guild or creating one
@@ -315,6 +315,12 @@ class AntiSpamHandler:
             pre_invoke_extensions[
                 pre_invoke_ext.__class__.__name__
             ] = pre_invoke_return
+
+            try:
+                if pre_invoke_return.get("cancel_next_invocation"):
+                    return pre_invoke_extensions
+            except:
+                pass
 
         main_return = await self.core.propagate(message, guild=guild)
         main_return.pre_invoke_extensions = pre_invoke_extensions
