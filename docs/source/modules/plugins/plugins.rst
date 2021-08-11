@@ -41,5 +41,5 @@ Call Stack
     * If any pre-invoke extension has returned a True value for ``cancel_next_invocation``
       then this method, and any after_invoke extensions will not be called.
 * Run all after-invoke extensions
-    * After-invoke extensions get output from both ``AntiSpamHandler``
+    * After_invoke extensions get output from both ``AntiSpamHandler``
       and all pre-invoke extensions as a method argument
