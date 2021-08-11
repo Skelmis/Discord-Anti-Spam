@@ -20,7 +20,7 @@ from discord.ext.antispam.enums import IgnoreType, ResetType
 
 from discord.ext.antispam.dataclasses import Guild, Member
 
-from discord.ext.antispam.base_extension import BaseExtension
+from discord.ext.antispam.base_plugin import BasePlugin
 from .fixtures import create_bot, create_handler, MockClass
 from .mocks import MockedMessage
 
@@ -395,7 +395,7 @@ class TestExceptions:
         with pytest.raises(ExtensionError):
             create_handler.register_extension(MockClass())
 
-        class Test(BaseExtension):
+        class Test(BasePlugin):
             def __init__(self, invoke=True):
                 self.is_pre_invoke = invoke
 
@@ -414,7 +414,7 @@ class TestExceptions:
         assert len(create_handler.after_invoke_extensions.values()) == 1
 
     def test_unregister_extension(self, create_handler: AntiSpamHandler):
-        class Test(BaseExtension):
+        class Test(BasePlugin):
             def __init__(self, invoke=True):
                 self.is_pre_invoke = invoke
 
@@ -525,7 +525,7 @@ class TestExceptions:
         bot.user.id = 919191
         create_handler = AntiSpamHandler(bot)
 
-        class PreInvoke(BaseExtension):
+        class PreInvoke(BasePlugin):
             async def propagate(self, msg):
                 return 1
 
@@ -534,8 +534,8 @@ class TestExceptions:
         message = MockedMessage().to_mock()
         return_data = await create_handler.propagate(message)
 
-        assert len(return_data["pre_invoke_extensions"]) == 1
-        assert return_data["pre_invoke_extensions"]["PreInvoke"] == 1
+        assert len(return_data.pre_invoke_extensions) == 1
+        assert return_data.pre_invoke_extensions["PreInvoke"] == 1
 
     @pytest.mark.asyncio
     async def test_propagate_after_invoke(self):
@@ -543,7 +543,7 @@ class TestExceptions:
         bot.user.id = 919191
         create_handler = AntiSpamHandler(bot)
 
-        class AfterInvoke(BaseExtension):
+        class AfterInvoke(BasePlugin):
             def __init__(self):
                 super().__init__(False)
 
@@ -555,8 +555,8 @@ class TestExceptions:
         message = MockedMessage().to_mock()
         return_data = await create_handler.propagate(message)
 
-        assert len(return_data["after_invoke_extensions"]) == 1
-        assert return_data["after_invoke_extensions"]["AfterInvoke"] == 2
+        assert len(return_data.after_invoke_extensions) == 1
+        assert return_data.after_invoke_extensions["AfterInvoke"] == 2
 
     @pytest.mark.asyncio
     async def test_propagate_role_raises(self):

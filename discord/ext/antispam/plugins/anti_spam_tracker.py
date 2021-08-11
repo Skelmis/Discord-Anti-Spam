@@ -45,7 +45,7 @@ from discord.ext.antispam.util import get_aware_time  # noqa
 log = logging.getLogger(__name__)
 
 
-class AntiSpamTracker(PluginCache):  # noqa
+class AntiSpamTracker(BasePlugin):  # noqa
     """
     A class devoted to people who want to handle punishments themselves.
 

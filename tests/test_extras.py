@@ -1,6 +1,6 @@
 import pytest
 
-from discord.ext.antispam.base_extension import BaseExtension  # noqa
+from discord.ext.antispam.base_plugin import BasePlugin  # noqa
 
 from discord.ext.antispam.enums.state import ASHEnum
 from tests.mocks import MockedMessage
@@ -9,13 +9,13 @@ from tests.mocks import MockedMessage
 
 
 def test_base_init():
-    b = BaseExtension()
-    assert type(b) == BaseExtension
+    b = BasePlugin()
+    assert type(b) == BasePlugin
 
 
 @pytest.mark.asyncio
 async def test_base_prop():
-    b = BaseExtension()
+    b = BasePlugin()
     c = await b.propagate(MockedMessage().to_mock())
     assert c is None
 
