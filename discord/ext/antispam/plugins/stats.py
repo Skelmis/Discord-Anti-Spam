@@ -34,8 +34,6 @@ class Stats(PluginCache):
     async def propagate(
         self, message: discord.Message, data: typing.Optional[dict] = None
     ) -> dict:
-        # TODO That dict type might be wrong now?
-
         for invoker in self.handler.pre_invoke_extensions.keys():
             try:
                 self.data["pre_invoke_calls"][invoker]["calls"] += 1

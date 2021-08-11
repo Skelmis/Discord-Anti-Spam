@@ -17,7 +17,6 @@ class FactoryBuilder:
             id=guild_data["id"], options=Options(**guild_data["options"])
         )
 
-        # TODO Change save_to_dict to use "members" NOT "users"
         for member in guild_data["members"]:
             guild.members[member["id"]] = FactoryBuilder.create_member_from_dict(member)
 

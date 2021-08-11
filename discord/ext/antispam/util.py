@@ -34,9 +34,6 @@ import discord
 A short utility for random functions which don't fit into an object
 """
 
-# TODO Type this file
-# TODO Change user -> member
-
 
 def embed_to_string(embed: discord.Embed) -> str:
     """
