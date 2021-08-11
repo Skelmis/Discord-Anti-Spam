@@ -308,24 +308,24 @@ class AntiSpamHandler:
             await self.cache.set_guild(guild)
             log.info(f"Created Guild: {guild.id}")
 
-        data = {"pre_invoke_extensions": {}, "after_invoke_extensions": {}}
+        pre_invoke_extensions = {}
 
         for pre_invoke_ext in self.pre_invoke_extensions.values():
             pre_invoke_return = await pre_invoke_ext.propagate(message)
-            data["pre_invoke_extensions"][
+            pre_invoke_extensions[
                 pre_invoke_ext.__class__.__name__
             ] = pre_invoke_return
 
         main_return = await self.core.propagate(message, guild=guild)
-        main_return = asdict(main_return)
+        main_return.pre_invoke_extensions = pre_invoke_extensions
 
         for after_invoke_ext in self.after_invoke_extensions.values():
             after_invoke_return = await after_invoke_ext.propagate(message, main_return)
-            data["after_invoke_extensions"][
+            main_return.after_invoke_extensions[
                 after_invoke_ext.__class__.__name__
             ] = after_invoke_return
 
-        return {**main_return, **data}
+        return main_return
 
     def add_ignored_item(self, item: int, ignore_type: IgnoreType) -> None:
         """

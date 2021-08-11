@@ -1,5 +1,7 @@
 import attr
 
+from typing import Dict, Any
+
 
 @attr.s
 class CorePayload:
@@ -15,3 +17,6 @@ class CorePayload:
 
     # Per channel things
     # TODO Add per channel returns
+
+    pre_invoke_extensions: Dict[str, Any] = attr.ib(default=attr.Factory(dict))
+    after_invoke_extensions: Dict[str, Any] = attr.ib(default=attr.Factory(dict))
