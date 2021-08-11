@@ -37,7 +37,7 @@ from discord.ext import commands
 from .abc import Cache
 from .core import Core
 from .dataclasses import Guild, Options, CorePayload
-from .caches import Memory
+from .caches import MemoryCache
 from .enums import IgnoreType, ResetType
 from .exceptions import (
     MissingGuildPermissions,
@@ -207,7 +207,7 @@ class AntiSpamHandler:
                 "mutually exclusive."
             )
 
-        cache = cache or Memory(self)
+        cache = cache or MemoryCache(self)
         if not issubclass(type(cache), Cache):
             raise ValueError("Expected `cache` that inherits from the `Cache` Protocol")
 

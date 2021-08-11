@@ -7,8 +7,7 @@ from ...enums.state import ASHEnum
 from ...exceptions import GuildNotFound, MemberNotFound
 
 
-# TODO Memory -> MemoryCache here and in docs
-class Memory(Cache):
+class MemoryCache(Cache):
     def __init__(self, handler):
         self.handler = handler
         self.cache = {}
