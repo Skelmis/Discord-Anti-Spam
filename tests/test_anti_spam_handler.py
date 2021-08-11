@@ -557,3 +557,15 @@ class TestExceptions:
 
         assert len(return_data["after_invoke_extensions"]) == 1
         assert return_data["after_invoke_extensions"]["AfterInvoke"] == 2
+
+    @pytest.mark.asyncio
+    async def test_propagate_role_raises(self):
+        bot = AsyncMock()
+        bot.user.id = 919191
+        create_handler = AntiSpamHandler(bot)
+
+        create_handler.options.ignored_roles.add(252525)
+
+        message = MockedMessage().to_mock()
+        return_data = await create_handler.propagate(message)
+        assert return_data["status"] == "Ignoring this role: 252525"

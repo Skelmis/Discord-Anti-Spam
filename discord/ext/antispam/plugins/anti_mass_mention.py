@@ -46,7 +46,7 @@ class Tracking:
     timestamp: datetime.datetime = attr.ib()
 
 
-class AntiMassMention(BaseExtension):
+class AntiMassMention(PluginCache):
     """A simple class used to track mentions"""
 
     def __init__(

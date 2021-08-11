@@ -220,7 +220,9 @@ class AntiSpamHandler:
 
         log.info("Package initialized successfully")
 
-    async def propagate(self, message: discord.Message) -> Optional[Union[CorePayload, dict]]:
+    async def propagate(
+        self, message: discord.Message
+    ) -> Optional[Union[CorePayload, dict]]:
         """
         This method is the base level intake for messages, then
         propagating it out to the relevant guild or creating one
@@ -312,12 +314,23 @@ class AntiSpamHandler:
 
         for pre_invoke_ext in self.pre_invoke_extensions.values():
             pre_invoke_return = await pre_invoke_ext.propagate(message)
-            pre_invoke_extensions[
-                pre_invoke_ext.__class__.__name__
-            ] = pre_invoke_return
+            pre_invoke_extensions[pre_invoke_ext.__class__.__name__] = pre_invoke_return
 
             try:
                 if pre_invoke_return.get("cancel_next_invocation"):
+                    stats = self.after_invoke_extensions.get("stats")
+                    if stats:
+                        if hasattr(stats, "injectable_nonce"):
+                            # Increment stats for invocation call stats
+                            try:
+                                stats.data["pre_invoke_calls"][pre_invoke_ext][
+                                    "cancel_next_invocation_calls"
+                                ] += 1
+                            except KeyError:
+                                stats.data["pre_invoke_calls"][pre_invoke_ext][
+                                    "cancel_next_invocation_calls"
+                                ] = 1
+
                     return pre_invoke_extensions
             except:
                 pass
