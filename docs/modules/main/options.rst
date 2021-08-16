@@ -15,5 +15,5 @@ Options can be set in two ways:
  .. autoclass:: Options
      :members:
      :undoc-members:
-     :special-members:
+     :special-members: __init__
  

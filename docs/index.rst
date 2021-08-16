@@ -10,28 +10,29 @@ Welcome to DPY Anti-Spam's documentation!
    :maxdepth: 2
    :caption: Main Interface:
 
-   modules/main/core.rst
-   modules/main/caches.rst
    modules/main/main.rst
    modules/main/options.rst
+   modules/main/caches.rst
+   modules/main/core.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Plugin Framework
 
    modules/plugins/plugins.rst
+   modules/plugins/schema.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Object Reference:
 
+   modules/objects/objects.rst
    modules/objects/abc.rst
    modules/objects/exceptions.rst
    modules/objects/guild.rst
    modules/objects/member.rst
    modules/objects/memory.rst
    modules/objects/message.rst
-   modules/objects/objects.rst
    modules/objects/redis.rst
 
 Install Notes
