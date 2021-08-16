@@ -1,11 +1,10 @@
 Message Reference
 =================
 
-*
-You should not be creating this object yourself.
+
+*You should not be creating this object yourself.
 It is just useful to understand how they work for say,
-plugin development.
-*
+plugin development.*
 
 Internally the Message object just takes a few attributes
 from ``discord.Message`` and stores them in a smaller object
@@ -17,4 +16,4 @@ for internal reasons.
 .. autoclass:: Message
     :members:
     :undoc-members:
-    :special-members:
+    :special-members: __init__
