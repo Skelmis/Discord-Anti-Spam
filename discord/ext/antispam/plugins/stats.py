@@ -1,9 +1,11 @@
 import discord
 import typing
-from discord.ext.antispam import PluginCache, AntiSpamHandler  # noqa
+from discord.ext.antispam import AntiSpamHandler  # noqa
+
+from discord.ext.antispam.base_plugin import BasePlugin
 
 
-class Stats(PluginCache):
+class Stats(BasePlugin):
     """
     A simplistic approach to aggregating statistics
     across the anti spam package.
