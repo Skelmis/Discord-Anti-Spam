@@ -31,7 +31,7 @@ import typing
 
 from discord.ext.antispam import AntiSpamHandler  # noqa
 from discord.ext.antispam.base_plugin import BasePlugin  # noqa
-from discord.ext.antispam.dataclasses import Guild, Member  # noqa
+from discord.ext.antispam.dataclasses import Guild, Member, CorePayload  # noqa
 from discord.ext.antispam.exceptions import (  # noqa
     MemberNotFound,  # noqa
     GuildNotFound,  # noqa
@@ -149,7 +149,7 @@ class AntiSpamTracker(BasePlugin):  # noqa
         log.info("AntiSpamTracker is initialized and ready to go")
 
     async def propagate(
-        self, message: discord.Message, data: typing.Optional[dict] = None
+        self, message: discord.Message, data: typing.Optional[CorePayload] = None
     ) -> dict:
         """
         Overwrite the base extension to call ``update_cache``
@@ -158,7 +158,7 @@ class AntiSpamTracker(BasePlugin):  # noqa
         await self.update_cache(message, data)
         return {"status": "Cache updated"}
 
-    async def update_cache(self, message: discord.Message, data: dict) -> None:
+    async def update_cache(self, message: discord.Message, data: CorePayload) -> None:
         """
         Takes the data returned from `propagate`
         and updates this Class's internal cache
@@ -167,14 +167,14 @@ class AntiSpamTracker(BasePlugin):  # noqa
         ----------
         message : discord.Message
             The message related to `data's` propagation
-        data : dict
+        data : CorePayload
             The data returned from `propagate`
         """
         if not isinstance(message, (discord.Message, AsyncMock)):
             raise TypeError("Expected message of type: discord.Message")
 
-        if not isinstance(data, dict):
-            raise TypeError("Expected data of type: dict")
+        if not isinstance(data, CorePayload):
+            raise TypeError("Expected data of type: CorePayload")
 
         if not message.guild:
             return
@@ -183,7 +183,7 @@ class AntiSpamTracker(BasePlugin):  # noqa
         guild_id = message.guild.id
         timestamp = get_aware_time()
 
-        if not data.get("member_should_be_punished_this_message"):
+        if not data.member_should_be_punished_this_message:
             # They shouldn't be punished so don't increase cache
             return
 

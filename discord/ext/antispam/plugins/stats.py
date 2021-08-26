@@ -34,7 +34,7 @@ class Stats(BasePlugin):
         self.handler = anti_spam_handler
 
     async def propagate(
-        self, message: discord.Message, data: typing.Optional[dict] = None
+        self, message: discord.Message, data: typing.Optional[CorePayload] = None
     ) -> dict:
         for invoker in self.handler.pre_invoke_extensions.keys():
             try:
