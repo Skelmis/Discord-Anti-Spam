@@ -4,6 +4,8 @@ from discord.ext.antispam import AntiSpamHandler  # noqa
 
 from discord.ext.antispam.base_plugin import BasePlugin
 
+from discord.ext.antispam.dataclasses import CorePayload
+
 
 class Stats(BasePlugin):
     """
@@ -62,7 +64,7 @@ class Stats(BasePlugin):
 
         self.data["members"][message.author.id]["calls"] += 1
 
-        if data["should_be_punished_this_message"]:
+        if data.should_be_punished_this_message:
             self.data["members"][message.author.id]["times_punished"] += 1
             self.data["guilds"][message.guild.id]["times_punished"] += 1
 
