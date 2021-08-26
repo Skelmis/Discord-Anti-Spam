@@ -341,10 +341,6 @@ class Core:
                 )
 
         except discord.HTTPException:
-            await dc_channel.send(
-                f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
-                delete_after=channel_delete_after,
-            )
             await self.send_guild_log(
                 guild=internal_guild,
                 message=f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
@@ -376,10 +372,6 @@ class Core:
         except discord.HTTPException:
             member._in_guild = True
             member.kick_count -= 1
-            await dc_channel.send(
-                f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
-                delete_after=channel_delete_after,
-            )
             await self.send_guild_log(
                 guild=internal_guild,
                 message=f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
@@ -420,25 +412,14 @@ class Core:
 
         else:
             try:
-                if isinstance(guild_message, discord.Embed):
-                    await dc_channel.send(
-                        embed=guild_message,
-                        delete_after=channel_delete_after,
-                    )
-                else:
-                    await dc_channel.send(
-                        guild_message,
-                        delete_after=channel_delete_after,
-                    )
                 await self.send_guild_log(
                     guild=internal_guild,
                     message=guild_message,
                 )
             except discord.HTTPException:
                 log.error(
-                    f"Failed to send message.\n"
+                    f"Failed to send log message.\n"
                     f"Guild: {dc_channel.guild.name}({dc_channel.guild.id})\n"
-                    f"Channel: {dc_channel.name}({dc_channel.id})"
                 )
 
         member._in_guild = True
