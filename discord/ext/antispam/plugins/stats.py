@@ -55,7 +55,7 @@ class Stats(BasePlugin):
         if message.guild.id not in self.data["guilds"]:
             self.data["guilds"][message.guild.id] = {"calls": 0, "messages_punished": 0}
 
-        self.data[message.guild.id]["calls"] += 1
+        self.data["guilds"][message.guild.id]["calls"] += 1
 
         if message.author.id not in self.data["members"]:
             self.data["members"][message.author.id] = {"calls": 0, "times_punished": 0}
