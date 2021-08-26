@@ -294,7 +294,7 @@ class Core:
         guild = original_message.guild
         author = original_message.author
 
-        dc_channel = internal_guild.log_channel or original_message.channel
+        dc_channel = original_message.channel
 
         # Check we have perms to punish
         perms = guild.me.guild_permissions
@@ -341,10 +341,13 @@ class Core:
                 )
 
         except discord.HTTPException:
-            # TODO Make this use options log channel
             await dc_channel.send(
                 f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
                 delete_after=channel_delete_after,
+            )
+            await self.send_guild_log(
+                guild=internal_guild,
+                message=f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
             )
             log.warning(
                 f"Failed to message User: ({author.id}) about {'kick' if is_kick else 'ban'}"
@@ -376,6 +379,10 @@ class Core:
             await dc_channel.send(
                 f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
                 delete_after=channel_delete_after,
+            )
+            await self.send_guild_log(
+                guild=internal_guild,
+                message=f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
             )
             log.warning(
                 f"An error occurred trying to {'kick' if is_kick else 'ban'}: {member.id}"
@@ -423,6 +430,10 @@ class Core:
                         guild_message,
                         delete_after=channel_delete_after,
                     )
+                await self.send_guild_log(
+                    guild=internal_guild,
+                    message=guild_message,
+                )
             except discord.HTTPException:
                 log.error(
                     f"Failed to send message.\n"
@@ -606,3 +617,34 @@ class Core:
             log.warning(
                 "Failed to de-increment duplicate count as the channel id doesnt exist"
             )
+
+    async def send_guild_log(
+        self, guild: Guild, message: Union[str, discord.Embed]
+    ) -> None:
+        """
+        Sends a message to the guilds log channel
+
+        Parameters
+        ----------
+        guild : Guild
+            The guild we wish to send this too
+        message : Union[str, discord.Embed]
+            What to send to the guilds log channel
+        """
+        if not guild.log_channel:
+            log.debug("%s has no log channel set", str(guild.id))
+            return
+
+        channel = guild.log_channel
+
+        if isinstance(channel, int):
+            channel = self.handler.bot.get_channel(channel)
+            if not channel:
+                channel = await self.handler.bot.fetch_channel(channel)
+
+        if isinstance(message, str):
+            await channel.send(message)
+        else:
+            await channel.send(embed=message)
+
+        log.debug("Sent message to log channel in %s", str(guild.id))
