@@ -26,7 +26,13 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Skelmis/DPY-Anti-Spam",
-    packages=["discord/ext/antispam"],
+    packages=[
+        "discord.ext.antispam",
+        "discord.ext.antispam.caches",
+        "discord.ext.antispam.dataclasses",
+        "discord.ext.antispam.enums",
+        "discord.ext.antispam.plugins",
+    ],
     install_requires=["fuzzywuzzy>=0.18", "discord.py>=1", "attrs"],
     classifiers=[
         "Programming Language :: Python :: 3",
