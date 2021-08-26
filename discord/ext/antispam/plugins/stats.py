@@ -64,7 +64,7 @@ class Stats(BasePlugin):
 
         self.data["members"][message.author.id]["calls"] += 1
 
-        if data.should_be_punished_this_message:
+        if data.member_should_be_punished_this_message:
             self.data["members"][message.author.id]["times_punished"] += 1
             self.data["guilds"][message.guild.id]["times_punished"] += 1
 
