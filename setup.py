@@ -1,6 +1,6 @@
 import re
 
-import setuptools
+from distutils.core import setup
 
 
 with open("readme.md", "r") as fh:
@@ -17,7 +17,7 @@ try:
 except FileNotFoundError:
     version = "0.0.0"
 
-setuptools.setup(
+setup(
     name="Discord Anti-Spam",
     version=version,
     author="Skelmis",
@@ -26,7 +26,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Skelmis/DPY-Anti-Spam",
-    packages=["discord.ext.antispam"],
+    packages=["discord/ext/antispam"],
     install_requires=["fuzzywuzzy>=0.18", "discord.py>=1", "attrs"],
     classifiers=[
         "Programming Language :: Python :: 3",
