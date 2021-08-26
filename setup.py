@@ -29,6 +29,7 @@ setup(
     packages=[
         "discord.ext.antispam",
         "discord.ext.antispam.caches",
+        "discord.ext.antispam.caches.memory",
         "discord.ext.antispam.dataclasses",
         "discord.ext.antispam.enums",
         "discord.ext.antispam.plugins",
