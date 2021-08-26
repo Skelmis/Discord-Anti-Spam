@@ -31,9 +31,9 @@ author = "Skelmis"
 # extensions coming with Sphinx (named 'sphinx.plugins.*') or your custom
 # ones.
 extensions = [
-    "sphinx.plugins.autodoc",
-    "sphinx.plugins.coverage",
-    "sphinx.plugins.napoleon",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.coverage",
+    "sphinx.ext.napoleon",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

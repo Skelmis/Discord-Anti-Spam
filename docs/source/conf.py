@@ -31,8 +31,8 @@ author = "Skelmis"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.plugins.autodoc",
-    "sphinx.plugins.napoleon",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
 ]
 
 
