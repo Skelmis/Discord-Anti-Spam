@@ -563,15 +563,15 @@ class AntiSpamHandler:
 
         Notes
         -----
-        Not setting a log channel means it will default
-        to ``ctx.channel``
+        Not setting a log channel means it will
+        not send any punishment messages
         """
         if not isinstance(log_channel, (int, discord.TextChannel)):
             raise ValueError("Expected log_channel with correct type")
 
         if isinstance(log_channel, int):
             # Store as obj
-            log_channel = await self.bot.fetch_channel(channel_id=log_channel)
+            log_channel = await self.bot.fetch_channel(log_channel)
 
         try:
             guild = await self.cache.get_guild(log_channel.guild.id)

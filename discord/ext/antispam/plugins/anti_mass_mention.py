@@ -37,6 +37,7 @@ class MassMentionPunishment:
 
     member_id: int = attr.ib()
     guild_id: int = attr.ib()
+    channel_id: int = attr.ib()
     is_overall_punishment: bool = attr.ib()
 
 
@@ -113,7 +114,7 @@ class AntiMassMention(BasePlugin):
         member_id = message.author.id
         guild_id = message.guild.id
 
-        log.debug(f"Propagating message for {member_id}, guild:{guild_id}")
+        log.debug(f"Propagating message for {member_id}, guild: {guild_id}")
 
         try:
             member = await self.data.get_member_data(member_id, guild_id)
@@ -144,6 +145,7 @@ class AntiMassMention(BasePlugin):
             payload = MassMentionPunishment(
                 member_id=member_id,
                 guild_id=guild_id,
+                channel_id=message.channel.id,
                 is_overall_punishment=False,
             )
             self.bot.dispatch(
@@ -163,6 +165,7 @@ class AntiMassMention(BasePlugin):
             payload = MassMentionPunishment(
                 member_id=member_id,
                 guild_id=guild_id,
+                channel_id=message.channel.id,
                 is_overall_punishment=True,
             )
             self.bot.dispatch(
