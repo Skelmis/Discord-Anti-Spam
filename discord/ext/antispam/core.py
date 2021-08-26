@@ -344,6 +344,7 @@ class Core:
             await self.send_guild_log(
                 guild=internal_guild,
                 message=f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
+                delete_after_time=channel_delete_after,
             )
             log.warning(
                 f"Failed to message User: ({author.id}) about {'kick' if is_kick else 'ban'}"
@@ -375,6 +376,7 @@ class Core:
             await self.send_guild_log(
                 guild=internal_guild,
                 message=f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
+                delete_after_time=channel_delete_after,
             )
             log.warning(
                 f"An error occurred trying to {'kick' if is_kick else 'ban'}: {member.id}"
@@ -415,6 +417,7 @@ class Core:
                 await self.send_guild_log(
                     guild=internal_guild,
                     message=guild_message,
+                    delete_after_time=channel_delete_after,
                 )
             except discord.HTTPException:
                 log.error(
@@ -600,7 +603,10 @@ class Core:
             )
 
     async def send_guild_log(
-        self, guild: Guild, message: Union[str, discord.Embed]
+        self,
+        guild: Guild,
+        message: Union[str, discord.Embed],
+        delete_after_time: Optional[int] = None,
     ) -> None:
         """
         Sends a message to the guilds log channel
@@ -611,6 +617,8 @@ class Core:
             The guild we wish to send this too
         message : Union[str, discord.Embed]
             What to send to the guilds log channel
+        delete_after_time : Optional[int]
+            How long to delete these messages after
         """
         if not guild.log_channel:
             log.debug("%s has no log channel set", str(guild.id))
@@ -624,7 +632,7 @@ class Core:
                 channel = await self.handler.bot.fetch_channel(channel)
 
         if isinstance(message, str):
-            await channel.send(message)
+            await channel.send(message, delete_after=delete_after_time)
         else:
             await channel.send(embed=message)
 
