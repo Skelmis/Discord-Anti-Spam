@@ -38,13 +38,13 @@ After-invoke Schema
         def __init__(self):
             self.is_pre_invoke = False
 
-        async def propagate(self, message: discord.Message, propagate_data: dict) -> dict:
+        async def propagate(self, message: discord.Message, propagate_data: CorePayload) -> dict:
             # Do your code stuff here
 
 
 The only difference between these two schema's, outside of ``self.is_pre_invoke``
 being different, is that the after-invoke method will also be given an
-extra argument which is a deepcopy of the data returned by ``propagate``
+extra argument which is the data returned by ``propagate``
 
 
 Cancelling Invocation

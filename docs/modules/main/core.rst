@@ -1,6 +1,8 @@
 CorePayload Reference
 ---------------------
 
+.. _core-payload-label:
+
 *You should not be creating this object yourself.*
 
 The CorePayload is a dataclasses which gets returned 
@@ -13,4 +15,4 @@ This is returned from the ``propagate`` method.
 .. autoclass:: CorePayload
     :members:
     :undoc-members:
-    :special-members:
+    :special-members: __init__

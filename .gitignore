@@ -9,6 +9,7 @@ notes.txt
 examples/dev.py
 .tox/
 /assets
+docs/_build
 
 # IntelliJ project files
 .idea
@@ -88,7 +89,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+new_docs/_build/
 
 # PyBuilder
 .pybuilder/

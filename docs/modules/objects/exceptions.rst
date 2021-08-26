@@ -8,4 +8,4 @@ All exceptions subclass a base exception ``BaseASHException`` which provides fun
 .. automodule:: antispam.exceptions
     :members:
     :undoc-members:
-    :special-members:
+    :special-members:  __init__
