@@ -1,4 +1,4 @@
-from typing import Set, Dict, Any
+from typing import Set, Dict, Any, Union
 
 import attr
 
@@ -23,37 +23,36 @@ class Options:
     member_kick_message_delete_after: int = attr.ib(default=None)
 
     # Strings
-    guild_warn_message: str = attr.ib(
+    guild_warn_message: Union[str, dict] = attr.ib(
         default="Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
         kw_only=True,
     )
-    guild_kick_message: str = attr.ib(
+    guild_kick_message: Union[str, dict] = attr.ib(
         default="$USERNAME was kicked for spamming/sending duplicate messages.",
         kw_only=True,
     )
-    guild_ban_message: str = attr.ib(
+    guild_ban_message: Union[str, dict] = attr.ib(
         default="$USERNAME was banned for spamming/sending duplicate messages.",
         kw_only=True,
     )
-    member_kick_message: str = attr.ib(
+    member_kick_message: Union[str, dict] = attr.ib(
         default="Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/"
         "sending duplicate messages.",
         kw_only=True,
     )
-    member_ban_message: str = attr.ib(
+    member_ban_message: Union[str, dict] = attr.ib(
         default="Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/"
         "sending duplicate messages.",
         kw_only=True,
     )
-    member_failed_kick_message: str = attr.ib(
+    member_failed_kick_message: Union[str, dict] = attr.ib(
         default="I failed to punish you because I lack permissions, but still you shouldn't spam.",
         kw_only=True,
     )
-    member_failed_ban_message: str = attr.ib(
+    member_failed_ban_message: Union[str, dict] = attr.ib(
         default="I failed to punish you because I lack permissions, but still you shouldn't spam.",
         kw_only=True,
     )
-    # TODO Implement a log channel
 
     # Sets
     ignored_members: Set[int] = attr.ib(default=attr.Factory(set))
