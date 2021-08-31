@@ -148,3 +148,11 @@ class Cache(Protocol):
         GuildNotFound
             The given guild was not found
         """
+
+
+@runtime_checkable
+class Lib(Protocol):
+    """
+    A protocol to extend and implement for any libs that wish
+    to hook into this package and work natively
+    """
