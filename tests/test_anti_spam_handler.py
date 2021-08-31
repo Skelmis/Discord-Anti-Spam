@@ -8,7 +8,7 @@ from hypothesis import given, strategies as st
 from hypothesis.strategies import text
 from discord.ext import commands  # noqa
 
-from discord.ext.antispam import (
+from antispam import (
     AntiSpamHandler,
     Options,
     GuildNotFound,
@@ -16,11 +16,11 @@ from discord.ext.antispam import (
     MissingGuildPermissions,
 )  # noqa
 
-from discord.ext.antispam.enums import IgnoreType, ResetType
+from antispam.enums import IgnoreType, ResetType
 
-from discord.ext.antispam.dataclasses import Guild, Member
+from antispam.dataclasses import Guild, Member
 
-from discord.ext.antispam.base_plugin import BasePlugin
+from antispam.base_plugin import BasePlugin
 from .fixtures import create_bot, create_handler, MockClass
 from .mocks import MockedMessage
 

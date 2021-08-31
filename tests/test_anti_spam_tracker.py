@@ -2,11 +2,11 @@ import datetime
 
 import pytest
 
-from discord.ext.antispam.plugins import AntiSpamTracker
+from antispam.plugins import AntiSpamTracker
 
-from discord.ext.antispam import PluginCache, MemberNotFound, Options
+from antispam import PluginCache, MemberNotFound, Options
 
-from discord.ext.antispam.dataclasses import Member, Guild
+from antispam.dataclasses import Member, Guild
 from .fixtures import create_anti_spam_tracker, create_handler, MockClass, create_bot
 from .mocks import MockedMessage
 

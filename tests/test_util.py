@@ -3,7 +3,7 @@ import datetime
 import discord
 
 # noinspection PyUnresolvedReferences
-from discord.ext.antispam.util import (
+from antispam.util import (
     embed_to_string,
     dict_to_embed,
     transform_message,
@@ -11,7 +11,7 @@ from discord.ext.antispam.util import (
     substitute_args,
 )
 
-from discord.ext.antispam import visualizer  # noqa
+from antispam import visualizer  # noqa
 from tests.mocks import MockedMessage
 
 

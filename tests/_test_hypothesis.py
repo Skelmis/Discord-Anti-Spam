@@ -3,7 +3,7 @@ import pytest
 from discord.ext import commands
 
 # noinspection PyUnresolvedReferences
-from discord.ext.antispam import (
+from antispam import (
     PluginCache,
     GuildNotFound,
     MemberNotFound,
@@ -13,7 +13,7 @@ from discord.ext.antispam import (
     AntiSpamHandler,
 )
 
-from discord.ext.antispam.dataclasses import Member, Guild  # noqa
+from antispam.dataclasses import Member, Guild  # noqa
 
 from hypothesis import given
 from hypothesis.strategies import text, dictionaries, floats, lists, datetimes

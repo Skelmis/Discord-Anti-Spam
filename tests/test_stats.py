@@ -1,4 +1,4 @@
-from discord.ext.antispam.plugins import Stats  # noqa
+from antispam.plugins import Stats  # noqa
 
 from .fixtures import create_bot, create_handler
 

@@ -2,14 +2,14 @@ import datetime
 
 import pytest
 
-from discord.ext.antispam.plugins.anti_mass_mention import (
+from antispam.plugins.anti_mass_mention import (
     MassMentionPunishment,
     Tracking,
 )
 
-from discord.ext.antispam.plugins import AntiMassMention
+from antispam.plugins import AntiMassMention
 
-from discord.ext.antispam.util import get_aware_time
+from antispam.util import get_aware_time
 from .fixtures import create_bot, create_handler, create_anti_mass_mention
 from .mocks import MockedMessage
 

@@ -1,5 +1,5 @@
 # noinspection PyUnresolvedReferences,PyPackageRequirements
-from discord.ext.antispam import (
+from antispam import (
     BaseASHException,
     ExtensionError,
     GuildAddonNotFound,

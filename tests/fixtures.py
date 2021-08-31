@@ -3,10 +3,10 @@ from discord.ext import commands  # noqa
 
 from discord.ext.antispam import AntiSpamHandler, PluginCache  # noqa
 
-from discord.ext.antispam.core import Core
-from discord.ext.antispam.caches import MemoryCache
+from antispam.core import Core
+from antispam.caches import MemoryCache
 
-from discord.ext.antispam.plugins import AntiMassMention, AntiSpamTracker
+from antispam.plugins import AntiMassMention, AntiSpamTracker
 
 
 class MockClass:

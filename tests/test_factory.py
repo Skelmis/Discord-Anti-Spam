@@ -3,11 +3,9 @@ import datetime
 import pytest
 from attr import asdict
 
-from discord.ext.antispam.dataclasses import Message, Member, Guild
-
-from discord.ext.antispam.factory import FactoryBuilder
-
-from discord.ext.antispam import Options
+from antispam.dataclasses import Message, Member, Guild
+from antispam.factory import FactoryBuilder
+from antispam import Options
 
 
 class TestFactory:

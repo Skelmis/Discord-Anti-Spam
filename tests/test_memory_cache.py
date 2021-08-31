@@ -1,10 +1,9 @@
 import pytest
 
-from discord.ext.antispam import GuildNotFound, Options, MemberNotFound  # noqa
+from antispam import GuildNotFound, Options, MemberNotFound  # noqa
+from antispam.dataclasses import Guild, Member, Message  # noqa
+from antispam.enums import ResetType
 
-from discord.ext.antispam.dataclasses import Guild, Member, Message  # noqa
-
-from discord.ext.antispam.enums import ResetType
 from .fixtures import create_handler, create_memory_cache, create_bot  # noqa
 
 

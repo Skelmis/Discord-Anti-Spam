@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock
 import discord
 import pytest
 
-from discord.ext.antispam.dataclasses import Guild, Member, CorePayload, Message
+from antispam.dataclasses import Guild, Member, CorePayload, Message
 
-from discord.ext.antispam import Options, LogicError, MissingGuildPermissions
+from antispam import Options, LogicError, MissingGuildPermissions
 from .fixtures import (
     create_bot,
     create_handler,
