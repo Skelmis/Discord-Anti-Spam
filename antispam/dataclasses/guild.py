@@ -1,7 +1,6 @@
 from typing import Dict, Any
 
 import attr
-import discord
 
 from .member import Member
 from .options import Options
@@ -13,9 +12,7 @@ class Guild:
 
     id: int = attr.ib(eq=True)
     options: Options = attr.ib(eq=False)
-    log_channel: discord.TextChannel = attr.ib(
-        eq=False, default=None
-    )  # TODO Change to int
+    log_channel_id: int = attr.ib(eq=False, default=None)
     members: Dict[int, Member] = attr.ib(default=attr.Factory(dict), eq=False)
 
     # So that plugins can access this data
