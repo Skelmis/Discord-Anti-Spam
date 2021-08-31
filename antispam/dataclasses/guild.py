@@ -13,7 +13,9 @@ class Guild:
 
     id: int = attr.ib(eq=True)
     options: Options = attr.ib(eq=False)
-    log_channel: discord.TextChannel = attr.ib(eq=False, default=None)
+    log_channel: discord.TextChannel = attr.ib(
+        eq=False, default=None
+    )  # TODO Change to int
     members: Dict[int, Member] = attr.ib(default=attr.Factory(dict), eq=False)
 
     # So that plugins can access this data

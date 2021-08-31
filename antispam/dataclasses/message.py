@@ -2,7 +2,7 @@ import datetime
 
 import attr
 
-from discord.ext.antispam.util import get_aware_time  # noqa
+from antispam.util import get_aware_time
 
 
 @attr.s(slots=True)

@@ -1,6 +1,5 @@
 import datetime
 import logging
-from copy import deepcopy
 from typing import Union, Optional
 
 import discord

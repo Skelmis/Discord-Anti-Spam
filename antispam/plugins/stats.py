@@ -1,10 +1,9 @@
 import discord
 import typing
-from discord.ext.antispam import AntiSpamHandler  # noqa
 
-from discord.ext.antispam.base_plugin import BasePlugin
-
-from discord.ext.antispam.dataclasses import CorePayload
+from antispam import AntiSpamHandler
+from antispam.base_plugin import BasePlugin
+from antispam.dataclasses import CorePayload
 
 
 class Stats(BasePlugin):

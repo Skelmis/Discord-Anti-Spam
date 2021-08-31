@@ -26,26 +26,25 @@ import datetime
 import logging
 from unittest.mock import AsyncMock
 
-import discord  # noqa
+import discord
 import typing
 
-from discord.ext.antispam import AntiSpamHandler  # noqa
-from discord.ext.antispam.base_plugin import BasePlugin  # noqa
-from discord.ext.antispam.dataclasses import Guild, Member, CorePayload  # noqa
-from discord.ext.antispam.exceptions import (  # noqa
-    MemberNotFound,  # noqa
-    GuildNotFound,  # noqa
-    MemberAddonNotFound,  # noqa
-    GuildAddonNotFound,  # noqa
+from antispam import AntiSpamHandler
+from antispam.base_plugin import BasePlugin
+from antispam.dataclasses import Guild, Member, CorePayload
+from antispam.exceptions import (
+    MemberNotFound,
+    GuildNotFound,
+    MemberAddonNotFound,
+    GuildAddonNotFound,
 )
-from discord.ext.antispam.plugin_cache import PluginCache  # noqa
-
-from discord.ext.antispam.util import get_aware_time  # noqa
+from antispam.plugin_cache import PluginCache
+from antispam.util import get_aware_time
 
 log = logging.getLogger(__name__)
 
 
-class AntiSpamTracker(BasePlugin):  # noqa
+class AntiSpamTracker(BasePlugin):
     """
     A class devoted to people who want to handle punishments themselves.
 

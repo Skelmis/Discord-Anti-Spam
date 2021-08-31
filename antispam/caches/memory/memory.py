@@ -3,7 +3,6 @@ from typing import List
 from ...abc import Cache
 from ...dataclasses import Message, Member, Guild
 from ...enums import ResetType
-from ...enums.state import ASHEnum
 from ...exceptions import GuildNotFound, MemberNotFound
 
 

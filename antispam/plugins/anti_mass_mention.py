@@ -6,12 +6,10 @@ from attr import asdict
 
 import discord  # noqa
 
-from discord.ext.antispam.exceptions import MemberNotFound  # noqa
-from discord.ext.antispam.base_plugin import BasePlugin  # noqa
-from discord.ext.antispam.plugin_cache import PluginCache  # noqa
-from discord.ext.antispam import AntiSpamHandler, GuildNotFound  # noqa
-
-from discord.ext.antispam.util import get_aware_time
+from antispam.base_plugin import BasePlugin
+from antispam.exceptions import MemberNotFound
+from antispam import AntiSpamHandler, GuildNotFound, PluginCache
+from antispam.util import get_aware_time
 
 log = logging.getLogger(__name__)
 

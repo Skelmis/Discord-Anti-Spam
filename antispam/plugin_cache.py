@@ -1,13 +1,13 @@
 from typing import Any
 
-from discord.ext.antispam.exceptions import (  # noqa
-    MemberNotFound,  # noqa
-    GuildNotFound,  # noqa
-    MemberAddonNotFound,  # noqa
-    GuildAddonNotFound,  # noqa
+from antispam.exceptions import (
+    MemberNotFound,
+    GuildNotFound,
+    MemberAddonNotFound,
+    GuildAddonNotFound,
 )
-from discord.ext.antispam.dataclasses import Guild, Member  # noqa
-from discord.ext.antispam import AntiSpamHandler  # noqa
+from antispam.dataclasses import Guild, Member
+from antispam import AntiSpamHandler
 
 
 class PluginCache:
