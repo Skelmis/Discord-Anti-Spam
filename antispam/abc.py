@@ -1,6 +1,8 @@
 from typing import Protocol, runtime_checkable, List
 
+from . import AntiSpamHandler
 from .dataclasses import Guild, Member, Message
+from .dataclasses.propagate_data import PropagateData
 from .enums import ResetType
 from .enums.state import ASHEnum
 
@@ -156,3 +158,29 @@ class Lib(Protocol):
     A protocol to extend and implement for any libs that wish
     to hook into this package and work natively
     """
+
+    handler: AntiSpamHandler
+
+    async def check_message_can_be_propagated(self, message) -> PropagateData:
+        """
+        Given a message from the relevant package,
+        run all checks to check if this message should be
+        propagated.
+
+        Parameters
+        ----------
+        message : Union[discord.Message, hikari.messages.Message]
+            The message to check
+
+        Returns
+        -------
+        PropagateData
+            The data required within propagate
+
+        Raises
+        ------
+        PropagateFailure
+            This raises an error with the `.data` attribute set.
+            `.data` is what get returned from within propagate
+
+        """

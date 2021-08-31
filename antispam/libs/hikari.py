@@ -1,7 +1,9 @@
 import hikari
+from antispam import AntiSpamHandler
 
 from antispam.abc import Lib
 
 
 class Hikari(Lib):
-    pass
+    def __init__(self, handler: AntiSpamHandler):
+        self.handler = handler

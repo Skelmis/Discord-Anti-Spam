@@ -37,6 +37,12 @@ class BaseASHException(Exception):
         return self.message
 
 
+class PropagateFailure(BaseASHException):
+    def __init__(self, *args, data: dict):
+        super().__init__(args)
+        self.data = data
+
+
 class DuplicateObject(BaseASHException):
     """Raised because you attempted to create and add an object, using the exact same id's as a pre-existing one."""
 

@@ -39,6 +39,7 @@ from .exceptions import (
     MissingGuildPermissions,
     ExtensionError,
     GuildNotFound,
+    PropagateFailure,
 )
 from .factory import FactoryBuilder
 from .base_plugin import BasePlugin
@@ -212,12 +213,12 @@ class AntiSpamHandler:
         if is_using_hikari:
             from antispam.libs.hikari import Hikari
 
-            self.lib_handler = Hikari()
+            self.lib_handler = Hikari(self)
 
         else:
             from antispam.libs.dpy import DPY
 
-            self.lib_handler = DPY()
+            self.lib_handler = DPY(self)
 
         log.info("Package initialized successfully")
 
@@ -234,76 +235,31 @@ class AntiSpamHandler:
         message : Union[discord.Message, hikari.messages.Message]
             The message that needs to be propagated out
 
-            Note this isn't type checked. It's just assumed to be correct.
-
         Returns
         =======
         dict
             A dictionary of useful information about the Member in question
         """
-        # Ensure we only moderate actual guild messages
-        if not message.guild:
-            log.debug("Message was not in a guild")
-            return {"status": "Ignoring messages from dm's"}
-
-        # The bot is immune to spam
-        if message.author.id == self.bot.user.id:
-            log.debug("Message was from myself")
-            return {"status": "Ignoring messages from myself (the bot)"}
-
-        if isinstance(message.author, discord.User):
-            log.warning(f"Given message with an author of type User")
-
-        # Return if ignored bot
-        if self.options.ignore_bots and message.author.bot:
-            log.debug(f"I ignore bots, and this is a bot message: {message.author.id}")
-            return {"status": "Ignoring messages from bots"}
-
-        # Return if ignored member
-        if message.author.id in self.options.ignored_members:
-            log.debug(f"The user who sent this message is ignored: {message.author.id}")
-            return {"status": f"Ignoring this member: {message.author.id}"}
-
-        # Return if ignored channel
-        if (
-            message.channel.id in self.options.ignored_channels
-            or message.channel.name in self.options.ignored_channels
-        ):
-            log.debug(f"{message.channel} is ignored")
-            return {"status": f"Ignoring this channel: {message.channel.id}"}
-
-        # Return if member has an ignored role
         try:
-            user_roles = [role.id for role in message.author.roles]
-            user_roles.extend([role.name for role in message.author.roles])
-            for item in user_roles:
-                if item in self.options.ignored_roles:
-                    log.debug(f"{item} is a part of ignored roles")
-                    return {"status": f"Ignoring this role: {item}"}
-        except AttributeError:
-            log.warning(
-                f"Could not compute ignored_roles for {message.author.name}({message.author.id})"
+            propagate_data = await self.lib_handler.check_message_can_be_propagated(
+                message=message
             )
-
-        # Return if ignored guild
-        if message.guild.id in self.options.ignored_guilds:
-            log.debug(f"{message.guild.id} is an ignored guild")
-            return {"status": f"Ignoring this guild: {message.guild.id}"}
+        except PropagateFailure as e:
+            return e.data
 
         log.debug(
-            f"Propagating message for: {message.author.name}({message.author.id})"
+            f"Propagating message for: {propagate_data.member_name}({propagate_data.member_id})"
         )
 
         try:
-            guild = await self.cache.get_guild(guild_id=message.guild.id)
+            guild = await self.cache.get_guild(guild_id=propagate_data.guild_id)
         except GuildNotFound:
             # Check we have perms to actually create this guild object
             # and punish based upon our guild wide permissions
-            perms = message.guild.me.guild_permissions
-            if not perms.kick_members or not perms.ban_members:
+            if not propagate_data.has_perms_to_make_guild:
                 raise MissingGuildPermissions
 
-            guild = Guild(id=message.guild.id, options=self.options)
+            guild = Guild(id=propagate_data.guild_id, options=self.options)
             await self.cache.set_guild(guild)
             log.info(f"Created Guild: {guild.id}")
 

@@ -29,7 +29,7 @@ class Core:
         self.options = handler.options
         self.cache = handler.cache  # Shorthand
 
-    async def propagate(self, message: discord.Message, guild: Guild) -> CorePayload:
+    async def propagate(self, message, guild: Guild) -> CorePayload:
         """
         The internal representation of core functionality.
 
