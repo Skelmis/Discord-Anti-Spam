@@ -1,7 +1,6 @@
 import pytest
 
-from discord.ext.antispam.base_plugin import BasePlugin  # noqa
-
+from antispam.base_plugin import BasePlugin
 from antispam.enums.state import ASHEnum
 from tests.mocks import MockedMessage
 

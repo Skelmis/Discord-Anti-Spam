@@ -1,11 +1,9 @@
 import pytest
 from discord.ext import commands  # noqa
 
-from discord.ext.antispam import AntiSpamHandler, PluginCache  # noqa
-
+from antispam import AntiSpamHandler, PluginCache
 from antispam.core import Core
 from antispam.caches import MemoryCache
-
 from antispam.plugins import AntiMassMention, AntiSpamTracker
 
 
