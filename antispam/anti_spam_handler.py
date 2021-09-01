@@ -22,6 +22,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import datetime
 import logging
 from copy import deepcopy
 from typing import Optional, Union
@@ -751,3 +752,8 @@ class AntiSpamHandler:
                 raise ExtensionError("An extension matching this name doesn't exist!")
 
         log.info(f"Unregistered extension {extension_name}")
+
+    @staticmethod
+    def get_aware_time() -> datetime.datetime:
+        """Used to get an aware datetime"""
+        return datetime.datetime.now(datetime.timezone.utc)

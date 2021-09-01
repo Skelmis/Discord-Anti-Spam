@@ -1,4 +1,3 @@
-import ast
 from typing import Protocol, runtime_checkable, List, Union
 
 from . import AntiSpamHandler
