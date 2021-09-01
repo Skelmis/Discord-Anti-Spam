@@ -1,4 +1,5 @@
-from typing import Protocol, runtime_checkable, List
+import ast
+from typing import Protocol, runtime_checkable, List, Union
 
 from . import AntiSpamHandler
 from .dataclasses import Guild, Member, Message
@@ -184,3 +185,119 @@ class Lib(Protocol):
             `.data` is what get returned from within propagate
 
         """
+        raise NotImplementedError
+
+    def substitute_args(
+        self, message: str, original_message, warn_count: int, kick_count: int
+    ) -> str:
+        """
+        Given a message, substitute in relevant arguments
+        and return a valid string
+
+        Parameters
+        ----------
+        message : str
+            The message to substitute args into
+        original_message : Union[discord.Message, hikari.messages.Message]
+            The message to extract data from
+        warn_count : int
+            How many warns this person has
+        kick_count : int
+            How many kicks this person has
+
+
+        Returns
+        -------
+        str
+            The message with substituted args
+
+        """
+        raise NotImplementedError
+
+    def embed_to_string(self, embed) -> str:
+        """
+        Given an embed, return a string representation
+
+        Parameters
+        ----------
+        embed : Union[discord.Embed, hikari.embeds.Embed]
+            The embed to cast to string
+
+        Returns
+        -------
+        str
+            The embed as a string
+        """
+        raise NotImplementedError
+
+    def dict_to_embed(self, data: dict, message, warn_count: int, kick_count: int):
+        """
+
+        Parameters
+        ----------
+        data : dict
+            The data to build an embed from
+        message : Union[discord.Message, hikari.messages.Message]
+            The message to extract data from
+        warn_count : int
+            How many warns this person has
+        kick_count : int
+            How many kicks this person has
+
+        Returns
+        -------
+        Union[discord.Embed, hikari.embeds.Embed]
+        """
+        raise NotImplementedError
+
+    def transform_message(
+        self, item: Union[str, dict], message, warn_count: int, kick_count: int
+    ):
+        """
+
+        Parameters
+        ----------
+        item : Union[str, dict]
+            The data to substitute
+        message : Union[discord.Message, hikari.messages.Message]
+            The message to extract data from
+        warn_count : int
+            How many warns this person has
+        kick_count : int
+            How many kicks this person has
+
+        Returns
+        -------
+        Union[str, discord.Embed, hikari.embeds.Embed]
+        A template complete message ready for sending
+
+        """
+        raise NotImplementedError
+
+    def visualizer(
+        self,
+        content: str,
+        message,
+        warn_count: int = 1,
+        kick_count: int = 2,
+    ):
+        """
+        Returns a message transformed as if the handler did it
+
+        Parameters
+        ----------
+        content : Union[str, discord.Embed, hikari.embeds.Embed]
+            What to transform
+        message : Union[discord.Message, hikari.messages.Message]
+            Where to extract our values from
+        warn_count : int
+            The warns to visualize with
+        kick_count : int
+            The kicks to visualize with
+
+        Returns
+        -------
+        Union[str, discord.Embed]
+            The transformed content
+        """
+        raise NotImplementedError
