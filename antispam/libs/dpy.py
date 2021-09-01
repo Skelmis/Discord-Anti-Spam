@@ -2,14 +2,14 @@ import ast
 import datetime
 import logging
 from string import Template
-from typing import Union
+from typing import Union, Optional
 from unittest.mock import AsyncMock
 
 import discord
 
-from antispam import PropagateFailure, LogicError
+from antispam import PropagateFailure, LogicError, MissingGuildPermissions
 from antispam.abc import Lib
-from antispam.dataclasses import Message
+from antispam.dataclasses import Message, Member, Guild
 from antispam.dataclasses.propagate_data import PropagateData
 
 log = logging.getLogger(__name__)
@@ -142,7 +142,7 @@ class DPY(Lib):
         kick_count: int,
     ):
         if isinstance(item, str):
-            return self.self.substitute_args(item, message, warn_count, kick_count)
+            return self.substitute_args(item, message, warn_count, kick_count)
 
         return self.dict_to_embed(item, message, warn_count, kick_count)
 
@@ -247,7 +247,7 @@ class DPY(Lib):
             if embed.type.lower() != "rich":
                 raise LogicError
 
-            content = self.handler.lib_handler.embed_to_string(embed)
+            content = self.embed_to_string(embed)
         else:
             content = message.clean_content
 
@@ -269,7 +269,9 @@ class DPY(Lib):
             content=content,
         )
 
-    async def send_guild_log(self, guild, message, delete_after_time) -> None:
+    async def send_guild_log(
+        self, guild, message: Union[str, discord.Embed], delete_after_time
+    ) -> None:
         try:
             if not guild.log_channel_id:
                 log.debug("%s has no log channel set", str(guild.id))
@@ -288,7 +290,167 @@ class DPY(Lib):
 
             log.debug("Sent message to log channel in %s", str(guild.id))
         except discord.HTTPException:
-            log.error(
-                f"Failed to send log message.\n"
-                f"Guild: {channel.guild.name}({channel.guild.id})\n"
+            log.error(f"Failed to send log message.\n" f"Guild: {guild.id}\n")
+
+    async def punish_member(
+        self,
+        original_message: discord.Message,
+        member: Member,
+        internal_guild: Guild,
+        user_message,
+        guild_message,
+        is_kick: bool,
+        user_delete_after: int = None,
+        channel_delete_after: int = None,
+    ):
+        guild = original_message.guild
+        author = original_message.author
+
+        # Check we have perms to punish
+        perms = guild.me.guild_permissions
+        if not perms.kick_members and is_kick:
+            member._in_guild = True
+            member.kick_count -= 1
+            raise MissingGuildPermissions(
+                f"I need kick perms to punish someone in {guild.name}"
+            )
+
+        elif not perms.ban_members and not is_kick:
+            member._in_guild = True
+            member.kick_count -= 1
+            raise MissingGuildPermissions(
+                f"I need ban perms to punish someone in {guild.name}"
+            )
+
+        # We also check they don't own the guild, since ya know...
+        elif guild.owner_id == member.id:
+            member._in_guild = True
+            member.kick_count -= 1
+            raise MissingGuildPermissions(
+                f"I cannot punish {author.display_name}({author.id}) "
+                f"because they own this guild. ({guild.name})"
+            )
+
+        # Ensure we can actually punish the user, for this
+        # we just check our top role is higher then them
+        elif guild.me.top_role.position < author.top_role.position:
+            log.warning(
+                f"I might not be able to punish {author.display_name}({member.id}) in {guild.name}({guild.id}) "
+                "because they are higher then me, which means I could lack the ability to kick/ban them."
+            )
+
+        sent_message: Optional[discord.Message] = None
+        try:
+            if isinstance(user_message, discord.Embed):
+                sent_message = await author.send(
+                    embed=user_message, delete_after=user_delete_after
+                )
+            else:
+                sent_message = await author.send(
+                    user_message, delete_after=user_delete_after
+                )
+
+        except discord.HTTPException:
+            await self.send_guild_log(
+                guild=internal_guild,
+                message=f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
+                delete_after_time=channel_delete_after,
+            )
+            log.warning(
+                f"Failed to message User: ({author.id}) about {'kick' if is_kick else 'ban'}"
+            )
+
+        # Even if we can't tell them they are being punished
+        # We still need to punish them, so try that
+        try:
+            if is_kick:
+                await guild.kick(
+                    member, reason="Automated punishment from DPY Anti-Spam."
+                )
+                log.info(f"Kicked User: ({member.id})")
+            else:
+                await guild.ban(
+                    member, reason="Automated punishment from DPY Anti-Spam."
+                )
+                log.info(f"Banned User: ({member.id})")
+
+        except discord.Forbidden as e:
+            # In theory we send the failed punishment method
+            # here, although we check first so I think its fine
+            # to remove it from this part
+            raise e from None
+
+        except discord.HTTPException:
+            member._in_guild = True
+            member.kick_count -= 1
+            await self.send_guild_log(
+                guild=internal_guild,
+                message=f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
+                delete_after_time=channel_delete_after,
+            )
+            log.warning(
+                f"An error occurred trying to {'kick' if is_kick else 'ban'}: {member.id}"
+            )
+            if sent_message is not None:
+                if is_kick:
+                    user_failed_message = self.transform_message(
+                        self.handler.options.member_failed_kick_message,
+                        original_message,
+                        member.warn_count,
+                        member.kick_count,
+                    )
+                else:
+                    user_failed_message = self.transform_message(
+                        self.handler.options.member_failed_ban_message,
+                        original_message,
+                        member.warn_count,
+                        member.kick_count,
+                    )
+                if isinstance(user_failed_message, discord.Embed):
+                    await author.send(
+                        embed=user_failed_message,
+                        delete_after=user_delete_after,
+                    )
+                else:
+                    await author.send(
+                        user_failed_message,
+                        delete_after=user_delete_after,
+                    )
+                await sent_message.delete()
+
+        else:
+            await self.send_guild_log(
+                guild=internal_guild,
+                message=guild_message,
+                delete_after_time=channel_delete_after,
+            )
+
+        member._in_guild = True
+        await self.handler.cache.set_member(member)
+
+    async def delete_message(self, message: discord.Message) -> None:
+        try:
+            await message.delete()
+            log.debug(f"Deleted message: {message.id}")
+        except discord.HTTPException:
+            # Failed to delete message
+            log.warning(
+                f"Failed to delete message {message.id} in guild {message.guild.id}"
+            )
+
+    async def send_message_to_(
+        self,
+        target: discord.abc.Messageable,
+        message: Union[str, discord.Embed],
+        delete_after_time: Optional[int] = None,
+    ) -> None:
+        if isinstance(message, discord.Embed):
+            await target.send(
+                embed=message,
+                delete_after=delete_after_time,
+            )
+        else:
+            await target.send(
+                message,
+                delete_after=delete_after_time,
             )

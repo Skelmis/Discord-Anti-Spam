@@ -1,4 +1,4 @@
-from typing import Protocol, runtime_checkable, List, Union
+from typing import Protocol, runtime_checkable, List, Union, Optional
 
 from .dataclasses import Guild, Member, Message
 from .dataclasses.propagate_data import PropagateData
@@ -155,7 +155,11 @@ class Cache(Protocol):
 class Lib(Protocol):
     """
     A protocol to extend and implement for any libs that wish
-    to hook into this package and work natively
+    to hook into this package and work natively.
+
+    Notes
+    -----
+    Not public api. For internal usage only.
     """
 
     async def check_message_can_be_propagated(self, message) -> PropagateData:
@@ -332,3 +336,75 @@ class Lib(Protocol):
         and then proceed to return None
         """
         raise NotImplementedError
+
+    async def punish_member(
+        self,
+        original_message,
+        member: Member,
+        internal_guild: Guild,
+        user_message,
+        guild_message,
+        is_kick: bool,
+        user_delete_after: int = None,
+        channel_delete_after: int = None,
+    ):
+        """
+        A generic method to handle multiple methods of punishment for a user.
+        Currently supports: kicking, banning
+        Parameters
+        ----------
+        member : Member
+            A reference to the member we wish to punish
+        internal_guild : Guild
+            A reference to the guild this member is in
+        original_message : Union[discord.Message, hikari.messages.Message]
+            Where we get everything from :)
+        user_message : Union[str, discord.Embed, hikari.embeds.Embed]
+            A message to send to the user who is being punished
+        guild_message : Union[str, discord.Embed, hikari.embeds.Embed]
+            A message to send in the guild for whoever is being punished
+        is_kick : bool
+            Is it a kick? Else ban
+        user_delete_after : int, optional
+            An int value denoting the time to
+            delete user sent messages after
+        channel_delete_after : int, optional
+            An int value denoting the time to
+            delete channel sent messages after
+        Raises
+        ======
+        MissingGuildPerms
+            I lack perms to carry out this punishment
+        """
+        raise NotImplementedError
+
+    async def delete_message(self, message) -> None:
+        """
+        Given a message, call and handle the relevant
+        deletion contexts.
+
+        Parameters
+        ----------
+        message : Union[discord.Message, hikari.messages.Message]
+            The message to delete
+
+        Notes
+        -----
+        This should handle given errors silently.
+        """
+        raise NotImplementedError
+
+    async def send_message_to_(
+        self, target, message, delete_after_time: Optional[int] = None
+    ) -> None:
+        """
+        Given a message and target, send
+        Parameters
+        ----------
+        target : Union[discord.abc.Messageable, hikari TODO doc this]
+            Where to send the message
+        message : Union[str, discord.Embed, hikari.embeds.Embed]
+            The message to send
+        delete_after_time : Optional[int]
+            When to delete the message after
+        """

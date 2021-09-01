@@ -1,11 +1,9 @@
 import datetime
 import logging
-from typing import Union, Optional
 
 from fuzzywuzzy import fuzz
 
 from .exceptions import (
-    MissingGuildPermissions,
     MemberNotFound,
     LogicError,
     DuplicateObject,
@@ -104,14 +102,7 @@ class Core:
 
         # Delete the message if wanted
         if self.options.delete_spam is True and self.options.no_punish is False:
-            try:
-                await original_message.delete()
-                log.debug(f"Deleted message: {original_message.id}")
-            except discord.HTTPException:
-                # Failed to delete message
-                log.warning(
-                    f"Failed to delete message {original_message.id} in guild {original_message.guild.id}"
-                )
+            await self.handler.lib_handler.delete_message(original_message)
 
         if self.options.no_punish:
             # User will handle punishments themselves
@@ -142,16 +133,9 @@ class Core:
                 {"warn_count": member.warn_count, "kick_count": member.kick_count},
             )
             try:
-                if isinstance(guild_message, discord.Embed):
-                    await channel.send(
-                        embed=guild_message,
-                        delete_after=self.options.guild_warn_message_delete_after,
-                    )
-                else:
-                    await channel.send(
-                        guild_message,
-                        delete_after=self.options.guild_warn_message_delete_after,
-                    )
+                await self.handler.lib_handler.send_message_to_(
+                    channel, guild_message, self.options.guild_warn_message_delete_after
+                )
             except Exception as e:
                 member.warn_count -= 1
                 raise e
@@ -179,7 +163,7 @@ class Core:
                 original_message,
                 {"warn_count": member.warn_count, "kick_count": member.kick_count},
             )
-            await self._punish_member(
+            await self.handler.lib_handler._punish_member(
                 original_message,
                 member,
                 guild,
@@ -210,7 +194,7 @@ class Core:
                 original_message,
                 {"warn_count": member.warn_count, "kick_count": member.kick_count},
             )
-            await self._punish_member(
+            await self.handler.lib_handler.punish_member(
                 original_message,
                 member,
                 guild,
@@ -250,171 +234,6 @@ class Core:
         """
         # TODO Impl
         return core_payload
-
-    async def _punish_member(
-        self,
-        original_message,
-        member: Member,
-        internal_guild: Guild,
-        user_message,
-        guild_message,
-        is_kick: bool,
-        user_delete_after: int = None,
-        channel_delete_after: int = None,
-    ):
-        """
-        A generic method to handle multiple methods of punishment for a user.
-        Currently supports: kicking, banning
-        Parameters
-        ----------
-        original_message : discord.Message
-            Where we get everything from :)
-        user_message : Union[str, discord.Embed, hikari.embeds.Embed]
-            A message to send to the user who is being punished
-        guild_message : Union[str, discord.Embed, hikari.embeds.Embed]
-            A message to send in the guild for whoever is being punished
-        is_kick : bool
-            Is it a kick? Else ban
-        user_delete_after : int, optional
-            An int value denoting the time to
-            delete user sent messages after
-        channel_delete_after : int, optional
-            An int value denoting the time to
-            delete channel sent messages after
-        Raises
-        ======
-        MissingGuildPerms
-            I lack perms to carry out this punishment
-        """
-        guild = original_message.guild
-        author = original_message.author
-
-        dc_channel = original_message.channel
-
-        # Check we have perms to punish
-        perms = guild.me.guild_permissions
-        if not perms.kick_members and is_kick:
-            member._in_guild = True
-            member.kick_count -= 1
-            raise MissingGuildPermissions(
-                f"I need kick perms to punish someone in {guild.name}"
-            )
-
-        elif not perms.ban_members and not is_kick:
-            member._in_guild = True
-            member.kick_count -= 1
-            raise MissingGuildPermissions(
-                f"I need ban perms to punish someone in {guild.name}"
-            )
-
-        # We also check they don't own the guild, since ya know...
-        elif guild.owner_id == member.id:
-            member._in_guild = True
-            member.kick_count -= 1
-            raise MissingGuildPermissions(
-                f"I cannot punish {author.display_name}({author.id}) "
-                f"because they own this guild. ({guild.name})"
-            )
-
-        # Ensure we can actually punish the user, for this
-        # we just check our top role is higher then them
-        elif guild.me.top_role.position < author.top_role.position:
-            log.warning(
-                f"I might not be able to punish {author.display_name}({member.id}) in {guild.name}({guild.id}) "
-                "because they are higher then me, which means I could lack the ability to kick/ban them."
-            )
-
-        sent_message: Optional[discord.Message] = None
-        try:
-            if isinstance(user_message, discord.Embed):
-                sent_message = await author.send(
-                    embed=user_message, delete_after=user_delete_after
-                )
-            else:
-                sent_message = await author.send(
-                    user_message, delete_after=user_delete_after
-                )
-
-        except discord.HTTPException:
-            await self.handler.lib_handler.send_guild_log(
-                guild=internal_guild,
-                message=f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
-                delete_after_time=channel_delete_after,
-            )
-            log.warning(
-                f"Failed to message User: ({author.id}) about {'kick' if is_kick else 'ban'}"
-            )
-
-        # Even if we can't tell them they are being punished
-        # We still need to punish them, so try that
-        try:
-            if is_kick:
-                await guild.kick(
-                    member, reason="Automated punishment from DPY Anti-Spam."
-                )
-                log.info(f"Kicked User: ({member.id})")
-            else:
-                await guild.ban(
-                    member, reason="Automated punishment from DPY Anti-Spam."
-                )
-                log.info(f"Banned User: ({member.id})")
-
-        except discord.Forbidden as e:
-            # In theory we send the failed punishment method
-            # here, although we check first so I think its fine
-            # to remove it from this part
-            raise e from None
-
-        except discord.HTTPException:
-            member._in_guild = True
-            member.kick_count -= 1
-            await self.handler.lib_handler.send_guild_log(
-                guild=internal_guild,
-                message=f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
-                delete_after_time=channel_delete_after,
-            )
-            log.warning(
-                f"An error occurred trying to {'kick' if is_kick else 'ban'}: {member.id}"
-            )
-            if sent_message is not None:
-                if is_kick:
-                    user_failed_message = self.handler.lib_handler.transform_message(
-                        self.options.member_failed_kick_message,
-                        original_message,
-                        {
-                            "warn_count": member.warn_count,
-                            "kick_count": member.kick_count,
-                        },
-                    )
-                else:
-                    user_failed_message = self.handler.lib_handler.transform_message(
-                        self.options.member_failed_ban_message,
-                        original_message,
-                        {
-                            "warn_count": member.warn_count,
-                            "kick_count": member.kick_count,
-                        },
-                    )
-                if isinstance(user_failed_message, discord.Embed):
-                    await author.send(
-                        embed=user_failed_message,
-                        delete_after=user_delete_after,
-                    )
-                else:
-                    await author.send(
-                        user_failed_message,
-                        delete_after=user_delete_after,
-                    )
-                await sent_message.delete()
-
-        else:
-            await self.handler.lib_handler.send_guild_log(
-                guild=internal_guild,
-                message=guild_message,
-                delete_after_time=channel_delete_after,
-            )
-
-        member._in_guild = True
 
     async def clean_up(self, member: Member, current_time, channel_id: int):
         """
