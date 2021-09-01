@@ -752,8 +752,3 @@ class AntiSpamHandler:
                 raise ExtensionError("An extension matching this name doesn't exist!")
 
         log.info(f"Unregistered extension {extension_name}")
-
-    @staticmethod
-    def get_aware_time() -> datetime.datetime:
-        """Used to get an aware datetime"""
-        return datetime.datetime.now(datetime.timezone.utc)

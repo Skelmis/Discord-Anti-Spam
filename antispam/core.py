@@ -77,7 +77,7 @@ class Core:
             current_time=get_aware_time(),
             channel_id=original_message.channel.id,
         )
-        message: Message = self._create_message(original_message)
+        message: Message = self.handler.lib_handler.create_message(original_message)
         self._calculate_ratios(message, member)
 
         # Check again since in theory the above could take awhile
@@ -241,7 +241,7 @@ class Core:
         return return_payload
 
     async def propagate_per_channel_per_guild(
-        self, message: discord.Message, core_payload: CorePayload
+        self, message, core_payload: CorePayload
     ) -> CorePayload:
         """
         The internal representation of core functionality.
@@ -253,11 +253,11 @@ class Core:
 
     async def _punish_member(
         self,
-        original_message: discord.Message,
+        original_message,
         member: Member,
         internal_guild: Guild,
-        user_message: Union[str, discord.Embed],
-        guild_message: Union[str, discord.Embed],
+        user_message,
+        guild_message,
         is_kick: bool,
         user_delete_after: int = None,
         channel_delete_after: int = None,
@@ -269,9 +269,9 @@ class Core:
         ----------
         original_message : discord.Message
             Where we get everything from :)
-        user_message : Union[str, discord.Embed]
+        user_message : Union[str, discord.Embed, hikari.embeds.Embed]
             A message to send to the user who is being punished
-        guild_message : Union[str, discord.Embed]
+        guild_message : Union[str, discord.Embed, hikari.embeds.Embed]
             A message to send in the guild for whoever is being punished
         is_kick : bool
             Is it a kick? Else ban
@@ -336,7 +336,7 @@ class Core:
                 )
 
         except discord.HTTPException:
-            await self.send_guild_log(
+            await self.handler.lib_handler.send_guild_log(
                 guild=internal_guild,
                 message=f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
                 delete_after_time=channel_delete_after,
@@ -368,7 +368,7 @@ class Core:
         except discord.HTTPException:
             member._in_guild = True
             member.kick_count -= 1
-            await self.send_guild_log(
+            await self.handler.lib_handler.send_guild_log(
                 guild=internal_guild,
                 message=f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
                 delete_after_time=channel_delete_after,
@@ -408,17 +408,11 @@ class Core:
                 await sent_message.delete()
 
         else:
-            try:
-                await self.send_guild_log(
-                    guild=internal_guild,
-                    message=guild_message,
-                    delete_after_time=channel_delete_after,
-                )
-            except discord.HTTPException:
-                log.error(
-                    f"Failed to send log message.\n"
-                    f"Guild: {dc_channel.guild.name}({dc_channel.guild.id})\n"
-                )
+            await self.handler.lib_handler.send_guild_log(
+                guild=internal_guild,
+                message=guild_message,
+                delete_after_time=channel_delete_after,
+            )
 
         member._in_guild = True
 
@@ -513,46 +507,6 @@ class Core:
                 ):
                     break
 
-    def _create_message(self, message: discord.Message) -> Message:
-        """Used to create a valid message object
-        Raises
-        ------
-        LogicError
-            Not worth creating a message
-        """
-        if not bool(message.content and message.content.strip()):
-            if not message.embeds:
-                raise LogicError
-
-            embed = message.embeds[0]
-            if not isinstance(embed, discord.Embed):
-                raise LogicError
-
-            if embed.type.lower() != "rich":
-                raise LogicError
-
-            content = self.handler.lib_handler.embed_to_string(embed)
-        else:
-            content = message.clean_content
-
-        if self.options.delete_zero_width_chars:
-            content = (
-                content.replace("u200B", "")
-                .replace("u200C", "")
-                .replace("u200D", "")
-                .replace("u200E", "")
-                .replace("u200F", "")
-                .replace("uFEFF", "")
-            )
-
-        return Message(
-            id=message.id,
-            channel_id=message.channel.id,
-            guild_id=message.guild.id,
-            author_id=message.author.id,
-            content=content,
-        )
-
     def _increment_duplicate_count(
         self, member: Member, channel_id: int, amount: int = 1
     ):
@@ -596,39 +550,3 @@ class Core:
             log.warning(
                 "Failed to de-increment duplicate count as the channel id doesnt exist"
             )
-
-    async def send_guild_log(
-        self,
-        guild: Guild,
-        message: Union[str, discord.Embed],
-        delete_after_time: Optional[int] = None,
-    ) -> None:
-        """
-        Sends a message to the guilds log channel
-
-        Parameters
-        ----------
-        guild : Guild
-            The guild we wish to send this too
-        message : Union[str, discord.Embed]
-            What to send to the guilds log channel
-        delete_after_time : Optional[int]
-            How long to delete these messages after
-        """
-        if not guild.log_channel_id:
-            log.debug("%s has no log channel set", str(guild.id))
-            return
-
-        channel = guild.log_channel_id
-
-        if isinstance(channel, int):
-            channel = self.handler.bot.get_channel(channel)
-            if not channel:
-                channel = await self.handler.bot.fetch_channel(channel)
-
-        if isinstance(message, str):
-            await channel.send(message, delete_after=delete_after_time)
-        else:
-            await channel.send(embed=message)
-
-        log.debug("Sent message to log channel in %s", str(guild.id))

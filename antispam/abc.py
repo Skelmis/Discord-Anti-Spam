@@ -295,3 +295,40 @@ class Lib(Protocol):
             The transformed content
         """
         raise NotImplementedError
+
+    def create_message(self, message) -> Message:
+        """
+        Given a message to extract data from, create
+        and return a Message class
+
+        Parameters
+        ----------
+        message : Union[discord.Message, hikari.messages.Message]
+            The message to extract data from
+
+        Returns
+        -------
+        Message
+            The flushed out message
+        """
+        raise NotImplementedError
+
+    async def send_guild_log(self, guild, message, delete_after_time) -> None:
+        """
+        Sends a message to the guilds log channel
+
+        Parameters
+        ----------
+        guild : Guild
+            The guild we wish to send this too
+        message : Union[str, discord.Embed, hikari.embeds.Embed]
+            What to send to the guilds log channel
+        delete_after_time : Optional[int]
+            How long to delete these messages after
+
+        Notes
+        -----
+        This should catch any sending errors, log them
+        and then proceed to return None
+        """
+        raise NotImplementedError

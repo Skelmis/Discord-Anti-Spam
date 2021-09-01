@@ -7,8 +7,9 @@ from unittest.mock import AsyncMock
 
 import discord
 
-from antispam import PropagateFailure
+from antispam import PropagateFailure, LogicError
 from antispam.abc import Lib
+from antispam.dataclasses import Message
 from antispam.dataclasses.propagate_data import PropagateData
 
 log = logging.getLogger(__name__)
@@ -233,3 +234,61 @@ class DPY(Lib):
             member_id=message.author.id,
             has_perms_to_make_guild=has_perms,
         )
+
+    def create_message(self, message: discord.Message) -> Message:
+        if not bool(message.content and message.content.strip()):
+            if not message.embeds:
+                raise LogicError
+
+            embed = message.embeds[0]
+            if not isinstance(embed, discord.Embed):
+                raise LogicError
+
+            if embed.type.lower() != "rich":
+                raise LogicError
+
+            content = self.handler.lib_handler.embed_to_string(embed)
+        else:
+            content = message.clean_content
+
+        if self.handler.options.delete_zero_width_chars:
+            content = (
+                content.replace("u200B", "")
+                .replace("u200C", "")
+                .replace("u200D", "")
+                .replace("u200E", "")
+                .replace("u200F", "")
+                .replace("uFEFF", "")
+            )
+
+        return Message(
+            id=message.id,
+            channel_id=message.channel.id,
+            guild_id=message.guild.id,
+            author_id=message.author.id,
+            content=content,
+        )
+
+    async def send_guild_log(self, guild, message, delete_after_time) -> None:
+        try:
+            if not guild.log_channel_id:
+                log.debug("%s has no log channel set", str(guild.id))
+                return
+
+            channel = guild.log_channel_id
+
+            channel = self.handler.bot.get_channel(channel)
+            if not channel:
+                channel = await self.handler.bot.fetch_channel(channel)
+
+            if isinstance(message, str):
+                await channel.send(message, delete_after=delete_after_time)
+            else:
+                await channel.send(embed=message)
+
+            log.debug("Sent message to log channel in %s", str(guild.id))
+        except discord.HTTPException:
+            log.error(
+                f"Failed to send log message.\n"
+                f"Guild: {channel.guild.name}({channel.guild.id})\n"
+            )
