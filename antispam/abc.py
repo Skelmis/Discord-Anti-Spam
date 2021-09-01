@@ -183,7 +183,6 @@ class Lib(Protocol):
         PropagateFailure
             This raises an error with the `.data` attribute set.
             `.data` is what get returned from within propagate
-
         """
         raise NotImplementedError
 
@@ -210,7 +209,6 @@ class Lib(Protocol):
         -------
         str
             The message with substituted args
-
         """
         raise NotImplementedError
 
