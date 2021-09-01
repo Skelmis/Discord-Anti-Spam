@@ -1,6 +1,5 @@
 from typing import Protocol, runtime_checkable, List, Union
 
-from . import AntiSpamHandler
 from .dataclasses import Guild, Member, Message
 from .dataclasses.propagate_data import PropagateData
 from .enums import ResetType
@@ -158,8 +157,6 @@ class Lib(Protocol):
     A protocol to extend and implement for any libs that wish
     to hook into this package and work natively
     """
-
-    handler: AntiSpamHandler
 
     async def check_message_can_be_propagated(self, message) -> PropagateData:
         """

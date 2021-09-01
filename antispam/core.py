@@ -2,8 +2,6 @@ import datetime
 import logging
 from typing import Union, Optional
 
-import discord
-
 from fuzzywuzzy import fuzz
 
 from .exceptions import (
@@ -13,7 +11,7 @@ from .exceptions import (
     DuplicateObject,
 )
 from .dataclasses import Member, Message, CorePayload, Guild
-from .util import embed_to_string, transform_message, get_aware_time
+from .util import get_aware_time
 
 log = logging.getLogger(__name__)
 
@@ -46,9 +44,7 @@ class Core:
 
         return guild_r
 
-    async def propagate_user(
-        self, original_message: discord.Message, guild: Guild
-    ) -> CorePayload:
+    async def propagate_user(self, original_message, guild: Guild) -> CorePayload:
         """
         The internal representation of core functionality.
 
@@ -140,7 +136,7 @@ class Core:
             log.debug(f"Attempting to warn: {message.author_id}")
             member.warn_count += 1
             channel = original_message.channel
-            guild_message = transform_message(
+            guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_warn_message,
                 original_message,
                 {"warn_count": member.warn_count, "kick_count": member.kick_count},
@@ -173,12 +169,12 @@ class Core:
             member.kick_count += 1
             log.debug(f"Attempting to kick: {message.author_id}")
 
-            guild_message = transform_message(
+            guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_kick_message,
                 original_message,
                 {"warn_count": member.warn_count, "kick_count": member.kick_count},
             )
-            user_message = transform_message(
+            user_message = self.handler.lib_handler.transform_message(
                 self.options.member_kick_message,
                 original_message,
                 {"warn_count": member.warn_count, "kick_count": member.kick_count},
@@ -204,12 +200,12 @@ class Core:
             member.kick_count += 1
             log.debug(f"Attempting to ban: {message.author_id}")
 
-            guild_message = transform_message(
+            guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_ban_message,
                 original_message,
                 {"warn_count": member.warn_count, "kick_count": member.kick_count},
             )
-            user_message = transform_message(
+            user_message = self.handler.lib_handler.transform_message(
                 self.options.member_ban_message,
                 original_message,
                 {"warn_count": member.warn_count, "kick_count": member.kick_count},
@@ -382,7 +378,7 @@ class Core:
             )
             if sent_message is not None:
                 if is_kick:
-                    user_failed_message = transform_message(
+                    user_failed_message = self.handler.lib_handler.transform_message(
                         self.options.member_failed_kick_message,
                         original_message,
                         {
@@ -391,7 +387,7 @@ class Core:
                         },
                     )
                 else:
-                    user_failed_message = transform_message(
+                    user_failed_message = self.handler.lib_handler.transform_message(
                         self.options.member_failed_ban_message,
                         original_message,
                         {
@@ -535,7 +531,7 @@ class Core:
             if embed.type.lower() != "rich":
                 raise LogicError
 
-            content = embed_to_string(embed)
+            content = self.handler.lib_handler.embed_to_string(embed)
         else:
             content = message.clean_content
 
@@ -619,11 +615,11 @@ class Core:
         delete_after_time : Optional[int]
             How long to delete these messages after
         """
-        if not guild.log_channel:
+        if not guild.log_channel_id:
             log.debug("%s has no log channel set", str(guild.id))
             return
 
-        channel = guild.log_channel
+        channel = guild.log_channel_id
 
         if isinstance(channel, int):
             channel = self.handler.bot.get_channel(channel)

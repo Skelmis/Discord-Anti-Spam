@@ -2,7 +2,7 @@ import datetime
 
 import discord
 
-# noinspection PyUnresolvedReferences
+
 from antispam.util import (
     embed_to_string,
     dict_to_embed,
