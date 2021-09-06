@@ -17,12 +17,19 @@ try:
 except FileNotFoundError:
     version = "0.0.0"
 
+
+def parse_requirements_file(path):
+    with open(path) as fp:
+        dependencies = (d.strip() for d in fp.read().split("\n") if d.strip())
+        return [d for d in dependencies if not d.startswith("#")]
+
+
 setup(
     name="Discord Anti-Spam",
     version=version,
     author="Skelmis",
     author_email="ethan@koldfusion.xyz",
-    description="An easy to use package for anti-spam features in discord.py.",
+    description="An easy to use package for anti-spam features in python discord libraries.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Skelmis/DPY-Anti-Spam",
@@ -35,7 +42,12 @@ setup(
         "antispam.plugins",
         "antispam.libs",
     ],
-    install_requires=["fuzzywuzzy>=0.18", "discord.py>=1", "attrs"],
+    install_requires=parse_requirements_file("requirements.txt"),
+    extras_requires={
+        "discord.py": parse_requirements_file("dpy-requirements.txt"),
+        "hikari": parse_requirements_file("hikari-requirements.txt"),
+        "dev": parse_requirements_file("dev-requirements.txt"),
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

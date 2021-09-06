@@ -20,7 +20,7 @@ from .mocks import MockedMessage
 
 # noinspection DuplicatedCode
 class TestLibDPY:
-    """A class devoted to testing core.py"""
+    """A class devoted to testing dpy.py"""
 
     def test_create_message_raises(self, create_dpy_lib_handler):
         message = MockedMessage().to_mock()
