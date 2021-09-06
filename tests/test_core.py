@@ -6,7 +6,7 @@ import pytest
 
 from antispam.dataclasses import Guild, Member, CorePayload, Message
 
-from antispam import Options, LogicError, MissingGuildPermissions
+from antispam import Options, LogicError, MissingGuildPermissions, DuplicateObject
 from .fixtures import (
     create_bot,
     create_handler,
@@ -286,3 +286,24 @@ class TestCore:
             member_kick_count=4,
             member_duplicate_count=7,
         )
+
+    def test_calculate_ratios_raises(self, create_core):
+        member = Member(
+            1, 1, messages=[Message(1, 2, 3, 4, "One"), Message(2, 2, 3, 4, "Two")]
+        )
+
+        with pytest.raises(DuplicateObject):
+            create_core._calculate_ratios(Message(1, 2, 3, 4, "One"), member)
+
+    def test_calculate_ratios_does_nothing(self, create_core):
+        """Tests the loop does nothing on different messages"""
+        member = Member(1, 1, messages=[Message(1, 2, 3, 4, "Hello I am the world")])
+
+        create_core._calculate_ratios(Message(2, 2, 3, 4, "My name is Ethan!"), member)
+
+    def test_increment_duplicate_existing(self, create_core):
+        """Tests the count increments even when already existing"""
+        member = Member(1, 1, duplicate_channel_counter_dict={5: 1})
+        create_core.options.per_channel_spam = True
+        create_core._increment_duplicate_count(member, 5)
+        assert member.duplicate_channel_counter_dict[5] == 2
