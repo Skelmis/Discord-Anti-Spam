@@ -11,7 +11,7 @@ file = read_json("token")
 
 bot.handler = AntiSpamHandler(bot, no_punish=True)
 bot.tracker = AntiSpamTracker(bot.handler, 3)
-bot.handler.register_extension(bot.tracker)
+bot.handler.register_plugin(bot.tracker)
 
 
 @bot.event

@@ -1,7 +1,7 @@
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from antispam import (
     BaseASHException,
-    ExtensionError,
+    PluginError,
     GuildAddonNotFound,
     GuildNotFound,
     MemberAddonNotFound,
@@ -77,6 +77,6 @@ class TestExceptions:
 
     def test_extension_error(self):
         assert (
-            str(ExtensionError())
-            == "An error occurred that was related to an extension and not AntiSpamHandler"
+            str(PluginError())
+            == "An error occurred that was related to a plugin and not AntiSpamHandler"
         )

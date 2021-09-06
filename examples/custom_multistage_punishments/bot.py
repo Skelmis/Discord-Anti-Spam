@@ -13,7 +13,7 @@ file = read_json("token")
 # Generally you only need/want AntiSpamHandler(bot)
 bot.handler = AntiSpamHandler(bot, ignore_bots=False)
 bot.tracker = MyCustomTracker(bot.handler, 3)
-bot.handler.register_extension(bot.tracker)
+bot.handler.register_plugin(bot.tracker)
 
 
 @bot.event

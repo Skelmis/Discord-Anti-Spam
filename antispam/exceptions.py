@@ -43,6 +43,10 @@ class PropagateFailure(BaseASHException):
         self.data = data
 
 
+class InvocationCancelled(BaseASHException):
+    """Called when a pre-invoke plugin returned `cancel_next_invocation`"""
+
+
 class DuplicateObject(BaseASHException):
     """Raised because you attempted to create and add an object, using the exact same id's as a pre-existing one."""
 
@@ -79,5 +83,5 @@ class GuildAddonNotFound(GuildNotFound):
     """This class has not addon stored on this guild."""
 
 
-class ExtensionError(BaseASHException):
-    """An error occurred that was related to an extension and not AntiSpamHandler"""
+class PluginError(BaseASHException):
+    """An error occurred that was related to a plugin and not AntiSpamHandler"""

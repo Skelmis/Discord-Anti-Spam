@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 from unittest.mock import MagicMock, AsyncMock
 
 import discord
@@ -12,16 +13,18 @@ from antispam import (
     AntiSpamHandler,
     Options,
     GuildNotFound,
-    ExtensionError,
+    PluginError,
     MissingGuildPermissions,
     PropagateFailure,
+    InvocationCancelled,
 )  # noqa
 
 from antispam.enums import IgnoreType, ResetType
 
-from antispam.dataclasses import Guild, Member
+from antispam.dataclasses import Guild, Member, CorePayload
 
 from antispam.base_plugin import BasePlugin
+from antispam.plugins import Stats as StatsPlugin
 from .fixtures import create_bot, create_handler, MockClass
 from .mocks import MockedMessage
 
@@ -396,25 +399,25 @@ class TestExceptions:
         assert data == stored_data
 
     def test_register_extension(self, create_handler: AntiSpamHandler):
-        with pytest.raises(ExtensionError):
-            create_handler.register_extension(MockClass())
+        with pytest.raises(PluginError):
+            create_handler.register_plugin(MockClass())
 
         class Test(BasePlugin):
             def __init__(self, invoke=True):
                 self.is_pre_invoke = invoke
 
         assert len(create_handler.pre_invoke_extensions.values()) == 0
-        create_handler.register_extension(Test())
+        create_handler.register_plugin(Test())
         assert len(create_handler.pre_invoke_extensions.values()) == 1
 
         # Test overwrite
-        with pytest.raises(ExtensionError):
-            create_handler.register_extension(Test())
+        with pytest.raises(PluginError):
+            create_handler.register_plugin(Test())
 
-        create_handler.register_extension(Test(), force_overwrite=True)
+        create_handler.register_plugin(Test(), force_overwrite=True)
 
         assert len(create_handler.after_invoke_extensions.values()) == 0
-        create_handler.register_extension(Test(invoke=False), force_overwrite=True)
+        create_handler.register_plugin(Test(invoke=False), force_overwrite=True)
         assert len(create_handler.after_invoke_extensions.values()) == 1
 
     def test_unregister_extension(self, create_handler: AntiSpamHandler):
@@ -422,17 +425,17 @@ class TestExceptions:
             def __init__(self, invoke=True):
                 self.is_pre_invoke = invoke
 
-        create_handler.register_extension(Test(invoke=False))
+        create_handler.register_plugin(Test(invoke=False))
         assert len(create_handler.after_invoke_extensions.values()) == 1
-        create_handler.unregister_extension("Test")
+        create_handler.unregister_plugin("Test")
         assert len(create_handler.after_invoke_extensions.values()) == 0
 
-        with pytest.raises(ExtensionError):
-            create_handler.unregister_extension("Invalid Extension")
+        with pytest.raises(PluginError):
+            create_handler.unregister_plugin("Invalid Extension")
 
-        create_handler.register_extension(Test())
+        create_handler.register_plugin(Test())
         assert len(create_handler.pre_invoke_extensions.values()) == 1
-        create_handler.unregister_extension("Test")
+        create_handler.unregister_plugin("Test")
         assert len(create_handler.pre_invoke_extensions.values()) == 0
 
     @pytest.mark.asyncio()
@@ -537,7 +540,7 @@ class TestExceptions:
             async def propagate(self, msg):
                 return 1
 
-        create_handler.register_extension(PreInvoke())
+        create_handler.register_plugin(PreInvoke())
 
         message = MockedMessage().to_mock()
         return_data = await create_handler.propagate(message)
@@ -558,7 +561,7 @@ class TestExceptions:
             async def propagate(self, msg, data):
                 return 2
 
-        create_handler.register_extension(AfterInvoke())
+        create_handler.register_plugin(AfterInvoke())
 
         message = MockedMessage().to_mock()
         return_data = await create_handler.propagate(message)
@@ -577,3 +580,74 @@ class TestExceptions:
         message = MockedMessage().to_mock()
         return_data = await create_handler.propagate(message)
         assert return_data["status"] == "Ignoring this role: 252525"
+
+    @pytest.mark.asyncio
+    async def test_propagate_stats_hook(self, create_handler):
+        """Tests the stats cancel_next_invocation hook works"""
+
+        class MockPlugin(BasePlugin):
+            async def propagate(
+                self, message, data: Optional[CorePayload] = None
+            ) -> dict:
+                return {"cancel_next_invocation": True}
+
+        bot_mock = AsyncMock()
+        bot_mock.bot.user.id = 1500
+        create_handler.bot = bot_mock
+
+        stats_plugin = StatsPlugin(create_handler)
+
+        create_handler.register_plugin(MockPlugin())
+        create_handler.register_plugin(stats_plugin)
+
+        with pytest.raises(InvocationCancelled):
+            await create_handler.propagate(MockedMessage().to_mock())
+
+        stats_plugin.data = {"pre_invoke_calls": {"MockPlugin": {}}}
+
+        with pytest.raises(InvocationCancelled):
+            await create_handler.propagate(MockedMessage().to_mock())
+
+        create_handler.unregister_plugin("Stats")
+
+        class Stats(BasePlugin):
+            def __init__(self):
+                super().__init__(False)
+
+            async def propagate(
+                self, message, data: Optional[CorePayload] = None
+            ) -> dict:
+                return {"cancel_next_invocation": True}
+
+        create_handler.register_plugin(Stats())
+
+        with pytest.raises(InvocationCancelled):
+            # Should skip tryna set stats stuff
+            await create_handler.propagate(MockedMessage().to_mock())
+
+    @pytest.mark.asyncio
+    async def test_propagate_cancel_next_invoke(self, create_handler):
+        class MockPlugin(BasePlugin):
+            async def propagate(
+                self, message, data: Optional[CorePayload] = None
+            ) -> dict:
+                return {"cancel_next_invocation": True}
+
+        bot_mock = AsyncMock()
+        bot_mock.bot.user.id = 1500
+        create_handler.bot = bot_mock
+
+        create_handler.register_plugin(MockPlugin())
+
+        with pytest.raises(InvocationCancelled):
+            await create_handler.propagate(MockedMessage().to_mock())
+
+        class MockPluginTwo(BasePlugin):
+            async def propagate(
+                self, message, data: Optional[CorePayload] = None
+            ) -> dict:
+                return {}
+
+        create_handler.unregister_plugin("MockPlugin")
+        create_handler.register_plugin(MockPluginTwo())
+        await create_handler.propagate(MockedMessage().to_mock())

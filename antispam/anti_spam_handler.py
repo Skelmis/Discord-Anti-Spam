@@ -37,9 +37,10 @@ from .caches import MemoryCache
 from .enums import IgnoreType, ResetType
 from .exceptions import (
     MissingGuildPermissions,
-    ExtensionError,
+    PluginError,
     GuildNotFound,
     PropagateFailure,
+    InvocationCancelled,
 )
 from .factory import FactoryBuilder
 from .base_plugin import BasePlugin
@@ -276,15 +277,26 @@ class AntiSpamHandler:
                         if hasattr(stats, "injectable_nonce"):
                             # Increment stats for invocation call stats
                             try:
-                                stats.data["pre_invoke_calls"][pre_invoke_ext][
-                                    "cancel_next_invocation_calls"
-                                ] += 1
+                                stats.data["pre_invoke_calls"][
+                                    pre_invoke_ext.__class__.__name__
+                                ]["cancel_next_invocation_calls"] += 1
                             except KeyError:
-                                stats.data["pre_invoke_calls"][pre_invoke_ext][
-                                    "cancel_next_invocation_calls"
-                                ] = 1
+                                if (
+                                    pre_invoke_ext.__class__.__name__
+                                    not in stats.data["pre_invoke_calls"]
+                                ):
+                                    stats.data["pre_invoke_calls"][
+                                        pre_invoke_ext.__class__.__name__
+                                    ] = {}
 
-                    return pre_invoke_extensions
+                                stats.data["pre_invoke_calls"][
+                                    pre_invoke_ext.__class__.__name__
+                                ]["cancel_next_invocation_calls"] = 1
+
+                    raise InvocationCancelled
+            except InvocationCancelled as e:
+                # Propagate this on further
+                raise e from None
             except:
                 pass
 
@@ -663,14 +675,14 @@ class AntiSpamHandler:
 
         return data
 
-    def register_extension(self, extension, force_overwrite=False) -> None:
+    def register_plugin(self, plugin, force_overwrite=False) -> None:
         """
-        Registers an extension for usage for within the package
+        Registers a plugin for usage for within the package
 
         Parameters
         ----------
-        extension
-            The extension to register
+        plugin
+            The plugin to register
         force_overwrite : bool
             Whether to overwrite any duplicates currently stored.
 
@@ -679,21 +691,21 @@ class AntiSpamHandler:
 
         Raises
         ------
-        ExtensionError
-            An extension with this name is already loaded
+        PluginError
+            A plugin with this name is already loaded
 
         Notes
         -----
         This must be a class instance, and must
         subclass ``BasePlugin``
         """
-        if not issubclass(type(extension), BasePlugin):
+        if not issubclass(type(plugin), BasePlugin):
             log.debug("Failed to load extension due to class type issues")
-            raise ExtensionError(
+            raise PluginError(
                 "Expected extension that subclassed BasePlugin and was a class instance not class reference"
             )
 
-        is_pre_invoke = getattr(extension, "is_pre_invoke", True)
+        is_pre_invoke = getattr(plugin, "is_pre_invoke", True)
 
         # propagate_signature = inspect.signature(getattr(extension, "propagate"))
 
@@ -701,54 +713,54 @@ class AntiSpamHandler:
         # everything and its ultimately on the end developer
         # to get this correct rather then server-side validation
 
-        cls_name = extension.__class__.__name__.lower()
+        cls_name = plugin.__class__.__name__.lower()
 
         if (
             self.pre_invoke_extensions.get(cls_name)
             or self.after_invoke_extensions.get(cls_name)
         ) and not force_overwrite:
             log.debug("Duplicate extension load attempt")
-            raise ExtensionError(
+            raise PluginError(
                 "Error loading extension, an extension with this name already exists!"
             )
 
         if is_pre_invoke:
             log.info(f"Loading pre-invoke extension: {cls_name}")
-            self.pre_invoke_extensions[cls_name] = extension
+            self.pre_invoke_extensions[cls_name] = plugin
         else:
             log.info(f"Loading after-invoke extension: {cls_name}")
-            self.after_invoke_extensions[cls_name] = extension
+            self.after_invoke_extensions[cls_name] = plugin
 
-    def unregister_extension(self, extension_name: str) -> None:
+    def unregister_plugin(self, plugin_name: str) -> None:
         """
-        Used to unregister or remove an extension that is
+        Used to unregister or remove a plugin that is
         currently loaded into AntiSpamHandler
 
         Parameters
         ----------
-        extension_name : str
+        plugin_name : str
             The name of the class you want to unregister
 
         Raises
         ------
-        ExtensionError
+        PluginError
             This extension isn't loaded
 
         """
         has_popped_pre_invoke = False
         try:
-            self.pre_invoke_extensions.pop(extension_name.lower())
+            self.pre_invoke_extensions.pop(plugin_name.lower())
             has_popped_pre_invoke = True
         except KeyError:
             pass
 
         try:
-            self.after_invoke_extensions.pop(extension_name.lower())
+            self.after_invoke_extensions.pop(plugin_name.lower())
         except KeyError:
             if not has_popped_pre_invoke:
                 log.debug(
-                    f"Failed to unload extension {extension_name} as it isn't loaded"
+                    f"Failed to unload extension {plugin_name} as it isn't loaded"
                 )
-                raise ExtensionError("An extension matching this name doesn't exist!")
+                raise PluginError("An extension matching this name doesn't exist!")
 
-        log.info(f"Unregistered extension {extension_name}")
+        log.info(f"Unregistered extension {plugin_name}")
