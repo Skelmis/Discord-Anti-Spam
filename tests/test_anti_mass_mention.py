@@ -16,8 +16,8 @@ from .mocks import MockedMessage
 
 class TestMassMention:
     def test_mass_mention_payload(self):
-        test = MassMentionPunishment(1, 2, True)
-        assert test == MassMentionPunishment(1, 2, True)
+        test = MassMentionPunishment(1, 2, 3, True)
+        assert test == MassMentionPunishment(1, 2, 3, True)
 
     def test_tracking(self):
         date = datetime.datetime.now()
@@ -105,6 +105,7 @@ class TestMassMention:
         assert return_value == {
             "member_id": 1,
             "guild_id": 1,
+            "channel_id": 98987,
             "is_overall_punishment": False,
         }
 
@@ -126,5 +127,6 @@ class TestMassMention:
         assert return_value == {
             "member_id": 12345,
             "guild_id": 123456789,
+            "channel_id": 98987,
             "is_overall_punishment": True,
         }

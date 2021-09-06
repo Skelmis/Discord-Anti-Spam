@@ -226,7 +226,7 @@ class DPY(Lib):
             )
 
         perms = message.guild.me.guild_permissions
-        has_perms = perms.kick_members or perms.ban_members
+        has_perms = perms.kick_members and perms.ban_members
 
         return PropagateData(
             guild_id=message.guild.id,

@@ -6,7 +6,7 @@ from antispam.plugins import AntiSpamTracker
 
 from antispam import PluginCache, MemberNotFound, Options
 
-from antispam.dataclasses import Member, Guild
+from antispam.dataclasses import Member, Guild, CorePayload
 from .fixtures import create_anti_spam_tracker, create_handler, MockClass, create_bot
 from .mocks import MockedMessage
 
@@ -49,7 +49,7 @@ class TestAntiSpamTracker:
     async def test_propagate(self, create_anti_spam_tracker):
         """Tests this propagates the call to update_cache"""
         return_value = await create_anti_spam_tracker.propagate(
-            MockedMessage().to_mock(), {}
+            MockedMessage().to_mock(), CorePayload()
         )
         assert return_value == {"status": "Cache updated"}
 
@@ -69,16 +69,18 @@ class TestAntiSpamTracker:
             )
 
         await create_anti_spam_tracker.update_cache(
-            MockedMessage(is_in_guild=False).to_mock(), {}
+            MockedMessage(is_in_guild=False).to_mock(), CorePayload()
         )
-        await create_anti_spam_tracker.update_cache(MockedMessage().to_mock(), {})
+        await create_anti_spam_tracker.update_cache(
+            MockedMessage().to_mock(), CorePayload()
+        )
 
     @pytest.mark.asyncio
     async def test_update_cache(self, create_anti_spam_tracker):
         message = MockedMessage(guild_id=1, author_id=1).to_mock()
 
         # All we need to mock for this
-        data = {"member_should_be_punished_this_message": True}
+        data = CorePayload(member_should_be_punished_this_message=True)
 
         await create_anti_spam_tracker.update_cache(message, data)
 
@@ -96,7 +98,7 @@ class TestAntiSpamTracker:
         """For coverage"""
         await create_anti_spam_tracker.anti_spam_handler.cache.set_member(Member(1, 1))
 
-        data = {"member_should_be_punished_this_message": True}
+        data = CorePayload(member_should_be_punished_this_message=True)
 
         await create_anti_spam_tracker.update_cache(
             MockedMessage(author_id=1, guild_id=1).to_mock(), data
@@ -107,7 +109,7 @@ class TestAntiSpamTracker:
 
     @pytest.mark.asyncio
     async def test_get_user_count(self, create_anti_spam_tracker):
-        data = {"member_should_be_punished_this_message": True}
+        data = CorePayload(member_should_be_punished_this_message=True)
         await create_anti_spam_tracker.update_cache(
             MockedMessage(author_id=1, guild_id=1).to_mock(), data
         )
@@ -161,7 +163,7 @@ class TestAntiSpamTracker:
         await create_anti_spam_tracker.anti_spam_handler.cache.set_member(Member(1, 1))
         await create_anti_spam_tracker.update_cache(
             MockedMessage(author_id=1, guild_id=1).to_mock(),
-            {"member_should_be_punished_this_message": True},
+            CorePayload(member_should_be_punished_this_message=True),
         )
 
         result = await create_anti_spam_tracker.member_tracking.get_member_data(1, 1)
@@ -245,7 +247,7 @@ class TestAntiSpamTracker:
         )
         assert result_one is False
 
-        data = {"member_should_be_punished_this_message": True}
+        data = CorePayload(member_should_be_punished_this_message=True)
         await create_anti_spam_tracker.update_cache(
             MockedMessage(message_id=1).to_mock(), data
         )

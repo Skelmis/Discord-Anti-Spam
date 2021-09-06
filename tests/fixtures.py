@@ -4,6 +4,7 @@ from discord.ext import commands  # noqa
 from antispam import AntiSpamHandler, PluginCache
 from antispam.core import Core
 from antispam.caches import MemoryCache
+from antispam.libs.dpy import DPY
 from antispam.plugins import AntiMassMention, AntiSpamTracker
 
 
@@ -47,3 +48,8 @@ def create_anti_mass_mention(create_bot, create_handler):
 @pytest.fixture
 def create_anti_spam_tracker(create_handler):
     return AntiSpamTracker(create_handler, 3)
+
+
+@pytest.fixture
+def create_dpy_lib_handler(create_handler):
+    return DPY(create_handler)

@@ -66,7 +66,7 @@
                 "is_per_channel_per_guild": true,
                 "addons": {}
             },
-            "log_channel": null,
+            "log_channel_id": null,
             "members": {},
             "addons": {}
         }

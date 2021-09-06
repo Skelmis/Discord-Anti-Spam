@@ -130,7 +130,8 @@ class Core:
             guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_warn_message,
                 original_message,
-                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+                member.warn_count,
+                member.kick_count,
             )
             try:
                 await self.handler.lib_handler.send_message_to_(
@@ -156,14 +157,16 @@ class Core:
             guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_kick_message,
                 original_message,
-                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+                member.warn_count,
+                member.kick_count,
             )
             user_message = self.handler.lib_handler.transform_message(
                 self.options.member_kick_message,
                 original_message,
-                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+                member.warn_count,
+                member.kick_count,
             )
-            await self.handler.lib_handler._punish_member(
+            await self.handler.lib_handler.punish_member(
                 original_message,
                 member,
                 guild,
@@ -187,12 +190,14 @@ class Core:
             guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_ban_message,
                 original_message,
-                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+                member.warn_count,
+                member.kick_count,
             )
             user_message = self.handler.lib_handler.transform_message(
                 self.options.member_ban_message,
                 original_message,
-                {"warn_count": member.warn_count, "kick_count": member.kick_count},
+                member.warn_count,
+                member.kick_count,
             )
             await self.handler.lib_handler.punish_member(
                 original_message,
