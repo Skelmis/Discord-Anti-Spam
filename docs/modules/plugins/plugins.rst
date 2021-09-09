@@ -20,6 +20,9 @@ it can be handled by the end developer for finer control.
 However, it can also be used as a plugin if users are
 happy with the default behaviour.
 
+Any plugin distributed under the antispam package needs to be lib agnostic,
+so as to not a dependency of something not in use.
+
 Call Stack
 ----------
 
