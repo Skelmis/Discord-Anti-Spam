@@ -321,6 +321,8 @@ class Lib(Protocol):
         """
         Sends a message to the guilds log channel
 
+        TODO If no log channel, send in ctx.channel
+
         Parameters
         ----------
         guild : Guild
