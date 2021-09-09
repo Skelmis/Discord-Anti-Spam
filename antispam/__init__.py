@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-__version__ = "0.9.0"
+__version__ = "0.9.1"
 
 from antispam.anti_spam_handler import AntiSpamHandler
 from antispam.exceptions import *
