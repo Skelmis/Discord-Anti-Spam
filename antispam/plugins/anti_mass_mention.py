@@ -211,7 +211,6 @@ class AntiMassMention(BasePlugin):
 
         valid_items = []
         for item in member["total_mentions"]:
-            # TODO This might break in dpy 2.0
             make_aware = item.timestamp.replace(tzinfo=datetime.timezone.utc)
             if await _is_still_valid(make_aware):
                 valid_items.append(item)

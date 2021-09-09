@@ -168,8 +168,6 @@ class AntiSpamHandler:
 
     """
 
-    # TODO Add options for group spamming, rather then just per member.
-    #      This could possibly be implemented at a Guild() level
     def __init__(
         self,
         bot,
@@ -201,7 +199,6 @@ class AntiSpamHandler:
         if not issubclass(type(cache), Cache):
             raise ValueError("Expected `cache` that inherits from the `Cache` Protocol")
 
-        # TODO We can't type check this. Just have to make an assumption the user is right till we error
         self.bot = bot
         self.cache = cache
         self.core = Core(self)

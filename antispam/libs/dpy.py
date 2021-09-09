@@ -406,16 +406,10 @@ class DPY(Lib):
                         member.warn_count,
                         member.kick_count,
                     )
-                if isinstance(user_failed_message, discord.Embed):
-                    await author.send(
-                        embed=user_failed_message,
-                        delete_after=user_delete_after,
-                    )
-                else:
-                    await author.send(
-                        user_failed_message,
-                        delete_after=user_delete_after,
-                    )
+
+                await self.send_guild_log(
+                    internal_guild, user_failed_message, channel_delete_after
+                )
                 await sent_message.delete()
 
         else:
