@@ -102,6 +102,7 @@ class Core:
 
         # Delete the message if wanted
         if self.options.delete_spam is True and self.options.no_punish is False:
+            # TODO Go delete ALL messages marked as spam
             await self.handler.lib_handler.delete_message(original_message)
 
         if self.options.no_punish:
