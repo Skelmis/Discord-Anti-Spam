@@ -292,8 +292,10 @@ class TestCore:
             1, 1, messages=[Message(1, 2, 3, 4, "One"), Message(2, 2, 3, 4, "Two")]
         )
 
+        m = Message(1, 2, 3, 4, "One")
+        m.creation_time = member.messages[0].creation_time
         with pytest.raises(DuplicateObject):
-            create_core._calculate_ratios(Message(1, 2, 3, 4, "One"), member)
+            create_core._calculate_ratios(m, member)
 
     def test_calculate_ratios_does_nothing(self, create_core):
         """Tests the loop does nothing on different messages"""
