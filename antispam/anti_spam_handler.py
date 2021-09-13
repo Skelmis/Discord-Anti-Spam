@@ -604,14 +604,18 @@ class AntiSpamHandler:
         the following occurs
 
         If you set ``raise_on_exception`` to ``False``, and an exception occurs during the
-        build process. This method will return an ``AntiSpamhandler`` instance
+        build process. This method will return an ``AntiSpamHandler`` instance
         **without** any of the saved state and is equivalent to simply
         doing ``AntiSpamHandler(bot)``
 
         """
-        # TODO Add `cache` support
+        # TODO Add redis cache here
+        caches = {"MemoryCache": MemoryCache}
+
         try:
             ash = AntiSpamHandler(bot=bot, options=Options(**data["options"]))
+            cache_type = data["cache"]
+            ash.cache = caches[cache_type](ash)
             for guild in data["guilds"]:
                 await ash.cache.set_guild(FactoryBuilder.create_guild_from_dict(guild))
 
@@ -664,7 +668,11 @@ class AntiSpamHandler:
         to begin using that modified copy.
 
         """
-        data = {"options": asdict(self.options), "guilds": []}
+        data = {
+            "options": asdict(self.options),
+            "cache": self.cache.__class__.__name__,
+            "guilds": [],
+        }
         for guild in await self.cache.get_all_guilds():
             data["guilds"].append(asdict(guild, recurse=True))
 
