@@ -7,6 +7,7 @@ Welcome to DPY Anti-Spam's documentation!
 
    modules/main/main.rst
    modules/main/caches.rst
+   modules/main/examples.rst
    modules/main/core.rst
    modules/main/enums.rst
    modules/main/options.rst
