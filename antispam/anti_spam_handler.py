@@ -22,7 +22,6 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
-import datetime
 import logging
 from copy import deepcopy
 from typing import Optional, Union
@@ -203,6 +202,8 @@ class AntiSpamHandler:
         self.cache = cache
         self.core = Core(self)
 
+        self.needs_init = True
+
         self.pre_invoke_extensions = {}
         self.after_invoke_extensions = {}
 
@@ -219,6 +220,20 @@ class AntiSpamHandler:
             self.lib_handler = DPY(self)
 
         log.info("Package initialized successfully")
+
+    async def init(self) -> None:
+        """
+        This method provides a means to initialize any
+        async calls cleanly and without asyncio madness.
+
+        Notes
+        -----
+        This method is guaranteed to be called before the
+        first time propagate runs. However, it will not
+        be run when the class is initialized.
+
+        """
+        self.needs_init = False
 
     async def propagate(self, message) -> Optional[Union[CorePayload, dict]]:
         """
@@ -238,6 +253,9 @@ class AntiSpamHandler:
         dict
             A dictionary of useful information about the Member in question
         """
+        if self.needs_init:
+            await self.init()
+
         try:
             propagate_data = await self.lib_handler.check_message_can_be_propagated(
                 message=message
