@@ -33,6 +33,7 @@ Welcome to DPY Anti-Spam's documentation!
    modules/objects/message.rst
    modules/objects/redis.rst
    modules/objects/memory.rst
+   modules/objects/data.rst
 
 Install Notes
 -------------

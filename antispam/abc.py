@@ -355,7 +355,8 @@ class Lib(Protocol):
     ):
         """
         A generic method to handle multiple methods of punishment for a user.
-        Currently supports: kicking, banning
+        Supports: kicking, banning
+
         Parameters
         ----------
         member : Member
@@ -370,15 +371,16 @@ class Lib(Protocol):
             A message to send in the guild for whoever is being punished
         is_kick : bool
             Is it a kick? Else ban
-        user_delete_after : int, optional
+        user_delete_after : int, Optional
             An int value denoting the time to
             delete user sent messages after
-        channel_delete_after : int, optional
+        channel_delete_after : int, Optional
             An int value denoting the time to
             delete channel sent messages after
+
         Raises
         ======
-        MissingGuildPerms
+        MissingGuildPermissions
             I lack perms to carry out this punishment
         """
         raise NotImplementedError

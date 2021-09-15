@@ -15,4 +15,7 @@ this so you can treat it as a source of truth for usage.
 .. autoclass:: Cache
     :members:
     :undoc-members:
-    :special-members: __init__
+
+.. autoclass:: Lib
+    :members:
+    :undoc-members:
