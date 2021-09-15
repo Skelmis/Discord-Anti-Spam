@@ -58,3 +58,5 @@ intersphinx_mapping = {
     "discord.py": ("https://discordpy.readthedocs.io/en/latest/", None),
     "hikari": ("https://hikari-py.github.io/hikari/", None),
 }
+
+master_doc = "index"
