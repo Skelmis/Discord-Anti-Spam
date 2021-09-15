@@ -6,7 +6,7 @@ import pytest
 
 from antispam.dataclasses import Guild, Member, CorePayload, Message
 
-from antispam import Options, LogicError, MissingGuildPermissions
+from antispam import Options, LogicError, MissingGuildPermissions, PropagateFailure
 from .fixtures import (
     create_bot,
     create_handler,
@@ -114,3 +114,102 @@ class TestLibDPY:
             "test guild",
             True,
         )
+
+    def test_embed_to_string(self, create_dpy_lib_handler):
+        embed = discord.Embed()
+        assert "" == create_dpy_lib_handler.embed_to_string(embed=embed)
+
+        embed = discord.Embed(title="Hello", description="World")
+        embed.set_footer(text="This is weird")
+        embed.set_author(name="Its almost as if")
+        embed.add_field(name="I am", value="Alive")
+        embed.add_field(name="That would be weird tho", value="Right?")
+        assert (
+            "Hello\nWorld\nThis is weird\nIts almost as if\nI am\nAlive\nThat would be weird tho\nRight?\n"
+            == create_dpy_lib_handler.embed_to_string(embed)
+        )
+
+        embed = discord.Embed(title="Hello", description="World")
+        embed.set_footer(icon_url="This is weird")
+        embed.set_author(name="Its almost as if")
+        embed.add_field(name="I am", value="Alive")
+        embed.add_field(name="That would be weird tho", value="Right?")
+        assert (
+            "Hello\nWorld\nIts almost as if\nI am\nAlive\nThat would be weird tho\nRight?\n"
+            == create_dpy_lib_handler.embed_to_string(embed)
+        )
+
+    def test_dict_to_embed(self, create_dpy_lib_handler):
+        warn_embed_dict = {
+            "title": "**Dear Dave**",
+            "description": "You are being warned for spam, please stop!",
+            "color": 0xFF0000,
+            "footer": {"text": "BOT"},
+            "author": {"name": "Guild"},
+            "fields": [
+                {"name": "Current warns:", "value": "1"},
+                {"name": "Current kicks:", "value": "2", "inline": False},
+            ],
+        }
+
+        mock_message = MockedMessage().to_mock()
+
+        test_embed = create_dpy_lib_handler.dict_to_embed(
+            warn_embed_dict, mock_message, 1, 2
+        )
+
+        embed = discord.Embed(
+            title="**Dear Dave**",
+            description="You are being warned for spam, please stop!",
+            color=0xFF0000,
+        )
+        embed.set_footer(text="BOT")
+        embed.set_author(name="Guild")
+        embed.add_field(name="Current warns:", value="1")
+        embed.add_field(name="Current kicks:", value="2", inline=False)
+
+        assert embed.to_dict() == test_embed.to_dict()
+
+        bounds_dict = {
+            "footer": {"icon_url": "$USERAVATAR"},
+            "author": {"icon_url": "$BOTAVATAR", "name": "d"},
+            "timestamp": True,
+            "colour": 0xFFFFFF,
+        }
+        mock_message.created_at = datetime.datetime.now()
+        mock_message.guild.me.avatar_url = "test"
+        mock_message.author.avatar_url = "author"
+        test_embed = create_dpy_lib_handler.dict_to_embed(
+            bounds_dict, mock_message, 1, 2
+        )
+
+        embed_two = discord.Embed(color=0xFFFFFF, timestamp=mock_message.created_at)
+        embed_two.set_footer(icon_url="author")
+        embed_two.set_author(icon_url="test", name="d")
+
+        assert embed_two.to_dict() == test_embed.to_dict()
+
+        bounds_dict = {
+            "footer": {"icon_url": "x"},
+            "author": {"icon_url": "y", "name": "d"},
+            "timestamp": True,
+            "colour": 0xFFFFFF,
+        }
+        test_embed = create_dpy_lib_handler.dict_to_embed(
+            bounds_dict, mock_message, 1, 2
+        )
+
+        embed_two = discord.Embed(color=0xFFFFFF, timestamp=mock_message.created_at)
+        embed_two.set_footer(icon_url="x")
+        embed_two.set_author(icon_url="y", name="d")
+
+        assert embed_two.to_dict() == test_embed.to_dict()
+
+    def test_visualizer(self, create_dpy_lib_handler):
+        create_dpy_lib_handler.visualizer("Lol", MockedMessage().to_mock())
+        create_dpy_lib_handler.visualizer("{'data': 1}", MockedMessage().to_mock())
+
+    @pytest.mark.asyncio()
+    async def test_propagate_type_fails(self, create_dpy_lib_handler):
+        with pytest.raises(PropagateFailure):
+            await create_dpy_lib_handler.check_message_can_be_propagated("lol")

@@ -15,8 +15,8 @@ def test_base_init():
 @pytest.mark.asyncio
 async def test_base_prop():
     b = BasePlugin()
-    c = await b.propagate(MockedMessage().to_mock())
-    assert c is None
+    with pytest.raises(NotImplementedError):
+        await b.propagate(MockedMessage().to_mock())
 
 
 def test_state_enum():

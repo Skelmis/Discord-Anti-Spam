@@ -653,3 +653,13 @@ class TestAntiSpamHandler:
         create_handler.unregister_plugin("MockPlugin")
         create_handler.register_plugin(MockPluginTwo())
         await create_handler.propagate(MockedMessage().to_mock())
+
+    def test_hikari_setup(self):
+        handler = AntiSpamHandler(
+            commands.Bot(command_prefix="!"), is_using_hikari=True
+        )
+        assert handler.lib_handler.__class__.__name__ == "Hikari"
+
+    def test_dpy_setup(self):
+        handler = AntiSpamHandler(commands.Bot(command_prefix="!"))
+        assert handler.lib_handler.__class__.__name__ == "DPY"
