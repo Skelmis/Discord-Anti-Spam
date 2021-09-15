@@ -34,9 +34,7 @@ class Stats(BasePlugin):
         }
         self.handler = anti_spam_handler
 
-    async def propagate(
-        self, message: discord.Message, data: typing.Optional[CorePayload] = None
-    ) -> dict:
+    async def propagate(self, message, data: CorePayload) -> dict:
         for invoker in self.handler.pre_invoke_extensions.keys():
             try:
                 self.data["pre_invoke_calls"][invoker]["calls"] += 1
@@ -54,7 +52,10 @@ class Stats(BasePlugin):
         self.data["propagate_calls"] += 1
 
         if message.guild.id not in self.data["guilds"]:
-            self.data["guilds"][message.guild.id] = {"calls": 0, "messages_punished": 0}
+            self.data["guilds"][message.guild.id] = {
+                "calls": 0,
+                "total_messages_punished": 0,
+            }
 
         self.data["guilds"][message.guild.id]["calls"] += 1
 
@@ -65,6 +66,6 @@ class Stats(BasePlugin):
 
         if data.member_should_be_punished_this_message:
             self.data["members"][message.author.id]["times_punished"] += 1
-            self.data["guilds"][message.guild.id]["times_punished"] += 1
+            self.data["guilds"][message.guild.id]["total_messages_punished"] += 1
 
         return {"status": "Updated stats!"}

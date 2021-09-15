@@ -95,7 +95,7 @@ class AntiMassMention(BasePlugin):
 
         log.debug("Initialized AntiMassMention")
 
-    async def propagate(self, message: discord.Message) -> dict:
+    async def propagate(self, message) -> dict:
         """
         Manages and stores any mass mentions per users
         Parameters

@@ -148,7 +148,7 @@ class AntiSpamTracker(BasePlugin):
         log.info("AntiSpamTracker is initialized and ready to go")
 
     async def propagate(
-        self, message: discord.Message, data: typing.Optional[CorePayload] = None
+        self, message, data: typing.Optional[CorePayload] = None
     ) -> dict:
         """
         Overwrite the base extension to call ``update_cache``
