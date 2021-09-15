@@ -4,8 +4,7 @@ MemoryCache Reference
 This is the default cache for the package.
 You shouldn't need to implement it yourself.
 
-Furthermore, refer to `Abc Reference <https://dpy-anti-spam.readthedocs.io/en/latest/objects/abc>`_ 
-for actual method documentation n such.
+Furthermore, refer to :py:class:`antispam.abc.Cache` for protocol implementation.
 
 .. currentmodule:: antispam.caches.memory.memory
 

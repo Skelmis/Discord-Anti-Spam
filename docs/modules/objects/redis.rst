@@ -3,8 +3,7 @@ RedisCache Reference
 
 A caching option within the standard package.
 
-Furthermore, refer to `Abc Reference <https://dpy-anti-spam.readthedocs.io/en/latest/objects/abc>`_ 
-for actual method documentation n such.
+Furthermore, refer to :py:class:`antispam.abc.Cache` for protocol implementation.
 
 *Not yet made*
 
