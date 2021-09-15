@@ -233,6 +233,8 @@ class AntiSpamHandler:
         be run when the class is initialized.
 
         """
+        await self.cache.initialize()
+
         self.needs_init = False
 
     async def propagate(self, message) -> Optional[Union[CorePayload, dict]]:

@@ -17,8 +17,12 @@ class Cache(Protocol):
     async def initialize(self, *args, **kwargs) -> None:
         """
         This method gets called once when the AntiSpamHandler
-        first loads so that you can do any async initialization
-        you need to do before the cache gets used
+        init() method gets called to allow for setting up
+        connections, etc
+
+        Notes
+        -----
+        This is not required.
         """
         pass
 
