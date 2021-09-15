@@ -26,7 +26,7 @@ from .anti_spam_handler import AntiSpamHandler
 from .exceptions import *
 from .dataclasses import Options
 from .plugin_cache import PluginCache
-from .enums import ignored_types
+
 
 import logging
 from collections import namedtuple

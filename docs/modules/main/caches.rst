@@ -21,7 +21,8 @@ Here is an example, note ``RedisCache`` will likely need arguments to init.
     import discord
     from discord.ext import commands
 
-    from antispam import AntiSpamHandler, RedisCache
+    from antispam import AntiSpamHandler
+    from antispam.caches import RedisCache
 
     bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
     bot.handler = AntiSpamHandler(bot, cache=RedisCache())

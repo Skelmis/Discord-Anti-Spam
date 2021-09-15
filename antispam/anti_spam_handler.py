@@ -61,9 +61,9 @@ def ensure_init(func):
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        self = args[0]
-        if self.needs_init:
-            await self.init()
+        handler = args[0]
+        if handler.needs_init:
+            await handler.init()
 
         return await func(*args, **kwargs)
 
