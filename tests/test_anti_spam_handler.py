@@ -37,7 +37,7 @@ from .mocks import MockedMessage
     """
 
 
-class TestExceptions:
+class TestAntiSpamHandler:
     @pytest.mark.asyncio
     async def test_base(self):
         pass
@@ -308,6 +308,7 @@ class TestExceptions:
     @pytest.mark.asyncio
     async def test_load_from_dict(self, create_bot):
         test_data = {
+            "cache": "MemoryCache",
             "options": asdict(Options()),
             "guilds": [
                 {
@@ -344,6 +345,7 @@ class TestExceptions:
     @pytest.mark.asyncio
     async def test_load_from_dict_fails(self, create_bot):
         test_data = {
+            "cache": "MemoryCache",
             "options": asdict(Options()),
             "XD": 1,
             "guilds": [

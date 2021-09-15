@@ -1,4 +1,5 @@
 {
+    "cache": "MemoryCache",
     "options": {
         "warn_threshold": 3,
         "kick_threshold": 2,

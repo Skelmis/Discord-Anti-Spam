@@ -266,7 +266,9 @@ class AntiSpamHandler:
             return e.data
 
         log.debug(
-            f"Propagating message for: {propagate_data.member_name}({propagate_data.member_id})"
+            "Propagating message for: %s(%s)",
+            propagate_data.member_name,
+            propagate_data.member_id,
         )
 
         try:
