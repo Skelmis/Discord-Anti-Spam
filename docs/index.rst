@@ -30,9 +30,9 @@ Welcome to DPY Anti-Spam's documentation!
    modules/objects/exceptions.rst
    modules/objects/guild.rst
    modules/objects/member.rst
-   modules/objects/memory.rst
    modules/objects/message.rst
    modules/objects/redis.rst
+   modules/objects/memory.rst
 
 Install Notes
 -------------
