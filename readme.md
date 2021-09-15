@@ -1,8 +1,8 @@
 # DPY Anti-Spam
 ---
 
-[![Unittests](https://github.com/Skelmis/DPY-Anti-Spam/actions/workflows/unittesting.yml/badge.svg?branch=master)](https://github.com/Skelmis/DPY-Anti-Spam/actions/workflows/unittesting.yml)
-[![Coverage Status](https://coveralls.io/repos/github/Skelmis/DPY-Anti-Spam/badge.svg?branch=master)](https://coveralls.io/github/Skelmis/DPY-Anti-Spam?branch=master)
+[![Pytest](https://github.com/Skelmis/DPY-Anti-Spam/actions/workflows/unittesting.yml/badge.svg?branch=rewrite)](https://github.com/Skelmis/DPY-Anti-Spam/actions/workflows/unittesting.yml)
+[![Coverage Status](https://coveralls.io/repos/github/Skelmis/DPY-Anti-Spam/badge.svg?branch=rewrite)](https://coveralls.io/github/Skelmis/DPY-Anti-Spam?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI download month](https://img.shields.io/pypi/dm/Discord-Anti-Spam.svg)](https://pypi.python.org/pypi/Discord-Anti-Spam/)
 [![Discord](https://img.shields.io/discord/780784732484141077.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/BqPNSH2jPg)
@@ -23,7 +23,7 @@ A basic bot
 ```python
 import discord
 from discord.ext import commands
-from discord.ext.antispam import AntiSpamHandler
+from antispam import AntiSpamHandler
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)

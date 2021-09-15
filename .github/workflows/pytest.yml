@@ -1,11 +1,11 @@
 
 # This workflow will install Python dependencies and run tests
-name: "Unittests"
+name: "Pytest"
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ rewrite ]
   push:
-    branches: [ master ]
+    branches: [ rewrite ]
 
 jobs:
   build:
@@ -25,11 +25,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install coverage coveralls
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-# TODO add linting at some point in the future
+        if [ -f dev-requirements.txt ]; then pip install -r dev-requirements.txt; fi
     - name: Run tests with code coverage
       run: |
-        coverage run --source=discord/ext/antispam/ -m pytest
+        coverage run --source=antispam/ -m pytest
     - name: Upload Coverage
       run: |
         coveralls --service=github
