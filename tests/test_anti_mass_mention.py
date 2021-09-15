@@ -102,12 +102,9 @@ class TestMassMention:
         ).to_mock()
         return_value = await create_anti_mass_mention.propagate(message)
 
-        assert return_value == {
-            "member_id": 1,
-            "guild_id": 1,
-            "channel_id": 98987,
-            "is_overall_punishment": False,
-        }
+        assert return_value == MassMentionPunishment(
+            member_id=1, guild_id=1, channel_id=98987, is_overall_punishment=False
+        )
 
     @pytest.mark.asyncio
     async def test_propagate_is_overall(self, create_anti_mass_mention):
@@ -124,9 +121,9 @@ class TestMassMention:
         # We should now trip it
         message = MockedMessage(message_id=3, message_mentions=[1, 2, 3, 4]).to_mock()
         return_value = await create_anti_mass_mention.propagate(message)
-        assert return_value == {
-            "member_id": 12345,
-            "guild_id": 123456789,
-            "channel_id": 98987,
-            "is_overall_punishment": True,
-        }
+        assert return_value == MassMentionPunishment(
+            member_id=12345,
+            guild_id=123456789,
+            channel_id=98987,
+            is_overall_punishment=True,
+        )
