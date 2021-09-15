@@ -1,5 +1,5 @@
-Anti-Spam Plugin System
-=======================
+Package Plugin System
+=====================
 
 This package features feature a built in plugins framework soon.
 This framework can be used to hook into the ``propagate`` method and run
