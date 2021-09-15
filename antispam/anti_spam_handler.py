@@ -22,6 +22,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 LICENSE
 """
+import functools
 import logging
 from copy import deepcopy
 from typing import Optional, Union
@@ -51,6 +52,22 @@ log = logging.getLogger(__name__)
 The overall handler & entry point from any discord bot,
 this is responsible for handling interaction with Guilds etc
 """
+
+
+def ensure_init(func):
+    """Ensures all cache related operations
+    are done on an initialized cache.
+    """
+
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        self = args[0]
+        if self.needs_init:
+            await self.init()
+
+        return await func(*args, **kwargs)
+
+    return wrapper
 
 
 class AntiSpamHandler:
@@ -253,6 +270,7 @@ class AntiSpamHandler:
 
         self.needs_init = False
 
+    @ensure_init
     async def propagate(self, message) -> Optional[Union[CorePayload, dict]]:
         """
         This method is the base level intake for messages, then
@@ -271,9 +289,6 @@ class AntiSpamHandler:
         dict
             A dictionary of useful information about the Member in question
         """
-        if self.needs_init:
-            await self.init()
-
         try:
             propagate_data = await self.lib_handler.check_message_can_be_propagated(
                 message=message
@@ -428,6 +443,7 @@ class AntiSpamHandler:
 
         log.debug("Un-Ignored %s: %s", ignore_type.name, item)
 
+    @ensure_init
     async def add_guild_options(self, guild_id: int, options: Options) -> None:
         """
         Set a guild's options to a custom set, rather then the base level
@@ -467,6 +483,7 @@ class AntiSpamHandler:
 
         log.info("Set custom options for guild: %s", guild_id)
 
+    @ensure_init
     async def get_guild_options(self, guild_id: int) -> Options:
         """
         Get the options dataclass for a given guild,
@@ -496,6 +513,7 @@ class AntiSpamHandler:
         guild = await self.cache.get_guild(guild_id=guild_id)
         return deepcopy(guild.options)
 
+    @ensure_init
     async def remove_guild_options(self, guild_id: int) -> None:
         """
         Reset a guilds options to the ASH options
@@ -520,6 +538,7 @@ class AntiSpamHandler:
             guild.options = self.options
             log.debug("Reset guild options for %s", guild_id)
 
+    @ensure_init
     async def reset_member_count(
         self, member_id: int, guild_id: int, reset_type: ResetType
     ) -> None:
@@ -551,6 +570,7 @@ class AntiSpamHandler:
 
         await self.cache.reset_member_count(member_id, guild_id, reset_type)
 
+    @ensure_init
     async def add_guild_log_channel(self, log_channel: int, guild_id: int) -> None:
         """
         Registers a log channel on a guild internally
@@ -581,6 +601,7 @@ class AntiSpamHandler:
             )
             await self.cache.set_guild(guild)
 
+    @ensure_init
     async def remove_guild_log_channel(self, guild_id: int) -> None:
         """
         Removes a registered guild log channel
@@ -671,6 +692,7 @@ class AntiSpamHandler:
 
         return ash
 
+    @ensure_init
     async def save_to_dict(self) -> dict:
         """
         Creates a 'save point' of the current

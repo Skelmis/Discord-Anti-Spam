@@ -1,7 +1,6 @@
 import pytest
 
 from antispam.base_plugin import BasePlugin
-from antispam.enums.state import ASHEnum
 from tests.mocks import MockedMessage
 
 """Some simple tests which don't need a whole file"""
