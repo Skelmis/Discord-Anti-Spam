@@ -18,6 +18,7 @@ Welcome to DPY Anti-Spam's documentation!
    modules/plugins/plugins.rst
    modules/plugins/schema.rst
    modules/plugins/tracker.rst
+   modules/plugins/mentions.rst
 
 .. toctree::
    :maxdepth: 2

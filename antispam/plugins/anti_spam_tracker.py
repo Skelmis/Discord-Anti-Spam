@@ -32,7 +32,7 @@ import discord
 
 from antispam import AntiSpamHandler
 from antispam.base_plugin import BasePlugin
-from antispam.dataclasses import Guild, Member, CorePayload
+from antispam.dataclasses import Member, CorePayload
 from antispam.exceptions import (
     MemberNotFound,
     GuildNotFound,

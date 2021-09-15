@@ -1,10 +1,8 @@
 import logging
 import datetime
+from typing import Union
 
 import attr
-from attr import asdict
-
-import discord  # noqa
 
 from antispam.base_plugin import BasePlugin
 from antispam.exceptions import MemberNotFound
@@ -18,19 +16,25 @@ log = logging.getLogger(__name__)
 class MassMentionPunishment:
     # noinspection PyUnresolvedReferences
     """
-    This dataclass is what is dispatched to
-    `on_mass_mention_punishment`
+    This dataclass is what is dispatched
+    when someone should be punished for mention spam.
 
     Parameters
     ----------
     member_id : int
-        The associated users id
+        The associated members id
+    channel_id : int
+        The associated channels id
     guild_id : int
         The associated guilds id
     is_overall_punishment : bool
         If this is ``True``, it means the user
         has exceeded ``total_mentions_before_punishment``.
         Otherwise they have exceeded ``min_mentions_per_message``
+
+    Notes
+    -----
+    You shouldn't be making instances of this.
     """
 
     member_id: int = attr.ib()
@@ -46,7 +50,21 @@ class Tracking:
 
 
 class AntiMassMention(BasePlugin):
-    """A simple class used to track mentions"""
+    """
+    In order to check if you should punish someone,
+    see the below code.
+
+    .. code-block:: python
+        :linenos:
+
+        data = await AntiSpamHandler.propagate(message)
+        return_item: Union[dict, MassMentionPunishment] = data.after_invoke_extensions["AntiMassMention"]
+
+        if isinstance(return_item, MassMentionPunishment):
+            # Punish for mention spam
+
+
+    """
 
     def __init__(
         self,
@@ -61,7 +79,7 @@ class AntiMassMention(BasePlugin):
 
         Parameters
         ----------
-        bot : commands.Bot or commands.AutoShardedBot or discord.Client or discord.AutoShardedClient
+        bot
             Our bot instance
         handler : AntiSpamHandler
             Our AntiSpamHandler instance
@@ -95,12 +113,13 @@ class AntiMassMention(BasePlugin):
 
         log.debug("Initialized AntiMassMention")
 
-    async def propagate(self, message) -> dict:
+    async def propagate(self, message) -> Union[dict, MassMentionPunishment]:
         """
         Manages and stores any mass mentions per users
+
         Parameters
         ----------
-        message : discord.Message
+        message
             The message to interact with
 
         Returns
@@ -108,6 +127,9 @@ class AntiMassMention(BasePlugin):
         dict
             A dictionary explaining what
             actions have been taken
+        MassMentionPunishment
+            Data surrounding the punishment
+            you should be doing.
         """
         member_id = message.author.id
         guild_id = message.guild.id
@@ -146,11 +168,7 @@ class AntiMassMention(BasePlugin):
                 channel_id=message.channel.id,
                 is_overall_punishment=False,
             )
-            self.bot.dispatch(
-                "mass_mention_punishment",
-                payload,
-            )
-            return asdict(payload)
+            return payload
 
         member = await self.data.get_member_data(guild_id=guild_id, member_id=member_id)
         if (
@@ -166,11 +184,7 @@ class AntiMassMention(BasePlugin):
                 channel_id=message.channel.id,
                 is_overall_punishment=True,
             )
-            self.bot.dispatch(
-                "mass_mention_punishment",
-                payload,
-            )
-            return asdict(payload)
+            return payload
 
         return {"action": "No action taken"}
 

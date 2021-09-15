@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 from .dataclasses import CorePayload
 
@@ -7,7 +7,7 @@ class BasePlugin:
     def __init__(self, is_pre_invoke=True) -> None:
         self.is_pre_invoke = is_pre_invoke
 
-    async def propagate(self, message, data: Optional[CorePayload] = None) -> dict:
+    async def propagate(self, message, data: Optional[CorePayload] = None) -> Any:
         """
         This method is called whenever the base ``antispam.propagate`` is called,
         adhering to ``self.is_pre_invoke``
