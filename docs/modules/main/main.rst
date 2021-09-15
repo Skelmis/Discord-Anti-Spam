@@ -14,7 +14,7 @@ This handler propagation method also returns the following class for you to use:
 
 :doc:`CorePayload <core>`
 
-.. currentmodule:: antispam.anti_spam_handler
+.. currentmodule:: antispam
 
 .. autoclass:: AntiSpamHandler
     :members:

@@ -8,7 +8,7 @@ CorePayload Reference
 The CorePayload is a dataclasses which gets returned 
 within the core punishment system for this package.
 
-This is returned from the ``propagate`` method.
+This is returned from the :py:meth:`antispam.AntiSpamHandler.propagate` method.
 
 .. currentmodule:: antispam.dataclasses.core
 
