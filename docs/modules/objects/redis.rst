@@ -7,7 +7,7 @@ Furthermore, refer to :py:class:`antispam.abc.Cache` for protocol implementation
 
 *Not yet made*
 
-.. currentmodule:: antispam.caches.redis.redis
+.. currentmodule:: antispam.caches
 
 .. autoclass:: RedisCache
     :members:

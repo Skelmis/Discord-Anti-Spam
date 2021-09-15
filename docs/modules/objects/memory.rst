@@ -6,7 +6,7 @@ You shouldn't need to implement it yourself.
 
 Furthermore, refer to :py:class:`antispam.abc.Cache` for protocol implementation.
 
-.. currentmodule:: antispam.caches.memory.memory
+.. currentmodule:: antispam.caches
 
 .. autoclass:: MemoryCache
     :members:

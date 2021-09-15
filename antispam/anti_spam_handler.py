@@ -175,6 +175,22 @@ class AntiSpamHandler:
         options: Options = None,
         cache: Cache = None,
     ):
+        """
+        AntiSpamHandler entry point.
+
+        Parameters
+        ----------
+        bot
+            A reference to your discord bot object.
+        is_using_hikari : bool, Optional
+            Set this to True if you are using this package
+            within hikari rather then discord.py
+        options : Options, Optional
+            An instance of your custom Options
+            the handler should use
+        cache : Cache, Optional
+            Your choice of backend caching
+        """
         # TODO Implement an async cache initialization somehow
 
         options = options or Options()

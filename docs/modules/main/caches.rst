@@ -2,18 +2,18 @@ Cache Choices
 =============
 
 Internally all data is 'cached' using an implementation
-which implements ``Cache``. 
+which implements :py:class:`antispam.abc.Cache`
 
 In the standard package you have the following choices:
- - Memory (Default)
- - Redis (Not yet implemented)
+ - :py:class:`antispam.caches.MemoryCache` (Default)
+ - :py:class:`antispam.caches.RedisCache` (Not yet implemented)
 
 In order to use a cache other then the default one, 
 simply pass in an instance of the cache you wish to
-use with the ``cache`` kwarg when initalising your
+use with the ``cache`` kwarg when initialising your
 ``AntiSpamHandler``.
 
-Heres an example, note ``RedisCache`` will likely need arguments to init.
+Here is an example, note ``RedisCache`` will likely need arguments to init.
 
 .. code-block:: python
     :linenos:
@@ -29,3 +29,6 @@ Heres an example, note ``RedisCache`` will likely need arguments to init.
 
 Once a cache is registered like so, there is nothing else you need to do. 
 The package will simply use that caching mechanism.
+
+Also note, AntiSpamHandler will call :py:meth:`antispam.abc.Cache.initialize`
+before any cache operations are undertaken.

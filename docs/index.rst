@@ -6,10 +6,10 @@ Welcome to DPY Anti-Spam's documentation!
    :caption: Main Interface:
 
    modules/main/main.rst
-   modules/main/options.rst
    modules/main/caches.rst
    modules/main/core.rst
    modules/main/enums.rst
+   modules/main/options.rst
 
 .. toctree::
    :maxdepth: 2
