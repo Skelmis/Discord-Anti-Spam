@@ -12,4 +12,4 @@ for actual method documentation n such.
 .. autoclass:: MemoryCache
     :members:
     :undoc-members:
-    :special-members:
+    :special-members: __init__

@@ -13,4 +13,4 @@ for actual method documentation n such.
 .. autoclass:: RedisCache
     :members:
     :undoc-members:
-    :special-members:
+    :special-members: __init__
