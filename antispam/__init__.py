@@ -24,7 +24,7 @@ __version__ = "1.0.0a"
 
 from .anti_spam_handler import AntiSpamHandler
 from .exceptions import *
-from .dataclasses import Options
+from .dataclasses import Options, CorePayload
 from .plugin_cache import PluginCache
 
 

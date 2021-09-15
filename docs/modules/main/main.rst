@@ -12,7 +12,7 @@ Punishment messages won't be sent unless a guild sets a log channel.
 
 This handler propagation method also returns the following class for you to use:
 
-:doc:`CorePayload <core>`
+:py:class:`antispam.CorePayload`
 
 .. currentmodule:: antispam
 

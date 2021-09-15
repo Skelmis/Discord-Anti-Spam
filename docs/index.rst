@@ -3,14 +3,21 @@ Welcome to DPY Anti-Spam's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Main Interface:
+   :caption: Primary Interface:
 
    modules/main/main.rst
    modules/main/caches.rst
    modules/main/examples.rst
-   modules/main/core.rst
-   modules/main/enums.rst
-   modules/main/options.rst
+   modules/main/logging.rst
+   modules/main/template.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Main Interaction Classes
+
+   modules/interactions/enums.rst
+   modules/interactions/options.rst
+   modules/interactions/core.rst
 
 .. toctree::
    :maxdepth: 2

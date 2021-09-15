@@ -3,6 +3,9 @@ Message Templating
 
 This package utilises safe conversions for message arguments within strings.
 
+*These use discord.py terms. But the package will work with the library
+you are using seamlessly. Don't worry about not seeing exact matches.*
+
 Templating Options
 -------------------
 
