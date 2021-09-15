@@ -26,8 +26,9 @@ import datetime
 import logging
 from unittest.mock import AsyncMock
 
-import discord
 import typing
+
+import discord
 
 from antispam import AntiSpamHandler
 from antispam.base_plugin import BasePlugin
@@ -157,14 +158,14 @@ class AntiSpamTracker(BasePlugin):
         await self.update_cache(message, data)
         return {"status": "Cache updated"}
 
-    async def update_cache(self, message: discord.Message, data: CorePayload) -> None:
+    async def update_cache(self, message, data: CorePayload) -> None:
         """
         Takes the data returned from `propagate`
         and updates this Class's internal cache
 
         Parameters
         ----------
-        message : discord.Message
+        message
             The message related to `data's` propagation
         data : CorePayload
             The data returned from `propagate`
@@ -209,14 +210,14 @@ class AntiSpamTracker(BasePlugin):
 
         log.debug("Cache updated for user (%s) in guild (%s)", member_id, guild_id)
 
-    async def get_user_count(self, message: discord.Message) -> int:
+    async def get_user_count(self, message) -> int:
         """
         Returns how many messages that are still 'valid'
         (counted as spam) a certain user has
 
         Parameters
         ----------
-        message : discord.Message
+        message
             The message from which to extract user
 
         Returns
@@ -301,14 +302,14 @@ class AntiSpamTracker(BasePlugin):
             member_id, guild_id, addon_data=current_timestamps
         )
 
-    async def remove_punishments(self, message: discord.Message):
+    async def remove_punishments(self, message):
         """
         After you punish someone, call this method
         to 'clean up' there punishments.
 
         Parameters
         ----------
-        message : discord.Message
+        message
             The message to extract user from
 
         Raises
@@ -392,14 +393,14 @@ class AntiSpamTracker(BasePlugin):
 
         return guild["valid_interval"]
 
-    async def is_spamming(self, message: discord.Message) -> bool:
+    async def is_spamming(self, message) -> bool:
         """
         Given a message, deduce and return if a user
         is classed as 'spamming' or not based on ``punish_min_amount``
 
         Parameters
         ----------
-        message : discord.Messsage
+        message
             The message to extract guild and user from
 
         Returns
@@ -423,7 +424,7 @@ class AntiSpamTracker(BasePlugin):
         else:
             return False
 
-    async def do_punishment(self, message: discord.Message, *args, **kwargs) -> None:
+    async def do_punishment(self, message, *args, **kwargs) -> None:
         """
         This only exists for if the user wishes to subclass
         this class and implement there own logic for punishments
@@ -431,7 +432,7 @@ class AntiSpamTracker(BasePlugin):
 
         Parameters
         ----------
-        message : discord.Message
+        message
             The message to extract the guild and user from
 
         Notes
