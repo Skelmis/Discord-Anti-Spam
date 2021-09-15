@@ -281,7 +281,7 @@ class AntiSpamHandler:
 
             guild = Guild(id=propagate_data.guild_id, options=self.options)
             await self.cache.set_guild(guild)
-            log.info(f"Created Guild: {guild.id}")
+            log.info("Created Guild: %s", guild.id)
 
         pre_invoke_extensions = {}
 
@@ -369,7 +369,7 @@ class AntiSpamHandler:
         else:
             self.options.ignored_roles.add(item)
 
-        log.debug(f"Ignored {ignore_type.name}: {item}")
+        log.debug("Ignored %s: %s", ignore_type.name, item)
 
     def remove_ignored_item(self, item: int, ignore_type: IgnoreType) -> None:
         """
@@ -410,7 +410,7 @@ class AntiSpamHandler:
         else:
             self.options.ignored_roles.discard(item)
 
-        log.debug(f"Un-Ignored {ignore_type.name}: {item}")
+        log.debug("Un-Ignored %s: %s", ignore_type.name, item)
 
     async def add_guild_options(self, guild_id: int, options: Options) -> None:
         """
@@ -440,15 +440,16 @@ class AntiSpamHandler:
             guild = await self.cache.get_guild(guild_id=guild_id)
         except GuildNotFound:
             log.warning(
-                f"I cannot ensure I have permissions to kick/ban ban people in guild: {guild_id}"
+                "I cannot ensure I have permissions to kick/ban ban people in guild: %s",
+                guild_id,
             )
             guild = Guild(id=guild_id, options=options)
             await self.cache.set_guild(guild)
-            log.info(f"Created Guild: {guild.id}")
+            log.info("Created Guild: %s", guild.id)
         else:
             guild.options = options
 
-        log.info(f"Set custom options for guild: {guild_id}")
+        log.info("Set custom options for guild: %s", guild_id)
 
     async def get_guild_options(self, guild_id: int) -> Options:
         """
@@ -501,7 +502,7 @@ class AntiSpamHandler:
             pass
         else:
             guild.options = self.options
-            log.debug(f"Reset guild options for {guild_id}")
+            log.debug("Reset guild options for %s", guild_id)
 
     async def reset_member_count(
         self, member_id: int, guild_id: int, reset_type: ResetType
@@ -752,10 +753,10 @@ class AntiSpamHandler:
             )
 
         if is_pre_invoke:
-            log.info(f"Loading pre-invoke extension: {cls_name}")
+            log.info("Loading pre-invoke extension: %s", cls_name)
             self.pre_invoke_extensions[cls_name] = plugin
         else:
-            log.info(f"Loading after-invoke extension: {cls_name}")
+            log.info("Loading after-invoke extension: %s", cls_name)
             self.after_invoke_extensions[cls_name] = plugin
 
     def unregister_plugin(self, plugin_name: str) -> None:
@@ -786,8 +787,8 @@ class AntiSpamHandler:
         except KeyError:
             if not has_popped_pre_invoke:
                 log.debug(
-                    f"Failed to unload extension {plugin_name} as it isn't loaded"
+                    "Failed to unload extension %s as it isn't loaded", plugin_name
                 )
                 raise PluginError("An extension matching this name doesn't exist!")
 
-        log.info(f"Unregistered extension {plugin_name}")
+        log.info("Unregistered extension %s", plugin_name)

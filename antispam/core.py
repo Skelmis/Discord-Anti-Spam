@@ -85,7 +85,7 @@ class Core:
             )
 
         member.messages.append(message)
-        log.info(f"Created Message {message.id} on {member.id}")
+        log.info("Created Message %s on %s", message.id, member.id)
 
         if (
             self._get_duplicate_count(member, channel_id=message.channel_id)
@@ -95,7 +95,9 @@ class Core:
 
         # We need to punish the member with something
         log.debug(
-            f"Message: ({message.id}) on {member.id} requires some form of punishment"
+            "Message: (%s) on %s requires some form of punishment",
+            message.id,
+            member.id,
         )
         # We need to punish the member with something
         return_payload = CorePayload(member_should_be_punished_this_message=True)
@@ -125,7 +127,7 @@ class Core:
             after the warn threshold is reached this will
             then become a kick and so on
             """
-            log.debug(f"Attempting to warn: {message.author_id}")
+            log.debug("Attempting to warn: %s", message.author_id)
             member.warn_count += 1
             channel = original_message.channel
             guild_message = self.handler.lib_handler.transform_message(
@@ -153,7 +155,7 @@ class Core:
             # Set this to False here to stop processing other messages, we can revert on failure
             member._in_guild = False
             member.kick_count += 1
-            log.debug(f"Attempting to kick: {message.author_id}")
+            log.debug("Attempting to kick: %s", message.author_id)
 
             guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_kick_message,
@@ -186,7 +188,7 @@ class Core:
             # Set this to False here to stop processing other messages, we can revert on failure
             member._in_guild = False
             member.kick_count += 1
-            log.debug(f"Attempting to ban: {message.author_id}")
+            log.debug("Attempting to ban: %s", message.author_id)
 
             guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_ban_message,
@@ -291,8 +293,8 @@ class Core:
         for outstanding_message in outstanding_messages:
             if outstanding_message.is_duplicate:
                 self._remove_duplicate_count(member, channel_id)
-                log.debug(f"Removing duplicate Message: {outstanding_message.id}")
-            log.debug(f"Removing Message: {outstanding_message.id}")
+                log.debug("Removing duplicate Message: %s", outstanding_message.id)
+            log.debug("Removing Message: %s", outstanding_message.id)
 
     def _calculate_ratios(
         self,

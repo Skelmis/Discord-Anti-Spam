@@ -20,7 +20,7 @@ class FactoryBuilder:
         for member in guild_data["members"]:
             guild.members[member["id"]] = FactoryBuilder.create_member_from_dict(member)
 
-        log.debug(f"Created Guild ({guild.id}) from dict")
+        log.debug("Created Guild (%s) from dict", guild.id)
 
         return guild
 
@@ -40,7 +40,7 @@ class FactoryBuilder:
                 FactoryBuilder.create_message_from_dict(message_data)
             )
 
-        log.debug(f"Created Member ({member.id}) from dict")
+        log.debug("Created Member (%s) from dict", member.id)
 
         return member
 
@@ -57,6 +57,6 @@ class FactoryBuilder:
         message.creation_time = datetime.datetime.strptime(
             message_data["creation_time"], "%f:%S:%M:%H:%d:%m:%Y"
         )
-        log.debug(f"Created Message ({message.id}) from dict")
+        log.debug("Created Message (%s) from dict", message.id)
 
         return message

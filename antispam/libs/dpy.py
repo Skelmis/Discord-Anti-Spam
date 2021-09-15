@@ -183,12 +183,14 @@ class DPY(Lib):
 
         # Return if ignored bot
         if self.handler.options.ignore_bots and message.author.bot:
-            log.debug(f"I ignore bots, and this is a bot message: {message.author.id}")
+            log.debug("I ignore bots, and this is a bot message: %s", message.author.id)
             raise PropagateFailure(data={"status": "Ignoring messages from bots"})
 
         # Return if ignored member
         if message.author.id in self.handler.options.ignored_members:
-            log.debug(f"The user who sent this message is ignored: {message.author.id}")
+            log.debug(
+                "The user who sent this message is ignored: %s", message.author.id
+            )
             raise PropagateFailure(
                 data={"status": f"Ignoring this member: {message.author.id}"}
             )
@@ -198,7 +200,7 @@ class DPY(Lib):
             message.channel.id in self.handler.options.ignored_channels
             or message.channel.name in self.handler.options.ignored_channels
         ):
-            log.debug(f"{message.channel} is ignored")
+            log.debug("%s is ignored", message.channel)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel.id}"}
             )
@@ -209,18 +211,20 @@ class DPY(Lib):
             user_roles.extend([role.name for role in message.author.roles])
             for item in user_roles:
                 if item in self.handler.options.ignored_roles:
-                    log.debug(f"{item} is a part of ignored roles")
+                    log.debug("%s is a part of ignored roles", item)
                     raise PropagateFailure(
                         data={"status": f"Ignoring this role: {item}"}
                     )
         except AttributeError:
             log.warning(
-                f"Could not compute ignored_roles for {message.author.name}({message.author.id})"
+                "Could not compute ignored_roles for %s(%s)",
+                message.author.name,
+                message.author.id,
             )
 
         # Return if ignored guild
         if message.guild.id in self.handler.options.ignored_guilds:
-            log.debug(f"{message.guild.id} is an ignored guild")
+            log.debug("%s is an ignored guild", message.guild.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this guild: {message.guild.id}"}
             )
@@ -274,7 +278,7 @@ class DPY(Lib):
     ) -> None:
         try:
             if not guild.log_channel_id:
-                log.debug("%s has no log channel set", str(guild.id))
+                log.debug("%s has no log channel set", guild.id)
                 return
 
             channel = guild.log_channel_id
@@ -288,9 +292,9 @@ class DPY(Lib):
             else:
                 await channel.send(embed=message)
 
-            log.debug("Sent message to log channel in %s", str(guild.id))
+            log.debug("Sent message to log channel in %s", guild.id)
         except discord.HTTPException:
-            log.error(f"Failed to send log message.\n" f"Guild: {guild.id}\n")
+            log.error("Failed to send log message.\n" f"Guild: %s\n", guild.id)
 
     async def punish_member(
         self,

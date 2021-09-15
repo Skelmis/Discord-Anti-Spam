@@ -26,4 +26,4 @@ class BasePlugin:
             A dictionary of useful data to the end user
 
         """
-        pass
+        raise NotImplementedError
