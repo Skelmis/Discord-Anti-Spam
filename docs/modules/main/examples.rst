@@ -1,6 +1,9 @@
 Example usages
 ==============
 
+Note, all of these examples are for discord.py.
+If you would like another library here, let me know.
+
 Super duper basic bot
 ---------------------
 
