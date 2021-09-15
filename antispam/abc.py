@@ -3,7 +3,6 @@ from typing import Protocol, runtime_checkable, List, Union, Optional
 from .dataclasses import Guild, Member, Message
 from .dataclasses.propagate_data import PropagateData
 from .enums import ResetType
-from .enums.state import ASHEnum
 
 
 @runtime_checkable
@@ -118,7 +117,7 @@ class Cache(Protocol):
             The Member to reset
         guild_id : int
             The guild this member is in
-        reset_type : ASHEnum
+        reset_type : ResetType
             An enum denoting the type of reset
 
         """

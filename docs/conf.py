@@ -34,6 +34,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.coverage",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -51,3 +52,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "discord.py": ("https://discordpy.readthedocs.io/en/latest/", None),
+    "hikari": ("https://hikari-py.github.io/hikari/", None),
+}

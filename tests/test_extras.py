@@ -17,10 +17,3 @@ async def test_base_prop():
     b = BasePlugin()
     with pytest.raises(NotImplementedError):
         await b.propagate(MockedMessage().to_mock())
-
-
-def test_state_enum():
-    assert ASHEnum.BAN.value == 0
-    assert ASHEnum.KICK.value == 1
-    assert ASHEnum.WARN_COUNTER.value == 2
-    assert ASHEnum.KICK_COUNTER.value == 3

@@ -594,7 +594,7 @@ class AntiSpamHandler:
 
         Parameters
         ----------
-        bot : commands.Bot
+        bot
             The bot instance
         data : dict
             The data to load AntiSpamHandler from

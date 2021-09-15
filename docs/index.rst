@@ -1,8 +1,3 @@
-.. DPY Anti-Spam documentation master file, created by
-   sphinx-quickstart on Fri Sep 18 23:28:30 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to DPY Anti-Spam's documentation!
 =========================================
 
@@ -14,6 +9,7 @@ Welcome to DPY Anti-Spam's documentation!
    modules/main/options.rst
    modules/main/caches.rst
    modules/main/core.rst
+   modules/main/enums.rst
 
 .. toctree::
    :maxdepth: 2
@@ -34,7 +30,6 @@ Welcome to DPY Anti-Spam's documentation!
    modules/objects/memory.rst
    modules/objects/message.rst
    modules/objects/redis.rst
-   modules/objects/ignoretype.rst
 
 Install Notes
 -------------

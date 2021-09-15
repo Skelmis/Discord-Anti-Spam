@@ -2,7 +2,15 @@ from enum import Enum
 
 
 class IgnoreType(Enum):
-    """Lol"""
+    """
+    This enum should be using within the following methods:
+
+    - :py:meth:`antispam.anti_spam_handler.AntiSpamHandler.add_ignored_item`
+    - :py:meth:`antispam.anti_spam_handler.AntiSpamHandler.remove_ignored_item`
+
+    It is used to signify the type of item you wish to
+    ignore within any following propagate calls.
+    """
 
     MEMBER = 0
     CHANNEL = 1
