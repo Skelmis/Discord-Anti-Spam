@@ -11,7 +11,7 @@ from ``discord.Message`` and stores them in a smaller object
 to save on memory. It also maintains a ``is_duplicate`` bool
 for internal reasons.
 
-.. currentmodule:: discord.ext.antispam.dataclasses.message
+.. currentmodule:: antispam.dataclasses.message
 
 .. autoclass:: Message
     :members:

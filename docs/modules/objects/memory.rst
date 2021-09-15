@@ -7,9 +7,9 @@ You shouldn't need to implement it yourself.
 Furthermore, refer to `Abc Reference <https://dpy-anti-spam.readthedocs.io/en/latest/objects/abc>`_ 
 for actual method documentation n such.
 
-.. currentmodule:: discord.ext.antispam.caches.memory.memory
+.. currentmodule:: antispam.caches.memory.memory
 
-.. autoclass:: Memory
+.. autoclass:: MemoryCache
     :members:
     :undoc-members:
     :special-members:

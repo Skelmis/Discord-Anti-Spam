@@ -14,7 +14,7 @@ This handler propagation method also returns the following class for you to use:
 
 :doc:`CorePayload <core>`
 
-.. currentmodule:: discord.ext.antispam.anti_spam_handler
+.. currentmodule:: antispam.anti_spam_handler
 
 .. autoclass:: AntiSpamHandler
     :members:

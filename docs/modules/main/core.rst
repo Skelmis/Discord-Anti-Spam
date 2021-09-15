@@ -10,7 +10,7 @@ within the core punishment system for this package.
 
 This is returned from the ``propagate`` method.
 
-.. currentmodule:: discord.ext.antispam.dataclasses.core
+.. currentmodule:: antispam.dataclasses.core
 
 .. autoclass:: CorePayload
     :members:

@@ -34,6 +34,7 @@ Welcome to DPY Anti-Spam's documentation!
    modules/objects/memory.rst
    modules/objects/message.rst
    modules/objects/redis.rst
+   modules/objects/ignoretype.rst
 
 Install Notes
 -------------

@@ -674,8 +674,6 @@ class AntiSpamHandler:
         will be outdated, however, they are included
         as it is technically part of the current state.
 
-        -----
-
         Note that is method is expensive in both time and memory.
         It has to iterate over every single stored class
         instance within the library and store it in a dictionary.

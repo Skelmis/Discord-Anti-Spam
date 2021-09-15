@@ -8,7 +8,7 @@ for actual method documentation n such.
 
 *Not yet made*
 
-.. currentmodule:: discord.ext.antispam.caches.redis
+.. currentmodule:: antispam.caches.redis.redis
 
 .. autoclass:: RedisCache
     :members:

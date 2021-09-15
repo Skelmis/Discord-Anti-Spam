@@ -9,7 +9,7 @@ Internally this object provides an O(1) way of storing
 Messages as well as maintaining the requried data to
 track and punish spammers
 
-.. currentmodule:: discord.ext.antispam.dataclasses.member
+.. currentmodule:: antispam.dataclasses.member
 
 .. autoclass:: Member
     :members:

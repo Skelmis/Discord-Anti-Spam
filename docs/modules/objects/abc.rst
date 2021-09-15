@@ -10,7 +10,7 @@ Any form of internal cache is guranteed to implement
 this so you can treat it as a source of truth for usage.
 *(Unless you bypass them)*
 
-.. currentmodule:: discord.ext.antispam.abc
+.. currentmodule:: antispam.abc
 
 .. autoclass:: Cache
     :members:
