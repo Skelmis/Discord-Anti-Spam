@@ -112,7 +112,7 @@ class AntiMassMention(BasePlugin):
         member_id = message.author.id
         guild_id = message.guild.id
 
-        log.debug(f"Propagating message for {member_id}, guild: {guild_id}")
+        log.debug("Propagating message for %s, guild: %s", member_id, guild_id)
 
         try:
             member = await self.data.get_member_data(member_id, guild_id)
@@ -192,7 +192,7 @@ class AntiMassMention(BasePlugin):
         they are ignored and this method returns
 
         """
-        log.debug(f"Cleaning timestamps for {member_id}, guild: {guild_id}")
+        log.debug("Cleaning timestamps for %s, guild: %s", member_id, guild_id)
 
         async def _is_still_valid(timestamp):
             difference = current_time - timestamp

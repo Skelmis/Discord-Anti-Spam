@@ -339,8 +339,12 @@ class DPY(Lib):
         # we just check our top role is higher then them
         elif guild.me.top_role.position < author.top_role.position:
             log.warning(
-                f"I might not be able to punish {author.display_name}({member.id}) in {guild.name}({guild.id}) "
-                "because they are higher then me, which means I could lack the ability to kick/ban them."
+                "I might not be able to punish %s(%s) in %s(%s) "
+                "because they are higher then me, which means I could lack the ability to kick/ban them.",
+                author.display_name,
+                member.id,
+                guild.name,
+                guild.id,
             )
 
         sent_message: Optional[discord.Message] = None
@@ -361,7 +365,8 @@ class DPY(Lib):
                 delete_after_time=channel_delete_after,
             )
             log.warning(
-                f"Failed to message User: ({author.id}) about {'kick' if is_kick else 'ban'}"
+                "Failed to message User: (%s) about {'kick' if is_kick else 'ban'}",
+                author.id,
             )
 
         # Even if we can't tell them they are being punished
@@ -371,12 +376,12 @@ class DPY(Lib):
                 await guild.kick(
                     member, reason="Automated punishment from DPY Anti-Spam."
                 )
-                log.info(f"Kicked User: ({member.id})")
+                log.info("Kicked User: (%s)", member.id)
             else:
                 await guild.ban(
                     member, reason="Automated punishment from DPY Anti-Spam."
                 )
-                log.info(f"Banned User: ({member.id})")
+                log.info("Banned User: (%s)", member.id)
 
         except discord.Forbidden as e:
             # In theory we send the failed punishment method
@@ -393,7 +398,9 @@ class DPY(Lib):
                 delete_after_time=channel_delete_after,
             )
             log.warning(
-                f"An error occurred trying to {'kick' if is_kick else 'ban'}: {member.id}"
+                "An error occurred trying to %s: %s",
+                {"kick" if is_kick else "ban"},
+                member.id,
             )
             if sent_message is not None:
                 if is_kick:
@@ -429,11 +436,11 @@ class DPY(Lib):
     async def delete_message(self, message: discord.Message) -> None:
         try:
             await message.delete()
-            log.debug(f"Deleted message: {message.id}")
+            log.debug("Deleted message: %s", message.id)
         except discord.HTTPException:
             # Failed to delete message
             log.warning(
-                f"Failed to delete message {message.id} in guild {message.guild.id}"
+                "Failed to delete message %s in guild %s", message.id, message.guild.id
             )
 
     async def send_message_to_(

@@ -207,7 +207,7 @@ class AntiSpamTracker(BasePlugin):
             member_id, guild_id, addon_data=addon_data
         )
 
-        log.debug(f"Cache updated for user ({member_id}) in guild ({guild_id})")
+        log.debug("Cache updated for user (%s) in guild (%s)", member_id, guild_id)
 
     async def get_user_count(self, message: discord.Message) -> int:
         """
@@ -295,7 +295,7 @@ class AntiSpamTracker(BasePlugin):
             if await _is_still_valid(timestamp):
                 current_timestamps.append(timestamp)
 
-        log.debug(f"Removed 'timestamps' for member: {member_id}")
+        log.debug("Removed 'timestamps' for member: %s", member_id)
 
         await self.member_tracking.set_member_data(
             member_id, guild_id, addon_data=current_timestamps
