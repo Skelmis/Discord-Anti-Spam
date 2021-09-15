@@ -16,7 +16,7 @@ class Stats(BasePlugin):
 
     This does play with internals a bit,
     however, it is distributed within the
-    library I am oki modifying the base package
+    library I am okay modifying the base package
     to make this work even better.
     """
 
