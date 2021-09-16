@@ -3,7 +3,7 @@ from enum import Enum
 
 class IgnoreType(Enum):
     """
-    This enum should be using within the following methods:
+    This enum should be using with the following methods:
 
     - :py:meth:`antispam.AntiSpamHandler.add_ignored_item`
     - :py:meth:`antispam.AntiSpamHandler.remove_ignored_item`

@@ -3,7 +3,7 @@ from enum import Enum
 
 class ResetType(Enum):
     """
-    This enum should be using within the following methods:
+    This enum should be using with the following methods:
 
     - :py:meth:`antispam.AntiSpamHandler.reset_member_count`
 
