@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, patch
 
 import discord
 import pytest
@@ -224,3 +224,18 @@ class TestLibDPY:
         await create_dpy_lib_handler.delete_message(msg)
 
         assert msg.delete.call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_delete_member_messages(self, create_dpy_lib_handler):
+        member = Member(1, 2)
+        member.messages = [
+            Message(1, 2, 3, 4, "First"),
+            Message(2, 2, 3, 4, "second", is_duplicate=True),
+            Message(3, 2, 3, 4, "third", is_duplicate=True),
+        ]
+
+        with patch(
+            "antispam.libs.dpy.DPY.delete_message", new_callable=AsyncMock
+        ) as delete_call:
+            await create_dpy_lib_handler.delete_member_messages(member)
+            assert delete_call.call_count == 2

@@ -445,7 +445,7 @@ class DPY(Lib):
         member._in_guild = True
         await self.handler.cache.set_member(member)
 
-    async def delete_messages(self, member: Member) -> None:
+    async def delete_member_messages(self, member: Member) -> None:
         bot = self.handler.bot
         channels = {}
         for message in member.messages:
