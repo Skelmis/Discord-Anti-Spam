@@ -11,7 +11,7 @@ class Guild:
     """A simplistic dataclass representing a Guild"""
 
     id: int = attr.ib(eq=True)
-    options: Options = attr.ib(eq=False)
+    options: Options = attr.ib(eq=False, default=attr.Factory(Options))
     log_channel_id: int = attr.ib(eq=False, default=None)
     members: Dict[int, Member] = attr.ib(default=attr.Factory(dict), eq=False)
 

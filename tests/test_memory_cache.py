@@ -120,3 +120,15 @@ class TestMemoryCache:
         guilds = await create_memory_cache.get_all_guilds()
         assert len(guilds) == 2
         assert guilds == [Guild(1, Options()), Guild(2, Options())]
+
+    @pytest.mark.asyncio
+    async def test_delete_guild(self, create_memory_cache):
+        guilds = await create_memory_cache.get_all_guilds()
+        assert len(guilds) == 0
+
+        await create_memory_cache.delete_guild(1)
+
+        guilds = await create_memory_cache.get_all_guilds()
+        assert len(guilds) == 0
+
+        await create_memory_cache.set_guild(Guild(1))
