@@ -445,6 +445,11 @@ class DPY(Lib):
         member._in_guild = True
         await self.handler.cache.set_member(member)
 
+    async def delete_messages(self, member: Member) -> None:
+        for message in member.messages:
+            if message.is_duplicate:
+                await self.delete_message(message)
+
     async def delete_message(self, message: discord.Message) -> None:
         try:
             await message.delete()

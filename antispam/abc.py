@@ -392,6 +392,22 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
+    async def delete_messages(self, member: Member) -> None:
+        """
+        Given a member, traverse all duplicate messages
+        and delete them.
+
+        Parameters
+        ----------
+        member : Member
+            The member whose messages should be deleted
+
+        Notes
+        -----
+        Just call delete_message on each message
+        """
+        raise NotImplementedError
+
     async def delete_message(self, message) -> None:
         """
         Given a message, call and handle the relevant
