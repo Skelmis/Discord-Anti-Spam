@@ -854,6 +854,12 @@ class AntiSpamHandler:
 
         Strict mode:
          - Member deletion criteria
+            - Has no active messages
+
+         - Guild deletion criteria
+            - Does not have custom options
+            - log_channel_id is not set
+            - Has no active members
 
         Parameters
         ----------
@@ -867,6 +873,13 @@ class AntiSpamHandler:
         only required to be run every so often
         depending on how high traffic your bot is.
         """
+        # In a nutshell,
+        # Get entire cache and loop over
+        # Build a list of 'still valid' cache entries
+        # Drop the previous cache
+        # Insert the new list of 'still valid' entries, this is now the cache
+
+        # Ideally I don't want to load this cache into memory
         cache = []
         for guild in await self.cache.get_all_guilds():
             new_guild = deepcopy(guild)
@@ -874,7 +887,10 @@ class AntiSpamHandler:
                 FactoryBuilder.clean_old_messages(
                     member, get_aware_time(), self.options
                 )
-                if (
+
+                if strict and len(member.messages) != 0:
+                    new_guild.members[member.id] = member
+                elif (
                     len(member.messages) != 0
                     or member.kick_count != 0
                     or member.warn_count != 0
@@ -892,3 +908,21 @@ class AntiSpamHandler:
                         - addons dict
                     """
                     new_guild.members[member.id] = member
+
+            # Clean guild
+            predicate = (
+                guild.options == Options()
+                or guild.log_channel_id is not None
+                or bool(guild.members)
+            )
+            if strict and predicate:
+                cache.append(new_guild)
+            elif predicate or bool(guild.addons):
+                cache.append(new_guild)
+
+        await self.cache.drop()
+
+        for guild in cache:
+            await self.cache.set_guild(guild)
+
+        log.info("Cleaned cache")
