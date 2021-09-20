@@ -11,6 +11,7 @@ from antispam import PropagateFailure, LogicError, MissingGuildPermissions
 from antispam.abc import Lib
 from antispam.dataclasses import Message, Member, Guild
 from antispam.dataclasses.propagate_data import PropagateData
+from tests.mocks import MockedChannel
 
 log = logging.getLogger(__name__)
 
@@ -426,7 +427,10 @@ class DPY(Lib):
                     )
 
                 await self.send_guild_log(
-                    internal_guild, user_failed_message, channel_delete_after
+                    internal_guild,
+                    user_failed_message,
+                    channel_delete_after,
+                    MockedChannel().to_mock(),
                 )
                 await sent_message.delete()
 
@@ -435,6 +439,7 @@ class DPY(Lib):
                 guild=internal_guild,
                 message=guild_message,
                 delete_after_time=channel_delete_after,
+                original_channel=MockedChannel().to_mock(),
             )
 
         member._in_guild = True
