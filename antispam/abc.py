@@ -1,4 +1,4 @@
-from typing import Protocol, runtime_checkable, List, Union, Optional
+from typing import Protocol, runtime_checkable, List, Union, Optional, Iterator
 
 from .dataclasses import Guild, Member, Message
 from .dataclasses.propagate_data import PropagateData
@@ -155,28 +155,29 @@ class Cache(Protocol):
         """
         raise NotImplementedError
 
-    async def get_all_guilds(self) -> List[Guild]:
+    async def get_all_guilds(self) -> Iterator[Guild]:
         """
-        Fetches and guilds a list of all guilds
+        Returns a generator containing all cached guilds
 
-        Returns
-        -------
-        List[Guild]
-            A list of all stored guilds
+        Yields
+        ------
+        Guild
+            A generator of all stored guilds
         """
 
-    async def get_all_members(self, guild_id: int) -> List[Member]:
+    async def get_all_members(self, guild_id: int) -> Iterator[Member]:
         """
-        Fetches all members within a guild
+        Fetches all members within a guild and returns
+        them within a generator
 
         Parameters
         ----------
         guild_id : int
             The guild we want members in
 
-        Returns
-        -------
-        List[Member]
+        Yields
+        ------
+        Member
             All members in the given guild
 
         Raises

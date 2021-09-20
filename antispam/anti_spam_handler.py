@@ -831,3 +831,17 @@ class AntiSpamHandler:
                 raise PluginError("An extension matching this name doesn't exist!")
 
         log.info("Unregistered extension %s", plugin_name)
+
+    async def clean_cache(self) -> None:
+        """
+        Cleans the internal cache, pruning
+        any old/un-needed entries.
+
+        Notes
+        -----
+        This is somewhat expensive, and likely
+        only required to be run every so often
+        depending on how high traffic your bot is.
+        """
+
+        guilds = await self.cache.get_all_guilds()
