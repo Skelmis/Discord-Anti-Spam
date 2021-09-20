@@ -274,18 +274,25 @@ class DPY(Lib):
         )
 
     async def send_guild_log(
-        self, guild, message: Union[str, discord.Embed], delete_after_time
+        self,
+        guild,
+        message: Union[str, discord.Embed],
+        delete_after_time,
+        original_channel: Union[discord.abc.GuildChannel, discord.abc.PrivateChannel],
     ) -> None:
         try:
             if not guild.log_channel_id:
-                log.debug("%s has no log channel set", guild.id)
-                return
+                log.debug(
+                    "%s has no log channel set, defaulting to original channel",
+                    guild.id,
+                )
+                channel = original_channel
+            else:
+                channel = guild.log_channel_id
 
-            channel = guild.log_channel_id
-
-            channel = self.handler.bot.get_channel(channel)
-            if not channel:
-                channel = await self.handler.bot.fetch_channel(channel)
+                channel = self.handler.bot.get_channel(channel)
+                if not channel:
+                    channel = await self.handler.bot.fetch_channel(channel)
 
             if isinstance(message, str):
                 await channel.send(message, delete_after=delete_after_time)

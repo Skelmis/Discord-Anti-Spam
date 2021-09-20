@@ -320,11 +320,13 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    async def send_guild_log(self, guild, message, delete_after_time) -> None:
+    async def send_guild_log(self, guild, message, delete_after_time, original_channel) -> None:
         """
         Sends a message to the guilds log channel
 
-        TODO If no log channel, send in ctx.channel
+        Notes
+        -----
+        If no log channel, send in ctx.channel
 
         Parameters
         ----------
@@ -334,6 +336,9 @@ class Lib(Protocol):
             What to send to the guilds log channel
         delete_after_time : Optional[int]
             How long to delete these messages after
+        original_channel : Union[discord.abc.GuildChannel, discord.abc.PrivateChannel, hikari.GuildTextChannel]
+            Where to send the message assuming this guild has no guild log
+            channel already set.
 
         Notes
         -----
