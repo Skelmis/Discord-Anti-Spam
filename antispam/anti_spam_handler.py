@@ -119,6 +119,9 @@ class AntiSpamHandler:
 
             *Won't delete messages if* ``no_punish`` *is* ``True``
 
+            Note, this method is expensive. It will all messages marked
+            as spam, and this means an api call per message.
+
         ignore_perms: [8]
             The perms (ID Form), that bypass anti-spam
 
