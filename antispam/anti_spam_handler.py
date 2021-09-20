@@ -881,8 +881,8 @@ class AntiSpamHandler:
 
         # Ideally I don't want to load this cache into memory
         cache = []
-        for guild in await self.cache.get_all_guilds():
-            new_guild = deepcopy(guild)
+        async for guild in self.cache.get_all_guilds():
+            new_guild = Guild(guild.id)
             for member in guild.members.values():
                 FactoryBuilder.clean_old_messages(
                     member, get_aware_time(), self.options
@@ -911,13 +911,18 @@ class AntiSpamHandler:
 
             # Clean guild
             predicate = (
-                guild.options == Options()
+                guild.options != Options()
                 or guild.log_channel_id is not None
-                or bool(guild.members)
+                or bool(new_guild.members)
             )
             if strict and predicate:
+                new_guild.options = guild.options
+                new_guild.log_channel_id = guild.log_channel_id
                 cache.append(new_guild)
             elif predicate or bool(guild.addons):
+                new_guild.addons = guild.addons
+                new_guild.options = guild.options
+                new_guild.log_channel_id = guild.log_channel_id
                 cache.append(new_guild)
 
         await self.cache.drop()

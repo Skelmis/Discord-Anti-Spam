@@ -1,5 +1,5 @@
 import logging
-from typing import List, Iterator
+from typing import AsyncIterable
 
 from ...abc import Cache
 from ...dataclasses import Message, Member, Guild
@@ -124,13 +124,13 @@ class MemoryCache(Cache):
             # This is fine
             return
 
-    async def get_all_members(self, guild_id: int) -> Iterator[Member]:  # noqa
+    async def get_all_members(self, guild_id: int) -> AsyncIterable[Member]:  # noqa
         log.debug("Yielding all cached members for %s", guild_id)
         guilds = await self.get_guild(guild_id=guild_id)
         for member in guilds.members.values():
             yield member
 
-    async def get_all_guilds(self) -> List[Guild]:  # noqa
+    async def get_all_guilds(self) -> AsyncIterable[Guild]:  # noqa
         log.debug("Yield all cached guilds")
         for guild in self.cache.values():
             yield guild

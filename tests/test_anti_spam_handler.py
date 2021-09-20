@@ -663,3 +663,14 @@ class TestAntiSpamHandler:
     def test_dpy_setup(self):
         handler = AntiSpamHandler(commands.Bot(command_prefix="!"))
         assert handler.lib_handler.__class__.__name__ == "DPY"
+
+    @pytest.mark.asyncio
+    async def test_clean_cache_basic(self, create_handler):
+        """Tests the basics of clean cache without strict mode or messages"""
+        assert not bool(create_handler.cache.cache)
+
+        await create_handler.cache.set_member(Member(1, 2))
+        assert bool(create_handler.cache.cache)
+
+        await create_handler.clean_cache()
+        assert not bool(create_handler.cache.cache)
