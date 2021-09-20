@@ -898,15 +898,6 @@ class AntiSpamHandler:
                     or bool(member.duplicate_channel_counter_dict)
                     or bool(member.addons)
                 ):
-                    """Only re-cache members with the following
-                    - Still active messages
-                    - A non-default
-                        - warn count
-                        - kick count
-                        - duplicate_counter
-                        - duplicate counter dict
-                        - addons dict
-                    """
                     new_guild.members[member.id] = member
 
             # Clean guild

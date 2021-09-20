@@ -109,15 +109,15 @@ class TestMemoryCache:
 
     @pytest.mark.asyncio
     async def test_get_all_guilds(self, create_memory_cache):
-        guilds = await create_memory_cache.get_all_guilds()
+        guilds = [g async for g in create_memory_cache.get_all_guilds()]
         assert len(guilds) == 0
 
         await create_memory_cache.set_guild(Guild(1, Options()))
-        guilds = await create_memory_cache.get_all_guilds()
+        guilds = [g async for g in create_memory_cache.get_all_guilds()]
         assert len(guilds) == 1
 
         await create_memory_cache.set_guild(Guild(2, Options()))
-        guilds = await create_memory_cache.get_all_guilds()
+        guilds = [g async for g in create_memory_cache.get_all_guilds()]
         assert len(guilds) == 2
         assert guilds == [Guild(1, Options()), Guild(2, Options())]
 

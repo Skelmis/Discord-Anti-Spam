@@ -674,3 +674,21 @@ class TestAntiSpamHandler:
 
         await create_handler.clean_cache()
         assert not bool(create_handler.cache.cache)
+
+        await create_handler.cache.set_guild(Guild(1))
+        assert bool(create_handler.cache.cache)
+
+        await create_handler.clean_cache()
+        assert not bool(create_handler.cache.cache)
+
+    @pytest.mark.asyncio
+    async def test_clean_cache_member_warn_count(self, create_handler):
+        await create_handler.cache.set_member(Member(1, 2, warn_count=2))
+        assert bool(create_handler.cache.cache)
+
+        await create_handler.clean_cache()
+        assert bool(create_handler.cache.cache)
+
+    @pytest.mark.asyncio
+    async def test_clean_cache_strict_member(self, create_handler):
+        """Tests clean_cache on members with strict mode"""
