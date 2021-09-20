@@ -186,6 +186,13 @@ class Cache(Protocol):
             The given guild was not found
         """
 
+    async def drop(self) -> None:
+        """
+        Drops the entire cache,
+        deleting everything contained within.
+        """
+        raise NotImplementedError
+
 
 @runtime_checkable
 class Lib(Protocol):
