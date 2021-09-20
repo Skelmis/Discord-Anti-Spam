@@ -23,6 +23,9 @@ class MemoryCache(Cache):
     async def set_guild(self, guild: Guild) -> None:
         self.cache[guild.id] = guild
 
+    async def delete_guild(self, guild_id: int) -> None:
+        self.cache.pop(guild_id, None)
+
     async def get_member(self, member_id: int, guild_id: int) -> Member:
         guild = await self.get_guild(guild_id)
 
@@ -38,6 +41,19 @@ class MemoryCache(Cache):
             guild = Guild(id=member.guild_id, options=self.handler.options)
 
         guild.members[member.id] = member
+        await self.set_guild(guild)
+
+    async def delete_member(self, member_id: int, guild_id: int) -> None:
+        try:
+            guild = await self.get_guild(guild_id)
+        except GuildNotFound:
+            return
+
+        try:
+            guild.members.pop(member_id)
+        except KeyError:
+            return
+
         await self.set_guild(guild)
 
     async def add_message(self, message: Message) -> None:

@@ -54,6 +54,21 @@ class Cache(Protocol):
         """
         raise NotImplementedError
 
+    async def delete_guild(self, guild_id: int) -> None:
+        """
+        Removes a guild from the cache.
+
+        Parameters
+        ----------
+        guild_id : int
+            The id of the guild we wish to remove
+
+        Notes
+        -----
+        This fails silently.
+        """
+        raise NotImplementedError
+
     async def get_member(self, member_id: int, guild_id: int) -> Member:
         """Fetch a Member dataclass populated with messages
 
@@ -85,6 +100,23 @@ class Cache(Protocol):
         ----------
         member : Member
             The Member we want to cache
+        """
+        raise NotImplementedError
+
+    async def delete_member(self, member_id: int, guild_id: int) -> None:
+        """
+        Removes a member from the cache.
+
+        Parameters
+        ----------
+        member_id : int
+            The id of the member we wish to remove
+        guild_id : int
+            The guild this member is in
+
+        Notes
+        -----
+        This fails silently.
         """
         raise NotImplementedError
 
