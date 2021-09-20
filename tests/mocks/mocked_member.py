@@ -1,7 +1,7 @@
 """
 This 'mocks' a discord.Member so we can use it for testing
 """
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 from tests.mocks.mock_role import MockedRole
 
@@ -33,6 +33,10 @@ class MockedMember:
                 MockedRole().to_mock(),
                 MockedRole(name="test role 2", role_id=252525).to_mock(),
             ]
+
+            mock.get_channel = self.get_channel
+            mock.fetch_channel = self.fetch_channel
+
             return mock
         elif self.type == "member":
             mock.roles = [
@@ -48,3 +52,15 @@ class MockedMember:
         mock.mention = f"<@{self.id}>"
 
         return mock
+
+    @staticmethod
+    def get_channel(channel_id):
+        from tests.mocks import MockedChannel
+
+        return MockedChannel(channel_id=channel_id).to_mock()
+
+    @staticmethod
+    async def fetch_channel(channel_id):
+        from tests.mocks import MockedChannel
+
+        return MockedChannel(channel_id=channel_id).to_mock()

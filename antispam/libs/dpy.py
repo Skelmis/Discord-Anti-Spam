@@ -446,9 +446,22 @@ class DPY(Lib):
         await self.handler.cache.set_member(member)
 
     async def delete_messages(self, member: Member) -> None:
+        bot = self.handler.bot
+        channels = {}
         for message in member.messages:
             if message.is_duplicate:
-                await self.delete_message(message)
+                # cache channel for further fetches
+                if message.channel_id not in channels:
+                    channel = bot.get_channel(message.channel_id)
+                    if not channel:
+                        channel = await bot.fetch_channel(message.channel_id)
+
+                    channels[message.channel_id] = channel
+                else:
+                    channel = channels[message.channel_id]
+
+                actual_message = await channel.fetch_message(message.id)
+                await self.delete_message(actual_message)
 
     async def delete_message(self, message: discord.Message) -> None:
         try:

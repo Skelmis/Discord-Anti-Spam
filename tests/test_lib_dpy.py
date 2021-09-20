@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import discord
 import pytest
@@ -213,3 +213,14 @@ class TestLibDPY:
     async def test_propagate_type_fails(self, create_dpy_lib_handler):
         with pytest.raises(PropagateFailure):
             await create_dpy_lib_handler.check_message_can_be_propagated("lol")
+
+    @pytest.mark.asyncio()
+    async def test_delete_message_called(self, create_dpy_lib_handler):
+        msg = MockedMessage().to_mock()
+        msg.delete = AsyncMock(return_value=True)
+
+        assert msg.delete.call_count == 0
+
+        await create_dpy_lib_handler.delete_message(msg)
+
+        assert msg.delete.call_count == 1

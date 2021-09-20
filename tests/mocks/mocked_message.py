@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock
 
 import discord
 
-from tests.mocks.mocked_guild import MockedGuild
-from tests.mocks.mocked_member import MockedMember
-from tests.mocks.mock_channel import MockedChannel
+from .mocked_guild import MockedGuild
+from .mocked_member import MockedMember
+from .mock_channel import MockedChannel
 
 
 class MockedMessage:

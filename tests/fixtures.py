@@ -6,6 +6,7 @@ from antispam.core import Core
 from antispam.caches import MemoryCache
 from antispam.libs.dpy import DPY
 from antispam.plugins import AntiMassMention, AntiSpamTracker, Stats
+from tests.mocks import MockedMember
 
 
 class MockClass:
@@ -19,9 +20,9 @@ def create_bot():
 
 
 @pytest.fixture
-def create_handler(create_bot):
+def create_handler():
     """Create a simple handler for usage"""
-    return AntiSpamHandler(create_bot)
+    return AntiSpamHandler(MockedMember(mock_type="bot").to_mock())
 
 
 @pytest.fixture

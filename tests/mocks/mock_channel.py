@@ -21,4 +21,12 @@ class MockedChannel:
         mock.id = self.id
         mock.mention = f"<@&{self.id}>"
 
+        mock.fetch_message = self.fetch_message
+
         return mock
+
+    @staticmethod
+    async def fetch_message(message_id):
+        from tests.mocks import MockedMessage
+
+        return MockedMessage(message_id=message_id).to_mock()

@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 
 import discord
 
-from tests.mocks.mocked_member import MockedMember
+from .mocked_member import MockedMember
 
 
 class MockedGuild:
