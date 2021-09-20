@@ -132,3 +132,26 @@ class TestMemoryCache:
         assert len(guilds) == 0
 
         await create_memory_cache.set_guild(Guild(1))
+
+        guilds = await create_memory_cache.get_all_guilds()
+        assert len(guilds) == 1
+
+        await create_memory_cache.delete_guild(1)
+
+        guilds = await create_memory_cache.get_all_guilds()
+        assert len(guilds) == 0
+
+    @pytest.mark.asyncio
+    async def test_delete_member(self, create_memory_cache):
+        await create_memory_cache.delete_member(1, 2)
+        await create_memory_cache.set_guild(Guild(2))
+        await create_memory_cache.delete_member(1, 2)
+
+        guild = await create_memory_cache.get_guild(2)
+        guild.members[1] = Member(1, 2)
+        await create_memory_cache.set_guild(guild)
+        assert len(guild.members) == 1
+
+        await create_memory_cache.delete_member(1, 2)
+        g = await create_memory_cache.get_guild(2)
+        assert len(g.members) == 0
