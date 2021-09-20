@@ -320,7 +320,9 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    async def send_guild_log(self, guild, message, delete_after_time, original_channel) -> None:
+    async def send_guild_log(
+        self, guild, message, delete_after_time: Optional[int], original_channel
+    ) -> None:
         """
         Sends a message to the guilds log channel
 
