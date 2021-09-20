@@ -44,7 +44,7 @@ from .exceptions import (
 )
 from .factory import FactoryBuilder
 from .base_plugin import BasePlugin
-
+from .util import get_aware_time
 
 log = logging.getLogger(__name__)
 
@@ -832,16 +832,63 @@ class AntiSpamHandler:
 
         log.info("Unregistered extension %s", plugin_name)
 
-    async def clean_cache(self) -> None:
+    async def clean_cache(self, strict=False) -> None:
         """
         Cleans the internal cache, pruning
         any old/un-needed entries.
 
+        Non Strict mode:
+         - Member deletion criteria:
+            - warn_count == default
+            - kick_count == default
+            - duplicate_counter == default
+            - duplicate_channel_counter_dict == default
+            - addons dict == default
+            - Also must have no active messages after cleaning.
+
+         - Guild deletion criteria:
+            - options are not custom
+            - log_channel_id is not set
+            - addons dict == default
+            - Also must have no members stored
+
+        Strict mode:
+         - Member deletion criteria
+
+        Parameters
+        ----------
+        strict : bool
+            Toggles the above
+
+
         Notes
         -----
-        This is somewhat expensive, and likely
+        This is expensive, and likely
         only required to be run every so often
         depending on how high traffic your bot is.
         """
-
-        guilds = await self.cache.get_all_guilds()
+        cache = []
+        for guild in await self.cache.get_all_guilds():
+            new_guild = deepcopy(guild)
+            for member in guild.members.values():
+                FactoryBuilder.clean_old_messages(
+                    member, get_aware_time(), self.options
+                )
+                if (
+                    len(member.messages) != 0
+                    or member.kick_count != 0
+                    or member.warn_count != 0
+                    or member.duplicate_counter != 1
+                    or bool(member.duplicate_channel_counter_dict)
+                    or bool(member.addons)
+                ):
+                    """Only re-cache members with the following
+                    - Still active messages
+                    - A non-default
+                        - warn count
+                        - kick count
+                        - duplicate_counter
+                        - duplicate counter dict
+                        - addons dict
+                    """
+                    new_guild.members[member.id] = member

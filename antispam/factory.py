@@ -60,3 +60,28 @@ class FactoryBuilder:
         log.debug("Created Message (%s) from dict", message.id)
 
         return message
+
+    @staticmethod
+    def clean_old_messages(member: Member, current_time, options):
+        def _is_still_valid(message_obj):
+            """
+            Given a message, figure out if it hasn't
+            expired yet based on timestamps
+            """
+            difference = current_time - message_obj.creation_time
+            offset = datetime.timedelta(milliseconds=options.message_interval)
+
+            if difference >= offset:
+                return False
+            return True
+
+        current_messages = []
+        outstanding_messages = []
+
+        for message in member.messages:
+            if _is_still_valid(message):
+                current_messages.append(message)
+            else:
+                outstanding_messages.append(message)
+
+        member.messages = current_messages
