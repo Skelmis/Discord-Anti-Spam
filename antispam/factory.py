@@ -2,6 +2,7 @@ import logging
 from copy import deepcopy
 import datetime
 
+from .abc import Cache
 from .dataclasses import Guild, Member, Message, Options
 
 
@@ -85,3 +86,45 @@ class FactoryBuilder:
                 outstanding_messages.append(message)
 
         member.messages = current_messages
+
+    @staticmethod
+    async def get_all_members_as_list(cache: Cache, guild_id: int):
+        """
+        Given a cache, evaluate the async
+        generator in order to return a list
+
+        Parameters
+        ----------
+        cache : Cache
+            The cache to use to fetch stuff
+        guild_id : int
+            The guild to get members from
+
+        Returns
+        -------
+        List
+            A list of all members in the guild
+
+        Raises
+        ------
+        GuildNotFound
+        """
+        return [member async for member in cache.get_all_members(guild_id=guild_id)]
+
+    @staticmethod
+    async def get_all_guilds_as_list(cache: Cache):
+        """
+        Given a cache, evaluate the async
+        generator in order to return a list
+
+        Parameters
+        ----------
+        cache : Cache
+            The cache to use to fetch stuff
+
+        Returns
+        -------
+        List
+            A list of all cached guilds
+        """
+        return [guild async for guild in cache.get_all_guilds()]

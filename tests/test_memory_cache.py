@@ -3,6 +3,7 @@ import pytest
 from antispam import GuildNotFound, Options, MemberNotFound  # noqa
 from antispam.dataclasses import Guild, Member, Message  # noqa
 from antispam.enums import ResetType
+from antispam.factory import FactoryBuilder
 
 from .fixtures import create_handler, create_memory_cache, create_bot  # noqa
 
@@ -97,48 +98,48 @@ class TestMemoryCache:
     @pytest.mark.asyncio
     async def test_get_all_members(self, create_memory_cache):
         with pytest.raises(GuildNotFound):
-            await create_memory_cache.get_all_members(1)
+            await FactoryBuilder.get_all_members_as_list(create_memory_cache, 1)
 
         await create_memory_cache.set_member(Member(1, 1))
         await create_memory_cache.set_member(Member(2, 1))
         await create_memory_cache.set_member(Member(3, 1))
 
-        members = await create_memory_cache.get_all_members(1)
+        members = await FactoryBuilder.get_all_members_as_list(create_memory_cache, 1)
         assert len(members) == 3
         assert members == [Member(1, 1), Member(2, 1), Member(3, 1)]
 
     @pytest.mark.asyncio
     async def test_get_all_guilds(self, create_memory_cache):
-        guilds = [g async for g in create_memory_cache.get_all_guilds()]
+        guilds = await FactoryBuilder.get_all_guilds_as_list(create_memory_cache)
         assert len(guilds) == 0
 
         await create_memory_cache.set_guild(Guild(1, Options()))
-        guilds = [g async for g in create_memory_cache.get_all_guilds()]
+        guilds = await FactoryBuilder.get_all_guilds_as_list(create_memory_cache)
         assert len(guilds) == 1
 
         await create_memory_cache.set_guild(Guild(2, Options()))
-        guilds = [g async for g in create_memory_cache.get_all_guilds()]
+        guilds = await FactoryBuilder.get_all_guilds_as_list(create_memory_cache)
         assert len(guilds) == 2
         assert guilds == [Guild(1, Options()), Guild(2, Options())]
 
     @pytest.mark.asyncio
     async def test_delete_guild(self, create_memory_cache):
-        guilds = await create_memory_cache.get_all_guilds()
+        guilds = await FactoryBuilder.get_all_guilds_as_list(create_memory_cache)
         assert len(guilds) == 0
 
         await create_memory_cache.delete_guild(1)
 
-        guilds = await create_memory_cache.get_all_guilds()
+        guilds = await FactoryBuilder.get_all_guilds_as_list(create_memory_cache)
         assert len(guilds) == 0
 
         await create_memory_cache.set_guild(Guild(1))
 
-        guilds = await create_memory_cache.get_all_guilds()
+        guilds = await FactoryBuilder.get_all_guilds_as_list(create_memory_cache)
         assert len(guilds) == 1
 
         await create_memory_cache.delete_guild(1)
 
-        guilds = await create_memory_cache.get_all_guilds()
+        guilds = await FactoryBuilder.get_all_guilds_as_list(create_memory_cache)
         assert len(guilds) == 0
 
     @pytest.mark.asyncio
