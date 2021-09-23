@@ -698,3 +698,36 @@ class TestAntiSpamHandler:
     async def test_clean_cache_strict_guild(self, create_handler):
         """Tests clean_cache on guilds with strict mode"""
         pass
+
+    @pytest.mark.asyncio
+    async def test_plugin_blacklists(self, create_handler):
+        """Tests blacklisted guilds get skipped within plugin calls"""
+
+        class Test(BasePlugin):
+            def __init__(self, invoke=True):
+                super().__init__(invoke)
+
+        test = Test()
+        test.blacklisted_guilds.add(13123)
+        test.propagate = AsyncMock(return_value={})
+        create_handler.register_plugin(test)
+
+        assert test.propagate.call_count == 0
+
+        await create_handler.propagate(MockedMessage().to_mock())
+        await create_handler.propagate(MockedMessage(guild_id=13123).to_mock())
+
+        assert test.propagate.call_count == 1
+        create_handler.unregister_plugin("test")
+
+        test = Test(False)
+        test.blacklisted_guilds.add(13123)
+        test.propagate = AsyncMock(return_value={})
+        create_handler.register_plugin(test)
+
+        assert test.propagate.call_count == 0
+
+        await create_handler.propagate(MockedMessage().to_mock())
+        await create_handler.propagate(MockedMessage(guild_id=13123).to_mock())
+
+        assert test.propagate.call_count == 1

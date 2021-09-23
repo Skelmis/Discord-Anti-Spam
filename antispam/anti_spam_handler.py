@@ -320,6 +320,10 @@ class AntiSpamHandler:
         pre_invoke_extensions = {}
 
         for pre_invoke_ext in self.pre_invoke_extensions.values():
+            if guild.id in pre_invoke_ext.blacklisted_guilds:
+                # https://github.com/Skelmis/DPY-Anti-Spam/issues/65
+                continue
+
             pre_invoke_return = await pre_invoke_ext.propagate(message)
             pre_invoke_extensions[pre_invoke_ext.__class__.__name__] = pre_invoke_return
 
@@ -357,6 +361,10 @@ class AntiSpamHandler:
         main_return.pre_invoke_extensions = pre_invoke_extensions
 
         for after_invoke_ext in self.after_invoke_extensions.values():
+            if guild.id in after_invoke_ext.blacklisted_guilds:
+                # https://github.com/Skelmis/DPY-Anti-Spam/issues/65
+                continue
+
             after_invoke_return = await after_invoke_ext.propagate(message, main_return)
             main_return.after_invoke_extensions[
                 after_invoke_ext.__class__.__name__

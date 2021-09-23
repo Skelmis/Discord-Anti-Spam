@@ -1,6 +1,3 @@
-import discord
-import typing
-
 from antispam import AntiSpamHandler
 from antispam.base_plugin import BasePlugin
 from antispam.dataclasses import CorePayload
