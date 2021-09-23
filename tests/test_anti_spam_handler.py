@@ -692,3 +692,9 @@ class TestAntiSpamHandler:
     @pytest.mark.asyncio
     async def test_clean_cache_strict_member(self, create_handler):
         """Tests clean_cache on members with strict mode"""
+        pass
+
+    @pytest.mark.asyncio
+    async def test_clean_cache_strict_guild(self, create_handler):
+        """Tests clean_cache on guilds with strict mode"""
+        pass

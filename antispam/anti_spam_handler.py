@@ -837,6 +837,8 @@ class AntiSpamHandler:
         Cleans the internal cache, pruning
         any old/un-needed entries.
 
+
+        TODO Test these modes
         Non Strict mode:
          - Member deletion criteria:
             - warn_count == default
