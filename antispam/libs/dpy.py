@@ -179,7 +179,7 @@ class DPY(Lib):
                 data={"status": "Ignoring messages from myself (the bot)"}
             )
 
-        if isinstance(message.author, discord.User):
+        if isinstance(message.author, discord.User):  # pragma: no cover
             log.warning(f"Given message with an author of type User")
 
         # Return if ignored bot
@@ -280,7 +280,7 @@ class DPY(Lib):
         message: Union[str, discord.Embed],
         delete_after_time,
         original_channel: Union[discord.abc.GuildChannel, discord.abc.PrivateChannel],
-    ) -> None:
+    ) -> None:  # pragma: no cover
         try:
             if not guild.log_channel_id:
                 log.debug(
@@ -314,7 +314,7 @@ class DPY(Lib):
         is_kick: bool,
         user_delete_after: int = None,
         channel_delete_after: int = None,
-    ):
+    ):  # pragma: no cover
         guild = original_message.guild
         author = original_message.author
 
@@ -445,7 +445,7 @@ class DPY(Lib):
         member._in_guild = True
         await self.handler.cache.set_member(member)
 
-    async def delete_member_messages(self, member: Member) -> None:
+    async def delete_member_messages(self, member: Member) -> None:  # pragma: no cover
         bot = self.handler.bot
         channels = {}
         for message in member.messages:
@@ -463,7 +463,9 @@ class DPY(Lib):
                 actual_message = await channel.fetch_message(message.id)
                 await self.delete_message(actual_message)
 
-    async def delete_message(self, message: discord.Message) -> None:
+    async def delete_message(
+        self, message: discord.Message
+    ) -> None:  # pragma: no cover
         try:
             await message.delete()
             log.debug("Deleted message: %s", message.id)
