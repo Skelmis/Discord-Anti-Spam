@@ -6,6 +6,7 @@ from attr import asdict
 from antispam.dataclasses import Message, Member, Guild
 from antispam.factory import FactoryBuilder
 from antispam import Options
+from antispam.util import get_aware_time
 
 
 class TestFactory:
@@ -166,3 +167,25 @@ class TestFactory:
         guild_two = Guild(id=1, options=Options())
         guild_two.members[1] = member_two
         assert test_guild_two == guild_two
+
+    def test_clean_old_messages(self):
+        member = Member(
+            1,
+            2,
+            messages=[
+                Message(1, 2, 3, 4, "Hello"),
+                Message(
+                    2,
+                    2,
+                    3,
+                    4,
+                    "World",
+                    creation_time=get_aware_time() - datetime.timedelta(seconds=45),
+                ),
+            ],
+        )
+        assert len(member.messages) == 2
+
+        FactoryBuilder.clean_old_messages(member, get_aware_time(), Options())
+
+        assert len(member.messages) == 1
