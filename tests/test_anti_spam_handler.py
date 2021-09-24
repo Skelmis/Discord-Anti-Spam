@@ -21,7 +21,7 @@ from antispam import (
 
 from antispam.enums import IgnoreType, ResetType
 
-from antispam.dataclasses import Guild, Member, CorePayload
+from antispam.dataclasses import Guild, Member, CorePayload, Message
 
 from antispam.base_plugin import BasePlugin
 from antispam.plugins import Stats as StatsPlugin
@@ -692,7 +692,19 @@ class TestAntiSpamHandler:
     @pytest.mark.asyncio
     async def test_clean_cache_strict_member(self, create_handler):
         """Tests clean_cache on members with strict mode"""
-        pass
+        await create_handler.cache.set_member(Member(1, 1))
+        assert bool(create_handler.cache.cache)
+
+        await create_handler.clean_cache(strict=True)
+        assert not bool(create_handler.cache.cache)
+
+        await create_handler.cache.set_member(
+            Member(1, 1, messages=[Message(1, 2, 3, 4, "Hello")])
+        )
+        assert bool(create_handler.cache.cache)
+
+        await create_handler.clean_cache(strict=True)
+        assert bool(create_handler.cache.cache)
 
     @pytest.mark.asyncio
     async def test_clean_cache_strict_guild(self, create_handler):

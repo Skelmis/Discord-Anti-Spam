@@ -743,7 +743,7 @@ class AntiSpamHandler:
             "cache": self.cache.__class__.__name__,
             "guilds": [],
         }
-        async for guild in self.cache.get_all_guilds():
+        async for guild in self.cache.get_all_guilds():  # pragma: no cover
             data["guilds"].append(asdict(guild, recurse=True))
 
         log.info("Saved AntiSpamHandler state")
