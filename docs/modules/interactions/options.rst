@@ -10,7 +10,7 @@ Options can be set in two ways:
  - Set using an existing object ``Options.no_punish = True``
 
 For more in depth meanings and explanations, please see
-the primary docstring of :py:class:`antispam.anti_spam_handler.AntiSpamHandler`
+the primary docstring of :py:class:`antispam.AntiSpamHandler`
 
 
  .. currentmodule:: antispam.dataclasses.options
