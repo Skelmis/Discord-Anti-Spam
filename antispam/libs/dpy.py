@@ -11,7 +11,6 @@ from antispam import PropagateFailure, LogicError, MissingGuildPermissions
 from antispam.abc import Lib
 from antispam.dataclasses import Message, Member, Guild
 from antispam.dataclasses.propagate_data import PropagateData
-from tests.mocks import MockedChannel
 
 log = logging.getLogger(__name__)
 
@@ -371,6 +370,7 @@ class DPY(Lib):
                 guild=internal_guild,
                 message=f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
                 delete_after_time=channel_delete_after,
+                original_channel=original_message.channel,
             )
             log.warning(
                 "Failed to message User: (%s) about {'kick' if is_kick else 'ban'}",
@@ -404,6 +404,7 @@ class DPY(Lib):
                 guild=internal_guild,
                 message=f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
                 delete_after_time=channel_delete_after,
+                original_channel=original_message.channel,
             )
             log.warning(
                 "An error occurred trying to %s: %s",
@@ -430,7 +431,7 @@ class DPY(Lib):
                     internal_guild,
                     user_failed_message,
                     channel_delete_after,
-                    MockedChannel().to_mock(),
+                    original_message.channel,
                 )
                 await sent_message.delete()
 
@@ -439,7 +440,7 @@ class DPY(Lib):
                 guild=internal_guild,
                 message=guild_message,
                 delete_after_time=channel_delete_after,
-                original_channel=MockedChannel().to_mock(),
+                original_channel=original_message.channel,
             )
 
         member._in_guild = True
