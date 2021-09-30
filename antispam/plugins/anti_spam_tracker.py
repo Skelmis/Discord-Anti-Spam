@@ -24,11 +24,8 @@ LICENSE
 """
 import datetime
 import logging
-from unittest.mock import AsyncMock
 
 import typing
-
-import discord
 
 from antispam import AntiSpamHandler
 from antispam.base_plugin import BasePlugin
@@ -170,8 +167,7 @@ class AntiSpamTracker(BasePlugin):
         data : CorePayload
             The data returned from `propagate`
         """
-        if not isinstance(message, (discord.Message, AsyncMock)):
-            raise TypeError("Expected message of type: discord.Message")
+        # TODO Check with stubs when possible from #68
 
         if not isinstance(data, CorePayload):
             raise TypeError("Expected data of type: CorePayload")
@@ -234,8 +230,7 @@ class AntiSpamTracker(BasePlugin):
             The User for the ``message`` could not be found
 
         """
-        if not isinstance(message, (discord.Message, AsyncMock)):
-            raise TypeError("Expected message of type: discord.Message")
+        # TODO Check message within #68
 
         if not message.guild:
             raise MemberNotFound("Can't find user's from dm's")
@@ -322,8 +317,7 @@ class AntiSpamTracker(BasePlugin):
         This will actually create a member internally
         if one doesn't already exist for simplicities sake
         """
-        if not isinstance(message, (discord.Message, AsyncMock)):
-            raise TypeError("Expected message of type: discord.Message")
+        # TODO Check message using stubs from #68
 
         if not message.guild:
             return
@@ -409,8 +403,7 @@ class AntiSpamTracker(BasePlugin):
             True if the User is spamming else False
 
         """
-        if not isinstance(message, (discord.Message, AsyncMock)):
-            raise TypeError("Expected message of type: discord.Message")
+        # TODO Check message with stubs from #68
 
         if not message.guild:
             return False
