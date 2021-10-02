@@ -35,6 +35,30 @@ Super duper basic bot
         bot.run("Bot Token Here")
 
 
+Basic Hikari bot
+----------------
+
+.. code-block:: python
+    :linenos:
+
+    import hikari
+    from antispam import AntiSpamHandler
+
+    bot = hikari.GatewayBot(
+        token="..."
+    )
+    handler = AntiSpamHandler(bot, is_using_hikari=True)
+
+    @bot.listen()
+    async def ping(event: hikari.GuildMessageCreateEvent) -> None:
+        if event.is_bot or not event.content:
+            return
+
+        await handler.propagate(event.message)
+
+    bot.run()
+
+
 How to use templating in a string
 ---------------------------------
 
