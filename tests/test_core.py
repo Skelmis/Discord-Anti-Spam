@@ -184,6 +184,33 @@ class TestCore:
         assert member.duplicate_counter == 2
         assert message.is_duplicate is True
 
+    def test_calculate_ratio_edge_case(self, create_core):
+        """Tests calculate ratios correctly marks an edge case as spam
+
+        See:
+        https://mystb.in/HarderTournamentsPrimary.properties
+
+        Previously it would not mark all "Spam tho" as spam when it should have
+        """
+        member = Member(1, 1)
+        member.messages = [
+            Message(1, 1, 1, 1, "This is a test", datetime.datetime.now()),
+            Message(2, 1, 1, 1, "Heres another message", datetime.datetime.now()),
+            Message(3, 1, 1, 1, "Spam tho", datetime.datetime.now()),
+            Message(4, 1, 1, 1, "Spam tho", datetime.datetime.now()),
+            Message(5, 1, 1, 1, "Spam tho", datetime.datetime.now()),
+        ]
+        message = Message(6, 1, 1, 1, "Spam tho", datetime.datetime.now())
+
+        create_core._calculate_ratios(message, member)
+
+        assert message.is_duplicate is True
+        assert member.messages[0].is_duplicate is False
+        assert member.messages[1].is_duplicate is False
+        assert member.messages[2].is_duplicate is True
+        assert member.messages[3].is_duplicate is True
+        assert member.messages[4].is_duplicate is True
+
     def test_calculate_ratios_per_channel(self, create_core):
         member = Member(1, 1)
         member.messages = [Message(1, 1, 1, 1, "Hello world", datetime.datetime.now())]
