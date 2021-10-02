@@ -491,3 +491,7 @@ class Lib(Protocol):
         Returns the channel id of this message
         """
         raise NotImplementedError
+
+    async def get_channel(self, message):
+        """Returns the channel for a message"""
+        raise NotImplementedError

@@ -62,6 +62,9 @@ class Hikari(Lib):
     def get_channel_id(self, message: messages.Message) -> int:
         return message.channel_id
 
+    async def get_channel(self, message: messages.Message):
+        return await self.handler.bot.rest.fetch_channel(message.channel_id)
+
     async def check_message_can_be_propagated(
         self, message: messages.Message
     ) -> PropagateData:
@@ -359,10 +362,12 @@ class Hikari(Lib):
 
             if isinstance(message, str):
                 m = await channel.send(message)
+            else:
+                m = await channel.send(embed=message)
+
+            if delete_after_time:
                 await asyncio.sleep(delete_after_time)
                 await m.delete()
-            else:
-                await channel.send(embed=message)
 
             log.debug("Sent message to log channel in %s", guild.id)
         except (
@@ -390,15 +395,15 @@ class Hikari(Lib):
         channel = await self.handler.bot.rest.fetch_channel(original_message.channel_id)
 
         # Check we have perms to punish
-        perms = guild.me.guild_permissions
-        if not perms.kick_members and is_kick:
+        perms = await self._get_perms(guild.get_my_member())
+        if not perms.KICK_MEMBERS and is_kick:
             member._in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I need kick perms to punish someone in {guild.name}"
             )
 
-        elif not perms.ban_members and not is_kick:
+        elif not perms.BAN_MEMBERS and not is_kick:
             member._in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
@@ -418,10 +423,10 @@ class Hikari(Lib):
         try:
             if isinstance(user_message, embeds.Embed):
                 sent_message = await author.send(embed=user_message)
-                await asyncio.sleep(user_delete_after)
-                await sent_message.delete()
             else:
                 sent_message = await author.send(user_message)
+
+            if user_delete_after:
                 await asyncio.sleep(user_delete_after)
                 await sent_message.delete()
 
@@ -442,12 +447,12 @@ class Hikari(Lib):
         try:
             if is_kick:
                 await guild.kick(
-                    member, reason="Automated punishment from DPY Anti-Spam."
+                    author, reason="Automated punishment from DPY Anti-Spam."
                 )
                 log.info("Kicked User: (%s)", member.id)
             else:
                 await guild.ban(
-                    member, reason="Automated punishment from DPY Anti-Spam."
+                    author, reason="Automated punishment from DPY Anti-Spam."
                 )
                 log.info("Banned User: (%s)", member.id)
 

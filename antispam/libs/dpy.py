@@ -501,3 +501,6 @@ class DPY(Lib):
                 message,
                 delete_after=delete_after_time,
             )
+
+    async def get_channel(self, message: discord.Message):
+        return message.channel

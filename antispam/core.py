@@ -125,7 +125,7 @@ class Core:
             """
             log.debug("Attempting to warn: %s", message.author_id)
             member.warn_count += 1
-            channel = original_message.channel
+            channel = await self.handler.lib_handler.get_channel(original_message)
             guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_warn_message,
                 original_message,
