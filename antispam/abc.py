@@ -478,3 +478,16 @@ class Lib(Protocol):
         delete_after_time : Optional[int]
             When to delete the message after
         """
+        raise NotImplementedError
+
+    def get_guild_id(self, message) -> int:
+        """
+        Returns the guild id of this message
+        """
+        raise NotImplementedError
+
+    def get_channel_id(self, message) -> int:
+        """
+        Returns the channel id of this message
+        """
+        raise NotImplementedError

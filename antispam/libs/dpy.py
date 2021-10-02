@@ -20,6 +20,12 @@ class DPY(Lib):
     def __init__(self, handler):
         self.handler = handler
 
+    def get_guild_id(self, message: discord.Message) -> int:
+        return message.guild.id
+
+    def get_channel_id(self, message: discord.Message) -> int:
+        return message.channel.id
+
     def substitute_args(
         self,
         message: str,

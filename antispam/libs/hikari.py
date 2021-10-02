@@ -17,6 +17,7 @@ from hikari import (
     NotFoundError,
     RateLimitTooLongError,
     InternalServerError,
+    Permissions,
 )
 
 from antispam import (
@@ -38,12 +39,18 @@ class Hikari(Lib):
     def __init__(self, handler: AntiSpamHandler):
         self.handler = handler
 
+    def get_guild_id(self, message: messages.Message) -> int:
+        return message.guild_id
+
+    def get_channel_id(self, message: messages.Message) -> int:
+        return message.channel_id
+
     async def check_message_can_be_propagated(
         self, message: messages.Message
     ) -> PropagateData:
         if not isinstance(message, (messages.Message, AsyncMock)):
             raise PropagateFailure(
-                data={"status": "Expected message of type discord.Message"}
+                data={"status": "Expected message of type messages.Message"}
             )
 
         # Ensure we only moderate actual guild messages
@@ -58,8 +65,20 @@ class Hikari(Lib):
                 data={"status": "Ignoring messages from myself (the bot)"}
             )
 
-        if isinstance(message.author, users.User):  # pragma: no cover
-            log.warning(f"Given message with an author of type User")
+        guild: guilds.Guild = self.handler.bot.cache.get_guild(message.guild_id)
+        member: guilds.Member = guild.get_member(message.author.id)
+
+        if not member:
+            log.error(
+                "Idk how to fetch members, so this is returning since "
+                "cache lookup failed. Please open a github issue."
+            )
+            raise PropagateFailure(
+                data={
+                    "status": "Idk how to fetch members, so this is returning since "
+                    "cache lookup failed. Please open a github issue."
+                }
+            )
 
         # Return if ignored bot
         if self.handler.options.ignore_bots and message.author.is_bot:
@@ -88,8 +107,8 @@ class Hikari(Lib):
 
         # Return if member has an ignored role
         try:
-            roles = await message.author.fetch_roles()
-            user_roles = message.author.role_ids
+            roles = await member.fetch_roles()
+            user_roles = list(member.role_ids)
             user_roles.extend([role.name for role in roles])
             for item in user_roles:
                 if item in self.handler.options.ignored_roles:
@@ -111,8 +130,8 @@ class Hikari(Lib):
                 data={"status": f"Ignoring this guild: {message.guild_id}"}
             )
 
-        perms = message.guild.me.guild_permissions
-        has_perms = perms.kick_members and perms.ban_members
+        perms: Permissions = await self._get_perms(guild.get_my_member())
+        has_perms = perms.KICK_MEMBERS and perms.BAN_MEMBERS
 
         return PropagateData(
             guild_id=message.guild_id,
@@ -120,6 +139,16 @@ class Hikari(Lib):
             member_id=message.author.id,
             has_perms_to_make_guild=has_perms,
         )
+
+    async def _get_perms(self, member: guilds.Member) -> Permissions:
+        roles = await member.fetch_roles()
+
+        perms = Permissions.NONE
+
+        for role in roles:
+            perms = perms | role.permissions
+
+        return perms
 
     def substitute_args(
         self,
