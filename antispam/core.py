@@ -334,6 +334,7 @@ class Core:
                 """
                 self._increment_duplicate_count(member, channel_id=message.channel_id)
                 message.is_duplicate = True
+                message_obj.is_duplicate = True
 
                 if (
                     self._get_duplicate_count(
