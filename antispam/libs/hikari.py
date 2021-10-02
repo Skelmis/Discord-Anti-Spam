@@ -6,6 +6,7 @@ from string import Template
 from typing import Optional, Union
 from unittest.mock import AsyncMock
 
+import hikari.errors
 from hikari import (
     messages,
     users,
@@ -36,6 +37,22 @@ log = logging.getLogger(__name__)
 
 # noinspection DuplicatedCode,PyProtocol
 class Hikari(Lib):
+    async def send_message_to_(
+        self, target, message, delete_after_time: Optional[int] = None
+    ) -> None:
+        if isinstance(message, hikari.Embed):
+            m = await target.send(
+                embed=message,
+            )
+        else:
+            m = await target.send(
+                message,
+            )
+
+        if delete_after_time:
+            await asyncio.sleep(delete_after_time)
+            await m.delete()
+
     def __init__(self, handler: AntiSpamHandler):
         self.handler = handler
 
@@ -495,8 +512,11 @@ class Hikari(Lib):
                 else:
                     channel = channels[message.channel_id]
 
-                actual_message = await channel.fetch_message(message.id)
-                await self.delete_message(actual_message)
+                try:
+                    actual_message = await channel.fetch_message(message.id)
+                    await self.delete_message(actual_message)
+                except hikari.errors.NotFoundError:
+                    continue
 
     async def delete_message(self, message: messages.Message) -> None:
         try:

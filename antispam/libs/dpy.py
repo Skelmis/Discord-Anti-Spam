@@ -467,8 +467,11 @@ class DPY(Lib):
                 else:
                     channel = channels[message.channel_id]
 
-                actual_message = await channel.fetch_message(message.id)
-                await self.delete_message(actual_message)
+                try:
+                    actual_message = await channel.fetch_message(message.id)
+                    await self.delete_message(actual_message)
+                except discord.NotFound:
+                    continue
 
     async def delete_message(
         self, message: discord.Message

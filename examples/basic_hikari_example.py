@@ -35,7 +35,7 @@ LOGGING_CONFIG = {
 file = read_json("token")
 bot = hikari.GatewayBot(
     token=file["token"],
-    logs=LOGGING_CONFIG,
+    # logs=LOGGING_CONFIG,
 )
 handler = AntiSpamHandler(bot, is_using_hikari=True)
 
