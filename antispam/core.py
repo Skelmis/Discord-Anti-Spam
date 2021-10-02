@@ -89,9 +89,7 @@ class Core:
         log.info("Created Message %s on %s", message.id, member.id)
 
         if (
-            self._get_duplicate_count(
-                member, channel_id=self.handler.lib_handler.get_channel_id(message)
-            )
+            self._get_duplicate_count(member, channel_id=message.channel_id)
             < self.options.message_duplicate_count
         ):
             return CorePayload()
@@ -108,6 +106,7 @@ class Core:
         # Delete the message if wanted
         if self.options.delete_spam is True and self.options.no_punish is False:
             # TODO Go delete ALL messages marked as spam
+
             await self.handler.lib_handler.delete_message(original_message)
             await self.handler.lib_handler.delete_member_messages(member)
 
@@ -120,9 +119,7 @@ class Core:
 
         if (
             self.options.warn_only
-            or self._get_duplicate_count(
-                member, self.handler.lib_handler.get_channel_id(message)
-            )
+            or self._get_duplicate_count(member, message.channel_id)
             >= self.options.warn_threshold
             and member.warn_count < self.options.kick_threshold
             and member.kick_count < self.options.ban_threshold
@@ -236,7 +233,7 @@ class Core:
         return_payload.member_duplicate_count = (
             self._get_duplicate_count(
                 member=member,
-                channel_id=self.handler.lib_handler.get_channel_id(message),
+                channel_id=message.channel_id,
             )
             - 1
         )
@@ -321,8 +318,7 @@ class Core:
 
             elif (
                 self.options.per_channel_spam
-                and self.handler.lib_handler.get_channel_id(message)
-                != message_obj.channel_id
+                and message.channel_id != message_obj.channel_id
             ):
                 # This user's spam should only be counted per channel
                 # and these messages are in different channel
@@ -336,15 +332,13 @@ class Core:
                 The handler works off an internal message duplicate counter
                 so just increment that and then let our logic process it later
                 """
-                self._increment_duplicate_count(
-                    member, channel_id=self.handler.lib_handler.get_channel_id(message)
-                )
+                self._increment_duplicate_count(member, channel_id=message.channel_id)
                 message.is_duplicate = True
 
                 if (
                     self._get_duplicate_count(
                         member,
-                        channel_id=self.handler.lib_handler.get_channel_id(message),
+                        channel_id=message.channel_id,
                     )
                     >= self.options.message_duplicate_count
                 ):

@@ -481,6 +481,8 @@ class Hikari(Lib):
         await self.handler.cache.set_member(member)
 
     async def delete_member_messages(self, member: Member) -> None:
+        print(member)
+
         bot = self.handler.bot
         channels = {}
         for message in member.messages:

@@ -1,6 +1,7 @@
 import hikari
 
 from antispam import AntiSpamHandler
+from examples.jsonLoader import read_json
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -31,9 +32,9 @@ LOGGING_CONFIG = {
     },
 }
 
-
+file = read_json("token")
 bot = hikari.GatewayBot(
-    token="NzgwNzk3MDU4Nzc2MTcwNTQ2.X70T7Q.aYJJ3ECIEexjhuuRhdG66L1sM1k",
+    token=file["token"],
     logs=LOGGING_CONFIG,
 )
 handler = AntiSpamHandler(bot, is_using_hikari=True)
