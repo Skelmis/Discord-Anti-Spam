@@ -103,13 +103,6 @@ class Core:
         # We need to punish the member with something
         return_payload = CorePayload(member_should_be_punished_this_message=True)
 
-        # Delete the message if wanted
-        if self.options.delete_spam is True and self.options.no_punish is False:
-            # TODO Go delete ALL messages marked as spam
-
-            await self.handler.lib_handler.delete_message(original_message)
-            await self.handler.lib_handler.delete_member_messages(member)
-
         if self.options.no_punish:
             # User will handle punishments themselves
             return CorePayload(
@@ -226,6 +219,11 @@ class Core:
 
         # Store the updated values
         await self.cache.set_member(member)
+
+        # Delete the message if wanted
+        if self.options.delete_spam is True and self.options.no_punish is False:
+            await self.handler.lib_handler.delete_message(original_message)
+            await self.handler.lib_handler.delete_member_messages(member)
 
         # Finish payload and return
         return_payload.member_warn_count = member.warn_count
