@@ -146,7 +146,7 @@ class Core:
             # Log this within guild log channels
             await self.handler.lib_handler.send_guild_log(
                 guild=guild,
-                message=f"I warned {original_message.author.mention}(`{original_message.author.id}`) for spam.",
+                message=guild_message,
                 original_channel=original_message.channel,
                 delete_after_time=self.options.guild_warn_message_delete_after,
             )
