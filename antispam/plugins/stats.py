@@ -48,13 +48,15 @@ class Stats(BasePlugin):
 
         self.data["propagate_calls"] += 1
 
-        if message.guild.id not in self.data["guilds"]:
-            self.data["guilds"][message.guild.id] = {
+        guild_id = self.handler.lib_handler.get_guild_id(message)
+
+        if guild_id not in self.data["guilds"]:
+            self.data["guilds"][guild_id] = {
                 "calls": 0,
                 "total_messages_punished": 0,
             }
 
-        self.data["guilds"][message.guild.id]["calls"] += 1
+        self.data["guilds"][guild_id]["calls"] += 1
 
         if message.author.id not in self.data["members"]:
             self.data["members"][message.author.id] = {"calls": 0, "times_punished": 0}
@@ -63,6 +65,6 @@ class Stats(BasePlugin):
 
         if data.member_should_be_punished_this_message:
             self.data["members"][message.author.id]["times_punished"] += 1
-            self.data["guilds"][message.guild.id]["total_messages_punished"] += 1
+            self.data["guilds"][guild_id]["total_messages_punished"] += 1
 
         return {"status": "Updated stats!"}
