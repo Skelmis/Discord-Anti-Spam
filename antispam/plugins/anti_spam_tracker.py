@@ -176,7 +176,7 @@ class AntiSpamTracker(BasePlugin):
             return
 
         member_id = message.author.id
-        guild_id = message.guild.id
+        guild_id = self.anti_spam_handler.lib_handler.get_guild_id(message)
         timestamp = get_aware_time()
 
         if not data.member_should_be_punished_this_message:
@@ -236,7 +236,7 @@ class AntiSpamTracker(BasePlugin):
             raise MemberNotFound("Can't find user's from dm's")
 
         member_id = message.author.id
-        guild_id = message.guild.id
+        guild_id = self.anti_spam_handler.lib_handler.get_guild_id(message)
 
         addon_data = await self.member_tracking.get_member_data(
             guild_id=guild_id, member_id=member_id
@@ -323,7 +323,7 @@ class AntiSpamTracker(BasePlugin):
             return
 
         member_id = message.author.id
-        guild_id = message.guild.id
+        guild_id = self.anti_spam_handler.lib_handler.get_guild_id(message)
 
         await self.member_tracking.set_member_data(member_id, guild_id, addon_data=[])
 
