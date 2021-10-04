@@ -24,7 +24,7 @@ class Options:
 
     # Strings
     guild_warn_message: Union[str, dict] = attr.ib(
-        default="Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
+        default="$USERNAME was warned for spamming/sending duplicate messages.",
         kw_only=True,
     )
     guild_kick_message: Union[str, dict] = attr.ib(
@@ -33,6 +33,10 @@ class Options:
     )
     guild_ban_message: Union[str, dict] = attr.ib(
         default="$USERNAME was banned for spamming/sending duplicate messages.",
+        kw_only=True,
+    )
+    member_warn_message: Union[str, dict] = attr.ib(
+        default="Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
         kw_only=True,
     )
     member_kick_message: Union[str, dict] = attr.ib(
