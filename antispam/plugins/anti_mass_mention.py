@@ -111,8 +111,6 @@ class AntiMassMention(BasePlugin):
         self.total_mentions_before_punishment = total_mentions_before_punishment
         self.time_period = time_period
 
-        log.debug("Initialized AntiMassMention")
-
     async def propagate(self, message) -> Union[dict, MassMentionPunishment]:
         """
         Manages and stores any mass mentions per users
