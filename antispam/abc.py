@@ -498,6 +498,12 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
+    def get_message_mentions(self, message):
+        """
+        Returns all the mentions from a message
+        """
+        raise NotImplementedError
+
     async def get_channel(self, message):
         """Returns the channel for a message"""
         raise NotImplementedError

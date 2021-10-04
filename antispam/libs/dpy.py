@@ -509,3 +509,6 @@ class DPY(Lib):
 
     async def get_channel(self, message: discord.Message):
         return message.channel
+
+    def get_message_mentions(self, message: discord.Message):
+        return message.mentions

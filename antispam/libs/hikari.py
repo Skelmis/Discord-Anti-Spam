@@ -532,3 +532,8 @@ class Hikari(Lib):
             log.warning(
                 "Failed to delete message %s in guild %s", message.id, message.guild_id
             )
+
+    def get_message_mentions(self, message: messages.Message):
+        data = [message.mentions.user_ids]
+        data.extend(role for role in message.mentions.role_ids)
+        data.extend(channel for channel in message.mentions.channels_ids)
