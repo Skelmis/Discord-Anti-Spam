@@ -37,6 +37,7 @@ setup(
         "antispam",
         "antispam.caches",
         "antispam.caches.memory",
+        "antispam.caches.redis",
         "antispam.dataclasses",
         "antispam.enums",
         "antispam.plugins",
