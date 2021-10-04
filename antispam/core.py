@@ -134,7 +134,10 @@ class Core:
             )
             try:
                 await self.handler.lib_handler.send_message_to_(
-                    channel, guild_message, self.options.guild_warn_message_delete_after
+                    channel,
+                    guild_message,
+                    original_message.author.mention,
+                    self.options.guild_warn_message_delete_after,
                 )
             except Exception as e:
                 member.warn_count -= 1

@@ -38,7 +38,7 @@ log = logging.getLogger(__name__)
 # noinspection DuplicatedCode,PyProtocol
 class Hikari(Lib):
     async def send_message_to_(
-        self, target, message, delete_after_time: Optional[int] = None
+        self, target, message, mention: str, delete_after_time: Optional[int] = None
     ) -> None:
         if isinstance(message, hikari.Embed):
             m = await target.send(

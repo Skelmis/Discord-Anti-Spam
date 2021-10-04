@@ -61,10 +61,11 @@ class Options:
     ignored_guilds: Set[int] = attr.ib(default=attr.Factory(set))
 
     # Booleans
-    delete_spam: bool = attr.ib(default=True)
+    delete_spam: bool = attr.ib(default=False)
     ignore_bots: bool = attr.ib(default=True)
     warn_only: bool = attr.ib(default=False)
     no_punish: bool = attr.ib(default=False)
+    mention_on_embed: bool = attr.ib(default=True)
     delete_zero_width_chars: bool = attr.ib(default=True)
 
     # Core punishment settings

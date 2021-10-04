@@ -114,7 +114,7 @@ class AntiSpamHandler:
         message_duplicate_accuracy: 90
             How 'close' messages need to be to be registered as duplicates (Out of 100)
 
-        delete_spam: True
+        delete_spam: False
             Whether or not to delete messages marked as spam
 
             *Won't delete messages if* ``no_punish`` *is* ``True``
@@ -122,10 +122,9 @@ class AntiSpamHandler:
             Note, this method is expensive. It will all messages marked
             as spam, and this means an api call per message.
 
-        ignore_perms: [8]
-            The perms (ID Form), that bypass anti-spam
-
-            **Not Implemented**
+        mention_on_embed: True
+            If the message your trying to send is an embed,
+            also send some content to mention the person being punished.
 
         ignored_members: []
             The users (ID Form), that bypass anti-spam

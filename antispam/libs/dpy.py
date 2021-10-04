@@ -488,11 +488,16 @@ class DPY(Lib):
     async def send_message_to_(
         self,
         target: discord.abc.Messageable,
+        mention: str,
         message: Union[str, discord.Embed],
         delete_after_time: Optional[int] = None,
     ) -> None:
         if isinstance(message, discord.Embed):
+            content = None
+            if self.handler.options.mention_on_embed:
+                content = mention
             await target.send(
+                content,
                 embed=message,
                 delete_after=delete_after_time,
             )

@@ -465,7 +465,7 @@ class Lib(Protocol):
         raise NotImplementedError
 
     async def send_message_to_(
-        self, target, message, delete_after_time: Optional[int] = None
+        self, target, message, mention: str, delete_after_time: Optional[int] = None
     ) -> None:
         """
         Given a message and target, send
@@ -475,8 +475,14 @@ class Lib(Protocol):
             Where to send the message
         message : Union[str, discord.Embed, hikari.embeds.Embed]
             The message to send
+        mention : str
+            A string denoting a raw mention of the punished user
         delete_after_time : Optional[int]
             When to delete the message after
+
+        Notes
+        -----
+        This should implement Options.mention_on_embed
         """
         raise NotImplementedError
 
