@@ -161,7 +161,7 @@ class AntiMassMention(BasePlugin):
 
         if len(mentions) >= self.min_mentions_per_message:
             # They mention too many people in this message so punish
-            log.info("Dispatching punishment event, is_overall_punishment=False")
+            log.info("Dispatching punishment, is_overall_punishment=False")
             payload = MassMentionPunishment(
                 member_id=member_id,
                 guild_id=guild_id,
@@ -177,7 +177,7 @@ class AntiMassMention(BasePlugin):
         ):
             # They have more mentions are cleaning then allowed,
             # So time to punish them
-            log.info("Dispatching punishment event, is_overall_punishment=True")
+            log.info("Dispatching punishment, is_overall_punishment=True")
             payload = MassMentionPunishment(
                 member_id=member_id,
                 guild_id=guild_id,
