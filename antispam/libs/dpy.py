@@ -488,8 +488,8 @@ class DPY(Lib):
     async def send_message_to_(
         self,
         target: discord.abc.Messageable,
-        mention: str,
         message: Union[str, discord.Embed],
+        mention: str,
         delete_after_time: Optional[int] = None,
     ) -> None:
         if isinstance(message, discord.Embed):
