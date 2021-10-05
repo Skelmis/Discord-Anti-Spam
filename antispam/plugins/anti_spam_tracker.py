@@ -143,7 +143,7 @@ class AntiSpamTracker(BasePlugin):
 
         self.member_tracking = PluginCache(handler=anti_spam_handler, caller=self)
 
-        log.info("AntiSpamTracker is initialized and ready to go")
+        log.info("Plugin ready for usage")
 
     async def propagate(
         self, message, data: typing.Optional[CorePayload] = None
@@ -204,7 +204,7 @@ class AntiSpamTracker(BasePlugin):
             member_id, guild_id, addon_data=addon_data
         )
 
-        log.debug("Cache updated for user (%s) in guild (%s)", member_id, guild_id)
+        log.debug("Cache updated for Member(id=%s) in Guild(id%s)", member_id, guild_id)
 
     async def get_user_count(self, message) -> int:
         """
@@ -268,7 +268,11 @@ class AntiSpamTracker(BasePlugin):
             The id of the guild to store on
 
         """
-        log.debug("Attempting to remove outdated timestamp's")
+        log.debug(
+            "Attempting to remove outdated timestamp's for Member(id=%s) in Guild(id=%s)",
+            member_id,
+            guild_id,
+        )
         current_time = get_aware_time()
 
         async def _is_still_valid(timestamp_obj):
@@ -291,7 +295,7 @@ class AntiSpamTracker(BasePlugin):
             if await _is_still_valid(timestamp):
                 current_timestamps.append(timestamp)
 
-        log.debug("Removed 'timestamps' for member: %s", member_id)
+        log.debug("Removed 'timestamps' for Member(id=%s)", member_id)
 
         await self.member_tracking.set_member_data(
             member_id, guild_id, addon_data=current_timestamps

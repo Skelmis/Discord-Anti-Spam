@@ -62,8 +62,6 @@ class AntiMassMention(BasePlugin):
 
         if isinstance(return_item, MassMentionPunishment):
             # Punish for mention spam
-
-
     """
 
     def __init__(
@@ -112,6 +110,8 @@ class AntiMassMention(BasePlugin):
         self.total_mentions_before_punishment = total_mentions_before_punishment
         self.time_period = time_period
 
+        log.info("Plugin ready for usage")
+
     async def propagate(self, message) -> Union[dict, MassMentionPunishment]:
         """
         Manages and stores any mass mentions per users
@@ -133,7 +133,9 @@ class AntiMassMention(BasePlugin):
         member_id = message.author.id
         guild_id = self.handler.lib_handler.get_guild_id(message)
 
-        log.debug("Propagating message for %s, guild: %s", member_id, guild_id)
+        log.info(
+            "Propagating message for Member(id=%s) in Guild(id=%s)", member_id, guild_id
+        )
 
         try:
             member = await self.data.get_member_data(member_id, guild_id)
@@ -205,7 +207,9 @@ class AntiMassMention(BasePlugin):
         they are ignored and this method returns
 
         """
-        log.debug("Cleaning timestamps for %s, guild: %s", member_id, guild_id)
+        log.debug(
+            "Cleaning timestamps for Member(id=%s) in Guild(id=%s)", member_id, guild_id
+        )
 
         async def _is_still_valid(timestamp):
             difference = current_time - timestamp

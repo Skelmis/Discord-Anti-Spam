@@ -1,6 +1,10 @@
+import logging
+
 from antispam import AntiSpamHandler
 from antispam.base_plugin import BasePlugin
 from antispam.dataclasses import CorePayload
+
+log = logging.getLogger(__name__)
 
 
 class Stats(BasePlugin):
@@ -31,7 +35,10 @@ class Stats(BasePlugin):
         }
         self.handler = anti_spam_handler
 
+        log.debug("Plugin ready for usage")
+
     async def propagate(self, message, data: CorePayload) -> dict:
+        log.info("Updating statistics on_propagate")
         for invoker in self.handler.pre_invoke_extensions.keys():
             try:
                 self.data["pre_invoke_calls"][invoker]["calls"] += 1
