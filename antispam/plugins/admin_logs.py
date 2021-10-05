@@ -26,8 +26,7 @@ class AdminLogs(BasePlugin):
         super().__init__(is_pre_invoke=False)
 
         self.handler = handler
-        self.cwd = str(Path(__file__).parents[0])
-        self.path = os.path.join(self.cwd, log_location)
+        self.path = log_location
 
     async def propagate(self, message, data: CorePayload = None) -> Any:
         if not data.member_should_be_punished_this_message:
