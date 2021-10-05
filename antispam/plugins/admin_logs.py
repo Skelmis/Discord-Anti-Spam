@@ -61,9 +61,7 @@ class AdminLogs(BasePlugin):
         # Open the punishment file
         with open(os.path.join(dir_path, f"{current_count}.txt"), "w") as f:
             # Write headers / rough details
-            f.write(
-                f"Author name: {message.author.id}\nAuthor id: {message.author.id}\n-----\n"
-            )
+            f.write(f"Author id: {message.author.id}\n-----\n")
             f.write(
                 f"Current warn count: {member.warn_count}\n"
                 f"Current kick count: {member.kick_count}\n-----\n"
@@ -72,10 +70,18 @@ class AdminLogs(BasePlugin):
                 f"Date & time of the message which triggered this punishment:\n"
                 f"{message.created_at.strftime('%I:%M:%S %p, %d/%m/%Y')}\n-----\n"
             )
-            f.write(f"Punishment type: {punishment_type.title()}\n-----\n\n")
+            f.write(f"Punishment type: {punishment_type.title()}\n-----\n\n\n")
+
+            f.write(
+                "Each entry following this line represents a message marked as spam.\n\n"
+            )
 
             # Write each message to the file
             for message in member.messages:
+                if not message.is_duplicate:
+                    # Only write out duplicate messages
+                    continue
+
                 f.write(
                     f"{message.creation_time.strftime('%I:%M:%S %p, %d/%m/%Y')} | {message.content}\n-----\n"
                 )
