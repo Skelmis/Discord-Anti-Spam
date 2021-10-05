@@ -174,28 +174,42 @@ class DPY(Lib):
 
         # Ensure we only moderate actual guild messages
         if not message.guild:
-            log.debug("Message was not in a guild")
+            log.debug(
+                "Message(id=%s) from Member(id=%s) was not in a guild",
+                message.id,
+                message.author.id,
+            )
             raise PropagateFailure(data={"status": "Ignoring messages from dm's"})
 
         # The bot is immune to spam
         if message.author.id == self.handler.bot.user.id:
-            log.debug("Message was from myself")
+            log.debug("Message(id=%s) was from myself", message.id)
             raise PropagateFailure(
                 data={"status": "Ignoring messages from myself (the bot)"}
             )
 
         if isinstance(message.author, discord.User):  # pragma: no cover
-            log.warning(f"Given message with an author of type User")
+            log.warning(f"Given Message(id=%s) with an author of type User", message.id)
 
         # Return if ignored bot
         if self.handler.options.ignore_bots and message.author.bot:
-            log.debug("I ignore bots, and this is a bot message: %s", message.author.id)
+            log.debug(
+                "I ignore bots, and this is a bot message with author(id=%s)",
+                message.author.id,
+            )
             raise PropagateFailure(data={"status": "Ignoring messages from bots"})
+
+        # Return if ignored guild
+        if message.guild.id in self.handler.options.ignored_guilds:
+            log.debug("Ignored Guild(id=%s)", message.guild.id)
+            raise PropagateFailure(
+                data={"status": f"Ignoring this guild: {message.guild.id}"}
+            )
 
         # Return if ignored member
         if message.author.id in self.handler.options.ignored_members:
             log.debug(
-                "The user who sent this message is ignored: %s", message.author.id
+                "The Member(id=%s) who sent this message is ignored", message.author.id
             )
             raise PropagateFailure(
                 data={"status": f"Ignoring this member: {message.author.id}"}
@@ -206,7 +220,7 @@ class DPY(Lib):
             message.channel.id in self.handler.options.ignored_channels
             or message.channel.name in self.handler.options.ignored_channels
         ):
-            log.debug("%s is ignored", message.channel)
+            log.debug("channel(id=%s) is ignored", message.channel)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel.id}"}
             )
@@ -217,7 +231,7 @@ class DPY(Lib):
             user_roles.extend([role.name for role in message.author.roles])
             for item in user_roles:
                 if item in self.handler.options.ignored_roles:
-                    log.debug("%s is a part of ignored roles", item)
+                    log.debug("role(%s) is a part of ignored roles", item)
                     raise PropagateFailure(
                         data={"status": f"Ignoring this role: {item}"}
                     )
@@ -226,13 +240,6 @@ class DPY(Lib):
                 "Could not compute ignored_roles for %s(%s)",
                 message.author.name,
                 message.author.id,
-            )
-
-        # Return if ignored guild
-        if message.guild.id in self.handler.options.ignored_guilds:
-            log.debug("%s is an ignored guild", message.guild.id)
-            raise PropagateFailure(
-                data={"status": f"Ignoring this guild: {message.guild.id}"}
             )
 
         perms = message.guild.me.guild_permissions
@@ -246,6 +253,11 @@ class DPY(Lib):
         )
 
     def create_message(self, message: discord.Message) -> Message:
+        log.debug(
+            "Attempting to create a new message for author(id=%s) in Guild(%s)",
+            message.author.id,
+            message.guild.id,
+        )
         if not bool(message.content and message.content.strip()):
             if not message.embeds:
                 raise LogicError
@@ -289,7 +301,7 @@ class DPY(Lib):
         try:
             if not guild.log_channel_id:
                 log.debug(
-                    "%s has no log channel set, defaulting to original channel",
+                    "Guild(id=%s) has no log channel set, defaulting to original channel",
                     guild.id,
                 )
                 channel = original_channel
@@ -305,9 +317,11 @@ class DPY(Lib):
             else:
                 await channel.send(embed=message)
 
-            log.debug("Sent message to log channel in %s", guild.id)
+            log.debug("Sent message to log channel in Guild(id=%s)", guild.id)
         except discord.HTTPException:
-            log.error("Failed to send log message.\n" f"Guild: %s\n", guild.id)
+            log.error(
+                "Failed to send log message in Guild(id=%s). HTTPException", guild.id
+            )
 
     async def punish_member(
         self,
@@ -352,7 +366,7 @@ class DPY(Lib):
         # we just check our top role is higher then them
         elif guild.me.top_role.position < author.top_role.position:
             log.warning(
-                "I might not be able to punish %s(%s) in %s(%s) "
+                "I might not be able to punish %s(%s) in Guild: %s(%s) "
                 "because they are higher then me, which means I could lack the ability to kick/ban them.",
                 author.display_name,
                 member.id,
@@ -379,7 +393,7 @@ class DPY(Lib):
                 original_channel=original_message.channel,
             )
             log.warning(
-                "Failed to message User: (%s) about {'kick' if is_kick else 'ban'}",
+                f"Failed to message Member(id=%s) about {'kick' if is_kick else 'ban'}",
                 author.id,
             )
 
@@ -390,12 +404,12 @@ class DPY(Lib):
                 await guild.kick(
                     member, reason="Automated punishment from DPY Anti-Spam."
                 )
-                log.info("Kicked User: (%s)", member.id)
+                log.info("Kicked Member(id=%s)", member.id)
             else:
                 await guild.ban(
                     member, reason="Automated punishment from DPY Anti-Spam."
                 )
-                log.info("Banned User: (%s)", member.id)
+                log.info("Banned Member(id=%s)", member.id)
 
         except discord.Forbidden as e:
             # In theory we send the failed punishment method
@@ -413,7 +427,7 @@ class DPY(Lib):
                 original_channel=original_message.channel,
             )
             log.warning(
-                "An error occurred trying to %s: %s",
+                "An error occurred trying to %s: Member(id=%s)",
                 {"kick" if is_kick else "ban"},
                 member.id,
             )
@@ -453,6 +467,11 @@ class DPY(Lib):
         await self.handler.cache.set_member(member)
 
     async def delete_member_messages(self, member: Member) -> None:  # pragma: no cover
+        log.debug(
+            "Attempting to delete all duplicate messages for Member(id=%s) in Guild(%s)",
+            member.id,
+            member.guild_id,
+        )
         bot = self.handler.bot
         channels = {}
         for message in member.messages:
@@ -478,11 +497,13 @@ class DPY(Lib):
     ) -> None:  # pragma: no cover
         try:
             await message.delete()
-            log.debug("Deleted message: %s", message.id)
+            log.debug("Deleted message %s", message.id)
         except discord.HTTPException:
             # Failed to delete message
             log.warning(
-                "Failed to delete message %s in guild %s", message.id, message.guild.id
+                "Failed to delete message %s in Guild(id=%s). HTTPException",
+                message.id,
+                message.guild.id,
             )
 
     async def send_message_to_(
