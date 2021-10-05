@@ -100,9 +100,7 @@ class AdminLogs(BasePlugin):
             # No log channel, no problemo
             return
 
-        channel = self.handler.lib_handler.get_channel_from_message(
-            guild.log_channel_id
-        )
+        channel = await self.handler.lib_handler.get_channel_by_id(guild.log_channel_id)
 
         file = self.handler.lib_handler.get_file(file_path)
 
