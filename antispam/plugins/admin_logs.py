@@ -49,7 +49,9 @@ class AdminLogs(BasePlugin):
             punishment_type = "ban"
 
         # Make sure a folder exists for this punishment on this Member within this Guild
-        dir_path = os.path.join(self.path, guild_id, author_id, punishment_type)
+        dir_path = os.path.join(
+            self.path, str(guild_id), str(author_id), punishment_type
+        )
         Path(dir_path).mkdir(parents=True, exist_ok=True)
 
         # Get existing file count within dir
