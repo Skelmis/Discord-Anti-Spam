@@ -72,6 +72,7 @@ class AdminLogs(BasePlugin):
         with open(file_path, "w") as f:
             # Write headers / rough details
             f.write(f"Author id: {message.author.id}\n-----\n")
+            f.write(f"Guild id: {guild_id}\n-----\n")
             f.write(
                 f"Current warn count: {member.warn_count}\n"
                 f"Current kick count: {member.kick_count}\n-----\n"
