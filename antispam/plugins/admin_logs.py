@@ -34,6 +34,11 @@ class AdminLogs(BasePlugin):
         """
         super().__init__(is_pre_invoke=False)
 
+        if handler.options.no_punish:
+            log.warning(
+                "Using this package while in no_punish mode is likely going to cause issues"
+            )
+
         self.handler = handler
         self.path = log_location
 
