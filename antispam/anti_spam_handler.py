@@ -254,7 +254,7 @@ class AntiSpamHandler:
 
             self.lib_handler = DPY(self)
 
-        log.info("Package initialized successfully")
+        log.info("Package instance created")
 
     async def init(self) -> None:
         """
@@ -271,6 +271,8 @@ class AntiSpamHandler:
         await self.cache.initialize()
 
         self.needs_init = False
+
+        log.info("Init has been called, everything is now definitely setup.")
 
     @ensure_init
     async def propagate(self, message) -> Optional[Union[CorePayload, dict]]:
@@ -298,10 +300,11 @@ class AntiSpamHandler:
         except PropagateFailure as e:
             return e.data
 
-        log.debug(
-            "Propagating message for: %s(%s)",
+        log.info(
+            "Propagating message for %s(%s) in guild(%s)",
             propagate_data.member_name,
             propagate_data.member_id,
+            propagate_data.guild_id,
         )
 
         try:
@@ -314,7 +317,7 @@ class AntiSpamHandler:
 
             guild = Guild(id=propagate_data.guild_id, options=self.options)
             await self.cache.set_guild(guild)
-            log.info("Created Guild: %s", guild.id)
+            log.info("Created Guild(%s)", guild.id)
 
         pre_invoke_extensions = {}
 
@@ -410,7 +413,7 @@ class AntiSpamHandler:
         else:
             self.options.ignored_roles.add(item)
 
-        log.debug("Ignored %s: %s", ignore_type.name, item)
+        log.info("Added %s as an ignored item under bucket %s", item, ignore_type.name)
 
     def remove_ignored_item(self, item: int, ignore_type: IgnoreType) -> None:
         """
@@ -451,7 +454,9 @@ class AntiSpamHandler:
         else:
             self.options.ignored_roles.discard(item)
 
-        log.debug("Un-Ignored %s: %s", ignore_type.name, item)
+        log.info(
+            "Removed %s as an ignored item under bucket %s", item, ignore_type.name
+        )
 
     @ensure_init
     async def add_guild_options(self, guild_id: int, options: Options) -> None:
@@ -482,16 +487,16 @@ class AntiSpamHandler:
             guild = await self.cache.get_guild(guild_id=guild_id)
         except GuildNotFound:
             log.warning(
-                "I cannot ensure I have permissions to kick/ban ban people in guild: %s",
+                "I cannot ensure I have permissions to kick/ban ban people in Guild(%s)",
                 guild_id,
             )
             guild = Guild(id=guild_id, options=options)
             await self.cache.set_guild(guild)
-            log.info("Created Guild: %s", guild.id)
+            log.info("Created Guild(%s)", guild.id)
         else:
             guild.options = options
 
-        log.info("Set custom options for guild: %s", guild_id)
+        log.info("Set custom options for guild(%s)", guild_id)
 
     @ensure_init
     async def get_guild_options(self, guild_id: int) -> Options:
@@ -546,7 +551,7 @@ class AntiSpamHandler:
             pass
         else:
             guild.options = self.options
-            log.debug("Reset guild options for %s", guild_id)
+            log.debug("Reset options for Guild(%s)", guild_id)
 
     @ensure_init
     async def reset_member_count(
@@ -833,11 +838,12 @@ class AntiSpamHandler:
         except KeyError:
             if not has_popped_pre_invoke:
                 log.debug(
-                    "Failed to unload extension %s as it isn't loaded", plugin_name
+                    "Failed to unload extension %s as it isn't currently loaded",
+                    plugin_name,
                 )
                 raise PluginError("An extension matching this name doesn't exist!")
 
-        log.info("Unregistered extension %s", plugin_name)
+        log.info("Unregistered extension: %s", plugin_name)
 
     async def clean_cache(self, strict=False) -> None:
         """
@@ -930,4 +936,4 @@ class AntiSpamHandler:
         for guild in cache:
             await self.cache.set_guild(guild)
 
-        log.info("Cleaned cache")
+        log.info("Cleaned the internal cache")
