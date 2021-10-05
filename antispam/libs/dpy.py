@@ -308,7 +308,7 @@ class DPY(Lib):
             else:
                 channel = guild.log_channel_id
 
-                channel = self.handler.bot.get_channel_from_message(channel)
+                channel = self.handler.bot.get_channel(channel)
                 if not channel:
                     channel = await self.handler.bot.fetch_channel(channel)
 
@@ -478,7 +478,7 @@ class DPY(Lib):
             if message.is_duplicate:
                 # cache channel for further fetches
                 if message.channel_id not in channels:
-                    channel = bot.get_channel_from_message(message.channel_id)
+                    channel = bot.get_channel(message.channel_id)
                     if not channel:
                         channel = await bot.fetch_channel(message.channel_id)
 
