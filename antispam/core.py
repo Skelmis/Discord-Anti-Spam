@@ -86,7 +86,12 @@ class Core:
             )
 
         member.messages.append(message)
-        log.info("Created Message %s on %s", message.id, member.id)
+        log.info(
+            "Created Message(%s) on member(%s) in guild(%s)",
+            message.id,
+            member.id,
+            member.guild_id,
+        )
 
         if (
             self._get_duplicate_count(member, channel_id=message.channel_id)
@@ -96,9 +101,10 @@ class Core:
 
         # We need to punish the member with something
         log.debug(
-            "Message: (%s) on %s requires some form of punishment",
+            "Message(%s) on member(%s) in guild(%s) requires some form of punishment",
             message.id,
             member.id,
+            member.guild_id,
         )
         # We need to punish the member with something
         return_payload = CorePayload(member_should_be_punished_this_message=True)
@@ -123,7 +129,11 @@ class Core:
             after the warn threshold is reached this will
             then become a kick and so on
             """
-            log.debug("Attempting to warn: %s", message.author_id)
+            log.debug(
+                "Attempting to warn member(%s) in guild(%s)",
+                message.author_id,
+                message.guild_id,
+            )
             member.warn_count += 1
             channel = await self.handler.lib_handler.get_channel(original_message)
             member_message = self.handler.lib_handler.transform_message(
@@ -168,7 +178,11 @@ class Core:
             # Set this to False here to stop processing other messages, we can revert on failure
             member._in_guild = False
             member.kick_count += 1
-            log.debug("Attempting to kick: %s", message.author_id)
+            log.debug(
+                "Attempting to kick member(%s) from guild(%s)",
+                message.author_id,
+                message.guild_id,
+            )
 
             guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_kick_message,
@@ -201,7 +215,11 @@ class Core:
             # Set this to False here to stop processing other messages, we can revert on failure
             member._in_guild = False
             member.kick_count += 1
-            log.debug("Attempting to ban: %s", message.author_id)
+            log.debug(
+                "Attempting to ban member(%s) from guild(%s)",
+                message.author_id,
+                message.guild_id,
+            )
 
             guild_message = self.handler.lib_handler.transform_message(
                 self.options.guild_ban_message,
@@ -282,7 +300,11 @@ class Core:
             The channel to clean messages in
             if this is set to per_channel
         """
-        log.debug("Attempting to remove outdated Message's")
+        log.debug(
+            "Attempting to remove outdated message's on member(%s) in guild(%s)",
+            member.id,
+            member.guild_id,
+        )
 
         def _is_still_valid(message_obj):
             """
@@ -315,8 +337,18 @@ class Core:
         for outstanding_message in outstanding_messages:
             if outstanding_message.is_duplicate:
                 self._remove_duplicate_count(member, channel_id)
-                log.debug("Removing duplicate Message: %s", outstanding_message.id)
-            log.debug("Removing Message: %s", outstanding_message.id)
+                log.debug(
+                    "Removing duplicate message(%s) from member(%s) in guild(%s)",
+                    outstanding_message.id,
+                    outstanding_message.author_id,
+                    outstanding_message.guild_id,
+                )
+            log.debug(
+                "Removing message(%s) from member(%s) in guild(%s)",
+                outstanding_message.id,
+                outstanding_message.author_id,
+                outstanding_message.guild_id,
+            )
 
     def _calculate_ratios(
         self,
@@ -401,5 +433,9 @@ class Core:
             member.duplicate_channel_counter_dict[channel_id] -= amount
         except KeyError:
             log.warning(
-                "Failed to de-increment duplicate count as the channel id doesnt exist"
+                "Failed to de-increment duplicate count as the channel id doesnt exist. "
+                "Member(%s) in guild(%s) with channel(%s)",
+                member.id,
+                member.guild_id,
+                channel_id,
             )
