@@ -111,5 +111,5 @@ class AdminLogs(BasePlugin):
             f"Punishment logs for a __{punishment_type.title()}__ on <@{author_id}>(`{author_id}`)",
             None,
             channel,
-            file,
+            file=file,
         )
