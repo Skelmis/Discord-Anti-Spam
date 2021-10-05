@@ -54,7 +54,7 @@ class AdminLogs(BasePlugin):
         Path(dir_path).mkdir(parents=True, exist_ok=True)
 
         # Get existing file count within dir
-        current_count = len(os.listdir(dir_path))
+        current_count = len(os.listdir(dir_path)) + 1
 
         member: Member = await self.handler.cache.get_member(author_id, guild_id)
 
@@ -70,7 +70,7 @@ class AdminLogs(BasePlugin):
                 f"Date & time of the message which triggered this punishment:\n"
                 f"{message.created_at.strftime('%I:%M:%S %p, %d/%m/%Y')}\n-----\n"
             )
-            f.write(f"Punishment type: {punishment_type.title()}\n-----\n\n\n")
+            f.write(f"Punishment type: {punishment_type.title()}\n-----\n")
 
             f.write(
                 "Each entry following this line represents a message marked as spam.\n\n"
