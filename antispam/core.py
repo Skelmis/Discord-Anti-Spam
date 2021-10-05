@@ -87,7 +87,7 @@ class Core:
 
         member.messages.append(message)
         log.info(
-            "Created Message(%s) on member(%s) in guild(%s)",
+            "Created Message(%s) on Member(id=%s) in Guild(id=%s)",
             message.id,
             member.id,
             member.guild_id,
@@ -101,7 +101,7 @@ class Core:
 
         # We need to punish the member with something
         log.debug(
-            "Message(%s) on member(%s) in guild(%s) requires some form of punishment",
+            "Message(%s) on Member(id=%s) in Guild(id=%s) requires some form of punishment",
             message.id,
             member.id,
             member.guild_id,
@@ -130,7 +130,7 @@ class Core:
             then become a kick and so on
             """
             log.debug(
-                "Attempting to warn member(%s) in guild(%s)",
+                "Attempting to warn Member(id=%s) in Guild(id=%s)",
                 message.author_id,
                 message.guild_id,
             )
@@ -179,7 +179,7 @@ class Core:
             member._in_guild = False
             member.kick_count += 1
             log.debug(
-                "Attempting to kick member(%s) from guild(%s)",
+                "Attempting to kick Member(id=%s) from Guild(id=%s)",
                 message.author_id,
                 message.guild_id,
             )
@@ -216,7 +216,7 @@ class Core:
             member._in_guild = False
             member.kick_count += 1
             log.debug(
-                "Attempting to ban member(%s) from guild(%s)",
+                "Attempting to ban Member(id=%s) from Guild(id=%s)",
                 message.author_id,
                 message.guild_id,
             )
@@ -301,7 +301,7 @@ class Core:
             if this is set to per_channel
         """
         log.debug(
-            "Attempting to remove outdated message's on member(%s) in guild(%s)",
+            "Attempting to remove outdated message's on Member(id=%s) in Guild(id=%s)",
             member.id,
             member.guild_id,
         )
@@ -338,13 +338,13 @@ class Core:
             if outstanding_message.is_duplicate:
                 self._remove_duplicate_count(member, channel_id)
                 log.debug(
-                    "Removing duplicate message(%s) from member(%s) in guild(%s)",
+                    "Removing duplicate message(%s) from Member(id=%s) in Guild(id=%s)",
                     outstanding_message.id,
                     outstanding_message.author_id,
                     outstanding_message.guild_id,
                 )
             log.debug(
-                "Removing message(%s) from member(%s) in guild(%s)",
+                "Removing message(%s) from Member(id=%s) in Guild(id=%s)",
                 outstanding_message.id,
                 outstanding_message.author_id,
                 outstanding_message.guild_id,
@@ -434,7 +434,7 @@ class Core:
         except KeyError:
             log.warning(
                 "Failed to de-increment duplicate count as the channel id doesnt exist. "
-                "Member(%s) in guild(%s) with channel(%s)",
+                "Member(%s) in Guild(id=%s) with Channel(id=%s)",
                 member.id,
                 member.guild_id,
                 channel_id,

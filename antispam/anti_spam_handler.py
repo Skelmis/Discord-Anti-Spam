@@ -317,7 +317,7 @@ class AntiSpamHandler:
 
             guild = Guild(id=propagate_data.guild_id, options=self.options)
             await self.cache.set_guild(guild)
-            log.info("Created Guild(%s)", guild.id)
+            log.info("Created Guild(id=%s)", guild.id)
 
         pre_invoke_extensions = {}
 
@@ -487,12 +487,12 @@ class AntiSpamHandler:
             guild = await self.cache.get_guild(guild_id=guild_id)
         except GuildNotFound:
             log.warning(
-                "I cannot ensure I have permissions to kick/ban ban people in Guild(%s)",
+                "I cannot ensure I have permissions to kick/ban ban people in Guild(id=%s)",
                 guild_id,
             )
             guild = Guild(id=guild_id, options=options)
             await self.cache.set_guild(guild)
-            log.info("Created Guild(%s)", guild.id)
+            log.info("Created Guild(id=%s)", guild.id)
         else:
             guild.options = options
 
@@ -551,7 +551,7 @@ class AntiSpamHandler:
             pass
         else:
             guild.options = self.options
-            log.debug("Reset options for Guild(%s)", guild_id)
+            log.debug("Reset options for Guild(id=%s)", guild_id)
 
     @ensure_init
     async def reset_member_count(
