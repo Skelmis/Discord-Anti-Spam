@@ -35,6 +35,7 @@ by passing ``is_using_hikari=True`` to the
    modules/plugins/tracker.rst
    modules/plugins/mentions.rst
    modules/plugins/stats.rst
+   modules/plugins/logs.rst
 
 .. toctree::
    :maxdepth: 2
