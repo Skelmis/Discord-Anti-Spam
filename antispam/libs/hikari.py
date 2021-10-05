@@ -362,6 +362,7 @@ class Hikari(Lib):
         message: Union[embeds.Embed, str],
         delete_after_time: Optional[int],
         original_channel: GuildTextChannel,
+        file=None,
     ) -> None:
         try:
             if not guild.log_channel_id:
@@ -376,9 +377,9 @@ class Hikari(Lib):
                 channel = await self.handler.bot.rest.fetch_channel(channel)
 
             if isinstance(message, str):
-                m = await channel.send(message)
+                m = await channel.send(message, attachment=file)
             else:
-                m = await channel.send(embed=message)
+                m = await channel.send(embed=message, attachment=file)
 
             if delete_after_time:
                 await asyncio.sleep(delete_after_time)

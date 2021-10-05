@@ -297,6 +297,7 @@ class DPY(Lib):
         message: Union[str, discord.Embed],
         delete_after_time,
         original_channel: Union[discord.abc.GuildChannel, discord.abc.PrivateChannel],
+        file=None,
     ) -> None:  # pragma: no cover
         try:
             if not guild.log_channel_id:
@@ -313,9 +314,9 @@ class DPY(Lib):
                     channel = await self.handler.bot.fetch_channel(channel)
 
             if isinstance(message, str):
-                await channel.send(message, delete_after=delete_after_time)
+                await channel.send(message, delete_after=delete_after_time, file=file)
             else:
-                await channel.send(embed=message)
+                await channel.send(embed=message, file=file)
 
             log.debug("Sent message to log channel in Guild(id=%s)", guild.id)
         except discord.HTTPException:
