@@ -434,7 +434,7 @@ class Core:
         except KeyError:
             log.warning(
                 "Failed to de-increment duplicate count as the channel id doesnt exist. "
-                "Member(%s) in Guild(id=%s) with Channel(id=%s)",
+                "Member(id=%s) in Guild(id=%s) with Channel(id=%s)",
                 member.id,
                 member.guild_id,
                 channel_id,
