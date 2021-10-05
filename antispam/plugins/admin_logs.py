@@ -1,12 +1,13 @@
+import logging
 import os
 from pathlib import Path
 from typing import Any
 
-import discord
-
 from antispam import CorePayload, AntiSpamHandler
 from antispam.base_plugin import BasePlugin
 from antispam.dataclasses import Member, Guild
+
+log = logging.getLogger(__name__)
 
 
 class AdminLogs(BasePlugin):
@@ -36,6 +37,8 @@ class AdminLogs(BasePlugin):
         self.handler = handler
         self.path = log_location
 
+        log.info("Plugin ready for usage")
+
     async def propagate(self, message, data: CorePayload = None) -> Any:
         if not data.member_should_be_punished_this_message:
             # Do nothing unless punished
@@ -43,6 +46,10 @@ class AdminLogs(BasePlugin):
 
         author_id = message.author.id
         guild_id = self.handler.lib_handler.get_guild_id(message)
+
+        log.info(
+            "Saving evidence against Member(id=%s) in Guild(id=%s)", author_id, guild_id
+        )
 
         # Extract punishment type
         punishment_type = None
@@ -97,6 +104,10 @@ class AdminLogs(BasePlugin):
                     f"{message.creation_time.strftime('%I:%M:%S %p, %d/%m/%Y')} | {message.content}\n-----\n"
                 )
 
+        log.debug(
+            f"Saved evidence against Member(id=%s) in Guild(id=%s) to file at location: {file_path}",
+        )
+
         if not guild.log_channel_id:
             # No log channel, no problemo
             return
@@ -111,4 +122,7 @@ class AdminLogs(BasePlugin):
             None,
             channel,
             file=file,
+        )
+        log.debug(
+            "Sent evidence against Member(id=%s) in Guild(id=%s) to the Guild's log channel"
         )
