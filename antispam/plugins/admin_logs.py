@@ -2,9 +2,11 @@ import os
 from pathlib import Path
 from typing import Any
 
+import discord
+
 from antispam import CorePayload, AntiSpamHandler
 from antispam.base_plugin import BasePlugin
-from antispam.dataclasses import Member
+from antispam.dataclasses import Member, Guild
 
 
 class AdminLogs(BasePlugin):
@@ -22,6 +24,12 @@ class AdminLogs(BasePlugin):
             The directory to store logs in, relative from
             the caller location. This directory should be
             empty or only contain previous output from this plugin.
+
+        Notes
+        -----
+        This will save transcripts for *every* punishment,
+        but it only sends ones to discord if the Guild
+        has a log_channel_id set.
         """
         super().__init__(is_pre_invoke=False)
 
@@ -57,9 +65,11 @@ class AdminLogs(BasePlugin):
         current_count = len(os.listdir(dir_path)) + 1
 
         member: Member = await self.handler.cache.get_member(author_id, guild_id)
+        guild: Guild = await self.handler.cache.get_guild(guild_id)
 
         # Open the punishment file
-        with open(os.path.join(dir_path, f"{current_count}.txt"), "w") as f:
+        file_path = os.path.join(dir_path, f"{current_count}.txt")
+        with open(file_path, "w") as f:
             # Write headers / rough details
             f.write(f"Author id: {message.author.id}\n-----\n")
             f.write(
@@ -85,3 +95,21 @@ class AdminLogs(BasePlugin):
                 f.write(
                     f"{message.creation_time.strftime('%I:%M:%S %p, %d/%m/%Y')} | {message.content}\n-----\n"
                 )
+
+        if not guild.log_channel_id:
+            # No log channel, no problemo
+            return
+
+        channel = self.handler.lib_handler.get_channel_from_message(
+            guild.log_channel_id
+        )
+
+        file = self.handler.lib_handler.get_file(file_path)
+
+        await self.handler.lib_handler.send_guild_log(
+            guild,
+            f"Punishment logs for a __{punishment_type.title()}__ on <@{author_id}>(`{author_id}`)",
+            None,
+            channel,
+            file,
+        )

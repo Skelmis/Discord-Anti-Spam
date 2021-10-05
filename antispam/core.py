@@ -135,7 +135,9 @@ class Core:
                 message.guild_id,
             )
             member.warn_count += 1
-            channel = await self.handler.lib_handler.get_channel(original_message)
+            channel = await self.handler.lib_handler.get_channel_from_message(
+                original_message
+            )
             member_message = self.handler.lib_handler.transform_message(
                 self.options.member_warn_message,
                 original_message,

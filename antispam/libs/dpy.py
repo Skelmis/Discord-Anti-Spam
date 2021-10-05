@@ -308,7 +308,7 @@ class DPY(Lib):
             else:
                 channel = guild.log_channel_id
 
-                channel = self.handler.bot.get_channel(channel)
+                channel = self.handler.bot.get_channel_from_message(channel)
                 if not channel:
                     channel = await self.handler.bot.fetch_channel(channel)
 
@@ -478,7 +478,7 @@ class DPY(Lib):
             if message.is_duplicate:
                 # cache channel for further fetches
                 if message.channel_id not in channels:
-                    channel = bot.get_channel(message.channel_id)
+                    channel = bot.get_channel_from_message(message.channel_id)
                     if not channel:
                         channel = await bot.fetch_channel(message.channel_id)
 
@@ -528,8 +528,18 @@ class DPY(Lib):
                 delete_after=delete_after_time,
             )
 
-    async def get_channel(self, message: discord.Message):
+    async def get_channel_from_message(self, message: discord.Message):
         return message.channel
 
     def get_message_mentions(self, message: discord.Message):
         return message.mentions
+
+    async def get_channel_by_id(self, channel_id: int):
+        channel = self.handler.bot.get_channel(channel_id)
+        if not channel:
+            channel = await self.handler.bot.fetch_channel(channel_id)
+
+        return channel
+
+    def get_file(self, path: str):
+        return discord.File(path)

@@ -361,7 +361,12 @@ class Lib(Protocol):
         raise NotImplementedError
 
     async def send_guild_log(
-        self, guild, message, delete_after_time: Optional[int], original_channel
+        self,
+        guild,
+        message,
+        delete_after_time: Optional[int],
+        original_channel,
+        file=None,
     ) -> None:
         """
         Sends a message to the guilds log channel
@@ -381,6 +386,8 @@ class Lib(Protocol):
         original_channel : Union[discord.abc.GuildChannel, discord.abc.PrivateChannel, hikari.GuildTextChannel]
             Where to send the message assuming this guild has no guild log
             channel already set.
+        file
+            A file to send
 
         Notes
         -----
@@ -504,6 +511,14 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    async def get_channel(self, message):
+    async def get_channel_from_message(self, message):
         """Returns the channel for a message"""
         raise NotImplementedError
+
+    async def get_channel_by_id(self, channel_id: int):
+        """Returns the given channel for the id"""
+        raise NotImplementedError
+
+    def get_file(self, path: str):
+        """Returns a discord file object for the given path"""
+        return NotImplementedError

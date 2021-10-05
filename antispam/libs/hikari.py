@@ -62,8 +62,11 @@ class Hikari(Lib):
     def get_channel_id(self, message: messages.Message) -> int:
         return message.channel_id
 
-    async def get_channel(self, message: messages.Message):
+    async def get_channel_from_message(self, message: messages.Message):
         return await self.handler.bot.rest.fetch_channel(message.channel_id)
+
+    async def get_channel_by_id(self, channel_id: int):
+        return await self.handler.bot.rest.fetch_channel(channel_id)
 
     async def check_message_can_be_propagated(
         self, message: messages.Message
@@ -559,3 +562,7 @@ class Hikari(Lib):
         data = [message.mentions.user_ids]
         data.extend(role for role in message.mentions.role_ids)
         data.extend(channel for channel in message.mentions.channels_ids)
+        return data
+
+    def get_file(self, path: str):
+        return hikari.File(path)
