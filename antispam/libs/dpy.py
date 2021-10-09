@@ -33,11 +33,18 @@ class DPY(Lib):
         warn_count: int,
         kick_count: int,
     ) -> str:
+        if discord.__version__ >= 2:
+            member_avatar = original_message.author.avatar.url
+            guild_avatar = original_message.guild.me.avatar.url
+        else:
+            member_avatar = original_message.author.avatar_url
+            guild_avatar = original_message.guild.me.avatar_url
+
         return Template(message).safe_substitute(
             {
-                "MENTIONUSER": original_message.author.mention,
-                "USERNAME": original_message.author.display_name,
-                "USERID": original_message.author.id,
+                "MENTIONMEMBER": original_message.author.mention,
+                "MEMBERNAME": original_message.author.display_name,
+                "MEMBERID": original_message.author.id,
                 "BOTNAME": original_message.guild.me.display_name,
                 "BOTID": original_message.guild.me.id,
                 "GUILDID": original_message.guild.id,
@@ -48,8 +55,8 @@ class DPY(Lib):
                 "TIMESTAMPTODAY": datetime.datetime.now().strftime("%d/%m/%Y"),
                 "WARNCOUNT": warn_count,
                 "KICKCOUNT": kick_count,
-                "USERAVATAR": original_message.author.avatar_url,
-                "BOTAVATAR": original_message.guild.me.avatar_url,
+                "MEMBERAVATAR": member_avatar,
+                "BOTAVATAR": guild_avatar,
                 "GUILDICON": original_message.guild.icon_url,
             }
         )
