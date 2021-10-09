@@ -171,7 +171,7 @@ class TestLibDPY:
         assert embed.to_dict() == test_embed.to_dict()
 
         bounds_dict = {
-            "footer": {"icon_url": "$USERAVATAR"},
+            "footer": {"icon_url": "$MEMBERAVATAR"},
             "author": {"icon_url": "$BOTAVATAR", "name": "d"},
             "timestamp": True,
             "colour": 0xFFFFFF,

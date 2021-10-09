@@ -88,7 +88,7 @@ class DPY(Lib):
     def dict_to_embed(
         self, data: dict, message: discord.Message, warn_count: int, kick_count: int
     ):
-        allowed_avatars = ["$USERAVATAR", "$BOTAVATAR", "$GUILDICON"]
+        allowed_avatars = ["$MEMBERAVATAR", "$BOTAVATAR", "$GUILDICON"]
 
         if "title" in data:
             data["title"] = self.substitute_args(
