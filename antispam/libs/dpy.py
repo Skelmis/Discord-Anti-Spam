@@ -37,9 +37,11 @@ class DPY(Lib):
         if version >= 2:
             member_avatar = original_message.author.avatar.url
             guild_avatar = original_message.guild.me.avatar.url
+            guild_icon = original_message.guild.icon.url
         else:
             member_avatar = original_message.author.avatar_url
             guild_avatar = original_message.guild.me.avatar_url
+            guild_icon = original_message.guild.icon_url
 
         return Template(message).safe_substitute(
             {
@@ -58,7 +60,7 @@ class DPY(Lib):
                 "KICKCOUNT": kick_count,
                 "MEMBERAVATAR": member_avatar,
                 "BOTAVATAR": guild_avatar,
-                "GUILDICON": original_message.guild.icon_url,
+                "GUILDICON": guild_icon,
             }
         )
 

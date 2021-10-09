@@ -24,28 +24,28 @@ class Options:
 
     # Strings
     guild_warn_message: Union[str, dict] = attr.ib(
-        default="$USERNAME was warned for spamming/sending duplicate messages.",
+        default="$MEMBERNAME was warned for spamming/sending duplicate messages.",
         kw_only=True,
     )
     guild_kick_message: Union[str, dict] = attr.ib(
-        default="$USERNAME was kicked for spamming/sending duplicate messages.",
+        default="$MEMBERNAME was kicked for spamming/sending duplicate messages.",
         kw_only=True,
     )
     guild_ban_message: Union[str, dict] = attr.ib(
-        default="$USERNAME was banned for spamming/sending duplicate messages.",
+        default="$MEMBERNAME was banned for spamming/sending duplicate messages.",
         kw_only=True,
     )
     member_warn_message: Union[str, dict] = attr.ib(
-        default="Hey $MENTIONUSER, please stop spamming/sending duplicate messages.",
+        default="Hey $MENTIONMEMBER, please stop spamming/sending duplicate messages.",
         kw_only=True,
     )
     member_kick_message: Union[str, dict] = attr.ib(
-        default="Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/"
+        default="Hey $MENTIONMEMBER, you are being kicked from $GUILDNAME for spamming/"
         "sending duplicate messages.",
         kw_only=True,
     )
     member_ban_message: Union[str, dict] = attr.ib(
-        default="Hey $MENTIONUSER, you are being banned from $GUILDNAME for spamming/"
+        default="Hey $MENTIONMEMBER, you are being banned from $GUILDNAME for spamming/"
         "sending duplicate messages.",
         kw_only=True,
     )
