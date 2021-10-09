@@ -191,9 +191,9 @@ class Hikari(Lib):
         me: guilds.Member = guild.get_my_member()
         return Template(message).safe_substitute(
             {
-                "MENTIONUSER": original_message.author.mention,
-                "USERNAME": original_message.author.username,
-                "USERID": original_message.author.id,
+                "MENTIONMEMBER": original_message.author.mention,
+                "MEMBERNAME": original_message.author.username,
+                "MEMBERID": original_message.author.id,
                 "BOTNAME": me.username,
                 "BOTID": me.id,
                 "GUILDID": original_message.guild_id,
@@ -204,7 +204,7 @@ class Hikari(Lib):
                 "TIMESTAMPTODAY": datetime.datetime.now().strftime("%d/%m/%Y"),
                 "WARNCOUNT": warn_count,
                 "KICKCOUNT": kick_count,
-                "USERAVATAR": original_message.author.avatar_url,
+                "MEMBERAVATAR": original_message.author.avatar_url,
                 "BOTAVATAR": me.avatar_url,
                 "GUILDICON": guild.icon_url,
             }
