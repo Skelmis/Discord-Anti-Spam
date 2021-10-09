@@ -33,7 +33,8 @@ class DPY(Lib):
         warn_count: int,
         kick_count: int,
     ) -> str:
-        if discord.__version__ >= 2:
+        version = int(discord.__version__.split(".")[0])
+        if version >= 2:
             member_avatar = original_message.author.avatar.url
             guild_avatar = original_message.guild.me.avatar.url
         else:
