@@ -37,7 +37,9 @@ class Core:
         guild_r = await self.propagate_user(message, guild)
 
         if self.options.is_per_channel_per_guild:
-            guild_r = await self.propagate_per_channel_per_guild(message, guild_r)
+            guild_r = await self.propagate_per_channel_per_guild(
+                message, guild_r, guild
+            )
 
         return guild_r
 
@@ -274,14 +276,13 @@ class Core:
         return return_payload
 
     async def propagate_per_channel_per_guild(
-        self, message, core_payload: CorePayload
+        self, message, core_payload: CorePayload, guild: Guild
     ) -> CorePayload:
         """
         The internal representation of core functionality.
 
         Please see and use :meth:`discord.ext.antispam.AntiSpamHandler`
         """
-
         return core_payload
 
     async def clean_up(self, member: Member, current_time, channel_id: int):
