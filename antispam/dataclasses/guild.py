@@ -2,7 +2,7 @@ from typing import Dict, Any, List
 
 import attr
 
-from . import Message
+from .message import Message
 from .member import Member
 from .options import Options
 
