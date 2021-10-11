@@ -8,6 +8,12 @@ If you want to use this with hikari, please enable it
 by passing ``is_using_hikari=True`` to the
 ``AntiSpamHandler`` constructor.
 
+
+The package features some built in punishments, these are:
+
+- Per member spam is treated as warns, then kicks followed by bans.
+- Per channel spam starts off as a kick straight away followed by bans
+
 .. toctree::
    :maxdepth: 2
    :caption: Primary Interface:

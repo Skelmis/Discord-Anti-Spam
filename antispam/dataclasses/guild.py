@@ -1,7 +1,8 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 import attr
 
+from . import Message
 from .member import Member
 from .options import Options
 
@@ -14,6 +15,9 @@ class Guild:
     options: Options = attr.ib(eq=False, default=attr.Factory(Options))
     log_channel_id: int = attr.ib(eq=False, default=None)
     members: Dict[int, Member] = attr.ib(default=attr.Factory(dict), eq=False)
+
+    # These messages should be the same as `member.messages`, I think
+    messages: List[Message] = attr.ib(default=attr.Factory(list), eq=False)
 
     # So that plugins can access this data
     # key -> Plugin.__class__.__name__

@@ -37,7 +37,6 @@ class Core:
         guild_r = await self.propagate_user(message, guild)
 
         if self.options.is_per_channel_per_guild:
-            # TODO Impl
             guild_r = await self.propagate_per_channel_per_guild(message, guild_r)
 
         return guild_r
@@ -282,7 +281,7 @@ class Core:
 
         Please see and use :meth:`discord.ext.antispam.AntiSpamHandler`
         """
-        # TODO Impl
+
         return core_payload
 
     async def clean_up(self, member: Member, current_time, channel_id: int):
