@@ -5,7 +5,11 @@ from string import Template
 from typing import Union, Optional
 from unittest.mock import AsyncMock
 
-import discord
+try:
+    import nextcord as discord
+except ModuleNotFoundError:
+    import discord
+
 
 from antispam import PropagateFailure, LogicError, MissingGuildPermissions
 from antispam.abc import Lib
