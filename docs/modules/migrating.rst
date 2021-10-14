@@ -1,5 +1,5 @@
 Migrating to 1.0
-----------------
+================
 
 The biggest change from 0.x.x to 1.x.x is
 that every is now more sanely named in regard to pep8.
