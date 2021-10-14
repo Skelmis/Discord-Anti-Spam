@@ -5,7 +5,7 @@ from antispam import AntiSpamHandler, PluginCache
 from antispam.core import Core
 from antispam.caches import MemoryCache
 from antispam.libs.dpy import DPY
-from antispam.plugins import AntiMassMention, AntiSpamTracker, Stats
+from antispam.plugins import AntiMassMention, AntiSpamTracker, Stats, AdminLogs
 from tests.mocks import MockedMember
 
 
@@ -59,3 +59,8 @@ def create_stats(create_handler):
 @pytest.fixture
 def create_dpy_lib_handler(create_handler):
     return DPY(create_handler)
+
+
+@pytest.fixture
+def create_admin_logs(create_handler):
+    return AdminLogs(create_handler, "test")

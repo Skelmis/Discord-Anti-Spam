@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from antispam import CorePayload, AntiSpamHandler
+from antispam import CorePayload, AntiSpamHandler, LogicError
 from antispam.base_plugin import BasePlugin
 from antispam.dataclasses import Member, Guild
 
@@ -44,7 +44,9 @@ class AdminLogs(BasePlugin):
 
         log.info("Plugin ready for usage")
 
-    async def propagate(self, message, data: CorePayload = None) -> Any:
+    async def propagate(
+        self, message, data: CorePayload = None
+    ) -> Any:  # pragma: no cover
         if not data.member_should_be_punished_this_message:
             # Do nothing unless punished
             return
@@ -66,6 +68,9 @@ class AdminLogs(BasePlugin):
 
         elif data.member_was_banned:
             punishment_type = "ban"
+
+        else:
+            raise LogicError
 
         # Make sure a folder exists for this punishment on this Member within this Guild
         dir_path = os.path.join(
