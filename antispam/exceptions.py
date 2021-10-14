@@ -37,6 +37,16 @@ class BaseASHException(Exception):
         return self.message
 
 
+class PropagateFailure(BaseASHException):
+    def __init__(self, *args, data: dict):
+        super().__init__(args)
+        self.data = data
+
+
+class InvocationCancelled(BaseASHException):
+    """Called when a pre-invoke plugin returned `cancel_next_invocation`"""
+
+
 class DuplicateObject(BaseASHException):
     """Raised because you attempted to create and add an object, using the exact same id's as a pre-existing one."""
 
@@ -57,13 +67,21 @@ class NotFound(BaseASHException):
     """Something could not be found."""
 
 
-class UserNotFound(NotFound):
-    """A User matching this id and guild id could not be found in the cache."""
+class MemberNotFound(NotFound):
+    """A Member matching this id and guild id could not be found in the cache."""
+
+
+class MemberAddonNotFound(NotFound):
+    """This class has not addon stored on this member."""
 
 
 class GuildNotFound(NotFound):
     """A Guild matching this guild id could not be found in the cache."""
 
 
-class ExtensionError(BaseASHException):
-    """An error occurred that was related to an extension and not AntiSpamHandler"""
+class GuildAddonNotFound(GuildNotFound):
+    """This class has not addon stored on this guild."""
+
+
+class PluginError(BaseASHException):
+    """An error occurred that was related to a plugin and not AntiSpamHandler"""

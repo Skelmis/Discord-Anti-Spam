@@ -1,0 +1,4 @@
+fuzzywuzzy>=0.18
+attrs
+discord.py
+hikari

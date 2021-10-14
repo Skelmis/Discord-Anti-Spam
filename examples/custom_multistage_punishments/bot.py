@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from antispam import AntiSpamHandler
+from antispam import AntiSpamHandler, Options
 from examples.jsonLoader import read_json
 
 from AntiSpamTrackerSubclass import MyCustomTracker
@@ -11,9 +11,9 @@ bot = commands.Bot(command_prefix=".", intents=discord.Intents.all())
 file = read_json("token")
 
 # Generally you only need/want AntiSpamHandler(bot)
-bot.handler = AntiSpamHandler(bot, ignore_bots=False)
+bot.handler = AntiSpamHandler(bot, options=Options(ignore_bots=False))
 bot.tracker = MyCustomTracker(bot.handler, 3)
-bot.handler.register_extension(bot.tracker)
+bot.handler.register_plugin(bot.tracker)
 
 
 @bot.event

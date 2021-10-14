@@ -1,17 +1,17 @@
 import discord
 from discord.ext import commands
 
-from antispam import AntiSpamHandler
-from antispam.ext import AntiSpamTracker
+from antispam import AntiSpamHandler, Options
+from antispam.plugins import AntiSpamTracker
 from jsonLoader import read_json
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 file = read_json("token")
 
-bot.handler = AntiSpamHandler(bot, no_punish=True)
+bot.handler = AntiSpamHandler(bot, options=Options(no_punish=True))
 bot.tracker = AntiSpamTracker(bot.handler, 3)
-bot.handler.register_extension(bot.tracker)
+bot.handler.register_plugin(bot.tracker)
 
 
 @bot.event
@@ -30,7 +30,7 @@ async def on_message(message):
         # Insert code to tell admins
 
         # ETC
-        bot.tracker.remove_punishments(message)
+        await bot.tracker.remove_punishments(message)
 
     await bot.process_commands(message)
 

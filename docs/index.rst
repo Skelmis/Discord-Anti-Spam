@@ -1,40 +1,63 @@
-.. DPY Anti-Spam documentation master file, created by
-   sphinx-quickstart on Fri Sep 18 23:28:30 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to DPY Anti-Spam's documentation!
 =========================================
 
+DPY Anti-Spam supports discord.py and all forks out of
+the box assuming they use the ``discord`` namespace.
+
+If you want to use this with hikari, please enable it
+by passing ``is_using_hikari=True`` to the
+``AntiSpamHandler`` constructor.
+
+
+The package features some built in punishments, these are:
+
+- Per member spam is treated as warns, then kicks followed by bans.
+- Per channel spam starts off as a kick straight away followed by bans
+
 .. toctree::
    :maxdepth: 2
-   :caption: Main Interface:
+   :caption: Primary Interface:
 
-   modules/handler.rst
-   modules/options.rst
-   modules/examples.rst
-   modules/events.rst
-   modules/logging.rst
-   modules/optimisation.rst
+   modules/main/main.rst
+   modules/main/caches.rst
+   modules/main/examples.rst
+   modules/main/logging.rst
+   modules/main/template.rst
+   modules/migrating.rst
 
 .. toctree::
    :maxdepth: 2
-   :caption: Extension Framework
+   :caption: Main Interaction Classes
 
-   modules/ext/base.rst
-   modules/ext/schema.rst
-   modules/ext/custom_punishment.rst
+   modules/interactions/enums.rst
+   modules/interactions/options.rst
+   modules/interactions/core.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Plugin Framework
+
+   modules/plugins/plugins.rst
+   modules/plugins/schema.rst
+   modules/plugins/storage.rst
+   modules/plugins/tracker.rst
+   modules/plugins/mentions.rst
+   modules/plugins/stats.rst
+   modules/plugins/logs.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Object Reference:
 
-   modules/guild.rst
-   modules/user.rst
-   modules/message.rst
-   modules/util.rst
-   modules/exceptions.rst
-   modules/ext/base_extension.rst
+   modules/objects/objects.rst
+   modules/objects/abc.rst
+   modules/objects/exceptions.rst
+   modules/objects/guild.rst
+   modules/objects/member.rst
+   modules/objects/message.rst
+   modules/objects/redis.rst
+   modules/objects/memory.rst
+   modules/objects/data.rst
 
 Install Notes
 -------------

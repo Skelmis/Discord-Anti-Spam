@@ -1,8 +1,9 @@
 # Contributing to DPY Anti-Spam
 I love all input, whether its issues or pull requests!
 
-### This project is solely ran through Github
+### Project management
 Github is used to host code, to track issues and feature requests, as well as accept pull requests.
+Our discord is used for further discussion where required and general team work side of things.
 
 ### Any contributions you make will be under the MIT Software License
 In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
@@ -30,14 +31,15 @@ I love new code for this project, I love seeing it grow. However, there is a pro
 ## Use a Consistent Coding Style
 - Tabs should be 4 spaces for indentation
 - Where applicable, code should be documented. For implementation see the below Documentaion sections
+  - Applicable means any public methods
+- All code should be unittested to a level which ensures good future regression tests
 - Where code gets excessive, functional programming ideas should come into play for readability
-- `return` statements are prefered within conditionals when checking whether to continue with processing or not
+- `return` statements are preferred within conditionals when checking whether to continue with processing or not
 For example:
 ```python
 if not condtion:
     # This means we should not process the rest of the command
-    await ctx.send("You are missing perms, an argument, etc")
-    return
+    return await ctx.send("You are missing perms, an argument, etc")
 
 # We should process the rest of the command here
 ```
