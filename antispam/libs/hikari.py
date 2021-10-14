@@ -9,7 +9,6 @@ from unittest.mock import AsyncMock
 import hikari.errors
 from hikari import (
     messages,
-    users,
     guilds,
     embeds,
     GuildTextChannel,
@@ -39,7 +38,7 @@ log = logging.getLogger(__name__)
 class Hikari(Lib):
     async def send_message_to_(
         self, target, message, mention: str, delete_after_time: Optional[int] = None
-    ) -> None:
+    ) -> None:  # pragma: no cover
         if isinstance(message, hikari.Embed):
             m = await target.send(
                 embed=message,
@@ -56,16 +55,18 @@ class Hikari(Lib):
     def __init__(self, handler: AntiSpamHandler):
         self.handler = handler
 
-    def get_guild_id(self, message: messages.Message) -> int:
+    def get_guild_id(self, message: messages.Message) -> int:  # pragma: no cover
         return message.guild_id
 
-    def get_channel_id(self, message: messages.Message) -> int:
+    def get_channel_id(self, message: messages.Message) -> int:  # pragma: no cover
         return message.channel_id
 
-    async def get_channel_from_message(self, message: messages.Message):
+    async def get_channel_from_message(
+        self, message: messages.Message
+    ):  # pragma: no cover
         return await self.handler.bot.rest.fetch_channel(message.channel_id)
 
-    async def get_channel_by_id(self, channel_id: int):
+    async def get_channel_by_id(self, channel_id: int):  # pragma: no cover
         return await self.handler.bot.rest.fetch_channel(channel_id)
 
     async def check_message_can_be_propagated(
@@ -363,7 +364,7 @@ class Hikari(Lib):
         delete_after_time: Optional[int],
         original_channel: GuildTextChannel,
         file=None,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         try:
             if not guild.log_channel_id:
                 log.debug(
@@ -408,7 +409,7 @@ class Hikari(Lib):
         is_kick: bool,
         user_delete_after: int = None,
         channel_delete_after: int = None,
-    ):
+    ):  # pragma: no cover
         guild = self.handler.bot.cache.get_guild(original_message.guild_id)
         author = original_message.author
         channel = await self.handler.bot.rest.fetch_channel(original_message.channel_id)
@@ -521,7 +522,7 @@ class Hikari(Lib):
         member._in_guild = True
         await self.handler.cache.set_member(member)
 
-    async def delete_member_messages(self, member: Member) -> None:
+    async def delete_member_messages(self, member: Member) -> None:  # pragma: no cover
         log.debug(
             "Attempting to delete all duplicate messages for Member(id=%s) in Guild(%s)",
             member.id,
@@ -547,7 +548,9 @@ class Hikari(Lib):
                 except hikari.errors.NotFoundError:
                     continue
 
-    async def delete_message(self, message: messages.Message) -> None:
+    async def delete_message(
+        self, message: messages.Message
+    ) -> None:  # pragma: no cover
         try:
             await message.delete()
             log.debug("Deleted message: %s", message.id)
@@ -559,11 +562,11 @@ class Hikari(Lib):
                 message.guild_id,
             )
 
-    def get_message_mentions(self, message: messages.Message):
+    def get_message_mentions(self, message: messages.Message):  # pragma: no cover
         data = [message.mentions.user_ids]
         data.extend(role for role in message.mentions.role_ids)
         data.extend(channel for channel in message.mentions.channels_ids)
         return data
 
-    def get_file(self, path: str):
+    def get_file(self, path: str):  # pragma: no cover
         return hikari.File(path)

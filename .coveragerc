@@ -9,3 +9,4 @@ omit =
     antispam/dataclasses/__init__.py
     antispam/enums/__init__.py
     antispam/plugins/__init__.py
+    antispam/libs/hikari.py

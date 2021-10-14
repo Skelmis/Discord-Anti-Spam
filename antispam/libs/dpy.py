@@ -527,7 +527,7 @@ class DPY(Lib):
         message: Union[str, discord.Embed],
         mention: str,
         delete_after_time: Optional[int] = None,
-    ) -> None:
+    ) -> None:  # pragma: no cover
         if isinstance(message, discord.Embed):
             content = None
             if self.handler.options.mention_on_embed:
@@ -543,18 +543,20 @@ class DPY(Lib):
                 delete_after=delete_after_time,
             )
 
-    async def get_channel_from_message(self, message: discord.Message):
+    async def get_channel_from_message(
+        self, message: discord.Message
+    ):  # pragma: no cover
         return message.channel
 
-    def get_message_mentions(self, message: discord.Message):
+    def get_message_mentions(self, message: discord.Message):  # pragma: no cover
         return message.mentions
 
-    async def get_channel_by_id(self, channel_id: int):
+    async def get_channel_by_id(self, channel_id: int):  # pragma: no cover
         channel = self.handler.bot.get_channel(channel_id)
         if not channel:
             channel = await self.handler.bot.fetch_channel(channel_id)
 
         return channel
 
-    def get_file(self, path: str):
+    def get_file(self, path: str):  # pragma: no cover
         return discord.File(path)

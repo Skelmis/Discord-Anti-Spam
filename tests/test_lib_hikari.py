@@ -1,7 +1,7 @@
 import datetime
 from unittest.mock import AsyncMock
 
-import discord
+import hikari
 import pytest
 
 from antispam.dataclasses import Guild, Member, CorePayload, Message
