@@ -3,9 +3,9 @@
 name: "Pytest"
 on:
   pull_request:
-    branches: [ rewrite ]
+    branches: [ master ]
   push:
-    branches: [ rewrite ]
+    branches: [ master ]
 
 jobs:
   build:
