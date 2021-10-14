@@ -25,7 +25,9 @@ Changes
 
 - Some misc methods on the handler have signature changes
 
+- Package is typed more, however not fully. This is still a work in progress
 
+- Misc changes, no doubt I've missed heaps
 
 Features
 --------
@@ -42,7 +44,6 @@ Features
 
 - Now features an easy way to clean up your cache. See :py:method:`AntiSpamHandler.clean_cache`
 
-
 - New plugins:
     - :py:class:`AntiMassMention` - To stop people spam pinging
 
@@ -52,6 +53,9 @@ Features
 
 - Plugins now have direct access to storage within the cache.
   You should be interacting with :py:class:`PluginCache` for this.
+
+- Plugins now support blacklisting to stop runs on certain guilds.
+  See Plugin Blacklisting under ``Package Plugin System``
 
 - Roughly ``150%`` faster then 0.x.x on small test cases
 
