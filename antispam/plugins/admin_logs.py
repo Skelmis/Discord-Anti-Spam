@@ -47,6 +47,9 @@ class AdminLogs(BasePlugin):
     async def propagate(
         self, message, data: CorePayload = None
     ) -> Any:  # pragma: no cover
+        # This is ignored in coverage as it depends
+        # a lot on external calls I'd rather not mock
+        # and its tested manually instead
         if not data.member_should_be_punished_this_message:
             # Do nothing unless punished
             return
