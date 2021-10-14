@@ -2,7 +2,7 @@ Migrating to 1.0
 ================
 
 The biggest change from 0.x.x to 1.x.x is
-that every is now more sanely named in regard to pep8.
+that everything is now more sanely named in regard to pep8.
 
 Likely missing things here, if you'd like support
 join our discord and we'd be happy to assist.

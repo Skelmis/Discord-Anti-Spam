@@ -10,6 +10,7 @@ examples/dev.py
 .tox/
 /assets
 docs/_build
+test/
 
 # IntelliJ project files
 .idea
