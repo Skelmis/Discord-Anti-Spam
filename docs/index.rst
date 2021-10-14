@@ -23,6 +23,7 @@ The package features some built in punishments, these are:
    modules/main/examples.rst
    modules/main/logging.rst
    modules/main/template.rst
+   modules/migrating.rst
 
 .. toctree::
    :maxdepth: 2
@@ -38,6 +39,7 @@ The package features some built in punishments, these are:
 
    modules/plugins/plugins.rst
    modules/plugins/schema.rst
+   modules/plugins/storage.rst
    modules/plugins/tracker.rst
    modules/plugins/mentions.rst
    modules/plugins/stats.rst

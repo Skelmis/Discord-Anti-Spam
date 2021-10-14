@@ -17,7 +17,13 @@ Changes
 
 - `user_` -> `member_`
 
-- When failing to send a message, it now sends it to the guild log channelS
+- When failing to send a message, it now sends it to the guild log channels
+
+- Some type param's are now enums. See :py:class:`IgnoreType` and :py:class:`ResetType`
+
+- :py:method:`AntiSpamHandler.propagate` now returns :py:class:`CorePayload` instead of a dict
+
+- Some misc methods on the handler have signature changes
 
 
 
@@ -28,6 +34,14 @@ Features
 
 - Added a guild log channel setting
     - `guild_` messages will be sent here if set, otherwise same as before
+    - :py:method:`AntiSpamHandler.add_guild_log_channel`
+    - :py:method:`AntiSpamHandler.remove_guild_log_channel`
+
+- Abstracted logic and data storage to be separate. This means you
+  can setup your own cache such as redis. See :py:class:`Cache`
+
+- Now features an easy way to clean up your cache. See :py:method:`AntiSpamHandler.clean_cache`
+
 
 - New plugins:
     - :py:class:`AntiMassMention` - To stop people spam pinging
@@ -36,8 +50,22 @@ Features
 
     - :py:class:`AdminLogs` - An easy way to get evidence on punishments
 
+- Plugins now have direct access to storage within the cache.
+  You should be interacting with :py:class:`PluginCache` for this.
+
+- Roughly ``150%`` faster then 0.x.x on small test cases
+
+- Fully tested, no more pesky regression bugs
+
+- Further documented
+
+- More comprehensive logging, this is greatly improved compared to 0.x.x
 
 Fixes
 -----
 
--
+- When the package attempts to delete spam messages, it will
+  now actually delete *all* messages marked as spam rather then
+  just the last one.
+
+- Logging now lazily computes variables, this should be a decent speedup
