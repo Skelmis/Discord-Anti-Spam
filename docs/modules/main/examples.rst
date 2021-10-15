@@ -67,10 +67,10 @@ How to use templating in a string
 
     from discord.ext import commands
 
-    from antispam import AntiSpamHandler
+    from antispam import AntiSpamHandler, Options
 
     bot = commands.Bot(command_prefix="!")
-    bot.handler = AntiSpamHandler(bot, ban_message="$MENTIONUSER you are hereby banned from $GUILDNAME for spam!")
+    bot.handler = AntiSpamHandler(bot, options=Options(ban_message="$MENTIONUSER you are hereby banned from $GUILDNAME for spam!"))
 
     @bot.event
     async def on_ready():
@@ -119,7 +119,7 @@ How to use templating in embeds
 
     from discord.ext import commands
 
-    from antispam import AntiSpamHandler
+    from antispam import AntiSpamHandler, Options
 
     bot = commands.Bot(command_prefix="!")
 
@@ -135,7 +135,7 @@ How to use templating in embeds
             {"name": "Current kicks:", "value": "$KICKCOUNT", "inline": False},
         ],
     }
-    bot.handler = AntiSpamHandler(bot, guild_warn_message=warn_embed_dict)
+    bot.handler = AntiSpamHandler(bot, options=Options(guild_warn_message=warn_embed_dict))
 
     @bot.event
     async def on_ready():
@@ -159,10 +159,10 @@ Custom Punishments
     from discord.ext import commands
 
     from antispam import AntiSpamHandler
-    from antispam.plugins import AntiSpamTracker
+    from antispam.plugins import AntiSpamTracker, Options
 
     bot = commands.Bot(command_prefix="!")
-    bot.handler = AntiSpamHandler(bot, no_punish=True)
+    bot.handler = AntiSpamHandler(bot, options=Options(no_punish=True))
     bot.tracker = AntiSpamTracker(bot.handler, 3) # 3 Being how many 'punishment requests' before is_spamming returns True
     bot.handler.register_extension(bot.tracker)
 
