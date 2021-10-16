@@ -26,6 +26,7 @@ from .anti_spam_handler import AntiSpamHandler
 from .exceptions import *
 from .dataclasses import Options, CorePayload
 from .plugin_cache import PluginCache
+from .base_plugin import BasePlugin
 
 
 import logging
