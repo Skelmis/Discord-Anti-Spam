@@ -24,7 +24,7 @@ class PluginCache:
         ----------
         handler : AntiSpamHandler
             Your AntiSpamHandler instance
-        caller : class
+        caller : object
             `self`, from the class using this class
         """
         self.handler = handler

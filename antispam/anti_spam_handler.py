@@ -1,5 +1,4 @@
 """
-LICENSE
 The MIT License (MIT)
 
 Copyright (c) 2020-2021 Skelmis
@@ -20,7 +19,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
-LICENSE
 """
 import functools
 import logging
@@ -850,8 +848,6 @@ class AntiSpamHandler:
         Cleans the internal cache, pruning
         any old/un-needed entries.
 
-
-        TODO Test these modes
         Non Strict mode:
          - Member deletion criteria:
             - warn_count == default

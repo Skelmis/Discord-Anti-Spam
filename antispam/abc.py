@@ -383,7 +383,7 @@ class Lib(Protocol):
             What to send to the guilds log channel
         delete_after_time : Optional[int]
             How long to delete these messages after
-        original_channel : Union[discord.abc.GuildChannel, discord.abc.PrivateChannel, hikari.GuildTextChannel]
+        original_channel : Union[discord.abc.GuildChannel, discord.abc.PrivateChannel, hikari.channels.GuildTextChannel]
             Where to send the message assuming this guild has no guild log
             channel already set.
         file

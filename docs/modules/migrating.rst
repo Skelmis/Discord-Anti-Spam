@@ -12,16 +12,16 @@ Changes
 
 - Extensions are now called plugins
 
-- :py:class:`AntiSpamHandler` now takes an :py:class:`Options`
+- :py:class:`antispam.AntiSpamHandler` now takes an :py:class:`antispam.dataclasses.options.Options`
   class rather then kwargs to set options.
 
 - `user_` -> `member_`
 
 - When failing to send a message, it now sends it to the guild log channels
 
-- Some type param's are now enums. See :py:class:`IgnoreType` and :py:class:`ResetType`
+- Some type param's are now enums. See :py:class:`antispam.enums.IgnoreType` and :py:class:`antispam.enums.ResetType`
 
-- :py:method:`AntiSpamHandler.propagate` now returns :py:class:`CorePayload` instead of a dict
+- :py:meth:`antispam.AntiSpamHandler.propagate` now returns :py:class:`antispam.CorePayload` instead of a dict
 
 - Some misc methods on the handler have signature changes
 
@@ -36,23 +36,23 @@ Features
 
 - Added a guild log channel setting
     - `guild_` messages will be sent here if set, otherwise same as before
-    - :py:method:`AntiSpamHandler.add_guild_log_channel`
-    - :py:method:`AntiSpamHandler.remove_guild_log_channel`
+    - :py:meth:`antispam.AntiSpamHandler.add_guild_log_channel`
+    - :py:meth:`antispam.AntiSpamHandler.remove_guild_log_channel`
 
 - Abstracted logic and data storage to be separate. This means you
-  can setup your own cache such as redis. See :py:class:`Cache`
+  can setup your own cache such as redis. See :py:class:`antispam.abc.Cache`
 
-- Now features an easy way to clean up your cache. See :py:method:`AntiSpamHandler.clean_cache`
+- Now features an easy way to clean up your cache. See :py:meth:`antispam.AntiSpamHandler.clean_cache`
 
 - New plugins:
-    - :py:class:`AntiMassMention` - To stop people spam pinging
+    - :py:class:`antispam.plugins.AntiMassMention` - To stop people spam pinging
 
-    - :py:class:`Stats` - For general package stats
+    - :py:class:`antispam.plugins.Stats` - For general package stats
 
-    - :py:class:`AdminLogs` - An easy way to get evidence on punishments
+    - :py:class:`antispam.plugins.AdminLogs` - An easy way to get evidence on punishments
 
 - Plugins now have direct access to storage within the cache.
-  You should be interacting with :py:class:`PluginCache` for this.
+  You should be interacting with :py:class:`antispam.PluginCache` for this.
 
 - Plugins now support blacklisting to stop runs on certain guilds.
   See Plugin Blacklisting under ``Package Plugin System``
