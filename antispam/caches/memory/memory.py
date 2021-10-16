@@ -23,10 +23,10 @@ DEALINGS IN THE SOFTWARE.
 import logging
 from typing import AsyncIterable
 
-from ...abc import Cache
-from ...dataclasses import Message, Member, Guild
-from ...enums import ResetType
-from ...exceptions import GuildNotFound, MemberNotFound
+from antispam.abc import Cache
+from antispam import dataclasses
+from antispam.enums import ResetType
+from antispam import exceptions
 
 
 log = logging.getLogger(__name__)
@@ -41,14 +41,14 @@ class MemoryCache(Cache):
     async def initialize(self, *args, **kwargs) -> None:
         return await super().initialize(*args, **kwargs)
 
-    async def get_guild(self, guild_id: int) -> Guild:
+    async def get_guild(self, guild_id: int) -> dataclasses.Guild:
         log.debug("Attempting to return cached Guild(id=%s)", guild_id)
         try:
             return self.cache[guild_id]
         except KeyError:
-            raise GuildNotFound from None
+            raise exceptions.GuildNotFound from None
 
-    async def set_guild(self, guild: Guild) -> None:
+    async def set_guild(self, guild: dataclasses.Guild) -> None:
         log.debug("Attempting to set Guild(id=%s)", guild.id)
         self.cache[guild.id] = guild
 
@@ -56,7 +56,7 @@ class MemoryCache(Cache):
         log.debug("Attempting to delete Guild(id=%s)", guild_id)
         self.cache.pop(guild_id, None)
 
-    async def get_member(self, member_id: int, guild_id: int) -> Member:
+    async def get_member(self, member_id: int, guild_id: int) -> dataclasses.Member:
         log.debug(
             "Attempting to return a cached Member(id=%s) for Guild(id=%s)",
             member_id,
@@ -67,9 +67,9 @@ class MemoryCache(Cache):
         try:
             return guild.members[member_id]
         except KeyError:
-            raise MemberNotFound from None
+            raise exceptions.MemberNotFound from None
 
-    async def set_member(self, member: Member) -> None:
+    async def set_member(self, member: dataclasses.Member) -> None:
         log.debug(
             "Attempting to cache Member(id=%s) for Guild(id=%s)",
             member.id,
@@ -77,8 +77,8 @@ class MemoryCache(Cache):
         )
         try:
             guild = await self.get_guild(member.guild_id)
-        except GuildNotFound:
-            guild = Guild(id=member.guild_id, options=self.handler.options)
+        except exceptions.GuildNotFound:
+            guild = dataclasses.Guild(id=member.guild_id, options=self.handler.options)
 
         guild.members[member.id] = member
         await self.set_guild(guild)
@@ -89,7 +89,7 @@ class MemoryCache(Cache):
         )
         try:
             guild = await self.get_guild(guild_id)
-        except GuildNotFound:
+        except exceptions.GuildNotFound:
             return
 
         try:
@@ -99,7 +99,7 @@ class MemoryCache(Cache):
 
         await self.set_guild(guild)
 
-    async def add_message(self, message: Message) -> None:
+    async def add_message(self, message: dataclasses.Message) -> None:
         log.debug(
             "Attempting to add a Message(id=%s) to Member(id=%s) in Guild(id=%s)",
             message.id,
@@ -110,17 +110,17 @@ class MemoryCache(Cache):
             member = await self.get_member(
                 member_id=message.author_id, guild_id=message.guild_id
             )
-        except GuildNotFound:
-            member = Member(id=message.author_id, guild_id=message.guild_id)
-            guild = Guild(id=message.guild_id, options=self.handler.options)
+        except exceptions.GuildNotFound:
+            member = dataclasses.Member(id=message.author_id, guild_id=message.guild_id)
+            guild = dataclasses.Guild(id=message.guild_id, options=self.handler.options)
             guild.members[member.id] = member
 
             await self.set_guild(guild)
 
-        except MemberNotFound:
+        except exceptions.MemberNotFound:
             guild = await self.get_guild(message.guild_id)
 
-            member = Member(id=message.author_id, guild_id=message.guild_id)
+            member = dataclasses.Member(id=message.author_id, guild_id=message.guild_id)
             guild.members[member.id] = member
 
             await self.set_guild(guild)
@@ -147,17 +147,19 @@ class MemoryCache(Cache):
 
             await self.set_member(member)
 
-        except (MemberNotFound, GuildNotFound):
+        except (exceptions.MemberNotFound, exceptions.GuildNotFound):
             # This is fine
             return
 
-    async def get_all_members(self, guild_id: int) -> AsyncIterable[Member]:  # noqa
+    async def get_all_members(
+        self, guild_id: int
+    ) -> AsyncIterable[dataclasses.Member]:  # noqa
         log.debug("Yielding all cached members for Guild(id=%s)", guild_id)
         guilds = await self.get_guild(guild_id=guild_id)
         for member in guilds.members.values():
             yield member
 
-    async def get_all_guilds(self) -> AsyncIterable[Guild]:  # noqa
+    async def get_all_guilds(self) -> AsyncIterable[dataclasses.Guild]:  # noqa
         log.debug("Yielding all cached guilds")
         for guild in self.cache.values():
             yield guild

@@ -20,8 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from .guild import Guild
-from .member import Member
-from .message import Message
-from .options import Options
-from .core import CorePayload
+from antispam.dataclasses.guild import Guild
+from antispam.dataclasses.member import Member
+from antispam.dataclasses.message import Message
+from antispam.dataclasses.options import Options
+from antispam.dataclasses.core import CorePayload

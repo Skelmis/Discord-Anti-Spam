@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from .anti_spam_tracker import AntiSpamTracker
-from .anti_mass_mention import AntiMassMention, MassMentionPunishment
-from .stats import Stats
-from .admin_logs import AdminLogs
+from antispam.plugins.anti_spam_tracker import AntiSpamTracker
+from antispam.plugins.anti_mass_mention import AntiMassMention, MassMentionPunishment
+from antispam.plugins.stats import Stats
+from antispam.plugins.admin_logs import AdminLogs

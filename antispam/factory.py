@@ -24,8 +24,8 @@ import logging
 from copy import deepcopy
 import datetime
 
-from .abc import Cache
-from .dataclasses import Guild, Member, Message, Options
+from antispam.abc import Cache
+from antispam.dataclasses import Guild, Member, Message, Options
 
 
 log = logging.getLogger(__name__)

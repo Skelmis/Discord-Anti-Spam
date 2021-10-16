@@ -22,9 +22,9 @@ DEALINGS IN THE SOFTWARE.
 """
 from typing import Protocol, runtime_checkable, Union, Optional, AsyncIterable
 
-from .dataclasses import Guild, Member, Message
-from .dataclasses.propagate_data import PropagateData
-from .enums import ResetType
+from antispam.dataclasses import Guild, Member, Message
+from antispam.dataclasses.propagate_data import PropagateData
+from antispam.enums import ResetType
 
 
 @runtime_checkable

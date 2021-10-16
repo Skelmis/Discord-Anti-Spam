@@ -24,9 +24,9 @@ from typing import Dict, Any, List
 
 import attr
 
-from .message import Message
-from .member import Member
-from .options import Options
+from antispam.dataclasses.message import Message
+from antispam.dataclasses.member import Member
+from antispam.dataclasses.options import Options
 
 
 @attr.s(slots=True)

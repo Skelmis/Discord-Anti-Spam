@@ -22,11 +22,11 @@ DEALINGS IN THE SOFTWARE.
 """
 __version__ = "1.0.0"
 
-from .anti_spam_handler import AntiSpamHandler
-from .exceptions import *
-from .dataclasses import Options, CorePayload
-from .plugin_cache import PluginCache
-from .base_plugin import BasePlugin
+from antispam.anti_spam_handler import AntiSpamHandler
+from antispam.exceptions import *
+from antispam.dataclasses import Options, CorePayload
+from antispam.plugin_cache import PluginCache
+from antispam.base_plugin import BasePlugin
 
 
 import logging

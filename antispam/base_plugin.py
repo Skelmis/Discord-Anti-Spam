@@ -22,7 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 from typing import Optional, Any, Set
 
-from .dataclasses import CorePayload
+from antispam.dataclasses import CorePayload
 
 
 class BasePlugin:

@@ -27,22 +27,21 @@ from typing import Optional, Union
 
 from attr import asdict
 
-
-from .abc import Cache
-from .core import Core
-from .dataclasses import Guild, Options, CorePayload
-from .caches import MemoryCache
-from .enums import IgnoreType, ResetType
-from .exceptions import (
+from antispam.abc import Cache
+from antispam.core import Core
+from antispam.dataclasses import Guild, Options, CorePayload
+from antispam.caches import MemoryCache
+from antispam.enums import IgnoreType, ResetType
+from antispam.exceptions import (
     MissingGuildPermissions,
     PluginError,
     GuildNotFound,
     PropagateFailure,
     InvocationCancelled,
 )
-from .factory import FactoryBuilder
-from .base_plugin import BasePlugin
-from .util import get_aware_time
+from antispam.factory import FactoryBuilder
+from antispam.base_plugin import BasePlugin
+from antispam.util import get_aware_time
 
 log = logging.getLogger(__name__)
 

@@ -20,5 +20,5 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from .ignored_types import IgnoreType
-from .reset_type import ResetType
+from antispam.enums.ignored_types import IgnoreType
+from antispam.enums.reset_type import ResetType

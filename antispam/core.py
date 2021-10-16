@@ -25,13 +25,9 @@ import logging
 
 from fuzzywuzzy import fuzz
 
-from .exceptions import (
-    MemberNotFound,
-    LogicError,
-    DuplicateObject,
-)
-from .dataclasses import Member, Message, CorePayload, Guild
-from .util import get_aware_time
+from antispam.exceptions import MemberNotFound, LogicError, DuplicateObject
+from antispam.dataclasses import Member, Message, CorePayload, Guild
+from antispam.util import get_aware_time
 
 log = logging.getLogger(__name__)
 
