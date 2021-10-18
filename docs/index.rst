@@ -44,6 +44,7 @@ The package features some built in punishments, these are:
    modules/plugins/mentions.rst
    modules/plugins/stats.rst
    modules/plugins/logs.rst
+   modules/plugins/limiter.rst
 
 .. toctree::
    :maxdepth: 2
