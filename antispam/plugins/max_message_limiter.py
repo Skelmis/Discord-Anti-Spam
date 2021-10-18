@@ -41,6 +41,15 @@ class MaxMessageLimiter(BasePlugin):
     """
 
     def __init__(self, handler: AntiSpamHandler, hard_cap: int = 25):
+        """
+        Parameters
+        ----------
+        handler : AntiSpamHandler
+            The handler to extract cache from
+        hard_cap : int, optional
+            The hard cap for the amount of messages you
+            can send within ``message_interval``
+        """
         super().__init__(is_pre_invoke=False)
         self.hard_cap: int = hard_cap
         self.primary_cache: Cache = handler.cache
