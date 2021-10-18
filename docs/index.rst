@@ -20,6 +20,7 @@ The package features some built in punishments, these are:
 
    modules/main/main.rst
    modules/main/caches.rst
+   modules/main/modes.rst
    modules/main/examples.rst
    modules/main/logging.rst
    modules/main/template.rst
