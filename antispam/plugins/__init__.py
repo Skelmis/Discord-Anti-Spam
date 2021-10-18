@@ -24,3 +24,4 @@ from antispam.plugins.anti_spam_tracker import AntiSpamTracker
 from antispam.plugins.anti_mass_mention import AntiMassMention, MassMentionPunishment
 from antispam.plugins.stats import Stats
 from antispam.plugins.admin_logs import AdminLogs
+from antispam.plugins.max_message_limiter import MaxMessageLimiter

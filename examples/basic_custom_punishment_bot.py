@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from antispam import AntiSpamHandler, Options
-from antispam.plugins import AntiSpamTracker
+from antispam.plugins import AntiSpamTracker, MaxMessageLimiter
 from jsonLoader import read_json
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
@@ -24,7 +24,7 @@ async def on_ready():
 async def on_message(message):
     await bot.handler.propagate(message)
 
-    if bot.tracker.is_spamming(message):
+    if await bot.tracker.is_spamming(message):
         # Insert code to mute the user
 
         # Insert code to tell admins
