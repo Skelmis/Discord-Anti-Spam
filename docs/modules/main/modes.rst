@@ -27,4 +27,4 @@ Max Message Amount
 
 Unlike other methods, this punishes members if they simply send more then
 ``x`` messages within ``y`` time period.
-You can find this plugin here: ::py::class:`MaxMessageLimiter`
+You can find this plugin here :py:class:`MaxMessageLimiter`
