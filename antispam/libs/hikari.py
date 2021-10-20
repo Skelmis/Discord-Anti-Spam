@@ -25,7 +25,7 @@ import asyncio
 import datetime
 import logging
 from string import Template
-from typing import Optional, Union
+from typing import Optional, Union, Dict
 from unittest.mock import AsyncMock
 
 import hikari.errors
@@ -233,9 +233,9 @@ class Hikari(Lib):
             }
         )
 
-    def embed_to_string(self, embed: embeds.Embed) -> str:
+    def embed_to_string(self, embed_obj: embeds.Embed) -> str:
         content = ""
-        embed = self.handler.bot.entity_factory.serialize_embed(embed)
+        embed: Dict = self.handler.bot.entity_factory.serialize_embed(embed_obj)
 
         if "title" in embed:
             content += f"{embed['title']}\n"

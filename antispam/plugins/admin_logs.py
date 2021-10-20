@@ -140,7 +140,10 @@ class AdminLogs(BasePlugin):
                 )
 
         log.debug(
-            f"Saved evidence against Member(id=%s) in Guild(id=%s) to file at location: {file_path}",
+            "Saved evidence against Member(id=%s) in Guild(id=%s) to file at location: %s",
+            member.id,
+            guild_id,
+            file_path,
         )
 
         if not guild.log_channel_id:
