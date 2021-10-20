@@ -11,9 +11,9 @@ Templating Options
 
 The following are all the options you as the user have:
 
-* **MENTIONMEMBER** - This will attempt to mention the user, uses ``discord.Member.mention``
-* **MEMBERNAME** - This will attempt to state the user's name, uses ``discord.Member.display_name``
-* **MEMBERID** - This will attempt to state the user's id, uses ``discord.Member.id``
+* **$MENTIONMEMBER** - This will attempt to mention the user, uses ``discord.Member.mention``
+* **$MEMBERNAME** - This will attempt to state the user's name, uses ``discord.Member.display_name``
+* **$MEMBERID** - This will attempt to state the user's id, uses ``discord.Member.id``
 
 * **$BOTNAME** - This will attempt to state your bots name, uses ``discord.Guild.me.name``
 * **$BOTID** - This will attempt to state your bots id, uses ``discord.Guild.me.id``
@@ -30,7 +30,7 @@ The following are all the options you as the user have:
 
 The following are special case's for embeds:
 
-* **MEMBERAVATAR** - This will attempt to display the user's avatar, uses ``discord.Member.avatar_url``
+* **$MEMBERAVATAR** - This will attempt to display the user's avatar, uses ``discord.Member.avatar_url``
 * **$BOTAVATAR** - This will attempt to display the bots avatar, uses ``discord.Guild.me.avatar_url``
 * **$GUILDICON** - This will attempt to display the guilds icon, uses ``discord.Guild.icon_url``
 
