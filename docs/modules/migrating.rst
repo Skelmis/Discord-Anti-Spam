@@ -11,6 +11,7 @@ Changes
 -------
 
 - Extensions are now called plugins
+    - ``from antispam.ext import ...`` -> ``from antispam.plugins import ...``
 
 - :py:class:`antispam.AntiSpamHandler` now takes an :py:class:`antispam.dataclasses.options.Options`
   class rather then kwargs to set options.
