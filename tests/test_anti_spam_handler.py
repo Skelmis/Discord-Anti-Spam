@@ -19,7 +19,7 @@ from antispam import (
     InvocationCancelled,
 )  # noqa
 
-from antispam.enums import IgnoreType, ResetType
+from antispam.enums import IgnoreType, ResetType, Library
 
 from antispam.dataclasses import Guild, Member, CorePayload, Message
 
@@ -656,7 +656,7 @@ class TestAntiSpamHandler:
 
     def test_hikari_setup(self):
         handler = AntiSpamHandler(
-            commands.Bot(command_prefix="!"), is_using_hikari=True
+            commands.Bot(command_prefix="!"), library=Library.HIKARI
         )
         assert handler.lib_handler.__class__.__name__ == "Hikari"
 
