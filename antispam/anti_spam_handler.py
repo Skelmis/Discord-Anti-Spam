@@ -466,7 +466,7 @@ class AntiSpamHandler:
         If using/modifying ``AntiSpamHandler.options`` to give to
         this method you will **also** be modifying the overall options.
 
-        To get an options item you can modify freely call ``AntiSpamHandler.get_options()``,
+        To get an options item you can modify freely call :py:meth:`AntiSpamHandler.get_options`
         this method will give you an instance of the current options you are
         free to modify however you like.
 
@@ -474,7 +474,7 @@ class AntiSpamHandler:
         =====
         This will override any current settings, if you wish
         to continue using existing settings and merely change some
-        I suggest using the get_options method first and then giving
+        I suggest using the ``get_options`` method first and then giving
         those values back to this method with the changed arguments
         """
         if not isinstance(options, Options):
