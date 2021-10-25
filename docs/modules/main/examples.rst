@@ -43,11 +43,12 @@ Basic Hikari bot
 
     import hikari
     from antispam import AntiSpamHandler
+    from antispam.enums import Library
 
     bot = hikari.GatewayBot(
         token="..."
     )
-    handler = AntiSpamHandler(bot, is_using_hikari=True)
+    handler = AntiSpamHandler(bot, library=Library.HIKARI)
 
     @bot.listen()
     async def ping(event: hikari.GuildMessageCreateEvent) -> None:

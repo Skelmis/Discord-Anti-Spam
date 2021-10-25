@@ -11,3 +11,6 @@ Enum Reference
     :members:
     :undoc-members:
 
+.. autoclass:: Library
+    :members:
+    :undoc-members:

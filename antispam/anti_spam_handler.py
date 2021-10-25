@@ -31,7 +31,7 @@ from antispam.abc import Cache
 from antispam.core import Core
 from antispam.dataclasses import Guild, Options, CorePayload
 from antispam.caches import MemoryCache
-from antispam.enums import IgnoreType, ResetType
+from antispam.enums import IgnoreType, ResetType, Library
 from antispam.exceptions import (
     MissingGuildPermissions,
     PluginError,
@@ -187,7 +187,7 @@ class AntiSpamHandler:
         self,
         bot,
         *,
-        is_using_hikari: bool = False,
+        library: Library = Library.DPY,
         options: Options = None,
         cache: Cache = None,
     ):
@@ -198,9 +198,11 @@ class AntiSpamHandler:
         ----------
         bot
             A reference to your discord bot object.
-        is_using_hikari : bool, Optional
-            Set this to True if you are using this package
-            within hikari rather then discord.py
+        library : Library, optional
+            An enum denoting the library this AntiSpamHandler.
+            See :py:class:`antispam.enums.library.Library` for more
+
+            Defaults to DPY support
         options : Options, Optional
             An instance of your custom Options
             the handler should use
@@ -241,10 +243,14 @@ class AntiSpamHandler:
 
         # Import these here to avoid errors when not having the
         # other lib installed, I think
-        if is_using_hikari:
+        if library == Library.HIKARI:
             from antispam.libs.hikari import Hikari
 
             self.lib_handler = Hikari(self)
+
+        elif library == Library.PINCER:
+            log.critical("Come say hi in discord. Then I'll make you pincer bindings")
+            raise NotImplementedError
 
         else:
             from antispam.libs.dpy import DPY

@@ -5,7 +5,7 @@ DPY Anti-Spam supports discord.py and all forks out of
 the box assuming they use the ``discord`` namespace.
 
 If you want to use this with hikari, please enable it
-by passing ``is_using_hikari=True`` to the
+by passing ``library=Library.HIKARI`` to the
 ``AntiSpamHandler`` constructor.
 
 

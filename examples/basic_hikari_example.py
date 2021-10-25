@@ -1,6 +1,7 @@
 import hikari
 
 from antispam import AntiSpamHandler
+from antispam.enums import Library
 from examples.jsonLoader import read_json
 
 file = read_json("token")
@@ -8,7 +9,7 @@ bot = hikari.GatewayBot(
     token=file["token"],
 )
 
-handler = AntiSpamHandler(bot, is_using_hikari=True)
+handler = AntiSpamHandler(bot, library=Library.HIKARI)
 
 
 @bot.listen()
