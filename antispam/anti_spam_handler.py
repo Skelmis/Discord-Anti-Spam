@@ -525,6 +525,18 @@ class AntiSpamHandler:
         guild = await self.cache.get_guild(guild_id=guild_id)
         return deepcopy(guild.options)
 
+    async def get_options(self) -> Options:
+        """
+        Returns a safe to modify instance of this
+        handlers options.
+
+        Returns
+        -------
+        Options
+            The safe to use options
+        """
+        return deepcopy(self.options)
+
     @ensure_init
     async def remove_guild_options(self, guild_id: int) -> None:
         """
