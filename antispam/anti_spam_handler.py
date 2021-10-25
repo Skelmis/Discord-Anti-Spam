@@ -945,13 +945,13 @@ class AntiSpamHandler:
 
         log.info("Cleaned the internal cache")
 
-    async def visualize(
+    def visualize(
         self, content: str, message, warn_count: int = 1, kick_count: int = 2
     ):
         """
         Wraps around :py:meth:`antispam.abc.Lib.visualizer` as a convenience
         """
-        target = await self.lib_handler.visualizer(
+        target = self.lib_handler.visualizer(
             content=content,
             message=message,
             warn_count=warn_count,
