@@ -27,7 +27,11 @@ import attr
 
 @attr.s(slots=True, eq=True, kw_only=True)
 class Options:
-    """Options for the AntiSpamHandler, see :py:class:`antispam.AntiSpamHandler` for explanations"""
+    """Options for the AntiSpamHandler, see :py:class:`antispam.AntiSpamHandler` for usage.
+
+    Parameters
+    ----------
+    """
 
     # Ints
     warn_threshold: int = attr.ib(default=3, validator=attr.validators.instance_of(int))

@@ -39,7 +39,7 @@ class TestExceptions:
     def test_logic_error(self):
         assert (
             str(LogicError())
-            == "Raised because internal logic has failed. Please create an issue in the github."
+            == "Raised because internal logic has failed. Please create an issue in the github and include traceback."
         )
 
     def test_missing_guild_perms(self):

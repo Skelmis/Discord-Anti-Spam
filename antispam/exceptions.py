@@ -54,7 +54,7 @@ class ObjectMismatch(BaseASHException):
 
 
 class LogicError(BaseASHException):
-    """Raised because internal logic has failed. Please create an issue in the github."""
+    """Raised because internal logic has failed. Please create an issue in the github and include traceback."""
 
 
 class MissingGuildPermissions(BaseASHException):
