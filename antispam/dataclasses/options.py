@@ -172,7 +172,7 @@ class Options:
         Default: ``True``
 
         If the message your trying to send is an embed, also send some content to mention the person being punished.
-    delete_zero_width_chars : True
+    delete_zero_width_chars : bool
         Default: ``test``
 
         Should zero width characters be removed from messages. Useful as otherwise it helps

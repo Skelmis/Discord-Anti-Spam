@@ -46,7 +46,7 @@ class MaxMessageLimiter(BasePlugin):
         ----------
         handler : AntiSpamHandler
             The handler to extract cache from
-        hard_cap : int, optional
+        hard_cap : int, Optional
             The hard cap for the amount of messages you
             can send within ``message_interval``
         """
@@ -55,9 +55,7 @@ class MaxMessageLimiter(BasePlugin):
         self.primary_cache: Cache = handler.cache
         log.info("Plugin ready for usage")
 
-    async def propagate(
-        self, message: discord.Message, data: Optional[CorePayload] = None
-    ) -> Any:
+    async def propagate(self, message, data: Optional[CorePayload] = None) -> Any:
         try:
             member: Member = await self.primary_cache.get_member(
                 message.author.id, message.guild.id
@@ -75,7 +73,7 @@ class MaxMessageLimiter(BasePlugin):
 
         await self.do_punishment(member, message)
 
-    async def do_punishment(self, member: Member, message: discord.Message) -> None:
+    async def do_punishment(self, member: Member, message) -> None:
         """
         This method gets called and handles punishments,
         override it to change punishments.
@@ -84,7 +82,7 @@ class MaxMessageLimiter(BasePlugin):
         ----------
         member : Member
             The member to punish
-        message : discord.Message
+        message
             A message to get info from
         """
         channel: discord.TextChannel = message.channel

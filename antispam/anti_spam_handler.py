@@ -86,7 +86,7 @@ class AntiSpamHandler:
         ----------
         bot
             A reference to your discord bot object.
-        library : Library, optional
+        library : Library, Optional
             An enum denoting the library this AntiSpamHandler.
             See :py:class:`antispam.enums.library.Library` for more
 
