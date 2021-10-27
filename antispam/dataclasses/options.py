@@ -48,11 +48,11 @@ class Options:
     )
 
     # delete_after
-    guild_ban_message_delete_after: int = attr.ib(
+    guild_log_ban_message_delete_after: int = attr.ib(
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(int)),
     )
-    guild_kick_message_delete_after: int = attr.ib(
+    guild_log_kick_message_delete_after: int = attr.ib(
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(int)),
     )
@@ -60,7 +60,7 @@ class Options:
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(int)),
     )
-    guild_warn_message_delete_after: int = attr.ib(
+    guild_log_warn_message_delete_after: int = attr.ib(
         default=None,
         validator=attr.validators.optional(attr.validators.instance_of(int)),
     )
@@ -70,17 +70,17 @@ class Options:
     )
 
     # Strings
-    guild_warn_message: Union[str, dict] = attr.ib(
+    guild_log_warn_message: Union[str, dict] = attr.ib(
         default="$MEMBERNAME was warned for spamming/sending duplicate messages.",
         kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
     )
-    guild_kick_message: Union[str, dict] = attr.ib(
+    guild_log_kick_message: Union[str, dict] = attr.ib(
         default="$MEMBERNAME was kicked for spamming/sending duplicate messages.",
         kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
     )
-    guild_ban_message: Union[str, dict] = attr.ib(
+    guild_log_ban_message: Union[str, dict] = attr.ib(
         default="$MEMBERNAME was banned for spamming/sending duplicate messages.",
         kw_only=True,
         validator=attr.validators.instance_of((str, dict)),

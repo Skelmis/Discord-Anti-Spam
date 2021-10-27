@@ -261,7 +261,7 @@ class TestCore:
         )
 
         # Test embed coverage
-        create_core.options.guild_warn_message = {"title": "test"}
+        create_core.options.guild_log_warn_message = {"title": "test"}
         return_data = await create_core.propagate_user(
             MockedMessage(guild_id=1, author_id=1, message_id=2).to_mock(), guild
         )

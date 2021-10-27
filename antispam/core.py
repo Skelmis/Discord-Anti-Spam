@@ -162,7 +162,7 @@ class Core:
                 member.kick_count,
             )
             guild_message = self.handler.lib_handler.transform_message(
-                self.options.guild_warn_message,
+                self.options.guild_log_warn_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
@@ -172,7 +172,7 @@ class Core:
                     channel,
                     member_message,
                     original_message.author.mention,
-                    self.options.guild_warn_message_delete_after,
+                    self.options.guild_log_warn_message_delete_after,
                 )
             except Exception as e:
                 member.warn_count -= 1
@@ -183,7 +183,7 @@ class Core:
                 guild=guild,
                 message=guild_message,
                 original_channel=original_message.channel,
-                delete_after_time=self.options.guild_warn_message_delete_after,
+                delete_after_time=self.options.guild_log_warn_message_delete_after,
             )
 
             return_payload.member_was_warned = True
@@ -204,7 +204,7 @@ class Core:
             )
 
             guild_message = self.handler.lib_handler.transform_message(
-                self.options.guild_kick_message,
+                self.options.guild_log_kick_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
@@ -223,7 +223,7 @@ class Core:
                 guild_message,
                 True,
                 self.options.member_kick_message_delete_after,
-                self.options.guild_kick_message_delete_after,
+                self.options.guild_log_kick_message_delete_after,
             )
 
             return_payload.member_was_kicked = True
@@ -241,7 +241,7 @@ class Core:
             )
 
             guild_message = self.handler.lib_handler.transform_message(
-                self.options.guild_ban_message,
+                self.options.guild_log_ban_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
@@ -260,7 +260,7 @@ class Core:
                 guild_message,
                 False,
                 self.options.member_ban_message_delete_after,
-                self.options.guild_ban_message_delete_after,
+                self.options.guild_log_ban_message_delete_after,
             )
 
             return_payload.member_was_banned = True

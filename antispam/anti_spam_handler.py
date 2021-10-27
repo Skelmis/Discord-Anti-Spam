@@ -85,13 +85,13 @@ class AntiSpamHandler:
         message_interval: 30000ms (30 Seconds)
             Amount of time a message is kept before being discarded. Essentially the amount of time (In milliseconds) a message can count towards spam
 
-        guild_warn_message: "Hey $MENTIONUSER, please stop spamming/sending duplicate messages."
+        guild_log_warn_message: "Hey $MENTIONUSER, please stop spamming/sending duplicate messages."
             The message to be sent in the guild upon warn_threshold being reached
 
-        guild_kick_message: "$USERNAME was kicked for spamming/sending duplicate messages."
+        guild_log_kick_message: "$USERNAME was kicked for spamming/sending duplicate messages."
             The message to be sent in the guild upon kick_threshold being reached
 
-        guild_ban_message: "$USERNAME was banned for spamming/sending duplicate messages."
+        guild_log_ban_message: "$USERNAME was banned for spamming/sending duplicate messages."
             The message to be sent in the guild upon ban_threshold being reached
 
         member_kick_message : "Hey $MENTIONUSER, you are being kicked from $GUILDNAME for spamming/sending duplicate messages."
@@ -159,20 +159,20 @@ class AntiSpamHandler:
             Track spam as per channel,
             rather then per guild.
 
-        guild_warn_message_delete_after: None
-            The time to delete the ``guild_warn_message`` message
+        guild_log_warn_message_delete_after: None
+            The time to delete the ``guild_log_warn_message`` message
 
         user_kick_message_delete_after: None
             The time to delete the ``member_kick_message`` message
 
-        guild_kick_message_delete_after: None
-            The time to delete the ``guild_kick_message`` message
+        guild_log_kick_message_delete_after: None
+            The time to delete the ``guild_log_kick_message`` message
 
         user_ban_message_delete_after: None
             The time to delete the ``member_ban_message`` message
 
-        guild_ban_message_delete_after: None
-            The time to delete the ``guild_ban_message`` message
+        guild_log_ban_message_delete_after: None
+            The time to delete the ``guild_log_ban_message`` message
 
         delete_zero_width_chars: True
             Should zero width characters be removed from messages
