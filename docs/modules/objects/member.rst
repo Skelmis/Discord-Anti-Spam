@@ -5,8 +5,8 @@ Member Reference
 It is just useful to understand how they work for say,
 plugin development.*
 
-Internally this object provides an O(1) way of storing
-Messages as well as maintaining the requried data to
+Internally this object provides a way of storing
+Messages as well as maintaining the required data to
 track and punish spammers
 
 .. currentmodule:: antispam.dataclasses.member
