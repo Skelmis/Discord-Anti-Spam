@@ -347,16 +347,16 @@ class DPY(Lib):
         try:
             if not guild.log_channel_id:
                 log.debug(
-                    "Guild(id=%s) has no log channel set, defaulting to original channel",
+                    "Guild(id=%s) has no log channel set, not sending message.",
                     guild.id,
                 )
-                channel = original_channel
-            else:
-                channel = guild.log_channel_id
+                return
 
-                channel = self.handler.bot.get_channel(channel)
-                if not channel:
-                    channel = await self.handler.bot.fetch_channel(channel)
+            channel = guild.log_channel_id
+
+            channel = self.handler.bot.get_channel(channel)
+            if not channel:
+                channel = await self.handler.bot.fetch_channel(channel)
 
             if isinstance(message, str):
                 await channel.send(message, delete_after=delete_after_time, file=file)

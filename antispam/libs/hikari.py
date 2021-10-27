@@ -390,14 +390,14 @@ class Hikari(Lib):
         try:
             if not guild.log_channel_id:
                 log.debug(
-                    "Guild(id=%s) has no log channel set, defaulting to original channel",
+                    "Guild(id=%s) has no log channel set, not sending anything",
                     guild.id,
                 )
-                channel = original_channel
-            else:
-                channel = guild.log_channel_id
+                return
 
-                channel = await self.handler.bot.rest.fetch_channel(channel)
+            channel = guild.log_channel_id
+
+            channel = await self.handler.bot.rest.fetch_channel(channel)
 
             if isinstance(message, str):
                 m = await channel.send(message, attachment=file)

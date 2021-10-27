@@ -401,7 +401,7 @@ class Lib(Protocol):
 
         Notes
         -----
-        If no log channel, send in ctx.channel
+        If no log channel, don't send anything
 
         Parameters
         ----------
