@@ -9,9 +9,6 @@ Options can be set in two ways:
  - Set when creating a new object ``Options(no_punish=True)``
  - Set using an existing object ``Options.no_punish = True``
 
-For more in depth meanings and explanations, please see
-the primary docstring of :py:class:`antispam.AntiSpamHandler`
-
 
  .. currentmodule:: antispam.dataclasses.options
 
