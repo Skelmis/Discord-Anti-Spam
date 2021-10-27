@@ -203,7 +203,10 @@ class AntiSpamHandler:
         except GuildNotFound:
             # Check we have perms to actually create this guild object
             # and punish based upon our guild wide permissions
-            if not propagate_data.has_perms_to_make_guild:
+            if (
+                not propagate_data.has_perms_to_make_guild
+                and not self.options.no_punish
+            ):
                 raise MissingGuildPermissions
 
             guild = Guild(id=propagate_data.guild_id, options=self.options)
