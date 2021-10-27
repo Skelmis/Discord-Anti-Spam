@@ -9,6 +9,7 @@ Options can be set in two ways:
  - Set when creating a new object ``Options(no_punish=True)``
  - Set using an existing object ``Options.no_punish = True``
 
+For how to include variables, please see the ``Message Templating`` docs.
 
  .. currentmodule:: antispam.dataclasses.options
 
