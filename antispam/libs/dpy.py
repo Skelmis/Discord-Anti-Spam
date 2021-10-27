@@ -23,6 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import ast
 import datetime
 import logging
+from copy import deepcopy
 from string import Template
 from typing import Union, Optional
 from unittest.mock import AsyncMock
@@ -122,6 +123,7 @@ class DPY(Lib):
         self, data: dict, message: discord.Message, warn_count: int, kick_count: int
     ):
         allowed_avatars = ["$MEMBERAVATAR", "$BOTAVATAR", "$GUILDICON"]
+        data: dict = deepcopy(data)
 
         if "title" in data:
             data["title"] = self.substitute_args(
