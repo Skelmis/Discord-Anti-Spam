@@ -24,6 +24,7 @@ import ast
 import asyncio
 import datetime
 import logging
+from copy import deepcopy
 from string import Template
 from typing import Optional, Union, Dict
 from unittest.mock import AsyncMock
@@ -260,6 +261,7 @@ class Hikari(Lib):
         self, data: dict, message: messages.Message, warn_count: int, kick_count: int
     ):
         allowed_avatars = ["$MEMBERAVATAR", "$BOTAVATAR", "$GUILDICON"]
+        data: dict = deepcopy(data)
 
         if "title" in data:
             data["title"] = self.substitute_args(

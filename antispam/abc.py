@@ -310,6 +310,10 @@ class Lib(Protocol):
         Returns
         -------
         Union[discord.Embed, hikari.embeds.Embed]
+
+        Notes
+        -----
+        Make sure to deepcopy ``data`` within impl's
         """
         raise NotImplementedError
 
