@@ -11,6 +11,7 @@ from antispam import (
     LogicError,
     ObjectMismatch,
     DuplicateObject,
+    InvalidMessage,
 )
 
 
@@ -79,4 +80,10 @@ class TestExceptions:
         assert (
             str(PluginError())
             == "An error occurred that was related to a plugin and not AntiSpamHandler"
+        )
+
+    def test_invalid_message(self):
+        assert (
+            str(InvalidMessage())
+            == "Could not create a use-able message for the given message."
         )

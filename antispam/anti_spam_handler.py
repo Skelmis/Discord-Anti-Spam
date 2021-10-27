@@ -38,6 +38,7 @@ from antispam.exceptions import (
     GuildNotFound,
     PropagateFailure,
     InvocationCancelled,
+    InvalidMessage,
 )
 from antispam.factory import FactoryBuilder
 from antispam.base_plugin import BasePlugin
@@ -362,8 +363,11 @@ class AntiSpamHandler:
             except:
                 pass
 
-        main_return = await self.core.propagate(message, guild=guild)
-        main_return.pre_invoke_extensions = pre_invoke_extensions
+        try:
+            main_return = await self.core.propagate(message, guild=guild)
+            main_return.pre_invoke_extensions = pre_invoke_extensions
+        except InvalidMessage as e:
+            return {"status": e.message}
 
         for after_invoke_ext in self.after_invoke_extensions.values():
             if guild.id in after_invoke_ext.blacklisted_guilds:

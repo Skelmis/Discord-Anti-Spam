@@ -33,7 +33,12 @@ except ModuleNotFoundError:
     import discord
 
 
-from antispam import PropagateFailure, LogicError, MissingGuildPermissions
+from antispam import (
+    PropagateFailure,
+    LogicError,
+    MissingGuildPermissions,
+    InvalidMessage,
+)
 from antispam.abc import Lib
 from antispam.dataclasses import Message, Member, Guild
 from antispam.dataclasses.propagate_data import PropagateData
@@ -295,8 +300,12 @@ class DPY(Lib):
             message.guild.id,
         )
         if not bool(message.content and message.content.strip()):
-            if not message.embeds:
+            if not message.embeds and not message.attachments:
                 raise LogicError
+
+            if not message.embeds:
+                # We don't check agaisn't attachments
+                raise InvalidMessage
 
             embed = message.embeds[0]
             if not isinstance(embed, discord.Embed):

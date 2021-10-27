@@ -753,3 +753,16 @@ class TestAntiSpamHandler:
         await create_handler.propagate(MockedMessage(guild_id=13123).to_mock())
 
         assert test.propagate.call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_invalid_message(self, create_handler):
+        """Tests InvalidMessage gets raised right"""
+        message = MockedMessage().to_mock()
+        message.content = None
+        message.embeds = None
+        message.attachments = True
+
+        return_data = await create_handler.propagate(message)
+        assert return_data == {
+            "status": "Could not create a use-able message for the given message."
+        }

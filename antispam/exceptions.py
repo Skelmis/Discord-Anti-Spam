@@ -53,6 +53,10 @@ class ObjectMismatch(BaseASHException):
     """Raised because you attempted add a message to a member, but that member didn't create that message."""
 
 
+class InvalidMessage(BaseASHException):
+    """Could not create a use-able message for the given message."""
+
+
 class LogicError(BaseASHException):
     """Raised because internal logic has failed. Please create an issue in the github and include traceback."""
 

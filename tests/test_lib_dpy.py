@@ -26,6 +26,7 @@ class TestLibDPY:
         message = MockedMessage().to_mock()
         message.content = None
         message.embeds = None
+        message.attachments = None
 
         with pytest.raises(LogicError):
             create_dpy_lib_handler.create_message(message)

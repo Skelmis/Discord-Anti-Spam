@@ -379,6 +379,12 @@ class Lib(Protocol):
         -------
         Message
             The flushed out message
+
+        Raises
+        ------
+        InvalidMessage
+            If it couldn't create a message,
+            I.e message only contained attachments
         """
         raise NotImplementedError
 
