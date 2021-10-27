@@ -172,7 +172,7 @@ class Core:
                     channel,
                     member_message,
                     original_message.author.mention,
-                    self.options.guild_log_warn_message_delete_after,
+                    self.options.member_warn_message_delete_after,
                 )
             except Exception as e:
                 member.warn_count -= 1
