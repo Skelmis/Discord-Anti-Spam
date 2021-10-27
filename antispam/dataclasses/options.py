@@ -61,10 +61,10 @@ class Options:
         How ‘close’ messages need to be to be registered as duplicates (Out of 100)
         You can test this with the code:
 
-        ```py
-        from fuzzywuzzy import fuzz
-        fuzz.token_sort_ratio("message one", "message two")
-        ```
+        .. highlight:: python
+        .. code-block:: python
+            from fuzzywuzzy import fuzz
+            fuzz.token_sort_ratio("message one", "message two")
     guild_log_warn_message : Union[str, dict]
         Default: ``$MEMBERNAME was warned for spamming/sending duplicate messages.``
 
