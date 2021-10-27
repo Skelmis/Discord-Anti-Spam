@@ -274,7 +274,11 @@ class DPY(Lib):
             user_roles.extend([role.name for role in message.author.roles])
             for item in user_roles:
                 if item in self.handler.options.ignored_roles:
-                    log.debug("role(%s) is a part of ignored roles", item)
+                    log.debug(
+                        "Ignoring Member(id=%s) as they have an ignored Role(id/name=%S)",
+                        message.author.id,
+                        item,
+                    )
                     raise PropagateFailure(
                         data={"status": f"Ignoring this role: {item}"}
                     )
