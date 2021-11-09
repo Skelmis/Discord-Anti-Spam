@@ -66,6 +66,11 @@ class AntiSpamTracker(BasePlugin):
     ``propagate`` -> ``update_cache``, if the User should be punished we increment internal counter
 
     ``is_spamming`` -> Checks if the User's internal counter meets ``spam_amount_to_punish`` and returns a bool
+
+    Attributes
+    ----------
+    member_tracking: PluginCache
+        The underlying cache mechanism for data storage
     """
 
     __slots__ = [
@@ -119,7 +124,7 @@ class AntiSpamTracker(BasePlugin):
         if not anti_spam_handler.options.no_punish:
             log.warning("`no_punish` is not enabled! This will likely lead to issues")
 
-        self.anti_spam_handler = anti_spam_handler
+        self.anti_spam_handler: AntiSpamHandler = anti_spam_handler
 
         if valid_timestamp_interval is not None:
             if isinstance(valid_timestamp_interval, (str, float)):
@@ -134,12 +139,14 @@ class AntiSpamTracker(BasePlugin):
             else:
                 raise TypeError("Expected valid_timestamp_interval of type int")
 
-        self.valid_global_interval = (
+        self.valid_global_interval: int = (
             valid_timestamp_interval or anti_spam_handler.options.message_interval
         )
         self.valid_global_interval = int(self.valid_global_interval)
 
-        self.member_tracking = PluginCache(handler=anti_spam_handler, caller=self)
+        self.member_tracking: PluginCache = PluginCache(
+            handler=anti_spam_handler, caller=self
+        )
 
         log.info("Plugin ready for usage")
 

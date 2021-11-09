@@ -6,7 +6,8 @@ from copy import deepcopy
 
 import discord
 
-from antispam import MemberNotFound
+from antispam import MemberNotFound, GuildNotFound
+from antispam.dataclasses import Guild, Member
 from antispam.plugins import AntiSpamTracker
 
 
@@ -15,23 +16,19 @@ class MyCustomTracker(AntiSpamTracker):
     def update_cache(self, message: discord.Message, data: dict) -> None:
         """Override this so we can add a custom field to the stored user"""
 
-        user_id = message.author.id
+        member_id = message.author.id
         guild_id = message.guild.id
         timestamp = datetime.datetime.now(datetime.timezone.utc)
 
-        if guild_id not in self.member_tracking:
-            self.member_tracking[guild_id] = {}
+        try:
+            member_data = await self.member_tracking.get_member_data(
+                member_id, guild_id
+            )
+        except (MemberNotFound, GuildNotFound):
+            member_data = {"has_been_muted": False, "timestamps": []}
 
-        if user_id not in self.member_tracking[guild_id]:
-            self.member_tracking[guild_id][user_id] = {}
-
-        if "has_been_muted" not in self.member_tracking[guild_id][user_id]:
-            self.member_tracking[guild_id][user_id]["has_been_muted"] = False
-
-        if "timestamps" not in self.member_tracking[guild_id][user_id]:
-            self.member_tracking[guild_id][user_id]["timestamps"] = []
-
-        self.member_tracking[guild_id][user_id]["timestamps"].append(timestamp)
+        member_data["timestamps"].append(timestamp)
+        await self.member_tracking.set_member_data(member_id, guild_id, member_data)
 
     def get_user_has_been_muted(self, message: discord.Message) -> bool:
         """
@@ -56,16 +53,17 @@ class MyCustomTracker(AntiSpamTracker):
             The User for the ``message`` could not be found
 
         """
-        user_id = message.author.id
+        member_id = message.author.id
         guild_id = message.guild.id
 
-        if guild_id not in self.member_tracking:
-            raise MemberNotFound
+        try:
+            member_data = await self.member_tracking.get_member_data(
+                member_id, guild_id
+            )
+        except GuildNotFound as e:
+            raise MemberNotFound from e
 
-        if user_id not in self.member_tracking[guild_id]:
-            raise MemberNotFound
-
-        return self.member_tracking[guild_id][user_id]["has_been_muted"]
+        return member_data["has_been_muted"]
 
     async def do_punishment(self, message: discord.Message, *args, **kwargs) -> None:
         """
@@ -78,55 +76,72 @@ class MyCustomTracker(AntiSpamTracker):
         message : discord.Message
             The message to get the attached user from
 
+        Notes
+        -----
+        This assumes the member exists, it does
+        no error handling for if they don't.
+
         """
         if message.author.id == self.anti_spam_handler.bot.user.id:
             return
 
-        user = message.author
+        member = message.author
         guild = message.guild
         channel = message.channel
-        user_id = message.author.id
+        member_id = message.author.id
         guild_id = message.guild.id
 
         has_been_muted = self.get_user_has_been_muted(message=message)
+        member_data = await self.member_tracking.get_member_data(member_id, guild_id)
 
         if has_been_muted:
             # User has been muted before, time to kick em
-            await channel.send(f"Hey {user.mention}! I am kicking you for spam.")
+            await channel.send(f"Hey {member.mention}! I am kicking you for spam.")
             await asyncio.sleep(2.5)
-            await guild.kick(user, reason="Kicked for spam.")
+            await guild.kick(member, reason="Kicked for spam.")
             # cleanup on the assumption they won't 'just come back'
             await self.remove_punishments(message)
 
         elif self.is_spamming(message=message):
-            self.member_tracking[guild_id][user_id]["has_been_muted"] = True
-            await channel.send(f"Hey {user.mention}! I am temp muting you for spam.")
+            member_data["has_been_muted"] = True
+            await self.member_tracking.set_member_data(member_id, guild_id, member_data)
+            await channel.send(f"Hey {member.mention}! I am temp muting you for spam.")
 
             guild = self.anti_spam_handler.bot.get_guild(guild_id)
             mute_role = guild.get_role(
                 836206352966877225
             )  # <-- Add your role id in there
-            await user.add_roles(mute_role, reason="Temp-muted for spam.")
+            await member.add_roles(mute_role, reason="Temp-muted for spam.")
 
             await asyncio.sleep(30)  # Mute for 5 minutes
-            await user.remove_roles(mute_role, reason="Automatic un-mute.")
+            await member.remove_roles(mute_role, reason="Automatic un-mute.")
             await channel.send(
-                f"Hey {user.mention}, I have un-muted you. Don't do it again."
+                f"Hey {member.mention}, I have un-muted you. Don't do it again."
             )
 
     def clean_cache(self) -> None:
         """Override this so if the has_been_muted field exists we don't remove them"""
-        for guild_id, guild in deepcopy(self.member_tracking).items():
-            for user_id, user in deepcopy(guild).items():
-                self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
+        cache: typing.AsyncIterable[
+            Guild
+        ] = await self.anti_spam_handler.cache.get_all_guilds()
 
-                if len(self.member_tracking[guild_id][user_id]) == 0 and not user.get(
-                    "has_been_muted", True
+        async for guild in cache:
+            for member in guild.members.values():
+                self.remove_outdated_timestamps(
+                    member.addons[super().__class__.__name__],
+                    member_id=member.id,
+                    guild_id=guild.id,
+                )
+
+                member_data = await self.member_tracking.get_member_data(
+                    member_id=member.id, guild_id=guild.id
+                )
+                if (
+                    len(member_data["timestamps"]) == 0
+                    and not member_data["has_been_muted"]
                 ):
-                    self.member_tracking[guild_id].pop(user_id)
-
-            if not bool(self.member_tracking[guild_id]):
-                self.member_tracking.pop(guild_id)
+                    member.addons.pop(super().__class__.__name__)
+                    await self.anti_spam_handler.cache.set_member(member)
 
     def get_user_count(self, message: discord.Message) -> int:
         if not isinstance(message, discord.Message):
@@ -135,21 +150,23 @@ class MyCustomTracker(AntiSpamTracker):
         if not message.guild:
             raise MemberNotFound("Can't find user's from dm's")
 
-        user_id = message.author.id
+        member_id = message.author.id
         guild_id = message.guild.id
 
-        if guild_id not in self.member_tracking:
-            raise MemberNotFound
+        try:
+            member_data = await self.member_tracking.get_member_data(
+                member_id, guild_id
+            )
+        except (MemberNotFound, GuildNotFound):
+            raise MemberNotFound from None
 
-        if user_id not in self.member_tracking[guild_id]:
-            raise MemberNotFound
+        self.remove_outdated_timestamps(
+            guild_id=guild_id, member_id=member_id, data=member_data["timestamps"]
+        )
 
-        if "timestamps" not in self.member_tracking[guild_id][user_id]:
-            raise MemberNotFound
+        member_data = await self.member_tracking.get_member_data(member_id, guild_id)
 
-        self.remove_outdated_timestamps(guild_id=guild_id, user_id=user_id)
-
-        return len(self.member_tracking[guild_id][user_id]["timestamps"])
+        return len(member_data["timestamps"])
 
     def remove_outdated_timestamps(
         self, data: typing.List, member_id: int, guild_id: int
@@ -168,10 +185,11 @@ class MyCustomTracker(AntiSpamTracker):
 
         current_timestamps = []
 
-        for timestamp in self.member_tracking[guild_id][member_id]["timestamps"]:
+        member_data = await self.member_tracking.get_member_data(member_id, guild_id)
+
+        for timestamp in member_data["timestamps"]:
             if _is_still_valid(timestamp):
                 current_timestamps.append(timestamp)
 
-        self.member_tracking[guild_id][member_id]["timestamps"] = deepcopy(
-            current_timestamps
-        )
+        member_data["timestamps"] = deepcopy(current_timestamps)
+        await self.member_tracking.set_member_data(member_id, guild_id, member_data)
