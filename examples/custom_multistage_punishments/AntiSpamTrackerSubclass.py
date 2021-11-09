@@ -78,8 +78,7 @@ class MyCustomTracker(AntiSpamTracker):
 
         Notes
         -----
-        This assumes the member exists, it does
-        no error handling for if they don't.
+        Simply does nothing if the member isn't found
 
         """
         if message.author.id == self.anti_spam_handler.bot.user.id:
@@ -91,8 +90,13 @@ class MyCustomTracker(AntiSpamTracker):
         member_id = message.author.id
         guild_id = message.guild.id
 
-        has_been_muted = self.get_user_has_been_muted(message=message)
-        member_data = await self.member_tracking.get_member_data(member_id, guild_id)
+        try:
+            has_been_muted = self.get_user_has_been_muted(message=message)
+            member_data = await self.member_tracking.get_member_data(
+                member_id, guild_id
+            )
+        except (GuildNotFound, MemberNotFound):
+            return None
 
         if has_been_muted:
             # User has been muted before, time to kick em
