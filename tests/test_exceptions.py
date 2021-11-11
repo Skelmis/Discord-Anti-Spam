@@ -61,7 +61,7 @@ class TestExceptions:
     def test_member_addon_not_found(self):
         assert (
             str(MemberAddonNotFound())
-            == "This class has not addon stored on this member."
+            == "This class has no addon stored on this member."
         )
 
     def test_guild_not_found(self):

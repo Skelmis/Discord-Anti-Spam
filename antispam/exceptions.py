@@ -74,7 +74,7 @@ class MemberNotFound(NotFound):
 
 
 class MemberAddonNotFound(NotFound):
-    """This class has not addon stored on this member."""
+    """This class has no addon stored on this member."""
 
 
 class GuildNotFound(NotFound):
