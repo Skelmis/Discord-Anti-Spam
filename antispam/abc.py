@@ -233,8 +233,9 @@ class Lib(Protocol):
         run all checks to check if this message should be
         propagated.
 
-        Checks
-        Errors on the following:
+        See Also
+        --------
+        Should error on the following:
          - If not an instance of the library's message class
          - If in dm's
          - If the message is from yourself (the bot)
