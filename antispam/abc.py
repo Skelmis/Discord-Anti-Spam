@@ -233,6 +233,21 @@ class Lib(Protocol):
         run all checks to check if this message should be
         propagated.
 
+        Checks
+        Errors on the following:
+         - If not an instance of the library's message class
+         - If in dm's
+         - If the message is from yourself (the bot)
+         - If ``self.handler.options.ignore_bots`` is ``True`` and the
+           message is from a bot
+         - If the guild id is in ``self.handler.options.ignored_guilds``
+         - If the member id is in ``self.handler.options.ignored_members``
+         - If the channel id is in ``self.handler.options.ignored_channels``
+         - If any of the member's roles (id) are in ``self.handler.options.ignored_roles``
+
+         ``PropagateData.has_perms_to_make_guild`` should be ``True`` if the member
+         has permissions to kick people and ban members
+
         Parameters
         ----------
         message : Union[discord.Message, hikari.messages.Message]

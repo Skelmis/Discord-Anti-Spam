@@ -263,6 +263,7 @@ class DPY(Lib):
             message.channel.id in self.handler.options.ignored_channels
             or message.channel.name in self.handler.options.ignored_channels
         ):
+            # TODO Remove .name
             log.debug("channel(id=%s) is ignored", message.channel)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel.id}"}
