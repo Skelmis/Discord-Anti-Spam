@@ -153,7 +153,7 @@ class AntiMassMention(BasePlugin):
             you should be doing.
         """
         member_id = message.author.id
-        guild_id = self.handler.lib_handler.get_guild_id(message)
+        guild_id = await self.handler.lib_handler.get_guild_id(message)
 
         log.info(
             "Propagating message for Member(id=%s) in Guild(id=%s)", member_id, guild_id
@@ -171,7 +171,7 @@ class AntiMassMention(BasePlugin):
             }
             """
 
-        mentions = set(self.handler.lib_handler.get_message_mentions(message))
+        mentions = set(await self.handler.lib_handler.get_message_mentions(message))
         member["total_mentions"].append(
             Tracking(mentions=len(mentions), timestamp=message.created_at)
         )
@@ -188,7 +188,7 @@ class AntiMassMention(BasePlugin):
             payload = MassMentionPunishment(
                 member_id=member_id,
                 guild_id=guild_id,
-                channel_id=self.handler.lib_handler.get_channel_id(message),
+                channel_id=await self.handler.lib_handler.get_channel_id(message),
                 is_overall_punishment=False,
             )
             return payload
@@ -204,7 +204,7 @@ class AntiMassMention(BasePlugin):
             payload = MassMentionPunishment(
                 member_id=member_id,
                 guild_id=guild_id,
-                channel_id=self.handler.lib_handler.get_channel_id(message),
+                channel_id=await self.handler.lib_handler.get_channel_id(message),
                 is_overall_punishment=True,
             )
             return payload

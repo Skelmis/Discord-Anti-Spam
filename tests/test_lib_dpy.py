@@ -22,44 +22,47 @@ from .mocks import MockedMessage
 class TestLibDPY:
     """A class devoted to testing dpy.py"""
 
-    def test_create_message_raises(self, create_dpy_lib_handler):
+    @pytest.mark.asyncio
+    async def test_create_message_raises(self, create_dpy_lib_handler):
         message = MockedMessage().to_mock()
         message.content = None
         message.embeds = None
         message.attachments = None
 
         with pytest.raises(LogicError):
-            create_dpy_lib_handler.create_message(message)
+            await create_dpy_lib_handler.create_message(message)
 
         with pytest.raises(LogicError):
             # Test embeds that ain't embeds raise
             message.embeds = [MockClass()]
-            create_dpy_lib_handler.create_message(message)
+            await create_dpy_lib_handler.create_message(message)
 
         with pytest.raises(LogicError):
             # test embed type raises
             embed = discord.Embed()
             embed.type = "Not rich"
             message.embeds = [embed]
-            create_dpy_lib_handler.create_message(message)
+            await create_dpy_lib_handler.create_message(message)
 
-    def test_create_message_blank_space(self, create_dpy_lib_handler):
+    @pytest.mark.asyncio
+    async def test_create_message_blank_space(self, create_dpy_lib_handler):
         message = MockedMessage(
             message_clean_content=u"u200Bu200Cu200Du200Eu200FuFEFF Hi"
         ).to_mock()
 
-        returned_message = create_dpy_lib_handler.create_message(message)
+        returned_message = await create_dpy_lib_handler.create_message(message)
         assert returned_message.content == " Hi"
 
         create_dpy_lib_handler.handler.options.delete_zero_width_chars = False
-        returned_message = create_dpy_lib_handler.create_message(message)
+        returned_message = await create_dpy_lib_handler.create_message(message)
         assert returned_message.content == u"u200Bu200Cu200Du200Eu200FuFEFF Hi"
 
-    def test_create_message_embed(self, create_dpy_lib_handler):
+    @pytest.mark.asyncio
+    async def test_create_message_embed(self, create_dpy_lib_handler):
         embed = discord.Embed(title="Hello", description="world")
         mock = MockedMessage(message_clean_content=None, message_content=None).to_mock()
         mock.embeds = [embed]
-        message = create_dpy_lib_handler.create_message(mock)
+        message = await create_dpy_lib_handler.create_message(mock)
         assert message.content == "Hello\nworld\n"
 
     @pytest.mark.asyncio
@@ -116,9 +119,10 @@ class TestLibDPY:
             True,
         )
 
-    def test_embed_to_string(self, create_dpy_lib_handler):
+    @pytest.mark.asyncio
+    async def test_embed_to_string(self, create_dpy_lib_handler):
         embed = discord.Embed()
-        assert "" == create_dpy_lib_handler.embed_to_string(embed=embed)
+        assert "" == await create_dpy_lib_handler.embed_to_string(embed=embed)
 
         embed = discord.Embed(title="Hello", description="World")
         embed.set_footer(text="This is weird")
@@ -127,7 +131,7 @@ class TestLibDPY:
         embed.add_field(name="That would be weird tho", value="Right?")
         assert (
             "Hello\nWorld\nThis is weird\nIts almost as if\nI am\nAlive\nThat would be weird tho\nRight?\n"
-            == create_dpy_lib_handler.embed_to_string(embed)
+            == await create_dpy_lib_handler.embed_to_string(embed)
         )
 
         embed = discord.Embed(title="Hello", description="World")
@@ -137,10 +141,11 @@ class TestLibDPY:
         embed.add_field(name="That would be weird tho", value="Right?")
         assert (
             "Hello\nWorld\nIts almost as if\nI am\nAlive\nThat would be weird tho\nRight?\n"
-            == create_dpy_lib_handler.embed_to_string(embed)
+            == await create_dpy_lib_handler.embed_to_string(embed)
         )
 
-    def test_dict_to_embed(self, create_dpy_lib_handler):
+    @pytest.mark.asyncio
+    async def test_dict_to_embed(self, create_dpy_lib_handler):
         warn_embed_dict = {
             "title": "**Dear Dave**",
             "description": "You are being warned for spam, please stop!",
@@ -155,7 +160,7 @@ class TestLibDPY:
 
         mock_message = MockedMessage().to_mock()
 
-        test_embed = create_dpy_lib_handler.dict_to_embed(
+        test_embed = await create_dpy_lib_handler.dict_to_embed(
             warn_embed_dict, mock_message, 1, 2
         )
 
@@ -180,7 +185,7 @@ class TestLibDPY:
         mock_message.created_at = datetime.datetime.now()
         mock_message.guild.me.avatar_url = "test"
         mock_message.author.avatar_url = "author"
-        test_embed = create_dpy_lib_handler.dict_to_embed(
+        test_embed = await create_dpy_lib_handler.dict_to_embed(
             bounds_dict, mock_message, 1, 2
         )
 
@@ -196,7 +201,7 @@ class TestLibDPY:
             "timestamp": True,
             "colour": 0xFFFFFF,
         }
-        test_embed = create_dpy_lib_handler.dict_to_embed(
+        test_embed = await create_dpy_lib_handler.dict_to_embed(
             bounds_dict, mock_message, 1, 2
         )
 
@@ -206,9 +211,12 @@ class TestLibDPY:
 
         assert embed_two.to_dict() == test_embed.to_dict()
 
-    def test_visualizer(self, create_dpy_lib_handler):
-        create_dpy_lib_handler.visualizer("Lol", MockedMessage().to_mock())
-        create_dpy_lib_handler.visualizer("{'data': 1}", MockedMessage().to_mock())
+    @pytest.mark.asyncio
+    async def test_visualizer(self, create_dpy_lib_handler):
+        await create_dpy_lib_handler.visualizer("Lol", MockedMessage().to_mock())
+        await create_dpy_lib_handler.visualizer(
+            "{'data': 1}", MockedMessage().to_mock()
+        )
 
     @pytest.mark.asyncio()
     async def test_propagate_type_fails(self, create_dpy_lib_handler):

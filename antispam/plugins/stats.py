@@ -77,7 +77,7 @@ class Stats(BasePlugin):
 
         self.data["propagate_calls"] += 1
 
-        guild_id = self.handler.lib_handler.get_guild_id(message)
+        guild_id = await self.handler.lib_handler.get_guild_id(message)
 
         if guild_id not in self.data["guilds"]:
             self.data["guilds"][guild_id] = {

@@ -77,7 +77,7 @@ class AdminLogs(BasePlugin):
             return
 
         author_id = message.author.id
-        guild_id = self.handler.lib_handler.get_guild_id(message)
+        guild_id = await self.handler.lib_handler.get_guild_id(message)
 
         log.info(
             "Saving evidence against Member(id=%s) in Guild(id=%s)", author_id, guild_id

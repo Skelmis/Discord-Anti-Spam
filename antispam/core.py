@@ -71,7 +71,9 @@ class Core:
             else:
                 member: Member = await self.cache.get_member(
                     member_id=original_message.author.id,
-                    guild_id=self.handler.lib_handler.get_guild_id(original_message),
+                    guild_id=await self.handler.lib_handler.get_guild_id(
+                        original_message
+                    ),
                 )
 
             if not member._in_guild:
@@ -83,7 +85,7 @@ class Core:
             # Create a useable member
             member = Member(
                 id=original_message.author.id,
-                guild_id=self.handler.lib_handler.get_guild_id(original_message),
+                guild_id=await self.handler.lib_handler.get_guild_id(original_message),
             )
             guild.members[member.id] = member
             await self.cache.set_guild(guild=guild)
@@ -91,9 +93,11 @@ class Core:
         await self.clean_up(
             member=member,
             current_time=get_aware_time(),
-            channel_id=self.handler.lib_handler.get_channel_id(original_message),
+            channel_id=await self.handler.lib_handler.get_channel_id(original_message),
         )
-        message: Message = self.handler.lib_handler.create_message(original_message)
+        message: Message = await self.handler.lib_handler.create_message(
+            original_message
+        )
         self._calculate_ratios(message, member)
 
         # Check again since in theory the above could take awhile
@@ -155,13 +159,13 @@ class Core:
             channel = await self.handler.lib_handler.get_channel_from_message(
                 original_message
             )
-            member_message = self.handler.lib_handler.transform_message(
+            member_message = await self.handler.lib_handler.transform_message(
                 self.options.member_warn_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
             )
-            guild_message = self.handler.lib_handler.transform_message(
+            guild_message = await self.handler.lib_handler.transform_message(
                 self.options.guild_log_warn_message,
                 original_message,
                 member.warn_count,
@@ -182,7 +186,9 @@ class Core:
             await self.handler.lib_handler.send_guild_log(
                 guild=guild,
                 message=guild_message,
-                original_channel=original_message.channel,
+                original_channel=await self.handler.lib_handler.get_channel_from_message(
+                    original_message
+                ),
                 delete_after_time=self.options.guild_log_warn_message_delete_after,
             )
 
@@ -203,13 +209,13 @@ class Core:
                 message.guild_id,
             )
 
-            guild_message = self.handler.lib_handler.transform_message(
+            guild_message = await self.handler.lib_handler.transform_message(
                 self.options.guild_log_kick_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
             )
-            user_message = self.handler.lib_handler.transform_message(
+            user_message = await self.handler.lib_handler.transform_message(
                 self.options.member_kick_message,
                 original_message,
                 member.warn_count,
@@ -240,13 +246,13 @@ class Core:
                 message.guild_id,
             )
 
-            guild_message = self.handler.lib_handler.transform_message(
+            guild_message = await self.handler.lib_handler.transform_message(
                 self.options.guild_log_ban_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
             )
-            user_message = self.handler.lib_handler.transform_message(
+            user_message = await self.handler.lib_handler.transform_message(
                 self.options.member_ban_message,
                 original_message,
                 member.warn_count,

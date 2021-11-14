@@ -52,13 +52,13 @@ class DPY(Lib):
     def __init__(self, handler):
         self.handler = handler
 
-    def get_guild_id(self, message: discord.Message) -> int:
+    async def get_guild_id(self, message: discord.Message) -> int:
         return message.guild.id
 
-    def get_channel_id(self, message: discord.Message) -> int:
+    async def get_channel_id(self, message: discord.Message) -> int:
         return message.channel.id
 
-    def substitute_args(
+    async def substitute_args(
         self,
         message: str,
         original_message: discord.Message,
@@ -96,7 +96,7 @@ class DPY(Lib):
             }
         )
 
-    def embed_to_string(self, embed: discord.Embed) -> str:
+    async def embed_to_string(self, embed: discord.Embed) -> str:
         content = ""
         embed = embed.to_dict()
 
@@ -119,52 +119,52 @@ class DPY(Lib):
 
         return content
 
-    def dict_to_embed(
+    async def dict_to_embed(
         self, data: dict, message: discord.Message, warn_count: int, kick_count: int
     ):
         allowed_avatars = ["$MEMBERAVATAR", "$BOTAVATAR", "$GUILDICON"]
         data: dict = deepcopy(data)
 
         if "title" in data:
-            data["title"] = self.substitute_args(
+            data["title"] = await self.substitute_args(
                 data["title"], message, warn_count, kick_count
             )
 
         if "description" in data:
-            data["description"] = self.substitute_args(
+            data["description"] = await self.substitute_args(
                 data["description"], message, warn_count, kick_count
             )
 
         if "footer" in data:
             if "text" in data["footer"]:
-                data["footer"]["text"] = self.substitute_args(
+                data["footer"]["text"] = await self.substitute_args(
                     data["footer"]["text"], message, warn_count, kick_count
                 )
 
             if "icon_url" in data["footer"]:
                 if data["footer"]["icon_url"] in allowed_avatars:
-                    data["footer"]["icon_url"] = self.substitute_args(
+                    data["footer"]["icon_url"] = await self.substitute_args(
                         data["footer"]["icon_url"], message, warn_count, kick_count
                     )
 
         if "author" in data:
             # name 'should' be required
-            data["author"]["name"] = self.substitute_args(
+            data["author"]["name"] = await self.substitute_args(
                 data["author"]["name"], message, warn_count, kick_count
             )
 
             if "icon_url" in data["author"]:
                 if data["author"]["icon_url"] in allowed_avatars:
-                    data["author"]["icon_url"] = self.substitute_args(
+                    data["author"]["icon_url"] = await self.substitute_args(
                         data["author"]["icon_url"], message, warn_count, kick_count
                     )
 
         if "fields" in data:
             for field in data["fields"]:
-                name = self.substitute_args(
+                name = await self.substitute_args(
                     field["name"], message, warn_count, kick_count
                 )
-                value = self.substitute_args(
+                value = await self.substitute_args(
                     field["value"], message, warn_count, kick_count
                 )
                 field["name"] = name
@@ -183,7 +183,7 @@ class DPY(Lib):
 
         return discord.Embed.from_dict(data)
 
-    def transform_message(
+    async def transform_message(
         self,
         item: Union[str, dict],
         message: discord.Message,
@@ -191,11 +191,11 @@ class DPY(Lib):
         kick_count: int,
     ):
         if isinstance(item, str):
-            return self.substitute_args(item, message, warn_count, kick_count)
+            return await self.substitute_args(item, message, warn_count, kick_count)
 
-        return self.dict_to_embed(item, message, warn_count, kick_count)
+        return await self.dict_to_embed(item, message, warn_count, kick_count)
 
-    def visualizer(
+    async def visualizer(
         self,
         content: str,
         message: discord.Message,
@@ -205,7 +205,7 @@ class DPY(Lib):
         if content.startswith("{"):
             content = ast.literal_eval(content)
 
-        return self.transform_message(content, message, warn_count, kick_count)
+        return await self.transform_message(content, message, warn_count, kick_count)
 
     async def check_message_can_be_propagated(
         self, message: discord.Message
@@ -264,7 +264,7 @@ class DPY(Lib):
             or message.channel.name in self.handler.options.ignored_channels
         ):
             # TODO Remove .name
-            log.debug("channel(id=%s) is ignored", message.channel)
+            log.debug("channel(id=%s) is ignored", message.channel.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel.id}"}
             )
@@ -300,7 +300,7 @@ class DPY(Lib):
             has_perms_to_make_guild=has_perms,
         )
 
-    def create_message(self, message: discord.Message) -> Message:
+    async def create_message(self, message: discord.Message) -> Message:
         log.debug(
             "Attempting to create a new message for author(id=%s) in Guild(%s)",
             message.author.id,
@@ -308,6 +308,7 @@ class DPY(Lib):
         )
         if not bool(message.content and message.content.strip()):
             if not message.embeds and not message.attachments:
+                # System message? Like on join trip these
                 raise LogicError
 
             if not message.embeds:
@@ -321,7 +322,7 @@ class DPY(Lib):
             if embed.type.lower() != "rich":
                 raise LogicError
 
-            content = self.embed_to_string(embed)
+            content = await self.embed_to_string(embed)
         else:
             content = message.clean_content
 
@@ -368,7 +369,9 @@ class DPY(Lib):
             if isinstance(message, str):
                 await channel.send(message, delete_after=delete_after_time, file=file)
             else:
-                await channel.send(embed=message, file=file)
+                await channel.send(
+                    embed=message, file=file, delete_after=delete_after_time
+                )
 
             log.debug("Sent message to log channel in Guild(id=%s)", guild.id)
         except discord.HTTPException:
@@ -586,7 +589,7 @@ class DPY(Lib):
     ):  # pragma: no cover
         return message.channel
 
-    def get_message_mentions(self, message: discord.Message):  # pragma: no cover
+    async def get_message_mentions(self, message: discord.Message):  # pragma: no cover
         return message.mentions
 
     async def get_channel_by_id(self, channel_id: int):  # pragma: no cover

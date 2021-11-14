@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from typing import Protocol, runtime_checkable, Union, Optional, AsyncIterable
+from typing import Protocol, runtime_checkable, Union, Optional, AsyncIterable, List
 
 from antispam.dataclasses import Guild, Member, Message
 from antispam.dataclasses.propagate_data import PropagateData
@@ -251,7 +251,7 @@ class Lib(Protocol):
 
         Parameters
         ----------
-        message : Union[discord.Message, hikari.messages.Message]
+        message : Union[discord.Message, hikari.messages.Message, pincer.objects.Embed]
             The message to check
 
         Returns
@@ -267,7 +267,7 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    def substitute_args(
+    async def substitute_args(
         self, message: str, original_message, warn_count: int, kick_count: int
     ) -> str:
         """
@@ -278,7 +278,7 @@ class Lib(Protocol):
         ----------
         message : str
             The message to substitute args into
-        original_message : Union[discord.Message, hikari.messages.Message]
+        original_message : Union[discord.Message, hikari.messages.Message, pincer.objects.UserMessage]
             The message to extract data from
         warn_count : int
             How many warns this person has
@@ -293,7 +293,7 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    def embed_to_string(self, embed) -> str:
+    async def embed_to_string(self, embed) -> str:
         """
         Given an embed, return a string representation
 
@@ -309,7 +309,9 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    def dict_to_embed(self, data: dict, message, warn_count: int, kick_count: int):
+    async def dict_to_embed(
+        self, data: dict, message, warn_count: int, kick_count: int
+    ):
         """
 
         Parameters
@@ -333,7 +335,7 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    def transform_message(
+    async def transform_message(
         self, item: Union[str, dict], message, warn_count: int, kick_count: int
     ):
         """
@@ -342,7 +344,7 @@ class Lib(Protocol):
         ----------
         item : Union[str, dict]
             The data to substitute
-        message : Union[discord.Message, hikari.messages.Message]
+        message : Union[discord.Message, hikari.messages.Message, pincer.objects.UserMessage]
             The message to extract data from
         warn_count : int
             How many warns this person has
@@ -357,7 +359,7 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    def visualizer(
+    async def visualizer(
         self,
         content: str,
         message,
@@ -385,7 +387,7 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    def create_message(self, message) -> Message:
+    async def create_message(self, message) -> Message:
         """
         Given a message to extract data from, create
         and return a Message class
@@ -541,19 +543,19 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    def get_guild_id(self, message) -> int:
+    async def get_guild_id(self, message) -> int:
         """
         Returns the guild id of this message
         """
         raise NotImplementedError
 
-    def get_channel_id(self, message) -> int:
+    async def get_channel_id(self, message) -> int:
         """
         Returns the channel id of this message
         """
         raise NotImplementedError
 
-    def get_message_mentions(self, message):
+    async def get_message_mentions(self, message) -> List[int]:
         """
         Returns all the mentions from a message
         """

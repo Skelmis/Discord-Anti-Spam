@@ -137,8 +137,9 @@ class AntiSpamHandler:
             self.lib_handler = Hikari(self)
 
         elif library == Library.PINCER:
-            log.critical("Come say hi in discord. Then I'll make you pincer bindings")
-            raise NotImplementedError
+            from antispam.libs.pincer import Pincer
+
+            self.lib_handler = Pincer(self)
 
         else:
             from antispam.libs.dpy import DPY
@@ -845,13 +846,13 @@ class AntiSpamHandler:
 
         log.info("Cleaned the internal cache")
 
-    def visualize(
+    async def visualize(
         self, content: str, message, warn_count: int = 1, kick_count: int = 2
     ):
         """
         Wraps around :py:meth:`antispam.abc.Lib.visualizer` as a convenience
         """
-        target = self.lib_handler.visualizer(
+        target = await self.lib_handler.visualizer(
             content=content,
             message=message,
             warn_count=warn_count,

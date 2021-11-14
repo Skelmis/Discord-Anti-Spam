@@ -78,10 +78,12 @@ class Hikari(Lib):
     def __init__(self, handler: AntiSpamHandler):
         self.handler = handler
 
-    def get_guild_id(self, message: messages.Message) -> int:  # pragma: no cover
+    async def get_guild_id(self, message: messages.Message) -> int:  # pragma: no cover
         return message.guild_id
 
-    def get_channel_id(self, message: messages.Message) -> int:  # pragma: no cover
+    async def get_channel_id(
+        self, message: messages.Message
+    ) -> int:  # pragma: no cover
         return message.channel_id
 
     async def get_channel_from_message(
@@ -204,7 +206,7 @@ class Hikari(Lib):
 
         return perms
 
-    def substitute_args(
+    async def substitute_args(
         self,
         message: str,
         original_message: messages.Message,
@@ -234,7 +236,7 @@ class Hikari(Lib):
             }
         )
 
-    def embed_to_string(self, embed_obj: embeds.Embed) -> str:
+    async def embed_to_string(self, embed_obj: embeds.Embed) -> str:
         content = ""
         embed: Dict = self.handler.bot.entity_factory.serialize_embed(embed_obj)
 
@@ -257,7 +259,7 @@ class Hikari(Lib):
 
         return content
 
-    def dict_to_embed(
+    async def dict_to_embed(
         self, data: dict, message: messages.Message, warn_count: int, kick_count: int
     ):
         allowed_avatars = ["$MEMBERAVATAR", "$BOTAVATAR", "$GUILDICON"]
@@ -321,7 +323,7 @@ class Hikari(Lib):
 
         return self.handler.bot.entity_factory.deserialize_embed(data)
 
-    def transform_message(
+    async def transform_message(
         self,
         item: Union[str, dict],
         message: messages.Message,
@@ -333,7 +335,7 @@ class Hikari(Lib):
 
         return self.dict_to_embed(item, message, warn_count, kick_count)
 
-    def visualizer(
+    async def visualizer(
         self,
         content: str,
         message: messages.Message,
@@ -345,7 +347,7 @@ class Hikari(Lib):
 
         return self.transform_message(content, message, warn_count, kick_count)
 
-    def create_message(self, message: messages.Message) -> Message:
+    async def create_message(self, message: messages.Message) -> Message:
         log.debug(
             "Attempting to create a new message for author(id=%s) in Guild(%s)",
             message.author.id,
@@ -586,7 +588,7 @@ class Hikari(Lib):
                 message.guild_id,
             )
 
-    def get_message_mentions(self, message: messages.Message):  # pragma: no cover
+    async def get_message_mentions(self, message: messages.Message):  # pragma: no cover
         data = [message.mentions.user_ids]
         data.extend(role for role in message.mentions.role_ids)
         data.extend(channel for channel in message.mentions.channels_ids)
