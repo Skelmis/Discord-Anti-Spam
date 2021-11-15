@@ -454,11 +454,15 @@ class Pincer(Lib):
         # We still need to punish them, so try that
         try:
             if is_kick:
-                await self.kick_from_guild(guild_id=guild.id, member_id=member.id)
+                await guild.kick(
+                    member.id, reason="Automated punishment from DPY Anti-Spam."
+                )
 
                 log.info("Kicked Member(id=%s)", member.id)
             else:
-                await self.ban_from_guild(guild_id=guild.id, member_id=member.id)
+                await guild.ban(
+                    member.id, reason="Automated punishment from DPY Anti-Spam."
+                )
                 log.info("Banned Member(id=%s)", member.id)
 
         except pincer.exceptions.ForbiddenError as e:
@@ -633,18 +637,6 @@ class Pincer(Lib):
 
         await asyncio.sleep(delete_after_time)
         await self.bot.http.delete(f"/channels/{channel_id}/messages/{message['id']}")
-
-    async def ban_from_guild(self, guild_id: int, member_id: int) -> None:
-        await self.bot.http.put(
-            f"/guilds/{guild_id}/bans/{member_id}",
-            headers={"X-Audit-Log-Reason": "Automated punishment from DPY Anti-Spam."},
-        )
-
-    async def kick_from_guild(self, guild_id: int, member_id: int) -> None:
-        await self.bot.http.delete(
-            f"/guilds/{guild_id}/members/{member_id}",
-            headers={"X-Audit-Log-Reason": "Automated punishment from DPY Anti-Spam."},
-        )
 
     async def get_guild_member_perms(self, guild_id: int, member_id: int) -> int:
         member = await self.bot.http.get(f"/guilds/{guild_id}/members/{member_id}")
