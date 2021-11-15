@@ -165,7 +165,7 @@ Custom Punishments
     bot = commands.Bot(command_prefix="!")
     bot.handler = AntiSpamHandler(bot, options=Options(no_punish=True))
     bot.tracker = AntiSpamTracker(bot.handler, 3) # 3 Being how many 'punishment requests' before is_spamming returns True
-    bot.handler.register_extension(bot.tracker)
+    bot.handler.register_plugin(bot.tracker)
 
 
     @bot.event
