@@ -202,7 +202,7 @@ class Hikari(Lib):
         perms = Permissions.NONE
 
         for role in roles:
-            perms = perms | role.permissions
+            perms |= role.permissions
 
         return perms
 
@@ -266,45 +266,45 @@ class Hikari(Lib):
         data: dict = deepcopy(data)
 
         if "title" in data:
-            data["title"] = self.substitute_args(
+            data["title"] = await self.substitute_args(
                 data["title"], message, warn_count, kick_count
             )
 
         if "description" in data:
-            data["description"] = self.substitute_args(
+            data["description"] = await self.substitute_args(
                 data["description"], message, warn_count, kick_count
             )
 
         if "footer" in data:
             if "text" in data["footer"]:
-                data["footer"]["text"] = self.substitute_args(
+                data["footer"]["text"] = await self.substitute_args(
                     data["footer"]["text"], message, warn_count, kick_count
                 )
 
             if "icon_url" in data["footer"]:
                 if data["footer"]["icon_url"] in allowed_avatars:
-                    data["footer"]["icon_url"] = self.substitute_args(
+                    data["footer"]["icon_url"] = await self.substitute_args(
                         data["footer"]["icon_url"], message, warn_count, kick_count
                     )
 
         if "author" in data:
             # name 'should' be required
-            data["author"]["name"] = self.substitute_args(
+            data["author"]["name"] = await self.substitute_args(
                 data["author"]["name"], message, warn_count, kick_count
             )
 
             if "icon_url" in data["author"]:
                 if data["author"]["icon_url"] in allowed_avatars:
-                    data["author"]["icon_url"] = self.substitute_args(
+                    data["author"]["icon_url"] = await self.substitute_args(
                         data["author"]["icon_url"], message, warn_count, kick_count
                     )
 
         if "fields" in data:
             for field in data["fields"]:
-                name = self.substitute_args(
+                name = await self.substitute_args(
                     field["name"], message, warn_count, kick_count
                 )
-                value = self.substitute_args(
+                value = await self.substitute_args(
                     field["value"], message, warn_count, kick_count
                 )
                 field["name"] = name
@@ -331,9 +331,9 @@ class Hikari(Lib):
         kick_count: int,
     ):
         if isinstance(item, str):
-            return self.substitute_args(item, message, warn_count, kick_count)
+            return await self.substitute_args(item, message, warn_count, kick_count)
 
-        return self.dict_to_embed(item, message, warn_count, kick_count)
+        return await self.dict_to_embed(item, message, warn_count, kick_count)
 
     async def visualizer(
         self,
@@ -345,7 +345,7 @@ class Hikari(Lib):
         if content.startswith("{"):
             content = ast.literal_eval(content)
 
-        return self.transform_message(content, message, warn_count, kick_count)
+        return await self.transform_message(content, message, warn_count, kick_count)
 
     async def create_message(self, message: messages.Message) -> Message:
         log.debug(
@@ -361,7 +361,7 @@ class Hikari(Lib):
             if not isinstance(embed, embeds.Embed):
                 raise LogicError
 
-            content = self.embed_to_string(embed)
+            content = await self.embed_to_string(embed)
         else:
             content = message.content
 
@@ -518,14 +518,14 @@ class Hikari(Lib):
             )
             if sent_message is not None:
                 if is_kick:
-                    user_failed_message = self.transform_message(
+                    user_failed_message = await self.transform_message(
                         self.handler.options.member_failed_kick_message,
                         original_message,
                         member.warn_count,
                         member.kick_count,
                     )
                 else:
-                    user_failed_message = self.transform_message(
+                    user_failed_message = await self.transform_message(
                         self.handler.options.member_failed_ban_message,
                         original_message,
                         member.warn_count,
