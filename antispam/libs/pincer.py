@@ -600,7 +600,7 @@ class Pincer(Lib):
     @lru_cache
     async def get_dm_channel(self, member_id: int) -> Dict:
         return await self.bot.http._HTTPClient__send(
-            self.bot.http._HTTPClient___session.post,
+            self.bot.http._HTTPClient__session.post,
             "/users/@me/channels",
             data={"recipient_id": member_id},
         )
@@ -617,13 +617,13 @@ class Pincer(Lib):
 
         if isinstance(content, str):
             message: Dict = await self.bot.http._HTTPClient__send(
-                self.bot.http._HTTPClient___session.post,
+                self.bot.http._HTTPClient__session.post,
                 f"/channel/{channel_id}/messages",
                 data={"content": content},
             )
         else:
             message: Dict = await self.bot.http._HTTPClient__send(
-                self.bot.http._HTTPClient___session.post,
+                self.bot.http._HTTPClient__session.post,
                 f"/channel/{channel_id}/messages",
                 data={"embeds": [content.to_dict()], "content": mention},
             )
