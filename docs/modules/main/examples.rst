@@ -178,7 +178,7 @@ Custom Punishments
     async def on_message(message):
         await bot.handler.propagate(message)
 
-        if bot.tracker.is_spamming(message):
+        if await bot.tracker.is_spamming(message):
             # Insert code to mute the user
 
             # Insert code to tell admins
