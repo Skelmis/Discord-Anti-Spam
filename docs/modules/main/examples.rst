@@ -159,8 +159,8 @@ Custom Punishments
 
     from discord.ext import commands
 
-    from antispam import AntiSpamHandler
-    from antispam.plugins import AntiSpamTracker, Options
+    from antispam import AntiSpamHandler, Options
+    from antispam.plugins import AntiSpamTracker
 
     bot = commands.Bot(command_prefix="!")
     bot.handler = AntiSpamHandler(bot, options=Options(no_punish=True))
