@@ -328,9 +328,7 @@ class Pincer(Lib):
                 )
                 return
 
-            channel: int = guild.log_channel_id
-
-            channel: objects.Channel = await self.bot.get_channel(channel)
+            channel: objects.Channel = await self.bot.get_channel(guild.log_channel_id)
 
             if isinstance(message, str):
                 pincer_message = objects.Message(content=message, attachments=file)
@@ -343,6 +341,7 @@ class Pincer(Lib):
             await msg.delete()
 
             log.debug("Sent message to log channel in Guild(id=%s)", guild.id)
+
         except PincerError:
             log.error(
                 "Failed to send log message in Guild(id=%s). HTTPException", guild.id
@@ -359,31 +358,21 @@ class Pincer(Lib):
         user_delete_after: int = None,
         channel_delete_after: int = None,
     ):
-        guild: objects.Guild = await objects.Guild.from_id(
-            self.bot, original_message.guild_id
-        )
+        guild: objects.Guild = await self.bot.get_guild(original_message.guild_id)
         author = original_message.author
+
         guild_me: objects.GuildMember = await objects.GuildMember.from_id(
             self.bot, original_message.guild_id, self.bot.bot.id
         )
-        guild_member: objects.GuildMember = await objects.GuildMember.from_id(
-            self.bot, original_message.guild_id, original_message.author.id
-        )
-
-        async def get_hoisted(member: objects.GuildMember) -> int:
-            if not member.roles:
-                # TODO return guild's default role
-                pass
-
-            roles = list(map(int, member.roles))
-            return max(roles)
 
         my_top_role: objects.Role = await objects.Role.from_id(
-            self.bot, original_message.guild_id, await get_hoisted(guild_me)
+            self.bot, original_message.guild_id, guild_me.hoisted_role
         )
+
         author_top_role: objects.Role = await objects.Role.from_id(
-            self.bot, original_message.guild_id, await get_hoisted(guild_member)
+            self.bot, original_message.guild_id, guild_me.hoisted_role
         )
+
         my_top_role_pos: int = my_top_role.position
         author_top_role_pos: int = author_top_role.position
 
@@ -391,6 +380,7 @@ class Pincer(Lib):
         perms: int = await self.get_guild_member_perms(
             original_message.guild_id, self.bot.bot.id
         )
+
         kick_members = bool(perms << 1)
         ban_members = bool(perms << 2)
         if not kick_members and is_kick:
@@ -436,15 +426,15 @@ class Pincer(Lib):
             )
 
         except pincer.exceptions.PincerError:
-            channel: objects.Channel = await objects.Channel.from_id(
-                self.bot, original_message.channel_id
-            )
+            channel: objects.Channel = await self.bot.get_channel(original_message.channel_id)
+
             await self.send_guild_log(
                 guild=internal_guild,
                 message=f"Sending a message to {author.mention} about their {'kick' if is_kick else 'ban'} failed.",
                 delete_after_time=channel_delete_after,
                 original_channel=channel,
             )
+
             log.warning(
                 f"Failed to message Member(id=%s) about {'kick' if is_kick else 'ban'}",
                 author.id,
@@ -472,9 +462,8 @@ class Pincer(Lib):
             raise e from None
 
         except pincer.exceptions.PincerError:
-            channel: objects.Channel = await self.bot.get_channel(
-                original_message.channel_id
-            )
+            channel: objects.Channel = await self.bot.get_channel(original_message.channel_id)
+
             member._in_guild = True
             member.kick_count -= 1
             await self.send_guild_log(
@@ -488,6 +477,7 @@ class Pincer(Lib):
                 {"kick" if is_kick else "ban"},
                 member.id,
             )
+
             if sent_message is not None:
                 if is_kick:
                     user_failed_message = await self.transform_message(
@@ -532,12 +522,12 @@ class Pincer(Lib):
             member.id,
             member.guild_id,
         )
-        bot: pincer.Client = self.bot
+
         for message in member.messages:
             if message.is_duplicate:
                 try:
-                    http: HTTPClient = bot.http
-                    results = await http.get(
+
+                    results = await self.bot.http.get(
                         f"/channels/{message.channel_id}/messages/{message.id}"
                     )
                     actual_message: objects.UserMessage = objects.UserMessage.from_dict(
