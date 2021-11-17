@@ -46,6 +46,7 @@ setup(
     extras_requires={
         "discord.py": parse_requirements_file("dpy-requirements.txt"),
         "hikari": parse_requirements_file("hikari-requirements.txt"),
+        "pincer": parse_requirements_file("pincer-requirements.txt"),
         "dev": parse_requirements_file("dev-requirements.txt"),
     },
     classifiers=[
