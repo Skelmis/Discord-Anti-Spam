@@ -7,11 +7,9 @@ from examples.jsonLoader import read_json
 
 
 class Bot(Client):
-
     def __init__(self):
         super(Bot, self).__init__(
-            token=read_json("token").get("token"),
-            intents=Intents.all()
+            token=read_json("token").get("token"), intents=Intents.all()
         )
 
         self.antispam = AntiSpamHandler(self, library=Library.PINCER)
@@ -25,5 +23,5 @@ class Bot(Client):
         await self.antispam.propagate(message)  # noqa
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     Bot().run()

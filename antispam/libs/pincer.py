@@ -425,7 +425,9 @@ class Pincer(Lib):
             )
 
         except pincer.exceptions.PincerError:
-            channel: objects.Channel = await self.bot.get_channel(original_message.channel_id)
+            channel: objects.Channel = await self.bot.get_channel(
+                original_message.channel_id
+            )
 
             await self.send_guild_log(
                 guild=internal_guild,
@@ -461,7 +463,9 @@ class Pincer(Lib):
             raise e from None
 
         except pincer.exceptions.PincerError:
-            channel: objects.Channel = await self.bot.get_channel(original_message.channel_id)
+            channel: objects.Channel = await self.bot.get_channel(
+                original_message.channel_id
+            )
 
             member._in_guild = True
             member.kick_count -= 1
