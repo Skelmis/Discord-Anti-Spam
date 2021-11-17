@@ -4,13 +4,12 @@ import datetime
 import logging
 from copy import deepcopy
 from functools import lru_cache
-from pprint import pprint
 from string import Template
 from typing import Optional, Union, List, Dict
 from unittest.mock import AsyncMock
 
 import pincer
-from pincer.core.http import HTTPClient
+from pincer import objects
 from pincer.exceptions import PincerError
 from pincer.objects.guild import TextChannel
 
@@ -23,8 +22,6 @@ from antispam import (
 from antispam.abc import Lib
 from antispam.dataclasses import Member, Guild, Message
 from antispam.dataclasses.propagate_data import PropagateData
-
-from pincer import objects
 
 log = logging.getLogger(__name__)
 
@@ -168,16 +165,14 @@ class Pincer(Lib):
         if "description" in embed:
             content += f"{embed['description']}\n"
 
-        if "footer" in embed:
-            if "text" in embed["footer"]:
-                content += f"{embed['footer']['text']}\n"
+        if "footer" in embed and "text" in embed["footer"]:
+            content += f"{embed['footer']['text']}\n"
 
         if "author" in embed:
             content += f"{embed['author']['name']}\n"
 
-        if "fields" in embed:
-            for field in embed["fields"]:
-                content += f"{field['name']}\n{field['value']}\n"
+        for field in embed.get("fields", ()):
+            content += f"{field['name']}\n{field['value']}\n"
 
         return content
 
@@ -207,11 +202,13 @@ class Pincer(Lib):
                     data["footer"]["text"], message, warn_count, kick_count
                 )
 
-            if "icon_url" in data["footer"]:
-                if data["footer"]["icon_url"] in allowed_avatars:
-                    data["footer"]["icon_url"] = await self.substitute_args(
-                        data["footer"]["icon_url"], message, warn_count, kick_count
-                    )
+            if (
+                "icon_url" in data["footer"]
+                and data["footer"]["icon_url"] in allowed_avatars
+            ):
+                data["footer"]["icon_url"] = await self.substitute_args(
+                    data["footer"]["icon_url"], message, warn_count, kick_count
+                )
 
         if "author" in data:
             # name 'should' be required
@@ -219,11 +216,13 @@ class Pincer(Lib):
                 data["author"]["name"], message, warn_count, kick_count
             )
 
-            if "icon_url" in data["author"]:
-                if data["author"]["icon_url"] in allowed_avatars:
-                    data["author"]["icon_url"] = await self.substitute_args(
-                        data["author"]["icon_url"], message, warn_count, kick_count
-                    )
+            if (
+                "icon_url" in data["author"]
+                and data["author"]["icon_url"] in allowed_avatars
+            ):
+                data["author"]["icon_url"] = await self.substitute_args(
+                    data["author"]["icon_url"], message, warn_count, kick_count
+                )
 
         if "fields" in data:
             for field in data["fields"]:
@@ -633,10 +632,7 @@ class Pincer(Lib):
         member_roles = member["roles"]
         guild_roles: List[Dict] = await self.bot.http.get(f"/guilds/{guild_id}/roles")
         # Gotta guess perms from role perms
-        actual_roles = []
-        for role in guild_roles:
-            if role["id"] in member_roles:
-                actual_roles.append(role)
+        actual_roles = [role for role in guild_roles if role["id"] in member_roles]
 
         initial = 0x0
         for role in actual_roles:
