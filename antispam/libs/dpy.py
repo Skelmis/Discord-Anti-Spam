@@ -413,6 +413,14 @@ class DPY(Lib):
         elif guild.owner_id == member.id:
             member._in_guild = True
             member.kick_count -= 1
+
+            # TODO Make this consistent across libs
+            await self.send_guild_log(
+                guild=internal_guild,
+                message=f"I am failing to punish {original_message.author.display_name} because they own this guild.",
+                delete_after_time=channel_delete_after,
+                original_channel=original_message.channel,
+            )
             raise MissingGuildPermissions(
                 f"I cannot punish {author.display_name}({author.id}) "
                 f"because they own this guild. ({guild.name})"
