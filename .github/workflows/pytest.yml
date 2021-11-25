@@ -26,6 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install coverage coveralls
         if [ -f dev-requirements.txt ]; then pip install -r dev-requirements.txt; fi
+        python -m pip install discord.py
     - name: Run tests with code coverage
       run: |
         coverage run --source=antispam/ -m pytest

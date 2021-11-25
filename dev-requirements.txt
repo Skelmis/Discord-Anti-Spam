@@ -13,6 +13,5 @@ hikari
 sphinx==4.2.0
 attrs==21.2.0
 setuptools==57.0.0
-
 discord.py
 hikari
