@@ -308,9 +308,16 @@ class DPY(Lib):
             message.guild.id,
         )
         if message.is_system():
-            raise InvalidMessage
+            raise InvalidMessage(
+                "Message is a system one, we don't check against those."
+            )
 
-        if not bool(message.content and message.content.strip()):
+        if message.stickers:
+            # 'sticker' urls should be unique..
+            all_stickers = "|".join(s.url for s in message.stickers)
+            content = all_stickers
+
+        elif not bool(message.content and message.content.strip()):
             if not message.embeds and not message.attachments:
                 # System message? Like on join trip these
                 raise LogicError
