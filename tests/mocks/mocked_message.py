@@ -2,7 +2,7 @@
 This 'mocks' a discord.Message so we can use it for testing
 """
 import datetime
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import discord
 
@@ -71,5 +71,8 @@ class MockedMessage:
         mock.content = self.content
         mock.clean_content = self.clean_content
         mock.mentions = self.message_mentions
+        mock.stickers = []
+
+        mock.is_system = MagicMock(return_value=False)
 
         return mock
