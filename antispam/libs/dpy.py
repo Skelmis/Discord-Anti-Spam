@@ -44,6 +44,7 @@ from antispam.abc import Lib
 from antispam.dataclasses import Message, Member, Guild
 from antispam.dataclasses.propagate_data import PropagateData
 
+
 log = logging.getLogger(__name__)
 
 
@@ -306,6 +307,9 @@ class DPY(Lib):
             message.author.id,
             message.guild.id,
         )
+        if message.is_system():
+            raise InvalidMessage
+
         if not bool(message.content and message.content.strip()):
             if not message.embeds and not message.attachments:
                 # System message? Like on join trip these
