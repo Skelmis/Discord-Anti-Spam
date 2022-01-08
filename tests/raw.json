@@ -1,4 +1,6 @@
 {
+    "pre_invoke_plugins": {},
+    "after_invoke_plugins": {},
     "cache": "MemoryCache",
     "options": {
         "warn_threshold": 3,

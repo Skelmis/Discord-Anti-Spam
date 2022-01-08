@@ -636,16 +636,20 @@ class AntiSpamHandler:
                 await ash.cache.set_guild(FactoryBuilder.create_guild_from_dict(guild))
 
             if pre_invoke_plugins := data.get("pre_invoke_plugins"):
-                for plugin, data in pre_invoke_plugins.items():
+                for plugin, plugin_data in pre_invoke_plugins.items():
                     if plugin_class_ref := plugins.get(plugin):
-                        ash.register_plugin(await plugin_class_ref.load_from_dict(data))
+                        ash.register_plugin(
+                            await plugin_class_ref.load_from_dict(plugin_data)
+                        )
                     else:
                         log.debug("Skipping state loading for %s", plugin)
 
             if after_invoke_plugins := data.get("after_invoke_plugins"):
-                for plugin, data in after_invoke_plugins.items():
+                for plugin, plugin_data in after_invoke_plugins.items():
                     if plugin_class_ref := plugins.get(plugin):
-                        ash.register_plugin(await plugin_class_ref.load_from_dict(data))
+                        plugin = await plugin_class_ref.load_from_dict(plugin_data)
+                        plugin.is_pre_invoke = False
+                        ash.register_plugin(plugin)
                     else:
                         log.debug("Skipping state loading for %s", plugin)
 
@@ -711,7 +715,7 @@ class AntiSpamHandler:
             try:
                 data["pre_invoke_plugins"][
                     plugin.__class__.__name__
-                ] = plugin.save_to_dict()
+                ] = await plugin.save_to_dict()
             except NotImplementedError:
                 continue
 
@@ -719,7 +723,7 @@ class AntiSpamHandler:
             try:
                 data["after_invoke_plugins"][
                     plugin.__class__.__name__
-                ] = plugin.save_to_dict()
+                ] = await plugin.save_to_dict()
             except NotImplementedError:
                 continue
 

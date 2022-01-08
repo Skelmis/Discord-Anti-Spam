@@ -26,7 +26,7 @@ from antispam.dataclasses import Guild, Member, CorePayload, Message
 from antispam.base_plugin import BasePlugin
 from antispam.plugins import Stats as StatsPlugin
 from .fixtures import create_bot, create_handler, MockClass
-from .mocks import MockedMessage
+from .mocks import MockedMessage, MockedMember
 
 """
     How to use hypothesis
@@ -399,6 +399,58 @@ class TestAntiSpamHandler:
             stored_data = json.load(file)
 
         assert data == stored_data
+
+    @pytest.mark.asyncio
+    async def test_save_to_dict_with_plugin(self, create_handler: AntiSpamHandler):
+        await create_handler.cache.set_guild(Guild(1, Options()))
+
+        class Plugin(BasePlugin):
+            async def save_to_dict(self):
+                return {"Plugin me"}
+
+        create_handler.register_plugin(Plugin())
+        data = await create_handler.save_to_dict()
+
+        with open("tests/raw.json", "r") as file:
+            stored_data = json.load(file)
+        stored_data["pre_invoke_plugins"]["Plugin"] = {"Plugin me"}
+
+        assert data == stored_data
+
+        create_handler.unregister_plugin("Plugin")
+        create_handler.register_plugin(Plugin(is_pre_invoke=False))
+        stored_data["pre_invoke_plugins"] = {}
+        stored_data["after_invoke_plugins"]["Plugin"] = {"Plugin me"}
+
+        data_two = await create_handler.save_to_dict()
+        assert data_two == stored_data
+
+    @pytest.mark.asyncio
+    async def test_load_from_dict_with_plugin(self, create_bot):
+        class Plugin(BasePlugin):
+            @classmethod
+            async def load_from_dict(cls, data):
+                ref = cls()
+                ref.test = data
+                return ref
+
+        with open("tests/raw.json", "r") as file:
+            stored_data = json.load(file)
+
+        stored_data["pre_invoke_plugins"]["Plugin"] = {"Plugin me"}
+        # stored_data["after_invoke_plugins"]["Plugin"] = {"Plugin me"}
+
+        ash = await AntiSpamHandler.load_from_dict(
+            create_bot, stored_data, plugins={"Plugin": Plugin}
+        )
+
+        assert len(ash.pre_invoke_plugins) == 1
+        # assert len(ash.after_invoke_extensions) == 1
+
+        assert ash.pre_invoke_plugins["plugin"].is_pre_invoke is True
+        # assert ash.after_invoke_extensions["plugin"].is_pre_invoke is False
+
+        assert ash.pre_invoke_plugins["plugin"].test == {"Plugin me"}
 
     def test_register_extension(self, create_handler: AntiSpamHandler):
         with pytest.raises(PluginError):
