@@ -25,6 +25,7 @@ The package features some built in punishments, these are:
    modules/main/logging.rst
    modules/main/template.rst
    modules/migrating.rst
+   modules/changelog.rst
 
 .. toctree::
    :maxdepth: 2
