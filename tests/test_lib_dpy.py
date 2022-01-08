@@ -179,17 +179,17 @@ class TestLibDPY:
         bounds_dict = {
             "footer": {"icon_url": "$MEMBERAVATAR"},
             "author": {"icon_url": "$BOTAVATAR", "name": "d"},
-            "timestamp": True,
+            # "timestamp": True,
             "colour": 0xFFFFFF,
         }
-        mock_message.created_at = datetime.datetime.now()
-        mock_message.guild.me.avatar_url = "test"
-        mock_message.author.avatar_url = "author"
+        # mock_message.created_at = datetime.datetime.utcnow()
+        mock_message.guild.me.avatar.url = "test"
+        mock_message.author.avatar.url = "author"
         test_embed = await create_dpy_lib_handler.dict_to_embed(
             bounds_dict, mock_message, 1, 2
         )
 
-        embed_two = discord.Embed(color=0xFFFFFF, timestamp=mock_message.created_at)
+        embed_two = discord.Embed(color=0xFFFFFF)
         embed_two.set_footer(icon_url="author")
         embed_two.set_author(icon_url="test", name="d")
 
@@ -198,14 +198,14 @@ class TestLibDPY:
         bounds_dict = {
             "footer": {"icon_url": "x"},
             "author": {"icon_url": "y", "name": "d"},
-            "timestamp": True,
+            # "timestamp": True,
             "colour": 0xFFFFFF,
         }
         test_embed = await create_dpy_lib_handler.dict_to_embed(
             bounds_dict, mock_message, 1, 2
         )
 
-        embed_two = discord.Embed(color=0xFFFFFF, timestamp=mock_message.created_at)
+        embed_two = discord.Embed(color=0xFFFFFF)
         embed_two.set_footer(icon_url="x")
         embed_two.set_author(icon_url="y", name="d")
 
