@@ -10,3 +10,4 @@ omit =
     antispam/enums/__init__.py
     antispam/plugins/__init__.py
     antispam/libs/hikari.py
+    antispam/libs/pincer.py
