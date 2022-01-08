@@ -61,7 +61,7 @@ class Stats(BasePlugin):
 
     async def propagate(self, message, data: CorePayload) -> dict:
         log.info("Updating statistics on_propagate")
-        for invoker in self.handler.pre_invoke_extensions.keys():
+        for invoker in self.handler.pre_invoke_plugins.keys():
             try:
                 self.data["pre_invoke_calls"][invoker]["calls"] += 1
             except KeyError:

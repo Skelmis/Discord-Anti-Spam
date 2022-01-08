@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import functools
 import logging
 from copy import deepcopy
-from typing import Optional, Union
+from typing import Optional, Union, Dict, Type
 
 from attr import asdict
 
@@ -126,8 +126,8 @@ class AntiSpamHandler:
 
         self.needs_init = True
 
-        self.pre_invoke_extensions = {}
-        self.after_invoke_extensions = {}
+        self.pre_invoke_plugins: Dict[str, BasePlugin] = {}
+        self.after_invoke_extensions: Dict[str, BasePlugin] = {}
 
         # Import these here to avoid errors when not having the
         # other lib installed, I think
@@ -216,7 +216,7 @@ class AntiSpamHandler:
 
         pre_invoke_extensions = {}
 
-        for pre_invoke_ext in self.pre_invoke_extensions.values():
+        for pre_invoke_ext in self.pre_invoke_plugins.values():
             if guild.id in pre_invoke_ext.blacklisted_guilds:
                 # https://github.com/Skelmis/DPY-Anti-Spam/issues/65
                 continue
@@ -548,7 +548,13 @@ class AntiSpamHandler:
             pass
 
     @staticmethod
-    async def load_from_dict(bot, data: dict, *, raise_on_exception: bool = True):
+    async def load_from_dict(
+        bot,
+        data: dict,
+        *,
+        raise_on_exception: bool = True,
+        plugins: Dict[str, Type[BasePlugin]] = None,
+    ):
         """
         Can be used as an entry point when starting your bot
         to reload a previous state so you don't lose all of
@@ -568,6 +574,27 @@ class AntiSpamHandler:
             build process. This will return an ``AntiSpamHandler`` instance
             **without** any of the saved state and is equivalent to simply
             doing ``AntiSpamHandler(bot)``
+        plugins : Dict[str, Type[BasePlugin]]
+            A dictionary for plugin lookups if you want to initialise
+            plugins from an initial saved state. This should follow the
+            format.
+
+            .. code-block:: python
+
+                {
+                    "class_name": ClassReference
+                }
+
+            So for example:
+
+            .. code-block:: python
+                :linenos:
+
+                class Plugin(BasePlugin):
+                    pass
+
+                ...
+                await load_from_dict(..., ..., plugins={"Plugin": Plugin}
 
         Returns
         -------
@@ -593,8 +620,12 @@ class AntiSpamHandler:
         **without** any of the saved state and is equivalent to simply
         doing ``AntiSpamHandler(bot)``
 
+        This will simply ignore the saved state of plugins that don't have
+        a ``plugins`` mapping.
+
         """
         # TODO Add redis cache here
+        plugins = plugins or {}
         caches = {"MemoryCache": MemoryCache}
 
         try:
@@ -603,6 +634,20 @@ class AntiSpamHandler:
             ash.cache = caches[cache_type](ash)
             for guild in data["guilds"]:
                 await ash.cache.set_guild(FactoryBuilder.create_guild_from_dict(guild))
+
+            if pre_invoke_plugins := data.get("pre_invoke_plugins"):
+                for plugin, data in pre_invoke_plugins.items():
+                    if plugin_class_ref := plugins.get(plugin):
+                        ash.register_plugin(await plugin_class_ref.load_from_dict(data))
+                    else:
+                        log.debug("Skipping state loading for %s", plugin)
+
+            if after_invoke_plugins := data.get("after_invoke_plugins"):
+                for plugin, data in after_invoke_plugins.items():
+                    if plugin_class_ref := plugins.get(plugin):
+                        ash.register_plugin(await plugin_class_ref.load_from_dict(data))
+                    else:
+                        log.debug("Skipping state loading for %s", plugin)
 
             log.info("Loaded AntiSpamHandler from state")
         except Exception as e:
@@ -656,9 +701,27 @@ class AntiSpamHandler:
             "options": asdict(self.options),
             "cache": self.cache.__class__.__name__,
             "guilds": [],
+            "pre_invoke_plugins": {},
+            "after_invoke_plugins": {},
         }
         async for guild in self.cache.get_all_guilds():  # pragma: no cover
             data["guilds"].append(asdict(guild, recurse=True))
+
+        for plugin in self.pre_invoke_plugins.values():
+            try:
+                data["pre_invoke_plugins"][
+                    plugin.__class__.__name__
+                ] = plugin.save_to_dict()
+            except NotImplementedError:
+                continue
+
+        for plugin in self.after_invoke_extensions.values():
+            try:
+                data["after_invoke_plugins"][
+                    plugin.__class__.__name__
+                ] = plugin.save_to_dict()
+            except NotImplementedError:
+                continue
 
         log.info("Saved AntiSpamHandler state")
 
@@ -705,7 +768,7 @@ class AntiSpamHandler:
         cls_name = plugin.__class__.__name__.lower()
 
         if (
-            self.pre_invoke_extensions.get(cls_name)
+            self.pre_invoke_plugins.get(cls_name)
             or self.after_invoke_extensions.get(cls_name)
         ) and not force_overwrite:
             log.debug("Duplicate extension load attempt")
@@ -715,7 +778,7 @@ class AntiSpamHandler:
 
         if is_pre_invoke:
             log.info("Loading pre-invoke extension: %s", cls_name)
-            self.pre_invoke_extensions[cls_name] = plugin
+            self.pre_invoke_plugins[cls_name] = plugin
         else:
             log.info("Loading after-invoke extension: %s", cls_name)
             self.after_invoke_extensions[cls_name] = plugin
@@ -738,7 +801,7 @@ class AntiSpamHandler:
         """
         has_popped_pre_invoke = False
         try:
-            self.pre_invoke_extensions.pop(plugin_name.lower())
+            self.pre_invoke_plugins.pop(plugin_name.lower())
             has_popped_pre_invoke = True
         except KeyError:
             pass

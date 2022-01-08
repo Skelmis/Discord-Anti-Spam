@@ -408,9 +408,9 @@ class TestAntiSpamHandler:
             def __init__(self, invoke=True):
                 self.is_pre_invoke = invoke
 
-        assert len(create_handler.pre_invoke_extensions.values()) == 0
+        assert len(create_handler.pre_invoke_plugins.values()) == 0
         create_handler.register_plugin(Test())
-        assert len(create_handler.pre_invoke_extensions.values()) == 1
+        assert len(create_handler.pre_invoke_plugins.values()) == 1
 
         # Test overwrite
         with pytest.raises(PluginError):
@@ -436,9 +436,9 @@ class TestAntiSpamHandler:
             create_handler.unregister_plugin("Invalid Extension")
 
         create_handler.register_plugin(Test())
-        assert len(create_handler.pre_invoke_extensions.values()) == 1
+        assert len(create_handler.pre_invoke_plugins.values()) == 1
         create_handler.unregister_plugin("Test")
-        assert len(create_handler.pre_invoke_extensions.values()) == 0
+        assert len(create_handler.pre_invoke_plugins.values()) == 0
 
     @pytest.mark.asyncio()
     async def test_propagate_exits(self):
