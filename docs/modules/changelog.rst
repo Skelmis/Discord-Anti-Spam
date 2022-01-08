@@ -1,7 +1,7 @@
 Changelog
 =========
 
-A changelog that should be fairly up to date.
+A changelog that should be fairly up to date feature wise.
 
 1.1.2 -> 1.1.3
 --------------
