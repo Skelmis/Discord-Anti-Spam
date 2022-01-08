@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import functools
 import logging
 from copy import deepcopy
-from typing import Optional, Union, Dict, Type
+from typing import Optional, Union, Dict, Type, Set
 
 from attr import asdict
 
@@ -553,7 +553,7 @@ class AntiSpamHandler:
         data: dict,
         *,
         raise_on_exception: bool = True,
-        plugins: Dict[str, Type[BasePlugin]] = None,
+        plugins: Set[Type[BasePlugin]] = None,
     ):
         """
         Can be used as an entry point when starting your bot
@@ -574,15 +574,14 @@ class AntiSpamHandler:
             build process. This will return an ``AntiSpamHandler`` instance
             **without** any of the saved state and is equivalent to simply
             doing ``AntiSpamHandler(bot)``
-        plugins : Dict[str, Type[BasePlugin]]
-            A dictionary for plugin lookups if you want to initialise
-            plugins from an initial saved state. This should follow the
-            format.
+        plugins : Set[Type[BasePlugin]]
+            A set for plugin lookups if you want to initialise
+            plugins from an initial saved state. This should follow the format.
 
             .. code-block:: python
 
                 {
-                    "class_name": ClassReference
+                    ClassReference
                 }
 
             So for example:
@@ -594,7 +593,7 @@ class AntiSpamHandler:
                     pass
 
                 ...
-                await load_from_dict(..., ..., plugins={"Plugin": Plugin}
+                await load_from_dict(..., ..., plugins={Plugin}
 
         Returns
         -------
@@ -626,6 +625,10 @@ class AntiSpamHandler:
         """
         # TODO Add redis cache here
         plugins = plugins or {}
+        plugins: Dict[str, Type[BasePlugin]] = {
+            class_ref.__name__: class_ref for class_ref in plugins
+        }
+
         caches = {"MemoryCache": MemoryCache}
 
         try:

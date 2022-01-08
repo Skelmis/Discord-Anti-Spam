@@ -441,7 +441,7 @@ class TestAntiSpamHandler:
         # stored_data["after_invoke_plugins"]["Plugin"] = {"Plugin me"}
 
         ash = await AntiSpamHandler.load_from_dict(
-            create_bot, stored_data, plugins={"Plugin": Plugin}
+            create_bot, stored_data, plugins={Plugin}
         )
 
         assert len(ash.pre_invoke_plugins) == 1
