@@ -31,8 +31,6 @@ class MaxMessageLimiter(BasePlugin):
     of messages a member can send within the handlers timeframe
     before losing send message perms.
 
-    The
-
     Notes
     -----
     This is per channel and only works with the initial

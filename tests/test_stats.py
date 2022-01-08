@@ -73,3 +73,26 @@ class TestStats:
             "guilds": {123456789: {"calls": 3, "total_messages_punished": 2}},
             "members": {12345: {"calls": 3, "times_punished": 2}},
         }
+
+    @pytest.mark.asyncio
+    async def test_load_from_dict(self, create_handler):
+        stats = await Stats.load_from_dict(create_handler, {"test": True})
+        assert stats.data == {"test": True}
+
+    @pytest.mark.asyncio
+    async def test_save_from_dict(self, create_stats):
+        create_stats.data = {
+            "pre_invoke_calls": {"before": {"calls": 1}},
+            "after_invoke_calls": {"after": {"calls": 1}},
+            "propagate_calls": 1,
+            "guilds": {123456789: {"calls": 1, "total_messages_punished": 1}},
+            "members": {12345: {"calls": 1, "times_punished": 1}},
+        }
+        data = await create_stats.save_to_dict()
+        assert data == {
+            "pre_invoke_calls": {"before": {"calls": 1}},
+            "after_invoke_calls": {"after": {"calls": 1}},
+            "propagate_calls": 1,
+            "guilds": {123456789: {"calls": 1, "total_messages_punished": 1}},
+            "members": {12345: {"calls": 1, "times_punished": 1}},
+        }

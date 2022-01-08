@@ -66,12 +66,14 @@ class BasePlugin:
         raise NotImplementedError
 
     @classmethod
-    async def load_from_dict(cls, data: Dict):
+    async def load_from_dict(cls, anti_spam_handler, data: Dict):
         """
         Loads this plugin from a saved state.
 
         Parameters
         ----------
+        anti_spam_handler: AntiSpamHandler
+            The AntiSpamHandler instance
         data: Dict
             The data to load the plugin from
         """

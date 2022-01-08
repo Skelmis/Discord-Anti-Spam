@@ -639,7 +639,7 @@ class AntiSpamHandler:
                 for plugin, plugin_data in pre_invoke_plugins.items():
                     if plugin_class_ref := plugins.get(plugin):
                         ash.register_plugin(
-                            await plugin_class_ref.load_from_dict(plugin_data)
+                            await plugin_class_ref.load_from_dict(ash, plugin_data)
                         )
                     else:
                         log.debug("Skipping state loading for %s", plugin)
@@ -647,7 +647,7 @@ class AntiSpamHandler:
             if after_invoke_plugins := data.get("after_invoke_plugins"):
                 for plugin, plugin_data in after_invoke_plugins.items():
                     if plugin_class_ref := plugins.get(plugin):
-                        plugin = await plugin_class_ref.load_from_dict(plugin_data)
+                        plugin = await plugin_class_ref.load_from_dict(ash, plugin_data)
                         plugin.is_pre_invoke = False
                         ash.register_plugin(plugin)
                     else:

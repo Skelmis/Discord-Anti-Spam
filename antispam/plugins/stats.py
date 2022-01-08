@@ -21,6 +21,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 import logging
+from typing import Dict
 
 from antispam import AntiSpamHandler
 from antispam.base_plugin import BasePlugin
@@ -97,3 +98,12 @@ class Stats(BasePlugin):
             self.data["guilds"][guild_id]["total_messages_punished"] += 1
 
         return {"status": "Updated stats!"}
+
+    async def save_to_dict(self) -> Dict:
+        return self.data
+
+    @classmethod
+    async def load_from_dict(cls, anti_spam_handler: AntiSpamHandler, data: Dict):
+        ref = cls(anti_spam_handler)
+        ref.data = data
+        return ref

@@ -429,7 +429,7 @@ class TestAntiSpamHandler:
     async def test_load_from_dict_with_plugin(self, create_bot):
         class Plugin(BasePlugin):
             @classmethod
-            async def load_from_dict(cls, data):
+            async def load_from_dict(cls, ash, data):
                 ref = cls()
                 ref.test = data
                 return ref
