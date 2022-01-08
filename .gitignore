@@ -11,6 +11,7 @@ examples/dev.py
 /assets
 docs/_build
 test/
+*.prof
 
 # IntelliJ project files
 .idea
