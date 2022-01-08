@@ -295,7 +295,16 @@ class Lib(Protocol):
 
     async def embed_to_string(self, embed) -> str:
         """
-        Given an embed, return a string representation
+        Given an embed, return a string representation.
+
+        This string representation should include the following.
+        Ordering does not matter as long as it is consistent.
+
+        - The embeds title
+        - The embeds description
+        - The embeds footer text
+        - The embeds author name
+        - All names + values for embed fields
 
         Parameters
         ----------
@@ -390,7 +399,14 @@ class Lib(Protocol):
     async def create_message(self, message) -> Message:
         """
         Given a message to extract data from, create
-        and return a Message class
+        and return a Message class.
+
+        The following should be dumped together as content.
+        Order doesn't matter as long as it's consistent.
+
+        - All sticker urls for stickers in the message
+        - The actual message content
+        - All embeds cast to a string via ``embed_to_string``
 
         Parameters
         ----------
@@ -407,6 +423,23 @@ class Lib(Protocol):
         InvalidMessage
             If it couldn't create a message,
             I.e message only contained attachments
+
+        Warnings
+        --------
+        This is REQUIRED to be inline with the end options.
+
+        .. code-block:: python
+            :linenos:
+
+            if self.handler.options.delete_zero_width_chars:
+                content = (
+                    content.replace("u200B", "")
+                    .replace("u200C", "")
+                    .replace("u200D", "")
+                    .replace("u200E", "")
+                    .replace("u200F", "")
+                    .replace("uFEFF", "")
+                )
         """
         raise NotImplementedError
 

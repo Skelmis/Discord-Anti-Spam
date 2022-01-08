@@ -63,7 +63,7 @@ class Core:
         """
         The internal representation of core functionality.
 
-        Please see and use :meth:`discord.ext.antispam.AntiSpamHandler`
+        Please see and use :meth:`discord.ext.antispam.AntiSpamHandler.propagate`
         """
         try:
             if original_message.author.id in guild.members:
@@ -82,7 +82,7 @@ class Core:
                 )
 
         except MemberNotFound:
-            # Create a useable member
+            # Create a use-able member
             member = Member(
                 id=original_message.author.id,
                 guild_id=await self.handler.lib_handler.get_guild_id(original_message),

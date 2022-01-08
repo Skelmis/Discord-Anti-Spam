@@ -286,11 +286,12 @@ class Pincer(Lib):
                 # We don't check agaisn't attachments
                 raise InvalidMessage
 
-            embed = message.embeds[0]
-            if not isinstance(embed, objects.Embed):
-                raise LogicError
+            content = ""
+            for embed in message.embeds:
+                if not isinstance(embed, objects.Embed):
+                    raise LogicError
 
-            content = await self.embed_to_string(embed)
+                content += await self.embed_to_string(embed)
         else:
             content = message.content
 

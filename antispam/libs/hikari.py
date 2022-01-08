@@ -357,11 +357,12 @@ class Hikari(Lib):
             if not message.embeds:
                 raise LogicError
 
-            embed: embeds.Embed = message.embeds[0]
-            if not isinstance(embed, embeds.Embed):
-                raise LogicError
+            content = ""
+            for embed in message.embeds:
+                if not isinstance(embed, embeds.Embed):
+                    raise LogicError
 
-            content = await self.embed_to_string(embed)
+                content += await self.embed_to_string(embed)
         else:
             content = message.content
 

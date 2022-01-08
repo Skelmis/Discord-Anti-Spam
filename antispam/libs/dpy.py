@@ -326,14 +326,15 @@ class DPY(Lib):
                 # We don't check agaisn't attachments
                 raise InvalidMessage
 
-            embed = message.embeds[0]
-            if not isinstance(embed, discord.Embed):
-                raise LogicError
+            content = ""
+            for embed in message.embeds:
+                if not isinstance(embed, discord.Embed):
+                    raise LogicError
 
-            if embed.type.lower() != "rich":
-                raise LogicError
+                if embed.type.lower() != "rich":
+                    raise LogicError
 
-            content = await self.embed_to_string(embed)
+                content += await self.embed_to_string(embed)
         else:
             content = message.clean_content
 
