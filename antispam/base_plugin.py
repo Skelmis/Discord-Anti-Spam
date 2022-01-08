@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from typing import Optional, Any, Set
+from typing import Optional, Any, Set, Dict
 
 from antispam.dataclasses import CorePayload
 
@@ -51,5 +51,28 @@ class BasePlugin:
         dict
             A dictionary of useful data to the end user
 
+        """
+        raise NotImplementedError
+
+    async def save_to_dict(self) -> Dict:
+        """
+        Saves the plugins state to a Dict
+
+        Returns
+        -------
+        Dict
+            The current plugin state as a dictionary.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    async def load_from_dict(cls, data: Dict):
+        """
+        Loads this plugin from a saved state.
+
+        Parameters
+        ----------
+        data: Dict
+            The data to load the plugin from
         """
         raise NotImplementedError
