@@ -14,6 +14,6 @@ attrs==21.2.0
 setuptools==57.0.0
 
 # Your discord libs here
-# hikari
+hikari
 # discord.py
-# nextcord
+nextcord
