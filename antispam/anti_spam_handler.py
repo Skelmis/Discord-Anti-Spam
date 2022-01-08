@@ -580,9 +580,7 @@ class AntiSpamHandler:
 
             .. code-block:: python
 
-                {
-                    ClassReference
-                }
+                {ClassReference}
 
             So for example:
 
@@ -592,8 +590,8 @@ class AntiSpamHandler:
                 class Plugin(BasePlugin):
                     pass
 
-                ...
-                await load_from_dict(..., ..., plugins={Plugin}
+                # Where you load ASH
+                await AntiSpamHandler.load_from_dict(..., ..., plugins={Plugin}
 
         Returns
         -------
@@ -695,6 +693,9 @@ class AntiSpamHandler:
 
         For bigger bots, it is likely better you create this process
         yourself using generators in order to reduce overhead.
+
+        This will return saved Plugin states where the Plugin has
+        implemented the ``save_to_dict`` method.
 
         Warnings
         --------
