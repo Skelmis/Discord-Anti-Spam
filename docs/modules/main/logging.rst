@@ -14,7 +14,7 @@ logging for discord.py and any other modules which use it.
     :linenos:
 
     logging.basicConfig(
-        format="%(levelname)s | %(asctime)s | %(module)s | %(message)s",
+        format="%(levelname)-7s | %(asctime)s | %(filename)12s:%(funcName)-12s | %(message)s",
         datefmt="%d/%m/%Y %I:%M:%S %p",
         level=logging.INFO,
     )
