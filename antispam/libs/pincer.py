@@ -1,14 +1,8 @@
-import asyncio
 import logging
-from functools import lru_cache
-from typing import Optional, Union, List, Dict
-from unittest.mock import AsyncMock
+from typing import Optional, List, Dict
 
 import pincer
-from pincer.core.http import HTTPClient
-from pincer.exceptions import PincerError
 from pincer.objects import UserMessage, Embed
-from pincer.objects.guild import TextChannel
 
 from antispam import (
     InvalidMessage,
@@ -54,10 +48,9 @@ class Pincer(Base, Lib):
         return await self.get_channel_by_id(message.channel_id)
 
     async def get_channel_by_id(self, channel_id: int):
-        # TODO Make this nicer?
-        return await self.bot.get_channel(channel_id)
+        return await objects.TextChannel.from_id(self.bot, channel_id)
 
-    async def get_substitute_args(self, message: UserMessage) -> SubstituteArgs:
+    async def get_substitute_args(self, message) -> SubstituteArgs:
         client: pincer.Client = self.bot
         guild: objects.Guild = await objects.Guild.from_id(client, message.guild_id)
 
@@ -73,10 +66,84 @@ class Pincer(Base, Lib):
             member_avatar=message.author.avatar,
         )
 
-    async def check_message_can_be_propagated(self, message) -> PropagateData:
+    async def delete_member_messages(self, member: Member) -> None:
+        log.debug(
+            "Attempting to delete all duplicate messages for Member(id=%s) in Guild(%s)",
+            member.id,
+            member.guild_id,
+        )
+        client: pincer.Client = self.bot
+        for message in member.messages:
+            if not message.is_duplicate:
+                continue
+
+            actual_message: UserMessage = await UserMessage.from_id(
+                client, message.id, message.channel_id
+            )
+            await actual_message.delete()
+
+    async def delete_message(self, message) -> None:
+        # This has no error handling under the hood.
+        await message.delete()
+
+    async def create_message(self, message: UserMessage) -> Message:
+        log.debug(
+            "Attempting to create a new message for author(id=%s) in Guild(%s)",
+            message.author.id,
+            message.guild_id,
+        )
+        # TODO Add
+        # if message.is_system():
+        #     raise InvalidMessage(
+        #         "Message is a system one, we don't check against those."
+        #     )
+
+        content = ""
+        if message.sticker_items:
+            # 'sticker' names should be unique..
+            all_stickers = "|".join(s.name for s in message.sticker_items)
+            content += all_stickers
+
+        elif not bool(message.content and message.content.strip()):
+            if not message.embeds and not message.attachments:
+                raise LogicError
+
+            if not message.embeds:
+                # We don't check against attachments
+                raise InvalidMessage
+
+            for embed in message.embeds:
+                if not isinstance(embed, objects.Embed):
+                    raise LogicError
+
+                content += await self.embed_to_string(embed)
+        else:
+            content += message.content
+
+        if self.handler.options.delete_zero_width_chars:
+            content = (
+                content.replace("u200B", "")
+                .replace("u200C", "")
+                .replace("u200D", "")
+                .replace("u200E", "")
+                .replace("u200F", "")
+                .replace("uFEFF", "")
+            )
+
+        return Message(
+            id=message.id,
+            channel_id=message.channel_id,
+            guild_id=message.guild_id,
+            author_id=message.author.id,
+            content=content,
+        )
+
+    async def send_message_to_(
+        self, target, message, mention: str, delete_after_time: Optional[int] = None
+    ) -> None:
         raise NotImplementedError
 
-    async def create_message(self, message) -> Message:
+    async def check_message_can_be_propagated(self, message) -> PropagateData:
         raise NotImplementedError
 
     async def send_guild_log(
@@ -100,15 +167,4 @@ class Pincer(Base, Lib):
         user_delete_after: int = None,
         channel_delete_after: int = None,
     ):
-        raise NotImplementedError
-
-    async def delete_member_messages(self, member: Member) -> None:
-        raise NotImplementedError
-
-    async def delete_message(self, message) -> None:
-        raise NotImplementedError
-
-    async def send_message_to_(
-        self, target, message, mention: str, delete_after_time: Optional[int] = None
-    ) -> None:
         raise NotImplementedError
