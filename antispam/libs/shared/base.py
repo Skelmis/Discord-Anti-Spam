@@ -1,10 +1,12 @@
 import ast
-import datetime
+import logging
 from copy import deepcopy
 from string import Template
 from typing import Dict, Union
 
 from antispam.libs.shared import SubstituteArgs
+
+log = logging.getLogger(__name__)
 
 
 class Base:
@@ -27,6 +29,11 @@ class Base:
         kick_count: int,
     ) -> str:
         substitute_args: SubstituteArgs = await self.get_substitute_args(message)
+        log.debug(
+            "Substituting arguments on Message(id=%s) for Member(id=%s)",
+            message.id,
+            substitute_args.member_id,
+        )
 
         return Template(content).safe_substitute(
             {
@@ -51,6 +58,7 @@ class Base:
     async def embed_to_string(self, embed) -> str:
         content = ""
         embed = await self.lib_embed_as_dict(embed)
+        log.debug("Converting the following to a string, %s", embed)
 
         if "title" in embed:
             content += f"{embed['title']}\n"
@@ -76,6 +84,7 @@ class Base:
     ):
         allowed_avatars = ["$MEMBERAVATAR", "$BOTAVATAR", "$GUILDICON"]
         data: dict = deepcopy(data)
+        log.debug("Converting the following to an embed, %s", data)
 
         if "title" in data:
             data["title"] = await self.substitute_args(
@@ -154,6 +163,7 @@ class Base:
         warn_count: int = 1,
         kick_count: int = 2,
     ):
+        log.debug("Attempting to visualize %s", content)
         if content.startswith("{"):
             content = ast.literal_eval(content)
 
