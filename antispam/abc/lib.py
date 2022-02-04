@@ -251,7 +251,8 @@ class Lib(Protocol):
         self, target, message, mention: str, delete_after_time: Optional[int] = None
     ) -> None:
         """
-        Given a message and target, send
+        Send the given message to the target.
+
         Parameters
         ----------
         target : Union[discord.abc.Messageable, hikari.Something, pincer.Something]
