@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock
 import pincer
 from pincer.core.http import HTTPClient
 from pincer.exceptions import PincerError
+from pincer.objects import UserMessage, Embed
 from pincer.objects.guild import TextChannel
 
 from antispam import (
@@ -31,29 +32,46 @@ class Pincer(Base, Lib):
         self.handler = handler
         self.bot: pincer.Client = self.handler.bot
 
-    async def get_substitute_args(self, message) -> SubstituteArgs:
-        raise NotImplementedError
-
-    async def lib_embed_as_dict(self, embed) -> Dict:
-        raise NotImplementedError
+    async def lib_embed_as_dict(self, embed: Embed) -> Dict:
+        return embed.to_dict()
 
     async def dict_to_lib_embed(self, data: Dict):
-        raise NotImplementedError
+        return Embed.from_dict(data)
 
-    async def get_guild_id(self, message) -> int:
-        raise NotImplementedError
+    async def get_guild_id(self, message: UserMessage) -> int:
+        return message.guild_id
 
-    async def get_channel_id(self, message) -> int:
-        raise NotImplementedError
+    async def get_channel_id(self, message: UserMessage) -> int:
+        return message.channel_id
 
-    async def get_message_mentions(self, message) -> List[int]:
-        raise NotImplementedError
+    async def get_message_mentions(self, message: UserMessage) -> List[int]:
+        mentions = [m.user.id for m in message.mentions]
+        mentions.extend([c.id for c in message.mention_channels])
+        mentions.extend([r.id for r in message.mention_roles])
+        return mentions
 
-    async def get_channel_from_message(self, message):
-        raise NotImplementedError
+    async def get_channel_from_message(self, message: UserMessage):
+        return await self.get_channel_by_id(message.channel_id)
 
     async def get_channel_by_id(self, channel_id: int):
-        raise NotImplementedError
+        # TODO Make this nicer?
+        return await self.bot.get_channel(channel_id)
+
+    async def get_substitute_args(self, message: UserMessage) -> SubstituteArgs:
+        client: pincer.Client = self.bot
+        guild: objects.Guild = await objects.Guild.from_id(client, message.guild_id)
+
+        return SubstituteArgs(
+            bot_id=client.bot.id,
+            bot_name=client.bot.username,
+            bot_avatar=client.bot.avatar,
+            guild_id=message.guild_id,
+            guild_icon=guild.icon,
+            guild_name=guild.name,
+            member_id=message.author.id,
+            member_name=message.author.username,
+            member_avatar=message.author.avatar,
+        )
 
     async def check_message_can_be_propagated(self, message) -> PropagateData:
         raise NotImplementedError

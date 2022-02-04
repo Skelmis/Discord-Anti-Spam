@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "DPY Anti-Spam"
-copyright = "2021, Skelmis"
+copyright = "2022, Skelmis"
 author = "Skelmis"
 
 
@@ -57,6 +57,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "discord.py": ("https://discordpy.readthedocs.io/en/latest/", None),
     "hikari": ("https://hikari-py.github.io/hikari/", None),
+    "pincer": ("https://docs.pincer.dev/en/latest/", None),
 }
 
 master_doc = "index"
