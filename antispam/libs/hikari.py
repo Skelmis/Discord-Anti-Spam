@@ -85,7 +85,11 @@ class Hikari(Base, Lib):
         self, target, message, mention: str, delete_after_time: Optional[int] = None
     ) -> None:  # pragma: no cover
         if isinstance(message, hikari.Embed):
+            content = None
+            if self.handler.options.mention_on_embed:
+                content = mention
             m = await target.send(
+                content=content,
                 embed=message,
             )
         else:
