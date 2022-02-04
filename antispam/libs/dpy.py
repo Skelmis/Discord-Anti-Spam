@@ -20,13 +20,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-import ast
-import datetime
 import logging
-from copy import deepcopy
-from string import Template
-from typing import Union, Optional
+from typing import Union, Optional, Dict
 from unittest.mock import AsyncMock
+
+from antispam.libs.shared import Base, SubstituteArgs
 
 try:
     import nextcord as discord
@@ -48,10 +46,35 @@ from antispam.dataclasses.propagate_data import PropagateData
 log = logging.getLogger(__name__)
 
 
-# noinspection PyProtocol
-class DPY(Lib):
+class DPY(Base, Lib):
     def __init__(self, handler):
         self.handler = handler
+        self.bot = self.handler.bot
+
+    def get_file(self, path: str):  # pragma: no cover
+        return discord.File(path)
+
+    async def lib_embed_as_dict(self, embed: discord.Embed) -> Dict:
+        return embed.to_dict()
+
+    async def get_channel_from_message(
+        self,
+        message: discord.Message,
+    ):  # pragma: no cover
+        return message.channel
+
+    async def get_message_mentions(self, message: discord.Message):  # pragma: no cover
+        return message.mentions
+
+    async def get_channel_by_id(self, channel_id: int):  # pragma: no cover
+        channel = self.bot.get_channel(channel_id)
+        if not channel:
+            channel = await self.bot.fetch_channel(channel_id)
+
+        return channel
+
+    async def dict_to_lib_embed(self, data: Dict) -> discord.Embed:
+        return discord.Embed.from_dict(data)
 
     async def get_guild_id(self, message: discord.Message) -> int:
         return message.guild.id
@@ -59,154 +82,28 @@ class DPY(Lib):
     async def get_channel_id(self, message: discord.Message) -> int:
         return message.channel.id
 
-    async def substitute_args(
-        self,
-        message: str,
-        original_message: discord.Message,
-        warn_count: int,
-        kick_count: int,
-    ) -> str:
+    async def get_substitute_args(self, message: discord.Message) -> SubstituteArgs:
         version = int(discord.__version__.split(".")[0])
         if version >= 2:
-            member_avatar = original_message.author.avatar.url
-            guild_avatar = original_message.guild.me.avatar.url
-            guild_icon = original_message.guild.icon.url
+            member_avatar = message.author.avatar.url  # type: ignore
+            guild_icon = message.guild.icon.url  # type: ignore
+            bot_avatar = message.guild.me.avatar.url  # type: ignore
         else:
-            member_avatar = original_message.author.avatar_url
-            guild_avatar = original_message.guild.me.avatar_url
-            guild_icon = original_message.guild.icon_url
+            member_avatar = message.author.avatar_url  # type: ignore
+            guild_icon = message.guild.icon_url  # type: ignore
+            bot_avatar = message.guild.me.avatar_url  # type: ignore
 
-        return Template(message).safe_substitute(
-            {
-                "MENTIONMEMBER": original_message.author.mention,
-                "MEMBERNAME": original_message.author.display_name,
-                "MEMBERID": original_message.author.id,
-                "BOTNAME": original_message.guild.me.display_name,
-                "BOTID": original_message.guild.me.id,
-                "GUILDID": original_message.guild.id,
-                "GUILDNAME": original_message.guild.name,
-                "TIMESTAMPNOW": datetime.datetime.now().strftime(
-                    "%I:%M:%S %p, %d/%m/%Y"
-                ),
-                "TIMESTAMPTODAY": datetime.datetime.now().strftime("%d/%m/%Y"),
-                "WARNCOUNT": warn_count,
-                "KICKCOUNT": kick_count,
-                "MEMBERAVATAR": member_avatar,
-                "BOTAVATAR": guild_avatar,
-                "GUILDICON": guild_icon,
-            }
+        return SubstituteArgs(
+            bot_id=message.guild.me.id,
+            bot_name=message.guild.me.name,
+            bot_avatar=bot_avatar,
+            guild_id=message.guild.id,
+            guild_icon=guild_icon,
+            guild_name=message.guild.name,
+            member_id=message.author.id,
+            member_name=message.author.display_name,
+            member_avatar=member_avatar,
         )
-
-    async def embed_to_string(self, embed: discord.Embed) -> str:
-        content = ""
-        embed = embed.to_dict()
-
-        if "title" in embed:
-            content += f"{embed['title']}\n"
-
-        if "description" in embed:
-            content += f"{embed['description']}\n"
-
-        if "footer" in embed:
-            if "text" in embed["footer"]:
-                content += f"{embed['footer']['text']}\n"
-
-        if "author" in embed:
-            content += f"{embed['author']['name']}\n"
-
-        if "fields" in embed:
-            for field in embed["fields"]:
-                content += f"{field['name']}\n{field['value']}\n"
-
-        return content
-
-    async def dict_to_embed(
-        self, data: dict, message: discord.Message, warn_count: int, kick_count: int
-    ):
-        allowed_avatars = ["$MEMBERAVATAR", "$BOTAVATAR", "$GUILDICON"]
-        data: dict = deepcopy(data)
-
-        if "title" in data:
-            data["title"] = await self.substitute_args(
-                data["title"], message, warn_count, kick_count
-            )
-
-        if "description" in data:
-            data["description"] = await self.substitute_args(
-                data["description"], message, warn_count, kick_count
-            )
-
-        if "footer" in data:
-            if "text" in data["footer"]:
-                data["footer"]["text"] = await self.substitute_args(
-                    data["footer"]["text"], message, warn_count, kick_count
-                )
-
-            if "icon_url" in data["footer"]:
-                if data["footer"]["icon_url"] in allowed_avatars:
-                    data["footer"]["icon_url"] = await self.substitute_args(
-                        data["footer"]["icon_url"], message, warn_count, kick_count
-                    )
-
-        if "author" in data:
-            # name 'should' be required
-            data["author"]["name"] = await self.substitute_args(
-                data["author"]["name"], message, warn_count, kick_count
-            )
-
-            if "icon_url" in data["author"]:
-                if data["author"]["icon_url"] in allowed_avatars:
-                    data["author"]["icon_url"] = await self.substitute_args(
-                        data["author"]["icon_url"], message, warn_count, kick_count
-                    )
-
-        if "fields" in data:
-            for field in data["fields"]:
-                name = await self.substitute_args(
-                    field["name"], message, warn_count, kick_count
-                )
-                value = await self.substitute_args(
-                    field["value"], message, warn_count, kick_count
-                )
-                field["name"] = name
-                field["value"] = value
-
-                if "inline" not in field:
-                    field["inline"] = True
-
-        if "timestamp" in data:
-            data["timestamp"] = message.created_at.isoformat()
-
-        if "colour" in data:
-            data["color"] = data["colour"]
-
-        data["type"] = "rich"
-
-        return discord.Embed.from_dict(data)
-
-    async def transform_message(
-        self,
-        item: Union[str, dict],
-        message: discord.Message,
-        warn_count: int,
-        kick_count: int,
-    ):
-        if isinstance(item, str):
-            return await self.substitute_args(item, message, warn_count, kick_count)
-
-        return await self.dict_to_embed(item, message, warn_count, kick_count)
-
-    async def visualizer(
-        self,
-        content: str,
-        message: discord.Message,
-        warn_count: int = 1,
-        kick_count: int = 2,
-    ):
-        if content.startswith("{"):
-            content = ast.literal_eval(content)
-
-        return await self.transform_message(content, message, warn_count, kick_count)
 
     async def check_message_can_be_propagated(
         self, message: discord.Message
@@ -226,7 +123,7 @@ class DPY(Lib):
             raise PropagateFailure(data={"status": "Ignoring messages from dm's"})
 
         # The bot is immune to spam
-        if message.author.id == self.handler.bot.user.id:
+        if message.author.id == self.bot.user.id:
             log.debug("Message(id=%s) was from myself", message.id)
             raise PropagateFailure(
                 data={"status": "Ignoring messages from myself (the bot)"}
@@ -374,9 +271,9 @@ class DPY(Lib):
 
             channel = guild.log_channel_id
 
-            channel = self.handler.bot.get_channel(channel)
+            channel = self.bot.get_channel(channel)
             if not channel:
-                channel = await self.handler.bot.fetch_channel(channel)
+                channel = await self.bot.fetch_channel(channel)
 
             if isinstance(message, str):
                 await channel.send(message, delete_after=delete_after_time, file=file)
@@ -509,14 +406,14 @@ class DPY(Lib):
             )
             if sent_message is not None:
                 if is_kick:
-                    user_failed_message = self.transform_message(
+                    user_failed_message = await self.transform_message(
                         self.handler.options.member_failed_kick_message,
                         original_message,
                         member.warn_count,
                         member.kick_count,
                     )
                 else:
-                    user_failed_message = self.transform_message(
+                    user_failed_message = await self.transform_message(
                         self.handler.options.member_failed_ban_message,
                         original_message,
                         member.warn_count,
@@ -548,7 +445,7 @@ class DPY(Lib):
             member.id,
             member.guild_id,
         )
-        bot = self.handler.bot
+        bot = self.bot
         channels = {}
         for message in member.messages:
             if message.is_duplicate:
@@ -603,21 +500,3 @@ class DPY(Lib):
                 message,
                 delete_after=delete_after_time,
             )
-
-    async def get_channel_from_message(
-        self, message: discord.Message
-    ):  # pragma: no cover
-        return message.channel
-
-    async def get_message_mentions(self, message: discord.Message):  # pragma: no cover
-        return message.mentions
-
-    async def get_channel_by_id(self, channel_id: int):  # pragma: no cover
-        channel = self.handler.bot.get_channel(channel_id)
-        if not channel:
-            channel = await self.handler.bot.fetch_channel(channel_id)
-
-        return channel
-
-    def get_file(self, path: str):  # pragma: no cover
-        return discord.File(path)

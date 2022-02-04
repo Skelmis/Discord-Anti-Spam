@@ -17,6 +17,7 @@ The following are all the options you as the user have:
 
 * **$BOTNAME** - This will attempt to state your bots name, uses ``discord.Guild.me.name``
 * **$BOTID** - This will attempt to state your bots id, uses ``discord.Guild.me.id``
+* **$MENTIONBOT** - This will attempt to mention your bot, uses ``discord.Guild.me.mention``
 
 * **$GUILDNAME** - This will attempt to state the guild's name, uses ``discord.Guild.name``
 * **$GUILDID** - This will attempt to state the guild's id, uses ``discord.Guild.id``

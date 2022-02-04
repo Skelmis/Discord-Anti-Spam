@@ -1,11 +1,6 @@
-import ast
 import asyncio
-import datetime
 import logging
-from copy import deepcopy
 from functools import lru_cache
-from pprint import pprint
-from string import Template
 from typing import Optional, Union, List, Dict
 from unittest.mock import AsyncMock
 
@@ -26,14 +21,24 @@ from antispam.dataclasses.propagate_data import PropagateData
 
 from pincer import objects
 
+from antispam.libs.shared import SubstituteArgs, Base
+
 log = logging.getLogger(__name__)
 
 
-# noinspection PyProtocol
-class Pincer(Lib):
+class Pincer(Base, Lib):
     def __init__(self, handler):
         self.handler = handler
         self.bot: pincer.Client = self.handler.bot
+
+    async def get_substitute_args(self, message) -> SubstituteArgs:
+        raise NotImplementedError
+
+    async def lib_embed_as_dict(self, embed) -> Dict:
+        raise NotImplementedError
+
+    async def dict_to_lib_embed(self, data: Dict):
+        raise NotImplementedError
 
     async def check_message_can_be_propagated(
         self, message: objects.UserMessage
@@ -124,153 +129,6 @@ class Pincer(Lib):
             member_id=message.author.id,
             has_perms_to_make_guild=has_perms,
         )
-
-    async def substitute_args(
-        self,
-        message: str,
-        original_message: objects.UserMessage,
-        warn_count: int,
-        kick_count: int,
-    ) -> str:
-        client: pincer.Client = self.bot
-        guild: objects.Guild = await objects.Guild.from_id(
-            client, original_message.guild_id
-        )
-
-        return Template(message).safe_substitute(
-            {
-                "MENTIONMEMBER": original_message.author.mention,
-                "MEMBERNAME": original_message.author.username,
-                "MEMBERID": original_message.author.id,
-                "BOTNAME": client.bot.username,
-                "BOTID": client.bot.id,
-                "GUILDID": guild.id,
-                "GUILDNAME": guild.name,
-                "TIMESTAMPNOW": datetime.datetime.now().strftime(
-                    "%I:%M:%S %p, %d/%m/%Y"
-                ),
-                "TIMESTAMPTODAY": datetime.datetime.now().strftime("%d/%m/%Y"),
-                "WARNCOUNT": warn_count,
-                "KICKCOUNT": kick_count,
-                "MEMBERAVATAR": original_message.author.avatar,
-                "BOTAVATAR": client.bot.avatar,
-                "GUILDICON": guild.icon,
-            }
-        )
-
-    async def embed_to_string(self, embed: objects.Embed) -> str:
-        content = ""
-        embed = embed.to_dict()
-
-        if "title" in embed:
-            content += f"{embed['title']}\n"
-
-        if "description" in embed:
-            content += f"{embed['description']}\n"
-
-        if "footer" in embed:
-            if "text" in embed["footer"]:
-                content += f"{embed['footer']['text']}\n"
-
-        if "author" in embed:
-            content += f"{embed['author']['name']}\n"
-
-        if "fields" in embed:
-            for field in embed["fields"]:
-                content += f"{field['name']}\n{field['value']}\n"
-
-        return content
-
-    async def dict_to_embed(
-        self,
-        data: dict,
-        message: objects.UserMessage,
-        warn_count: int,
-        kick_count: int,
-    ):
-        allowed_avatars = ["$MEMBERAVATAR", "$BOTAVATAR", "$GUILDICON"]
-        data: dict = deepcopy(data)
-
-        if "title" in data:
-            data["title"] = await self.substitute_args(
-                data["title"], message, warn_count, kick_count
-            )
-
-        if "description" in data:
-            data["description"] = await self.substitute_args(
-                data["description"], message, warn_count, kick_count
-            )
-
-        if "footer" in data:
-            if "text" in data["footer"]:
-                data["footer"]["text"] = await self.substitute_args(
-                    data["footer"]["text"], message, warn_count, kick_count
-                )
-
-            if "icon_url" in data["footer"]:
-                if data["footer"]["icon_url"] in allowed_avatars:
-                    data["footer"]["icon_url"] = await self.substitute_args(
-                        data["footer"]["icon_url"], message, warn_count, kick_count
-                    )
-
-        if "author" in data:
-            # name 'should' be required
-            data["author"]["name"] = await self.substitute_args(
-                data["author"]["name"], message, warn_count, kick_count
-            )
-
-            if "icon_url" in data["author"]:
-                if data["author"]["icon_url"] in allowed_avatars:
-                    data["author"]["icon_url"] = await self.substitute_args(
-                        data["author"]["icon_url"], message, warn_count, kick_count
-                    )
-
-        if "fields" in data:
-            for field in data["fields"]:
-                name = await self.substitute_args(
-                    field["name"], message, warn_count, kick_count
-                )
-                value = await self.substitute_args(
-                    field["value"], message, warn_count, kick_count
-                )
-                field["name"] = name
-                field["value"] = value
-
-                if "inline" not in field:
-                    field["inline"] = True
-
-        if "timestamp" in data:
-            datetime_msg = datetime.datetime.fromtimestamp(message.id.timestamp)
-            data["timestamps"] = datetime_msg.isoformat()
-
-        if "colour" in data:
-            data["color"] = data["colour"]
-
-        return objects.Embed.from_dict(data)
-
-    async def transform_message(
-        self,
-        item: Union[str, dict],
-        message: objects.UserMessage,
-        warn_count: int,
-        kick_count: int,
-    ):
-        if isinstance(item, str):
-            return await self.substitute_args(item, message, warn_count, kick_count)
-
-        return await self.dict_to_embed(item, message, warn_count, kick_count)
-
-    async def visualizer(
-        self,
-        content: str,
-        message: objects.UserMessage,
-        warn_count: int = 1,
-        kick_count: int = 2,
-    ):
-        if content.startswith("{"):
-            content: dict = ast.literal_eval(content)
-
-        return await self.transform_message(content, message, warn_count, kick_count)
 
     async def create_message(self, message: objects.UserMessage) -> Message:
         log.debug(
