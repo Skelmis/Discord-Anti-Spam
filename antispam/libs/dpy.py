@@ -46,10 +46,35 @@ from antispam.dataclasses.propagate_data import PropagateData
 log = logging.getLogger(__name__)
 
 
-# noinspection PyProtocol
 class DPY(Base, Lib):
     def __init__(self, handler):
         self.handler = handler
+        self.bot = self.handler.bot
+
+    def get_file(self, path: str):  # pragma: no cover
+        return discord.File(path)
+
+    async def lib_embed_as_dict(self, embed: discord.Embed) -> Dict:
+        return embed.to_dict()
+
+    async def get_channel_from_message(
+        self,
+        message: discord.Message,
+    ):  # pragma: no cover
+        return message.channel
+
+    async def get_message_mentions(self, message: discord.Message):  # pragma: no cover
+        return message.mentions
+
+    async def get_channel_by_id(self, channel_id: int):  # pragma: no cover
+        channel = self.bot.get_channel(channel_id)
+        if not channel:
+            channel = await self.bot.fetch_channel(channel_id)
+
+        return channel
+
+    async def dict_to_lib_embed(self, data: Dict) -> discord.Embed:
+        return discord.Embed.from_dict(data)
 
     async def get_guild_id(self, message: discord.Message) -> int:
         return message.guild.id
@@ -80,12 +105,6 @@ class DPY(Base, Lib):
             member_avatar=member_avatar,
         )
 
-    async def lib_embed_as_dict(self, embed: discord.Embed) -> Dict:
-        return embed.to_dict()
-
-    async def dict_to_lib_embed(self, data: Dict) -> discord.Embed:
-        return discord.Embed.from_dict(data)
-
     async def check_message_can_be_propagated(
         self, message: discord.Message
     ) -> PropagateData:
@@ -104,7 +123,7 @@ class DPY(Base, Lib):
             raise PropagateFailure(data={"status": "Ignoring messages from dm's"})
 
         # The bot is immune to spam
-        if message.author.id == self.handler.bot.user.id:
+        if message.author.id == self.bot.user.id:
             log.debug("Message(id=%s) was from myself", message.id)
             raise PropagateFailure(
                 data={"status": "Ignoring messages from myself (the bot)"}
@@ -252,9 +271,9 @@ class DPY(Base, Lib):
 
             channel = guild.log_channel_id
 
-            channel = self.handler.bot.get_channel(channel)
+            channel = self.bot.get_channel(channel)
             if not channel:
-                channel = await self.handler.bot.fetch_channel(channel)
+                channel = await self.bot.fetch_channel(channel)
 
             if isinstance(message, str):
                 await channel.send(message, delete_after=delete_after_time, file=file)
@@ -387,14 +406,14 @@ class DPY(Base, Lib):
             )
             if sent_message is not None:
                 if is_kick:
-                    user_failed_message = self.transform_message(
+                    user_failed_message = await self.transform_message(
                         self.handler.options.member_failed_kick_message,
                         original_message,
                         member.warn_count,
                         member.kick_count,
                     )
                 else:
-                    user_failed_message = self.transform_message(
+                    user_failed_message = await self.transform_message(
                         self.handler.options.member_failed_ban_message,
                         original_message,
                         member.warn_count,
@@ -426,7 +445,7 @@ class DPY(Base, Lib):
             member.id,
             member.guild_id,
         )
-        bot = self.handler.bot
+        bot = self.bot
         channels = {}
         for message in member.messages:
             if message.is_duplicate:
@@ -481,22 +500,3 @@ class DPY(Base, Lib):
                 message,
                 delete_after=delete_after_time,
             )
-
-    async def get_channel_from_message(
-        self,
-        message: discord.Message,
-    ):  # pragma: no cover
-        return message.channel
-
-    async def get_message_mentions(self, message: discord.Message):  # pragma: no cover
-        return message.mentions
-
-    async def get_channel_by_id(self, channel_id: int):  # pragma: no cover
-        channel = self.handler.bot.get_channel(channel_id)
-        if not channel:
-            channel = await self.handler.bot.fetch_channel(channel_id)
-
-        return channel
-
-    def get_file(self, path: str):  # pragma: no cover
-        return discord.File(path)

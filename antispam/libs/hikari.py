@@ -20,12 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-import ast
 import asyncio
-import datetime
 import logging
-from copy import deepcopy
-from string import Template
 from typing import Optional, Union, Dict
 from unittest.mock import AsyncMock
 
@@ -53,12 +49,37 @@ from antispam import (
 from antispam.abc import Lib
 from antispam.dataclasses import Member, Guild, Message
 from antispam.dataclasses.propagate_data import PropagateData
+from antispam.libs.shared import SubstituteArgs, Base
 
 log = logging.getLogger(__name__)
 
 
-# noinspection DuplicatedCode,PyProtocol
-class Hikari(Lib):
+class Hikari(Base, Lib):
+    def __init__(self, handler: AntiSpamHandler):
+        self.handler = handler
+
+    async def get_substitute_args(self, message) -> SubstituteArgs:
+        guild = self.handler.bot.cache.get_guild(message.guild_id)
+        me: guilds.Member = guild.get_my_member()
+
+        return SubstituteArgs(
+            bot_id=me.id,
+            bot_name=me.name,
+            bot_avatar=str(me.avatar_url),
+            guild_id=message.guild_id,
+            guild_icon=guild.icon_url,
+            guild_name=message.guild.name,
+            member_id=message.author.id,
+            member_name=message.author.username,
+            member_avatar=str(message.author.avatar_url),
+        )
+
+    async def lib_embed_as_dict(self, embed) -> Dict:
+        return self.handler.bot.entity_factory.serialize_embed(embed)
+
+    async def dict_to_lib_embed(self, data: Dict):
+        return self.handler.bot.entity_factory.deserialize_embed(data)
+
     async def send_message_to_(
         self, target, message, mention: str, delete_after_time: Optional[int] = None
     ) -> None:  # pragma: no cover
@@ -74,9 +95,6 @@ class Hikari(Lib):
         if delete_after_time:
             await asyncio.sleep(delete_after_time)
             await m.delete()
-
-    def __init__(self, handler: AntiSpamHandler):
-        self.handler = handler
 
     async def get_guild_id(self, message: messages.Message) -> int:  # pragma: no cover
         return message.guild_id
@@ -205,147 +223,6 @@ class Hikari(Lib):
             perms |= role.permissions
 
         return perms
-
-    async def substitute_args(
-        self,
-        message: str,
-        original_message: messages.Message,
-        warn_count: int,
-        kick_count: int,
-    ) -> str:
-        guild = self.handler.bot.cache.get_guild(original_message.guild_id)
-        me: guilds.Member = guild.get_my_member()
-        return Template(message).safe_substitute(
-            {
-                "MENTIONMEMBER": original_message.author.mention,
-                "MEMBERNAME": original_message.author.username,
-                "MEMBERID": original_message.author.id,
-                "BOTNAME": me.username,
-                "BOTID": me.id,
-                "GUILDID": original_message.guild_id,
-                "GUILDNAME": guild.name,
-                "TIMESTAMPNOW": datetime.datetime.now().strftime(
-                    "%I:%M:%S %p, %d/%m/%Y"
-                ),
-                "TIMESTAMPTODAY": datetime.datetime.now().strftime("%d/%m/%Y"),
-                "WARNCOUNT": warn_count,
-                "KICKCOUNT": kick_count,
-                "MEMBERAVATAR": original_message.author.avatar_url,
-                "BOTAVATAR": me.avatar_url,
-                "GUILDICON": guild.icon_url,
-            }
-        )
-
-    async def embed_to_string(self, embed_obj: embeds.Embed) -> str:
-        content = ""
-        embed: Dict = self.handler.bot.entity_factory.serialize_embed(embed_obj)
-
-        if "title" in embed:
-            content += f"{embed['title']}\n"
-
-        if "description" in embed:
-            content += f"{embed['description']}\n"
-
-        if "footer" in embed:
-            if "text" in embed["footer"]:
-                content += f"{embed['footer']['text']}\n"
-
-        if "author" in embed:
-            content += f"{embed['author']['name']}\n"
-
-        if "fields" in embed:
-            for field in embed["fields"]:
-                content += f"{field['name']}\n{field['value']}\n"
-
-        return content
-
-    async def dict_to_embed(
-        self, data: dict, message: messages.Message, warn_count: int, kick_count: int
-    ):
-        allowed_avatars = ["$MEMBERAVATAR", "$BOTAVATAR", "$GUILDICON"]
-        data: dict = deepcopy(data)
-
-        if "title" in data:
-            data["title"] = await self.substitute_args(
-                data["title"], message, warn_count, kick_count
-            )
-
-        if "description" in data:
-            data["description"] = await self.substitute_args(
-                data["description"], message, warn_count, kick_count
-            )
-
-        if "footer" in data:
-            if "text" in data["footer"]:
-                data["footer"]["text"] = await self.substitute_args(
-                    data["footer"]["text"], message, warn_count, kick_count
-                )
-
-            if "icon_url" in data["footer"]:
-                if data["footer"]["icon_url"] in allowed_avatars:
-                    data["footer"]["icon_url"] = await self.substitute_args(
-                        data["footer"]["icon_url"], message, warn_count, kick_count
-                    )
-
-        if "author" in data:
-            # name 'should' be required
-            data["author"]["name"] = await self.substitute_args(
-                data["author"]["name"], message, warn_count, kick_count
-            )
-
-            if "icon_url" in data["author"]:
-                if data["author"]["icon_url"] in allowed_avatars:
-                    data["author"]["icon_url"] = await self.substitute_args(
-                        data["author"]["icon_url"], message, warn_count, kick_count
-                    )
-
-        if "fields" in data:
-            for field in data["fields"]:
-                name = await self.substitute_args(
-                    field["name"], message, warn_count, kick_count
-                )
-                value = await self.substitute_args(
-                    field["value"], message, warn_count, kick_count
-                )
-                field["name"] = name
-                field["value"] = value
-
-                if "inline" not in field:
-                    field["inline"] = True
-
-        if "timestamp" in data:
-            data["timestamp"] = message.created_at.isoformat()
-
-        if "colour" in data:
-            data["color"] = data["colour"]
-
-        data["type"] = "rich"
-
-        return self.handler.bot.entity_factory.deserialize_embed(data)
-
-    async def transform_message(
-        self,
-        item: Union[str, dict],
-        message: messages.Message,
-        warn_count: int,
-        kick_count: int,
-    ):
-        if isinstance(item, str):
-            return await self.substitute_args(item, message, warn_count, kick_count)
-
-        return await self.dict_to_embed(item, message, warn_count, kick_count)
-
-    async def visualizer(
-        self,
-        content: str,
-        message: messages.Message,
-        warn_count: int = 1,
-        kick_count: int = 2,
-    ):
-        if content.startswith("{"):
-            content = ast.literal_eval(content)
-
-        return await self.transform_message(content, message, warn_count, kick_count)
 
     async def create_message(self, message: messages.Message) -> Message:
         log.debug(

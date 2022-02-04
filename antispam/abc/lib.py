@@ -103,7 +103,7 @@ class Lib(Protocol):
 
         Parameters
         ----------
-        message : Union[discord.Message, hikari.messages.Message]
+        message : Union[discord.Message, hikari.messages.Message, objects.UserMessage]
             The message to extract data from
 
         Returns
