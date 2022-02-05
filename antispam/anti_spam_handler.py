@@ -100,7 +100,6 @@ class AntiSpamHandler:
         cache : Cache, Optional
             Your choice of backend caching
         """
-        # TODO Implement an async cache initialization somehow
 
         options = options or Options()
         if not isinstance(options, Options):
