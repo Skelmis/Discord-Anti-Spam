@@ -44,6 +44,7 @@ from antispam import (
     PropagateFailure,
     LogicError,
     MissingGuildPermissions,
+    InvalidMessage,
 )
 
 from antispam.abc import Lib
@@ -84,7 +85,11 @@ class Hikari(Base, Lib):
         self, target, message, mention: str, delete_after_time: Optional[int] = None
     ) -> None:  # pragma: no cover
         if isinstance(message, hikari.Embed):
+            content = None
+            if self.handler.options.mention_on_embed:
+                content = mention
             m = await target.send(
+                content=content,
                 embed=message,
             )
         else:
@@ -181,7 +186,7 @@ class Hikari(Base, Lib):
             message.channel_id in self.handler.options.ignored_channels
             or channel.name in self.handler.options.ignored_channels
         ):
-            log.debug("channel(id=%s) is ignored", channel.channel)
+            log.debug("channel(id=%s) is ignored", channel.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel_id}"}
             )
@@ -230,11 +235,20 @@ class Hikari(Base, Lib):
             message.author.id,
             message.guild_id,
         )
+        content = ""
+        if message.stickers:
+            # 'sticker' names should be unique..
+            all_stickers = "|".join(s.name for s in message.stickers)
+            content += all_stickers
+
         if not bool(message.content and message.content.strip()):
-            if not message.embeds:
+            if not message.embeds and not message.attachments:
                 raise LogicError
 
-            content = ""
+            if not message.embeds:
+                # We dont check attachments lol
+                raise InvalidMessage
+
             for embed in message.embeds:
                 if not isinstance(embed, embeds.Embed):
                     raise LogicError

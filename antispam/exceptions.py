@@ -87,3 +87,11 @@ class GuildAddonNotFound(GuildNotFound):
 
 class PluginError(BaseASHException):
     """An error occurred that was related to a plugin and not AntiSpamHandler"""
+
+
+class ExistingEntry(BaseASHException):
+    """An entry was already found in the timed cache with this key."""
+
+
+class NonExistentEntry(BaseASHException):
+    """No entry found in the timed cache with this key."""

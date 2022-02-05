@@ -103,7 +103,7 @@ class Lib(Protocol):
 
         Parameters
         ----------
-        message : Union[discord.Message, hikari.messages.Message, objects.UserMessage]
+        message : Union[discord.Message, hikari.messages.Message, pincer.objects.UserMessage]
             The message to extract data from
 
         Returns
@@ -155,7 +155,12 @@ class Lib(Protocol):
             What to send to the guilds log channel
         delete_after_time : Optional[int]
             How long to delete these messages after
-        original_channel : Union[discord.abc.GuildChannel, discord.abc.PrivateChannel, hikari.channels.GuildTextChannel]
+        original_channel : Union[
+                                discord.abc.GuildChannel,
+                                discord.abc.PrivateChannel,
+                                hikari.channels.GuildTextChannel,
+                                pincer.objects.Channel
+                            ]
             Where to send the message assuming this guild has no guild log
             channel already set.
         file

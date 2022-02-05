@@ -209,10 +209,11 @@ class DPY(Base, Lib):
                 "Message is a system one, we don't check against those."
             )
 
+        content = ""
         if message.stickers:
             # 'sticker' urls should be unique..
             all_stickers = "|".join(s.url for s in message.stickers)
-            content = all_stickers
+            content += all_stickers
 
         elif not bool(message.content and message.content.strip()):
             if not message.embeds and not message.attachments:
@@ -223,7 +224,6 @@ class DPY(Base, Lib):
                 # We don't check agaisn't attachments
                 raise InvalidMessage
 
-            content = ""
             for embed in message.embeds:
                 if not isinstance(embed, discord.Embed):
                     raise LogicError
@@ -233,7 +233,7 @@ class DPY(Base, Lib):
 
                 content += await self.embed_to_string(embed)
         else:
-            content = message.clean_content
+            content += message.clean_content
 
         if self.handler.options.delete_zero_width_chars:
             content = (
