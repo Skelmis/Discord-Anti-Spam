@@ -28,7 +28,7 @@ from typing import Optional, List, Dict, Union
 from unittest.mock import AsyncMock
 
 import pincer
-from pincer.objects import UserMessage, Embed
+from pincer.objects import UserMessage, Embed, MessageType
 
 from antispam import (
     InvalidMessage,
@@ -186,11 +186,15 @@ class Pincer(Base, Lib):
             message.author.id,
             message.guild_id,
         )
-        # TODO Add
-        # if message.is_system():
-        #     raise InvalidMessage(
-        #         "Message is a system one, we don't check against those."
-        #     )
+        if message.type not in {
+            MessageType.DEFAULT,
+            MessageType.REPLY,
+            MessageType.APPLICATION_COMMAND,
+            MessageType.THREAD_STARTER_MESSAGE,
+        }:
+            raise InvalidMessage(
+                "Message is a system one, we don't check against those."
+            )
 
         content = ""
         if message.sticker_items:
@@ -318,10 +322,6 @@ class Pincer(Base, Lib):
                 data={"status": "Ignoring messages from myself (the bot)"}
             )
 
-        member: objects.GuildMember = await self._fetch_member(
-            message.author.id, message.guild_id
-        )
-
         # Return if ignored bot
         if self.handler.options.ignore_bots and message.author.bot:
             log.debug(
@@ -356,7 +356,15 @@ class Pincer(Base, Lib):
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel_id}"}
             )
-
+        # try:
+        member: objects.GuildMember = await self._fetch_member(
+            message.author.id, message.guild_id
+        )
+        # except Exception as e:
+        #     raise e
+        #     raise InvalidMessage(
+        #         f"Looks like this Message(id={message.id}, channel_id={message.channel_id}) is a webhook?"
+        #     )
         # Return if member has an ignored role
         try:
             user_roles = member.roles
