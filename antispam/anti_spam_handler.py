@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import functools
 import logging
 from copy import deepcopy
-from typing import Optional, Union, Dict, Type, Set
+from typing import Optional, Union, Dict, Type, Set, TYPE_CHECKING
 
 from attr import asdict
 
@@ -43,6 +43,9 @@ from antispam.exceptions import (
 from antispam.factory import FactoryBuilder
 from antispam.base_plugin import BasePlugin
 from antispam.util import get_aware_time
+
+if TYPE_CHECKING:
+    from antispam.plugins import Stats
 
 log = logging.getLogger(__name__)
 
@@ -226,10 +229,13 @@ class AntiSpamHandler:
 
             try:
                 if pre_invoke_return.get("cancel_next_invocation"):
-                    stats = self.after_invoke_extensions.get("stats")
+                    stats: Optional[BasePlugin] = self.after_invoke_extensions.get(
+                        "stats"
+                    )
                     if stats:
                         if hasattr(stats, "injectable_nonce"):
                             # Increment stats for invocation call stats
+                            stats: "Stats" = stats  # type: ignore
                             try:
                                 stats.data["pre_invoke_calls"][
                                     pre_invoke_ext.__class__.__name__

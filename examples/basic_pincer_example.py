@@ -7,6 +7,11 @@ from antispam import AntiSpamHandler
 from antispam.enums import Library
 from examples.jsonLoader import read_json
 
+logging.basicConfig(
+    format="%(levelname)-7s | %(asctime)s | %(filename)12s:%(funcName)-12s | %(message)s",
+    datefmt="%I:%M:%S %p %d/%m/%Y",
+    level=logging.INFO,
+)
 file = read_json("token")
 
 

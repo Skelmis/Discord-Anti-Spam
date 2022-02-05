@@ -81,7 +81,12 @@ class Pincer(Base, Lib):
                 self.bot, guild_id, member_id
             )
             member.permissions = await self._get_perms(member.roles, guild_id)
-            self._timed_cache.add_entry(key, member, ttl=datetime.timedelta(hours=1))
+            self._timed_cache.add_entry(
+                key,
+                member,
+                ttl=datetime.timedelta(hours=1),
+                override=True,  # This is to avoid the fact this is not async safe
+            )
             return member
 
     async def _fetch_text_channel(self, channel_id: int) -> objects.Channel:
@@ -92,7 +97,9 @@ class Pincer(Base, Lib):
             channel: objects.Channel = await objects.TextChannel.from_id(
                 self.bot, channel_id
             )
-            self._timed_cache.add_entry(key, channel, ttl=datetime.timedelta(hours=1))
+            self._timed_cache.add_entry(
+                key, channel, ttl=datetime.timedelta(hours=1), override=True
+            )
             return channel
 
     async def _fetch_guild(self, guild_id: int) -> objects.Guild:
@@ -101,7 +108,9 @@ class Pincer(Base, Lib):
             return self._timed_cache.get_entry(key)
         except NonExistentEntry:
             guild: objects.Guild = await objects.Guild.from_id(self.bot, guild_id)
-            self._timed_cache.add_entry(key, guild, ttl=datetime.timedelta(hours=1))
+            self._timed_cache.add_entry(
+                key, guild, ttl=datetime.timedelta(hours=1), override=True
+            )
             return guild
 
     async def _fetch_user_message(
@@ -114,7 +123,9 @@ class Pincer(Base, Lib):
             message: UserMessage = await UserMessage.from_id(
                 self.bot, message_id, channel_id
             )
-            self._timed_cache.add_entry(key, message, ttl=datetime.timedelta(days=1))
+            self._timed_cache.add_entry(
+                key, message, ttl=datetime.timedelta(days=1), override=True
+            )
             return message
 
     def get_file(self, path: str):
@@ -186,15 +197,16 @@ class Pincer(Base, Lib):
             message.author.id,
             message.guild_id,
         )
-        if message.type not in {
-            MessageType.DEFAULT,
-            MessageType.REPLY,
-            MessageType.APPLICATION_COMMAND,
-            MessageType.THREAD_STARTER_MESSAGE,
-        }:
-            raise InvalidMessage(
-                "Message is a system one, we don't check against those."
-            )
+        # TODO Reimplement once #424 is resolved
+        # if message.type not in {
+        #     MessageType.DEFAULT,
+        #     MessageType.REPLY,
+        #     MessageType.APPLICATION_COMMAND,
+        #     MessageType.THREAD_STARTER_MESSAGE,
+        # }:
+        #     raise InvalidMessage(
+        #         "Message is a system one, we don't check against those."
+        #     )
 
         content = ""
         if message.sticker_items:

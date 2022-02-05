@@ -50,7 +50,6 @@ class Core:
         TODO Test this links
         Please see and use :meth:`antispam.AntiSpamHandler`
         """
-
         # To get here it must have passed checks so simply run the relevant methods
         guild_r = await self.propagate_user(message, guild)
 
