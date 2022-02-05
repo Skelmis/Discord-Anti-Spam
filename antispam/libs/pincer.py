@@ -21,6 +21,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 import asyncio
+import datetime
+import functools
 import logging
 from typing import Optional, List, Dict, Union
 from unittest.mock import AsyncMock
@@ -33,6 +35,7 @@ from antispam import (
     LogicError,
     PropagateFailure,
     MissingGuildPermissions,
+    NonExistentEntry,
 )
 from antispam.abc import Lib
 from antispam.dataclasses import Member, Guild, Message
@@ -40,15 +43,79 @@ from antispam.dataclasses.propagate_data import PropagateData
 
 from pincer import objects
 
-from antispam.libs.shared import SubstituteArgs, Base
+from antispam.libs.shared import SubstituteArgs, Base, TimedCache
 
 log = logging.getLogger(__name__)
+
+
+def clean_cache(func):
+    """Non-lazy eviction of the cache to keep it small(ish)"""
+
+    @functools.wraps(func)
+    async def wrapped(*args, **kwargs):
+        self: "Pincer" = args[0]
+        self._timed_cache.force_clean()
+
+        if asyncio.iscoroutinefunction(func):
+            return await func(*args, **kwargs)
+
+        return func(*args, **kwargs)
+
+    return wrapped
 
 
 class Pincer(Base, Lib):
     def __init__(self, handler):
         self.handler = handler
         self.bot: pincer.Client = self.handler.bot
+
+        self._timed_cache: TimedCache = TimedCache()
+
+    # Cached methods
+    async def _fetch_member(self, member_id: int, guild_id: int) -> objects.GuildMember:
+        key = f"GuildMember:{member_id}:{guild_id}"
+        try:
+            return self._timed_cache.get_entry(key)
+        except NonExistentEntry:
+            member: objects.GuildMember = await objects.GuildMember.from_id(
+                self.bot, guild_id, member_id
+            )
+            member.permissions = await self._get_perms(member.roles, guild_id)
+            self._timed_cache.add_entry(key, member, ttl=datetime.timedelta(hours=1))
+            return member
+
+    async def _fetch_text_channel(self, channel_id: int) -> objects.Channel:
+        key = f"TextChannel:{channel_id}"
+        try:
+            return self._timed_cache.get_entry(key)
+        except NonExistentEntry:
+            channel: objects.Channel = await objects.TextChannel.from_id(
+                self.bot, channel_id
+            )
+            self._timed_cache.add_entry(key, channel, ttl=datetime.timedelta(hours=1))
+            return channel
+
+    async def _fetch_guild(self, guild_id: int) -> objects.Guild:
+        key = f"Guild:{guild_id}"
+        try:
+            return self._timed_cache.get_entry(key)
+        except NonExistentEntry:
+            guild: objects.Guild = await objects.Guild.from_id(self.bot, guild_id)
+            self._timed_cache.add_entry(key, guild, ttl=datetime.timedelta(hours=1))
+            return guild
+
+    async def _fetch_user_message(
+        self, message_id: int, channel_id: int
+    ) -> UserMessage:
+        key = f"UserMessage:{message_id}:{channel_id}"
+        try:
+            return self._timed_cache.get_entry(key)
+        except NonExistentEntry:
+            message: UserMessage = await UserMessage.from_id(
+                self.bot, message_id, channel_id
+            )
+            self._timed_cache.add_entry(key, message, ttl=datetime.timedelta(days=1))
+            return message
 
     def get_file(self, path: str):
         return objects.File.from_file(path)
@@ -75,11 +142,11 @@ class Pincer(Base, Lib):
         return await self.get_channel_by_id(message.channel_id)
 
     async def get_channel_by_id(self, channel_id: int):
-        return await objects.TextChannel.from_id(self.bot, channel_id)
+        return await self._fetch_text_channel(channel_id)
 
     async def get_substitute_args(self, message) -> SubstituteArgs:
         client: pincer.Client = self.bot
-        guild: objects.Guild = await objects.Guild.from_id(client, message.guild_id)
+        guild: objects.Guild = await self._fetch_guild(message.guild_id)
 
         return SubstituteArgs(
             bot_id=client.bot.id,
@@ -104,8 +171,8 @@ class Pincer(Base, Lib):
             if not message.is_duplicate:
                 continue
 
-            actual_message: UserMessage = await UserMessage.from_id(
-                client, message.id, message.channel_id
+            actual_message: UserMessage = await self._fetch_user_message(
+                message.id, message.channel_id
             )
             await actual_message.delete()
 
@@ -211,9 +278,7 @@ class Pincer(Base, Lib):
                 return
 
             channel_id = guild.log_channel_id
-            channel: objects.Channel = await objects.TextChannel.from_id(
-                self.bot, channel_id
-            )
+            channel: objects.Channel = await self._fetch_text_channel(channel_id)
 
             # TODO File's require testing
             # Pincer handles Embed/str behind the scenes
@@ -230,9 +295,8 @@ class Pincer(Base, Lib):
                 guild.id,
             )
 
-    async def check_message_can_be_propagated(
-        self, message: UserMessage
-    ) -> PropagateData:
+    @clean_cache
+    async def check_message_can_be_propagated(self, message) -> PropagateData:
         if not isinstance(message, (UserMessage, AsyncMock)):
             raise PropagateFailure(
                 data={"status": "Expected message of type UserMessage"}
@@ -248,15 +312,14 @@ class Pincer(Base, Lib):
             raise PropagateFailure(data={"status": "Ignoring messages from dm's"})
 
             # The bot is immune to spam
-        if message.author.id == self.handler.bot.client.bot.id:
+        if message.author.id == self.bot.bot.id:
             log.debug("Message(id=%s) was from myself", message.id)
             raise PropagateFailure(
                 data={"status": "Ignoring messages from myself (the bot)"}
             )
 
-        guild: objects.Guild = await objects.Guild.from_id(self.bot, message.guild_id)
-        member: objects.GuildMember = await objects.GuildMember.from_id(
-            self.bot, message.guild_id, message.author.id
+        member: objects.GuildMember = await self._fetch_member(
+            message.author.id, message.guild_id
         )
 
         # Return if ignored bot
@@ -284,9 +347,7 @@ class Pincer(Base, Lib):
             )
 
         # Return if ignored channel
-        channel: objects.Channel = await objects.TextChannel.from_id(
-            self.bot, message.channel_id
-        )
+        channel: objects.Channel = await self._fetch_text_channel(message.channel_id)
         if (
             message.channel_id in self.handler.options.ignored_channels
             or channel.name in self.handler.options.ignored_channels
@@ -314,7 +375,7 @@ class Pincer(Base, Lib):
                 message.author.id,
             )
 
-        perms: int = int(member.permissions)
+        perms: int = member.permissions
         kick_members = bool(perms << 1)
         ban_members = bool(perms << 2)
         has_perms = kick_members and ban_members
@@ -326,6 +387,7 @@ class Pincer(Base, Lib):
             has_perms_to_make_guild=has_perms,
         )
 
+    @clean_cache
     async def punish_member(
         self,
         original_message,
@@ -337,13 +399,13 @@ class Pincer(Base, Lib):
         user_delete_after: int = None,
         channel_delete_after: int = None,
     ):
-        guild = await objects.Guild.from_id(self.bot, member.guild_id)
+        guild: objects.Guild = await self._fetch_guild(member.guild_id)
         author: objects.User = original_message.author
-        channel: objects.Channel = await objects.TextChannel.from_id(
-            self.bot, original_message.channel_id
+        channel: objects.Channel = await self._fetch_text_channel(
+            original_message.channel_id
         )
-        _member: objects.GuildMember = await objects.GuildMember.from_id(
-            self.bot, member.guild_id, member.id
+        _member: objects.GuildMember = await self._fetch_member(
+            original_message.author.id, original_message.guild_id
         )
 
         # Check we have perms to punish
@@ -372,10 +434,8 @@ class Pincer(Base, Lib):
                 f"I cannot punish Member(id={_member.id}, username={_member.username}) "
                 f"because they own this guild. Guild(name={guild.name})"
             )
-
-        sent_message: Optional[objects.UserMessage] = None
         # TODO Add error handling when #421 is merged
-        sent_message = await author.send(user_message)
+        sent_message: objects.UserMessage = await author.send(user_message)
 
         if user_delete_after:
             await asyncio.sleep(user_delete_after)
@@ -441,3 +501,19 @@ class Pincer(Base, Lib):
 
         member._in_guild = True
         await self.handler.cache.set_member(member)
+
+    async def _get_perms(self, member_roles: List[int], guild_id: int) -> int:
+        guild_roles: list = await self.bot.http.get(f"/guilds/{guild_id}/roles")
+        # Gotta guess perms from role perms
+        actual_roles = []
+        for role in guild_roles:
+            if int(role["id"]) in member_roles:
+                actual_roles.append(role)
+
+        initial = 0x0
+        for role in actual_roles:
+            initial |= int(role["permissions"], 16)
+        if initial << 3:
+            # Admin implies all perms
+            initial = 0b111111111111111111111111111111111111111
+        return initial

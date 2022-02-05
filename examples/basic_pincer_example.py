@@ -8,11 +8,6 @@ from antispam.enums import Library
 from examples.jsonLoader import read_json
 
 file = read_json("token")
-# logging.basicConfig(
-#     format="%(levelname)s | %(asctime)s | %(module)s | %(message)s",
-#     datefmt="%d/%m/%Y %I:%M:%S %p",
-#     level=logging.DEBUG,
-# )
 
 
 class Bot(Client):
@@ -25,7 +20,6 @@ class Bot(Client):
 
     @Client.event
     async def on_message(self, message: UserMessage):
-        print("on_messages")
         await self.antispam.propagate(message)  # noqa
 
 
