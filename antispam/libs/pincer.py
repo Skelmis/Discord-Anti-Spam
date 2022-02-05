@@ -176,6 +176,8 @@ class Pincer(Base, Lib):
             if self.handler.options.mention_on_embed:
                 content = mention
 
+            # Test this, and if this is it then open
+            # a feature request for * support
             m = await target.send(
                 [
                     content,
