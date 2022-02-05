@@ -291,14 +291,15 @@ class Hikari(Base, Lib):
                 )
                 return
 
-            channel = guild.log_channel_id
-
-            channel = await self.handler.bot.rest.fetch_channel(channel)
-
+            channel_id = guild.log_channel_id
             if isinstance(message, str):
-                m = await channel.send(message, attachment=file)
+                m = await self.handler.bot.rest.send_message(
+                    channel_id, message, attachment=file
+                )
             else:
-                m = await channel.send(embed=message, attachment=file)
+                m = await self.handler.bot.rest.send_message(
+                    channel_id, embed=message, attachment=file
+                )
 
             if delete_after_time:
                 await asyncio.sleep(delete_after_time)
