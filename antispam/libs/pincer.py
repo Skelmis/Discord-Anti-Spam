@@ -23,6 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import asyncio
 import logging
 from typing import Optional, List, Dict, Union
+from unittest.mock import AsyncMock
 
 import pincer
 from pincer.objects import UserMessage, Embed
@@ -229,8 +230,101 @@ class Pincer(Base, Lib):
                 guild.id,
             )
 
-    async def check_message_can_be_propagated(self, message) -> PropagateData:
-        raise NotImplementedError
+    async def check_message_can_be_propagated(
+        self, message: UserMessage
+    ) -> PropagateData:
+        if not isinstance(message, (UserMessage, AsyncMock)):
+            raise PropagateFailure(
+                data={"status": "Expected message of type UserMessage"}
+            )
+
+            # Ensure we only moderate actual guild messages
+        if not message.guild_id:
+            log.debug(
+                "Message(id=%s) from Member(id=%s) was not in a guild",
+                message.id,
+                message.author.id,
+            )
+            raise PropagateFailure(data={"status": "Ignoring messages from dm's"})
+
+            # The bot is immune to spam
+        if message.author.id == self.handler.bot.client.bot.id:
+            log.debug("Message(id=%s) was from myself", message.id)
+            raise PropagateFailure(
+                data={"status": "Ignoring messages from myself (the bot)"}
+            )
+
+        guild: objects.Guild = await objects.Guild.from_id(self.bot, message.guild_id)
+        member: objects.GuildMember = await objects.GuildMember.from_id(
+            self.bot, message.guild_id, message.author.id
+        )
+
+        # Return if ignored bot
+        if self.handler.options.ignore_bots and message.author.bot:
+            log.debug(
+                "I ignore bots, and this is a bot message with author(id=%s)",
+                message.author.id,
+            )
+            raise PropagateFailure(data={"status": "Ignoring messages from bots"})
+
+        # Return if ignored guild
+        if message.guild_id in self.handler.options.ignored_guilds:
+            log.debug("Ignored Guild(id=%s)", message.guild.id)
+            raise PropagateFailure(
+                data={"status": f"Ignoring this guild: {message.guild_id}"}
+            )
+
+        # Return if ignored member
+        if message.author.id in self.handler.options.ignored_members:
+            log.debug(
+                "The Member(id=%s) who sent this message is ignored", message.author.id
+            )
+            raise PropagateFailure(
+                data={"status": f"Ignoring this member: {message.author.id}"}
+            )
+
+        # Return if ignored channel
+        channel: objects.Channel = await objects.TextChannel.from_id(
+            self.bot, message.channel_id
+        )
+        if (
+            message.channel_id in self.handler.options.ignored_channels
+            or channel.name in self.handler.options.ignored_channels
+        ):
+            log.debug("channel(id=%s) is ignored", channel.id)
+            raise PropagateFailure(
+                data={"status": f"Ignoring this channel: {message.channel_id}"}
+            )
+
+        # Return if member has an ignored role
+        try:
+            user_roles = member.roles
+            # We don't support this yet
+            # user_roles.extend([role.name for role in roles])
+            for item in user_roles:
+                if item in self.handler.options.ignored_roles:
+                    log.debug("role(%s) is a part of ignored roles", item)
+                    raise PropagateFailure(
+                        data={"status": f"Ignoring this role: {item}"}
+                    )
+        except AttributeError:
+            log.warning(
+                "Could not compute ignored_roles for %s(%s)",
+                message.author.username,
+                message.author.id,
+            )
+
+        perms: int = int(member.permissions)
+        kick_members = bool(perms << 1)
+        ban_members = bool(perms << 2)
+        has_perms = kick_members and ban_members
+
+        return PropagateData(
+            guild_id=message.guild_id,
+            member_name=message.author.username,
+            member_id=message.author.id,
+            has_perms_to_make_guild=has_perms,
+        )
 
     async def punish_member(
         self,
@@ -243,4 +337,107 @@ class Pincer(Base, Lib):
         user_delete_after: int = None,
         channel_delete_after: int = None,
     ):
-        raise NotImplementedError
+        guild = await objects.Guild.from_id(self.bot, member.guild_id)
+        author: objects.User = original_message.author
+        channel: objects.Channel = await objects.TextChannel.from_id(
+            self.bot, original_message.channel_id
+        )
+        _member: objects.GuildMember = await objects.GuildMember.from_id(
+            self.bot, member.guild_id, member.id
+        )
+
+        # Check we have perms to punish
+        perms: int = int(_member.permissions)
+        kick_members = bool(perms << 1)
+        ban_members = bool(perms << 2)
+        if not kick_members and is_kick:
+            member._in_guild = True
+            member.kick_count -= 1
+            raise MissingGuildPermissions(
+                f"I need kick perms to punish someone in {guild.name}"
+            )
+
+        elif not ban_members and not is_kick:
+            member._in_guild = True
+            member.kick_count -= 1
+            raise MissingGuildPermissions(
+                f"I need ban perms to punish someone in {guild.name}"
+            )
+
+        # We also check they don't own the guild, since ya know...
+        elif guild.owner_id == member.id:
+            member._in_guild = True
+            member.kick_count -= 1
+            raise MissingGuildPermissions(
+                f"I cannot punish Member(id={_member.id}, username={_member.username}) "
+                f"because they own this guild. Guild(name={guild.name})"
+            )
+
+        sent_message: Optional[objects.UserMessage] = None
+        # TODO Add error handling when #421 is merged
+        sent_message = await author.send(user_message)
+
+        if user_delete_after:
+            await asyncio.sleep(user_delete_after)
+            await sent_message.delete()
+
+        # Even if we can't tell them they are being punished
+        # We still need to punish them, so try that
+        try:
+
+            if is_kick:
+                await guild.kick(
+                    _member.id, reason="Automated punishment from DPY Anti-Spam."
+                )
+                log.info("Kicked Member(id=%s)", member.id)
+            else:
+                await guild.ban(
+                    _member.id, reason="Automated punishment from DPY Anti-Spam."
+                )
+                log.info("Banned Member(id=%s)", member.id)
+        except:
+            # TODO Pincer doesnt throw errors
+            member._in_guild = True
+            member.kick_count -= 1
+            await self.send_guild_log(
+                guild=internal_guild,
+                message=f"An error occurred trying to {'kick' if is_kick else 'ban'}: <@{member.id}>",
+                delete_after_time=channel_delete_after,
+                original_channel=channel,
+            )
+            log.warning(
+                "An error occurred trying to %s: Member(id=%s)",
+                {"kick" if is_kick else "ban"},
+                member.id,
+            )
+            if sent_message is not None:
+                if is_kick:
+                    user_failed_message = await self.transform_message(
+                        self.handler.options.member_failed_kick_message,
+                        original_message,
+                        member.warn_count,
+                        member.kick_count,
+                    )
+                else:
+                    user_failed_message = await self.transform_message(
+                        self.handler.options.member_failed_ban_message,
+                        original_message,
+                        member.warn_count,
+                        member.kick_count,
+                    )
+
+                await self.send_guild_log(
+                    internal_guild, user_failed_message, channel_delete_after, channel
+                )
+                await sent_message.delete()
+
+        else:
+            await self.send_guild_log(
+                guild=internal_guild,
+                message=guild_message,
+                delete_after_time=channel_delete_after,
+                original_channel=channel,
+            )
+
+        member._in_guild = True
+        await self.handler.cache.set_member(member)

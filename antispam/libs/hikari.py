@@ -186,7 +186,7 @@ class Hikari(Base, Lib):
             message.channel_id in self.handler.options.ignored_channels
             or channel.name in self.handler.options.ignored_channels
         ):
-            log.debug("channel(id=%s) is ignored", channel.channel)
+            log.debug("channel(id=%s) is ignored", channel.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel_id}"}
             )
