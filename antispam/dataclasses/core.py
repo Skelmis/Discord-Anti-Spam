@@ -53,7 +53,7 @@ class CorePayload:
     member_should_be_punished_this_message : bool
         If AntiSpamHandler thinks this member should
         receive some form of punishment this message.
-        Useful for :py:class:`antispam.plugins.AntiSpamTracker`
+        Useful for ``antispam.plugins.AntiSpamTracker``
     """
 
     # Per user things

@@ -168,7 +168,7 @@ class Options:
         If should_be_punished_this_message is True then this package believes they should be punished.
         Otherwise just ignore that message since it shouldn’t be punished.
 
-        Use :py:class:`antispam.plugins.AntiSpamTracker` with this mode for best affect.
+        Use ``antispam.plugins.AntiSpamTracker`` with this mode for best affect.
     mention_on_embed : bool
         Default: ``True``
 
