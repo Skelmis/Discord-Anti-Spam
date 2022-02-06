@@ -5,6 +5,16 @@
 The simplest use-case for this package. 2 lines of code.
 Plug and play.
 
+### `basic_hikari_example.py`
+
+The simplest use-case for this package using Hikari. 2 lines of code.
+Plug and play.
+
+### `basic_pincer_example.py`
+
+The simplest use-case for this package using Hikari. 2 lines of code.
+Plug and play.
+
 ### `basic_custom_punishment_bot.py`
 
 Again, nice and simple except it shows off how to use
