@@ -60,6 +60,7 @@ The package features some built in punishments, these are:
    modules/objects/message.rst
    modules/objects/redis.rst
    modules/objects/memory.rst
+   modules/objects/mongo.rst
    modules/objects/data.rst
 
 Install Notes
