@@ -1,11 +1,15 @@
-Welcome to DPY Anti-Spam's documentation!
-=========================================
+Welcome to Discord Anti-Spam's documentation!
+=============================================
 
-DPY Anti-Spam supports discord.py and all forks out of
+Discord Anti-Spam supports discord.py and all forks out of
 the box assuming they use the ``discord`` namespace.
 
 If you want to use this with hikari, please enable it
 by passing ``library=Library.HIKARI`` to the
+``AntiSpamHandler`` constructor.
+
+If you want to use this with pincer, please enable it
+by passing ``library=Library.PINCER`` to the
 ``AntiSpamHandler`` constructor.
 
 
