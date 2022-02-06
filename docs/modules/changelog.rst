@@ -15,7 +15,7 @@ New:
 2. New message templating option.
     ``$MENTIONBOT`` to mention your bot.
 3. A method for changing caches.
-    ``AntiSpamHandler.set_cache(...)``
+    ``AntiSpamHandler.set_cache(new_cache)``
 4. A new cache.
     ``MongoCache(AntiSpamHandler, "Mongo connection url")``
 
