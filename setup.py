@@ -31,16 +31,25 @@ setup(
     description="An easy to use package for anti-spam features in python discord libraries.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Skelmis/DPY-Anti-Spam",
+    project_urls={
+        "Homepage:": "https://github.com/Skelmis/DPY-Anti-Spam",
+        "Documentation": "https://dpy-anti-spam.readthedocs.io/en/latest",
+        "Issue tracker": "https://github.com/Skelmis/DPY-Anti-Spam/issues",
+        "Support server": "https://discord.gg/BqPNSH2jPg",
+    },
+    # TODO This is stupid, fix it.
     packages=[
         "antispam",
+        "antispam.abc",
         "antispam.caches",
         "antispam.caches.memory",
         "antispam.caches.redis",
+        "antispam.caches.mongo",
         "antispam.dataclasses",
         "antispam.enums",
         "antispam.plugins",
         "antispam.libs",
+        "antispam.libs.shared",
     ],
     install_requires=parse_requirements_file("requirements.txt"),
     extras_requires={
