@@ -14,9 +14,7 @@ This handler propagation method also returns the following class for you to use:
 
 :py:class:`antispam.CorePayload`
 
-.. currentmodule:: antispam
-
-.. autoclass:: AntiSpamHandler
+.. autoclass:: antispam.AntiSpamHandler
     :members:
     :undoc-members:
     :special-members: __init__
