@@ -21,7 +21,8 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 import asyncio
-from typing import TYPE_CHECKING, Dict, List
+import logging
+from typing import TYPE_CHECKING, Dict, List, AsyncIterable
 
 import pytz
 from attr import asdict
@@ -35,6 +36,8 @@ from antispam.enums import ResetType
 
 if TYPE_CHECKING:
     from antispam import AntiSpamHandler
+
+log = logging.getLogger(__name__)
 
 
 class MongoCache(Cache):
@@ -61,7 +64,10 @@ class MongoCache(Cache):
         self.guilds: Document = Document(self.db, "antispam_guilds", converter=Guild)
         self.members: Document = Document(self.db, "antispam_members", converter=Member)
 
+        log.info("Cache instance ready to roll.")
+
     async def get_guild(self, guild_id: int) -> Guild:
+        log.debug("Attempting to return cached Guild(id=%s)", guild_id)
         guild: Guild = await self.guilds.find({"id": guild_id})
         if not guild:
             raise GuildNotFound
@@ -82,6 +88,7 @@ class MongoCache(Cache):
         return guild
 
     async def set_guild(self, guild: Guild) -> None:
+        log.debug("Attempting to set Guild(id=%s)", guild.id)
         # Since self.members exists
         members: List[Member] = list(guild.members.values())
         guild.members = {}
@@ -91,10 +98,16 @@ class MongoCache(Cache):
         await self.guilds.upsert({"id": guild.id}, asdict(guild))
 
     async def delete_guild(self, guild_id: int) -> None:
+        log.debug("Attempting to delete Guild(id=%s)", guild_id)
         await self.guilds.delete({"id": guild_id})
         await self.members.delete({"guild_id": guild_id})
 
     async def get_member(self, member_id: int, guild_id: int) -> Member:
+        log.debug(
+            "Attempting to return a cached Member(id=%s) for Guild(id=%s)",
+            member_id,
+            guild_id,
+        )
         member: Member = await self.members.find(
             {"id": member_id, "guild_id": guild_id}
         )
@@ -112,15 +125,29 @@ class MongoCache(Cache):
         return member
 
     async def set_member(self, member: Member) -> None:
+        log.debug(
+            "Attempting to cache Member(id=%s) for Guild(id=%s)",
+            member.id,
+            member.guild_id,
+        )
         member_dict: Dict = asdict(member, recurse=True)
         await self.members.upsert_custom(
             {"id": member.id, "guild_id": member.guild_id}, member_dict
         )
 
     async def delete_member(self, member_id: int, guild_id: int) -> None:
+        log.debug(
+            "Attempting to delete Member(id=%s) in Guild(id=%s)", member_id, guild_id
+        )
         await self.members.delete({"id": member_id, "guild_id": guild_id})
 
     async def add_message(self, message: Message) -> None:
+        log.debug(
+            "Attempting to add a Message(id=%s) to Member(id=%s) in Guild(id=%s)",
+            message.id,
+            message.author_id,
+            message.guild_id,
+        )
         member: Member = await self.members.find(
             {"id": message.author_id, "guild_id": message.guild_id}
         )
@@ -135,6 +162,12 @@ class MongoCache(Cache):
     async def reset_member_count(
         self, member_id: int, guild_id: int, reset_type: ResetType
     ) -> None:
+        log.debug(
+            "Attempting to reset counts on Member(id=%s) in Guild(id=%s) with type %s",
+            member_id,
+            guild_id,
+            reset_type.name,
+        )
         member: Member = await self.members.find(
             {"id": member_id, "guild_id": guild_id}
         )
@@ -148,6 +181,19 @@ class MongoCache(Cache):
 
         await self.set_member(member)
 
+    async def get_all_members(self, guild_id: int) -> AsyncIterable[Member]:
+        log.debug("Yielding all cached members for Guild(id=%s)", guild_id)
+        members = await self.members.find_many_by_custom({"guild_id": guild_id})
+        for member in members:
+            yield member
+
+    async def get_all_guilds(self) -> AsyncIterable[Guild]:
+        log.debug("Yielding all cached guilds")
+        guilds = await self.guilds.get_all()
+        for guild in guilds:
+            yield guild
+
     async def drop(self) -> None:
+        log.warning("Cache was just dropped")
         await self.__mongo.drop_database("antispam_guilds")
         await self.__mongo.drop_database("antispam_members")
