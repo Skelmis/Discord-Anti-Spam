@@ -17,6 +17,6 @@ add your own punishments. The example usage is muting
 on first punishment, before kicking on the following punishment.
 
 
-## For more examples, see [here](https://dpy-anti-spam.readthedocs.io/en/latest/modules/examples.html)!
+## For more examples, see [here](https://dpy-anti-spam.readthedocs.io/en/latest/modules/main/examples.html)!
 
 ---
