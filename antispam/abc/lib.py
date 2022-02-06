@@ -33,7 +33,7 @@ class Lib(Protocol):
     A protocol to extend and implement for any libs that wish
     to hook into this package and work natively.
 
-    You also should to subclass :class:`antispam.libs.shared.Base`
+    You also should to subclass :class:`antispam.libs.shared.base.Base`
     as it implements a lot of shared functionality.
     """
 
@@ -391,7 +391,7 @@ class Lib(Protocol):
 
         Notes
         -----
-        This is implemented in :class:`antispam.libs.shared.Base`
+        This is implemented in :class:`antispam.libs.shared.base.Base`
         so assuming you subclass it you don't need to create this.
         """
         raise NotImplementedError
@@ -421,7 +421,7 @@ class Lib(Protocol):
 
         Notes
         -----
-        This is implemented in :class:`antispam.libs.shared.Base`
+        This is implemented in :class:`antispam.libs.shared.base.Base`
         so assuming you subclass it you don't need to create this.
         """
         raise NotImplementedError
@@ -449,7 +449,7 @@ class Lib(Protocol):
 
         Notes
         -----
-        This is implemented in :class:`antispam.libs.shared.Base`
+        This is implemented in :class:`antispam.libs.shared.base.Base`
         so assuming you subclass it you don't need to create this.
         """
         raise NotImplementedError
@@ -476,7 +476,7 @@ class Lib(Protocol):
 
         Notes
         -----
-        This is implemented in :class:`antispam.libs.shared.Base`
+        This is implemented in :class:`antispam.libs.shared.base.Base`
         so assuming you subclass it you don't need to create this.
         """
         raise NotImplementedError
@@ -509,7 +509,7 @@ class Lib(Protocol):
 
         Notes
         -----
-        This is implemented in :class:`antispam.libs.shared.Base`
+        This is implemented in :class:`antispam.libs.shared.base.Base`
         so assuming you subclass it you don't need to create this.
         """
         raise NotImplementedError

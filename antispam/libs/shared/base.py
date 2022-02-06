@@ -13,12 +13,58 @@ class Base:
     """A base Library feature class which implements shared functionality."""
 
     async def get_substitute_args(self, message) -> SubstituteArgs:
+        """
+
+        Parameters
+        ----------
+        message
+            Message used to create SubstituteArgs
+
+        Returns
+        -------
+        SubstituteArgs
+
+        Warnings
+        --------
+        Lib classes must implement this.
+        """
         raise NotImplementedError
 
     async def lib_embed_as_dict(self, embed) -> Dict:
+        """
+        Parameters
+        ----------
+        embed
+            Your libraries embed object.
+
+        Returns
+        -------
+        dict
+            The embed in dict form
+
+        Warnings
+        --------
+        Lib classes must implement this.
+        """
         raise NotImplementedError
 
     async def dict_to_lib_embed(self, data: Dict):
+        """
+        Parameters
+        ----------
+        data: dict
+            The embed as a dictionary, used
+            to build a an embed object for your library.
+
+        Returns
+        -------
+        Any
+            Your libraries embed object.
+
+        Warnings
+        --------
+        Lib classes must implement this.
+        """
         raise NotImplementedError
 
     async def substitute_args(

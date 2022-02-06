@@ -62,6 +62,8 @@ The package features some built in punishments, these are:
    modules/objects/memory.rst
    modules/objects/mongo.rst
    modules/objects/data.rst
+   modules/objects/base.rst
+   modules/objects/substitute_args.rst
 
 Install Notes
 -------------
