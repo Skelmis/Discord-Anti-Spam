@@ -26,7 +26,7 @@ class TestCore:
         """Tests if the member gets skipped if not 'in guild'"""
         msg = MockedMessage(author_id=1, guild_id=1).to_mock()
         guild = Guild(1, Options)
-        guild.members[1] = Member(1, 1, in_guild=False)
+        guild.members[1] = Member(1, 1, internal_is_in_guild=False)
 
         payload = await create_core.propagate(msg, guild)
 

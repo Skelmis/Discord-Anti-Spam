@@ -305,14 +305,14 @@ class DPY(Base, Lib):
         # Check we have perms to punish
         perms = guild.me.guild_permissions
         if not perms.kick_members and is_kick:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I need kick perms to punish someone in {guild.name}"
             )
 
         elif not perms.ban_members and not is_kick:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I need ban perms to punish someone in {guild.name}"
@@ -320,7 +320,7 @@ class DPY(Base, Lib):
 
         # We also check they don't own the guild, since ya know...
         elif guild.owner_id == member.id:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
 
             # TODO Make this consistent across libs
@@ -391,7 +391,7 @@ class DPY(Base, Lib):
             raise e from None
 
         except discord.HTTPException:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             await self.send_guild_log(
                 guild=internal_guild,
@@ -436,7 +436,7 @@ class DPY(Base, Lib):
                 original_channel=original_message.channel,
             )
 
-        member._in_guild = True
+        member.internal_is_in_guild = True
         await self.handler.cache.set_member(member)
 
     async def delete_member_messages(self, member: Member) -> None:  # pragma: no cover

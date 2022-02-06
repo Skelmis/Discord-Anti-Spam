@@ -79,6 +79,7 @@ class Cache(Protocol):
     async def delete_guild(self, guild_id: int) -> None:
         """
         Removes a guild from the cache.
+        This should also remove all members.
 
         Parameters
         ----------

@@ -50,7 +50,7 @@ class FactoryBuilder:
     @staticmethod
     def create_member_from_dict(member_data) -> Member:
         member: Member = Member(id=member_data["id"], guild_id=member_data["guild_id"])
-        member._in_guild = member_data["is_in_guild"]
+        member.internal_is_in_guild = member_data["is_in_guild"]
         member.warn_count = member_data["warn_count"]
         member.kick_count = member_data["kick_count"]
         member.duplicate_counter = member_data["duplicate_count"]

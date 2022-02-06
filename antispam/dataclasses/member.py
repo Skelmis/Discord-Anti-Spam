@@ -39,7 +39,7 @@ class Member:
     duplicate_channel_counter_dict: Dict[int, int] = attr.ib(
         default=attr.Factory(dict), eq=False
     )
-    _in_guild: bool = attr.ib(default=True, eq=False)
+    internal_is_in_guild: bool = attr.ib(default=True, eq=False)
     messages: List[Message] = attr.ib(default=attr.Factory(list), eq=False)
 
     # So that plugins can access this data

@@ -52,7 +52,7 @@ class TestFactory:
         member = Member(
             id=1,
             guild_id=2,
-            in_guild=True,
+            internal_is_in_guild=True,
             warn_count=5,
             kick_count=6,
             duplicate_counter=7,
@@ -98,7 +98,7 @@ class TestFactory:
         member_two = Member(
             id=1,
             guild_id=2,
-            in_guild=True,
+            internal_is_in_guild=True,
             warn_count=5,
             kick_count=6,
             duplicate_counter=7,
@@ -157,7 +157,7 @@ class TestFactory:
         member_two = Member(
             id=1,
             guild_id=2,
-            in_guild=True,
+            internal_is_in_guild=True,
             warn_count=5,
             kick_count=6,
             duplicate_counter=7,
