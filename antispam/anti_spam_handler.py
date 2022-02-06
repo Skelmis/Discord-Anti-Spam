@@ -935,3 +935,34 @@ class AntiSpamHandler:
             kick_count=kick_count,
         )
         return target
+
+    def set_cache(self, cache: Cache) -> None:
+        """
+        Change the AntiSpamHandler internal cache
+        to be the one provided.
+
+        .. code-block:: python
+            :linenos:
+
+            bot.handler = AntiSpamHandler(bot)
+            cache = MongoCache(bot.handler, "Connection_url")
+            bot.handler.set_cache(cache)
+
+        Parameters
+        ----------
+        cache: Cache
+            The cache to change it to.
+
+        Raises
+        ------
+        ValueError
+            The provided cache was not of the expected type.
+
+        """
+        if not issubclass(type(cache), Cache):
+            raise ValueError("Expected `cache` that inherits from the `Cache` Protocol")
+
+        self.cache = cache
+        log.info(
+            "Changed the AntiSpamHandler cache to use %s", cache.__class__.__name__
+        )

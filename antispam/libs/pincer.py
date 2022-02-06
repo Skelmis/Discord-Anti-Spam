@@ -433,14 +433,14 @@ class Pincer(Base, Lib):
         kick_members = bool(perms << 1)
         ban_members = bool(perms << 2)
         if not kick_members and is_kick:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I need kick perms to punish someone in {guild.name}"
             )
 
         elif not ban_members and not is_kick:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I need ban perms to punish someone in {guild.name}"
@@ -448,7 +448,7 @@ class Pincer(Base, Lib):
 
         # We also check they don't own the guild, since ya know...
         elif guild.owner_id == member.id:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I cannot punish Member(id={_member.id}, username={_member.username}) "
@@ -477,7 +477,7 @@ class Pincer(Base, Lib):
                 log.info("Banned Member(id=%s)", member.id)
         except:
             # TODO Pincer doesnt throw errors
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             await self.send_guild_log(
                 guild=internal_guild,
@@ -519,7 +519,7 @@ class Pincer(Base, Lib):
                 original_channel=channel,
             )
 
-        member._in_guild = True
+        member.internal_is_in_guild = True
         await self.handler.cache.set_member(member)
 
     async def _get_perms(self, member_roles: List[int], guild_id: int) -> int:

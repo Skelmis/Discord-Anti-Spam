@@ -18,6 +18,7 @@ from antispam import (
     PropagateFailure,
     InvocationCancelled,
 )  # noqa
+from antispam.caches import MemoryCache, MongoCache
 
 from antispam.enums import IgnoreType, ResetType, Library
 
@@ -818,3 +819,13 @@ class TestAntiSpamHandler:
         assert return_data == {
             "status": "Could not create a use-able message for the given message."
         }
+
+    def test_set_cache(self, create_handler):
+        """Tests set_cache works as expected"""
+        assert isinstance(create_handler.cache, MemoryCache)
+
+        with pytest.raises(ValueError):
+            create_handler.set_cache(1)
+
+        create_handler.set_cache(MongoCache(create_handler, "Mock"))
+        assert isinstance(create_handler.cache, MongoCache)

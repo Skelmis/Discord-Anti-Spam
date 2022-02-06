@@ -6,6 +6,7 @@ which implements :py:class:`antispam.abc.Cache`
 
 In the standard package you have the following choices:
  - :py:class:`antispam.caches.MemoryCache` (Default)
+ - :py:class:`antispam.caches.MongoCache`
  - :py:class:`antispam.caches.RedisCache` (Not yet implemented)
 
 In order to use a cache other then the default one, 
@@ -13,7 +14,9 @@ simply pass in an instance of the cache you wish to
 use with the ``cache`` kwarg when initialising your
 ``AntiSpamHandler``.
 
-Here is an example, note ``RedisCache`` will likely need arguments to init.
+Alternately, use the :method:`antispam.AntiSpamHandler.set_cache` method.
+
+Here is an example, note ``MongoCache`` needs a extra argument.
 
 .. code-block:: python
     :linenos:
@@ -22,10 +25,13 @@ Here is an example, note ``RedisCache`` will likely need arguments to init.
     from discord.ext import commands
 
     from antispam import AntiSpamHandler
-    from antispam.caches import RedisCache
+    from antispam.caches import MongoCache
 
     bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
-    bot.handler = AntiSpamHandler(bot, cache=RedisCache())
+    bot.handler = AntiSpamHandler(bot)
+
+    my_cache = MongoCache(bot.handler, "Mongo connection url")
+    bot.handler.set_cache(my_cache)
 
 
 Once a cache is registered like so, there is nothing else you need to do. 

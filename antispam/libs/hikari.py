@@ -336,14 +336,14 @@ class Hikari(Base, Lib):
         # Check we have perms to punish
         perms = await self._get_perms(guild.get_my_member())
         if not perms.KICK_MEMBERS and is_kick:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I need kick perms to punish someone in {guild.name}"
             )
 
         elif not perms.BAN_MEMBERS and not is_kick:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I need ban perms to punish someone in {guild.name}"
@@ -351,7 +351,7 @@ class Hikari(Base, Lib):
 
         # We also check they don't own the guild, since ya know...
         elif guild.owner_id == member.id:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             raise MissingGuildPermissions(
                 f"I cannot punish {author.username}({author.id}) "
@@ -396,7 +396,7 @@ class Hikari(Base, Lib):
                 log.info("Banned Member(id=%s)", member.id)
 
         except InternalServerError:
-            member._in_guild = True
+            member.internal_is_in_guild = True
             member.kick_count -= 1
             await self.send_guild_log(
                 guild=internal_guild,
@@ -438,7 +438,7 @@ class Hikari(Base, Lib):
                 original_channel=channel,
             )
 
-        member._in_guild = True
+        member.internal_is_in_guild = True
         await self.handler.cache.set_member(member)
 
     async def delete_member_messages(self, member: Member) -> None:  # pragma: no cover

@@ -47,6 +47,7 @@ setup(
         "discord.py": parse_requirements_file("dpy-requirements.txt"),
         "hikari": parse_requirements_file("hikari-requirements.txt"),
         "dev": parse_requirements_file("dev-requirements.txt"),
+        "mongo": ["motor", "dnspython"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",

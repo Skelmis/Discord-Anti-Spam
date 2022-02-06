@@ -25,6 +25,7 @@ import logging
 
 from fuzzywuzzy import fuzz
 
+from antispam.abc import Cache
 from antispam.exceptions import MemberNotFound, LogicError, DuplicateObject
 from antispam.dataclasses import Member, Message, CorePayload, Guild
 from antispam.util import get_aware_time
@@ -36,12 +37,16 @@ log = logging.getLogger(__name__)
 class Core:
     """An abstract way to handle spam tracking on different levels"""
 
-    __slots__ = ("handler", "cache", "options")
+    __slots__ = ("handler", "options")
 
     def __init__(self, handler):
         self.handler = handler
+        self.handler = handler
         self.options = handler.options
-        self.cache = handler.cache  # Shorthand
+
+    @property
+    def cache(self) -> Cache:
+        return self.handler.cache
 
     async def propagate(self, message, guild: Guild) -> CorePayload:
         """
@@ -75,7 +80,7 @@ class Core:
                     ),
                 )
 
-            if not member._in_guild:
+            if not member.internal_is_in_guild:
                 return CorePayload(
                     member_status="Bypassing message check since the member isn't seen to be in a guild"
                 )
@@ -100,12 +105,12 @@ class Core:
         self._calculate_ratios(message, member)
 
         # Check again since in theory the above could take awhile
-        if not member._in_guild:
+        if not member.internal_is_in_guild:
             return CorePayload(
                 member_status="Bypassing message check since the member isn't seen to be in a guild"
             )
 
-        member.messages.append(message)
+        await self.cache.add_message(message)
         log.info(
             "Created Message(%s) on Member(id=%s) in Guild(id=%s)",
             message.id,
@@ -200,7 +205,7 @@ class Core:
         ):
             # KICK
             # Set this to False here to stop processing other messages, we can revert on failure
-            member._in_guild = False
+            member.internal_is_in_guild = False
             member.kick_count += 1
             log.debug(
                 "Attempting to kick Member(id=%s) from Guild(id=%s)",
@@ -237,7 +242,7 @@ class Core:
         elif member.kick_count >= self.options.ban_threshold:
             # BAN
             # Set this to False here to stop processing other messages, we can revert on failure
-            member._in_guild = False
+            member.internal_is_in_guild = False
             member.kick_count += 1
             log.debug(
                 "Attempting to ban Member(id=%s) from Guild(id=%s)",
