@@ -23,6 +23,7 @@ Fixed:
 ******
 
 - ``Hikari`` regressions
+- Some misc bugs
 
 
 Changes:
