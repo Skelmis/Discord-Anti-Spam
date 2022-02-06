@@ -32,10 +32,10 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     project_urls={
-        "Homepage:": "https://github.com/Skelmis/DPY-Anti-Spam",
-        "Documentation": "https://dpy-anti-spam.readthedocs.io/en/latest",
-        "Issue tracker": "https://github.com/Skelmis/DPY-Anti-Spam/issues",
         "Support server": "https://discord.gg/BqPNSH2jPg",
+        "Issue tracker": "https://github.com/Skelmis/DPY-Anti-Spam/issues",
+        "Documentation": "https://dpy-anti-spam.readthedocs.io/en/latest",
+        "Homepage": "https://github.com/Skelmis/DPY-Anti-Spam",
     },
     # TODO This is stupid, fix it.
     packages=[
