@@ -1,8 +1,7 @@
-Lib Base Object
-===============
+Plugin BasePlugin Object
+========================
 
-
-The generic feature class which all ``Lib``'s should subclass
+The base class for all plugins.
 
 .. currentmodule:: antispam
 
