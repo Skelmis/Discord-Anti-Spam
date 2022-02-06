@@ -579,7 +579,7 @@ class AntiSpamHandler:
             build process. This will return an ``AntiSpamHandler`` instance
             **without** any of the saved state and is equivalent to simply
             doing ``AntiSpamHandler(bot)``
-        plugins : Set[Type[BasePlugin]]
+        plugins : Set[Type[antispam.BasePlugin]]
             A set for plugin lookups if you want to initialise
             plugins from an initial saved state. This should follow the format.
 

@@ -64,6 +64,7 @@ The package features some built in punishments, these are:
    modules/objects/data.rst
    modules/objects/base.rst
    modules/objects/substitute_args.rst
+   modules/objects/base_plugin.rst
 
 Install Notes
 -------------

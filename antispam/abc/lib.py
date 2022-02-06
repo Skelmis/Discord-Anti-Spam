@@ -43,8 +43,8 @@ class Lib(Protocol):
         run all checks to check if this message should be
         propagated.
 
-        See Also
-        --------
+        Notes
+        -----
         Should error on the following:
          - If not an instance of the library's message class
          - If in dm's
@@ -256,8 +256,10 @@ class Lib(Protocol):
 
         Parameters
         ----------
-        target : Union[discord.abc.Messageable, hikari.Something, pincer.Something]
-            Where to send the message
+        target : Union[discord.abc.Messageable, hikari.channels.TextableChannel]
+            Where to send the message.
+
+            Types are unknown for Pincer at this time.
         message : Union[str, discord.Embed, hikari.embeds.Embed, pincer.objects.Embed]
             The message to send
         mention : str
