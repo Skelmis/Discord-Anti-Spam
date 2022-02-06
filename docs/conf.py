@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-project = "DPY Anti-Spam"
+project = "Discord Anti-Spam"
 copyright = "2022, Skelmis"
 author = "Skelmis"
 
