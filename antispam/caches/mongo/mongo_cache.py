@@ -50,7 +50,7 @@ class MongoCache(Cache):
             The AntiSpamHandler instance
         connection_url: str
             Your MongoDB connection url
-        database_name: str, optional
+        database_name: str, Optional
             The optional name of your collection.
 
             Defaults to antispam

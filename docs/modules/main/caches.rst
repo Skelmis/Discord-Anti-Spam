@@ -14,7 +14,7 @@ simply pass in an instance of the cache you wish to
 use with the ``cache`` kwarg when initialising your
 ``AntiSpamHandler``.
 
-Alternately, use the :method:`antispam.AntiSpamHandler.set_cache` method.
+Alternately, use the ``AntiSpamHandler.set_cache`` method.
 
 Here is an example, note ``MongoCache`` needs a extra argument.
 

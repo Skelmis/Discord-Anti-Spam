@@ -63,6 +63,7 @@ class Options:
 
         .. highlight:: python
         .. code-block:: python
+
             from fuzzywuzzy import fuzz
             fuzz.token_sort_ratio("message one", "message two")
     guild_log_warn_message : Union[str, dict]
