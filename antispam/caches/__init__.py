@@ -22,4 +22,3 @@ DEALINGS IN THE SOFTWARE.
 """
 from antispam.caches.memory import MemoryCache
 from antispam.caches.redis import RedisCache
-from antispam.caches.mongo import MongoCache

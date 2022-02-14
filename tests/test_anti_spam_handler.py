@@ -18,7 +18,8 @@ from antispam import (
     PropagateFailure,
     InvocationCancelled,
 )  # noqa
-from antispam.caches import MemoryCache, MongoCache
+from antispam.caches import MemoryCache
+from antispam.caches.mongo import MongoCache
 
 from antispam.enums import IgnoreType, ResetType, Library
 

@@ -6,7 +6,7 @@ which implements :py:class:`antispam.abc.Cache`
 
 In the standard package you have the following choices:
  - :py:class:`antispam.caches.MemoryCache` (Default)
- - :py:class:`antispam.caches.MongoCache`
+ - :py:class:`antispam.caches.mongo.MongoCache`
  - :py:class:`antispam.caches.RedisCache` (Not yet implemented)
 
 In order to use a cache other then the default one, 
