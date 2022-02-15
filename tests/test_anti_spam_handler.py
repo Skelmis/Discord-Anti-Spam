@@ -830,3 +830,8 @@ class TestAntiSpamHandler:
 
         create_handler.set_cache(MongoCache(create_handler, "Mock"))
         assert isinstance(create_handler.cache, MongoCache)
+
+    def test_use_timeout_deprecation(self, create_bot):
+        """Tests the 1.2.x deprecations for works as expected"""
+        with pytest.deprecated_call():
+            AntiSpamHandler(create_bot)

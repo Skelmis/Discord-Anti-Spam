@@ -2,6 +2,7 @@
 branch = True
 omit =
     antispam/abc.py
+    antispam/deprecation.py
     antispam/__init__.py
     antispam/caches/__init__.py
     antispam/caches/memory/__init__.py

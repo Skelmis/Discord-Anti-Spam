@@ -3,6 +3,7 @@
     "after_invoke_plugins": {},
     "cache": "MemoryCache",
     "options": {
+        "use_timeouts": null,
         "warn_threshold": 3,
         "kick_threshold": 2,
         "ban_threshold": 2,
@@ -41,6 +42,7 @@
         {
             "id": 1,
             "options": {
+                "use_timeouts": null,
                 "warn_threshold": 3,
                 "kick_threshold": 2,
                 "ban_threshold": 2,
