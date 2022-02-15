@@ -7,7 +7,7 @@ import pytest
 from antispam.dataclasses import Guild, Member, CorePayload, Message
 
 from antispam import Options, LogicError, MissingGuildPermissions
-from antispam.libs.hikari import Hikari
+from antispam.libs.lib_hikari import Hikari
 from .fixtures import (
     create_bot,
     create_handler,

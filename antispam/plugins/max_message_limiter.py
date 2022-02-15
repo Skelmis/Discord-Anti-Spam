@@ -16,11 +16,14 @@ try:
     import nextcord as discord
 except ModuleNotFoundError:
     try:
-        import discord
+        import disnake as discord
     except ModuleNotFoundError:
-        raise RuntimeError(
-            "This plugin only supports discord.py and its forks."
-        ) from None
+        try:
+            import discord
+        except ModuleNotFoundError:
+            raise RuntimeError(
+                "This plugin only supports discord.py and its forks."
+            ) from None
 
 log = logging.getLogger(__name__)
 

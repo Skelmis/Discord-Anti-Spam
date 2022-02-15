@@ -20,23 +20,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import datetime
 import logging
 from typing import Union, Optional, Dict
 from unittest.mock import AsyncMock
 
+from antispam.deprecation import mark_deprecated
 from antispam.libs.shared import Base, SubstituteArgs
 
 try:
-    import nextcord as discord
-except ModuleNotFoundError:
     import discord
-
+except ModuleNotFoundError:
+    import disnake as discord
 
 from antispam import (
     PropagateFailure,
     LogicError,
     MissingGuildPermissions,
     InvalidMessage,
+    UnsupportedAction,
 )
 from antispam.abc import Lib
 from antispam.dataclasses import Message, Member, Guild
@@ -85,6 +87,10 @@ class DPY(Base, Lib):
     async def get_substitute_args(self, message: discord.Message) -> SubstituteArgs:
         version = int(discord.__version__.split(".")[0])
         if version >= 2:
+            mark_deprecated(
+                "DPY will be removed as a blanket default in 1.3.0.\n"
+                "You will need to explicitly specify the library you are using at said time."
+            )
             member_avatar = message.author.avatar.url  # type: ignore
             guild_icon = message.guild.icon.url  # type: ignore
             bot_avatar = message.guild.me.avatar.url  # type: ignore
@@ -500,3 +506,9 @@ class DPY(Base, Lib):
                 message,
                 delete_after=delete_after_time,
             )
+
+    async def timeout_member(self, member, until: datetime.timedelta) -> None:
+        raise UnsupportedAction(
+            "Timeouts are not supported for discord.py, if you "
+            "are using a fork please specify it explicitly."
+        )

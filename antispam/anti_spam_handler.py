@@ -138,17 +138,37 @@ class AntiSpamHandler:
         self.pre_invoke_plugins: Dict[str, BasePlugin] = {}
         self.after_invoke_extensions: Dict[str, BasePlugin] = {}
 
-        # Import these here to avoid errors when not having the
-        # other lib installed, I think
+        # Import these here to avoid errors when not
+        # having the other lib installed
         if library == Library.HIKARI:
-            from antispam.libs.hikari import Hikari
+            from antispam.libs.lib_hikari import Hikari
 
             self.lib_handler = Hikari(self)
 
         elif library == Library.PINCER:
-            from antispam.libs.pincer import Pincer
+            from antispam.libs.lib_pincer import Pincer
 
             self.lib_handler = Pincer(self)
+
+        elif library == Library.DISNAKE:
+            from antispam.libs.dpy_forks.lib_disnake import Disnake
+
+            self.lib_handler = Disnake(self)
+
+        elif library == Library.ENHANCED_DPY:
+            from antispam.libs.dpy_forks.lib_enhanced_dpy import EnhancedDPY
+
+            self.lib_handler = EnhancedDPY(self)
+
+        elif library == Library.NEXTCORD:
+            from antispam.libs.dpy_forks.lib_nextcord import Nextcord
+
+            self.lib_handler = Nextcord(self)
+
+        elif library == Library.PYCORD:
+            from antispam.libs.dpy_forks.lib_pycord import Nextcord
+
+            self.lib_handler = Nextcord(self)
 
         else:
             from antispam.libs.dpy import DPY

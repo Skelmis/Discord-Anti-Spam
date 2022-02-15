@@ -20,23 +20,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from enum import Enum
+import datetime
+import logging
+
+from antispam.libs.dpy import DPY
+
+import discord  # enhanced dpy
 
 
-class Library(Enum):
-    """
-    An enum to denote which type of API wrapper you are
-    intending on using this with. Defaults to DPY.
+log = logging.getLogger(__name__)
 
-    Notes
-    -----
-    Default behaviour will be removed in 1.3.0
-    """
 
-    DPY = 1
-    HIKARI = 2
-    PINCER = 3
-    ENHANCED_DPY = 4
-    DISNAKE = 5
-    NEXTCORD = 6
-    PYCORD = 7
+class EnhancedDPY(DPY):
+    def __init__(self, handler):
+        self.handler = handler
+        self.bot = self.handler.bot
+
+        log.warning(
+            "Support for Enhanced DPY is based on docs and is not tested. "
+            "If you encounter issues please let me know via the repo."
+        )
+
+    async def timeout_member(
+        self, member: discord.Member, until: datetime.timedelta
+    ) -> None:
+        await member.edit(
+            timeout_until=until, reason="Automated timeout from Discord-Anti-Spam"  # type: ignore
+        )

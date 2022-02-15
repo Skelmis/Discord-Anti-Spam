@@ -45,6 +45,10 @@ class InvocationCancelled(BaseASHException):
     """Called when a pre-invoke plugin returned `cancel_next_invocation`"""
 
 
+class UnsupportedAction(BaseASHException):
+    """The attempt action is unsupported."""
+
+
 class DuplicateObject(BaseASHException):
     """Raised because you attempted to create and add an object, using the exact same id's as a pre-existing one."""
 

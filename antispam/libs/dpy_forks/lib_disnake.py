@@ -20,23 +20,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from enum import Enum
+import datetime
+import logging
 
 
-class Library(Enum):
-    """
-    An enum to denote which type of API wrapper you are
-    intending on using this with. Defaults to DPY.
+from antispam.libs.dpy_forks import BaseFork
 
-    Notes
-    -----
-    Default behaviour will be removed in 1.3.0
-    """
+import disnake
 
-    DPY = 1
-    HIKARI = 2
-    PINCER = 3
-    ENHANCED_DPY = 4
-    DISNAKE = 5
-    NEXTCORD = 6
-    PYCORD = 7
+
+log = logging.getLogger(__name__)
+
+
+class Disnake(BaseFork):
+    async def timeout_member(
+        self, member: disnake.Member, until: datetime.timedelta
+    ) -> None:
+        await member.timeout(
+            duration=until, reason="Automated timeout from Discord-Anti-Spam"
+        )

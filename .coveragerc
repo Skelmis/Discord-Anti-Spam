@@ -12,3 +12,4 @@ omit =
     antispam/plugins/__init__.py
     antispam/libs/hikari.py
     antispam/libs/pincer.py
+    antispam/libs/dpy_forks/disnake.py

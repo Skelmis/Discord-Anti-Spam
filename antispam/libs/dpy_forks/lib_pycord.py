@@ -20,23 +20,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from enum import Enum
+import datetime
+import logging
 
 
-class Library(Enum):
-    """
-    An enum to denote which type of API wrapper you are
-    intending on using this with. Defaults to DPY.
+from antispam.libs.dpy_forks import BaseFork
 
-    Notes
-    -----
-    Default behaviour will be removed in 1.3.0
-    """
 
-    DPY = 1
-    HIKARI = 2
-    PINCER = 3
-    ENHANCED_DPY = 4
-    DISNAKE = 5
-    NEXTCORD = 6
-    PYCORD = 7
+import discord  # pycord
+
+
+log = logging.getLogger(__name__)
+
+
+class Pycord(BaseFork):
+    def __init__(self, handler):
+        self.handler = handler
+        self.bot = self.handler.bot
+
+        log.warning(
+            "Support for this package is:\n"
+            "1) Based on documentation\n"
+            "2) Untested, both unittests and implementation tests\n"
+            "3) Out of respect for the fact it gets a half decent amount of downloads, "
+            "and is therefore likely used by my audience\n"
+            "4) That's it. Got issues? Open a Github issue."
+        )
+
+    async def timeout_member(
+        self, member: discord.Member, until: datetime.timedelta
+    ) -> None:
+        await member.timeout_for(
+            duration=until, reason="Automated timeout from Discord-Anti-Spam"  # type: ignore
+        )

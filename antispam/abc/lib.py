@@ -20,6 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import datetime
 from typing import runtime_checkable, Protocol, Union, Optional, List, Dict
 
 from antispam.dataclasses import Message, Member, Guild
@@ -211,6 +212,11 @@ class Lib(Protocol):
         ------
         MissingGuildPermissions
             I lack perms to carry out this punishment
+
+        Notes
+        -----
+        Due to early design decisions, this will only
+        ever support kicking or banning. A pain for you and I.
         """
         raise NotImplementedError
 
@@ -513,5 +519,23 @@ class Lib(Protocol):
         -----
         This is implemented in :class:`antispam.libs.shared.base.Base`
         so assuming you subclass it you don't need to create this.
+        """
+        raise NotImplementedError
+
+    async def timeout_member(self, member, until: datetime.timedelta) -> None:
+        """
+        Timeout the given member.
+
+        Parameters
+        ----------
+        member: Union[discord.member]
+            The member to timeout
+        until: datetime.timedelta
+            How long to time them out for.
+
+        Raises
+        ------
+        UnsupportedAction
+            Timing out members is not supported.
         """
         raise NotImplementedError
