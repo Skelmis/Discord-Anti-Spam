@@ -31,6 +31,7 @@ from antispam.abc import Cache
 from antispam.core import Core
 from antispam.dataclasses import Guild, Options, CorePayload
 from antispam.caches import MemoryCache
+from antispam.deprecation import mark_deprecated
 from antispam.enums import IgnoreType, ResetType, Library
 from antispam.exceptions import (
     MissingGuildPermissions,
@@ -116,6 +117,12 @@ class AntiSpamHandler:
                 "You are attempting to create an AntiSpamHandler with options that are mutually exclusive. "
                 "Please note `no_punish` will over rule any other options you attempt to set which are "
                 "mutually exclusive."
+            )
+
+        if self.options.use_timeouts is None:
+            mark_deprecated(
+                "The default punishment behaviour will be swapped out for timeouts in 1.3.0,\n"
+                "If you wish to preserve this behaviour, set use_timeouts=False in your options."
             )
 
         cache = cache or MemoryCache(self)

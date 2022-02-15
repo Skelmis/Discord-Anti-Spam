@@ -325,6 +325,9 @@ class Options:
     per_channel_spam: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
     )  # False implies per_user_per_guild
+    use_timeouts: bool = attr.ib(
+        default=None,  # validator=attr.validators.instance_of(bool)
+    )
 
     # TODO Implement this
     # Catches 5 people saying the same thing
