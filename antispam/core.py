@@ -22,6 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 import datetime
 import logging
+from typing import TYPE_CHECKING
 
 from fuzzywuzzy import fuzz
 
@@ -29,6 +30,9 @@ from antispam.abc import Cache
 from antispam.exceptions import MemberNotFound, LogicError, DuplicateObject
 from antispam.dataclasses import Member, Message, CorePayload, Guild
 from antispam.util import get_aware_time
+
+if TYPE_CHECKING:
+    from antispam import Options
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +46,7 @@ class Core:
     def __init__(self, handler):
         self.handler = handler
         self.handler = handler
-        self.options = handler.options
+        self.options: "Options" = handler.options
 
     @property
     def cache(self) -> Cache:
@@ -141,7 +145,11 @@ class Core:
                 member_status="Member should be punished, however, was not due to no_punish being True",
             )
 
-        if (
+        if self.options.use_timeouts:
+            pass
+            # TODO Impl
+
+        elif (
             self.options.warn_only
             or self._get_duplicate_count(member, message.channel_id)
             >= self.options.warn_threshold
