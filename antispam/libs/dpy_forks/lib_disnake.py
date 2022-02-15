@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import datetime
 import logging
 
-
+from antispam import MissingGuildPermissions
 from antispam.libs.dpy_forks import BaseFork
 
 import disnake
@@ -34,8 +34,16 @@ log = logging.getLogger(__name__)
 
 class Disnake(BaseFork):
     async def timeout_member(
-        self, member: disnake.Member, until: datetime.timedelta
+        self, member: disnake.Member, original_message, until: datetime.timedelta
     ) -> None:
+        guild = original_message.guild
+        perms = guild.me.guild_permissions
+        if not perms.moderate_members:
+            raise MissingGuildPermissions(
+                "moderate_members is required to timeout members.\n"
+                f"Tried timing out Member(id={member.id}) in Guild(id={member.guild_id})"
+            )
+
         await member.timeout(
             duration=until, reason="Automated timeout from Discord-Anti-Spam"
         )

@@ -507,7 +507,9 @@ class DPY(Base, Lib):
                 delete_after=delete_after_time,
             )
 
-    async def timeout_member(self, member, until: datetime.timedelta) -> None:
+    async def timeout_member(
+        self, member, original_message, until: datetime.timedelta
+    ) -> None:
         raise UnsupportedAction(
             "Timeouts are not supported for discord.py, if you "
             "are using a fork please specify it explicitly."

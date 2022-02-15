@@ -492,8 +492,16 @@ class Hikari(Base, Lib):
         return hikari.File(path)
 
     async def timeout_member(
-        self, member: guilds.Member, until: datetime.timedelta
+        self, member: guilds.Member, original_message, until: datetime.timedelta
     ) -> None:
+        guild: guilds.Guild = self.handler.bot.cache.get_guild(member.guild_id)
+        perms = await self._get_perms(guild.get_my_member())  # type: ignore
+        if not perms.MODERATE_MEMBERS:
+            raise MissingGuildPermissions(
+                "MODERATE_MEMBERS is required to timeout members.\n"
+                f"Tried timing out Member(id={member.id}) in Guild(id={member.guild_id})"
+            )
+
         time_now = datetime.datetime.utcnow() + until
         await member.edit(
             communication_disabled_until=time_now, reason="Automated timeout from Discord-Anti-Spam"  # type: ignore

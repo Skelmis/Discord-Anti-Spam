@@ -522,7 +522,9 @@ class Lib(Protocol):
         """
         raise NotImplementedError
 
-    async def timeout_member(self, member, until: datetime.timedelta) -> None:
+    async def timeout_member(
+        self, member, original_message, until: datetime.timedelta
+    ) -> None:
         """
         Timeout the given member.
 
@@ -530,6 +532,8 @@ class Lib(Protocol):
         ----------
         member: Union[discord.member]
             The member to timeout
+        original_message
+            The message being propagated
         until: datetime.timedelta
             How long to time them out for.
 
@@ -537,5 +541,7 @@ class Lib(Protocol):
         ------
         UnsupportedAction
             Timing out members is not supported.
+        MissingGuildPermissions
+            Can't time this member out
         """
         raise NotImplementedError

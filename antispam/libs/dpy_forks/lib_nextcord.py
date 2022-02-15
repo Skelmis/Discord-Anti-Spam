@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import datetime
 import logging
 
-
+from antispam import MissingGuildPermissions
 from antispam.libs.dpy_forks import BaseFork
 
 import nextcord
@@ -34,8 +34,19 @@ log = logging.getLogger(__name__)
 
 class Nextcord(BaseFork):
     async def timeout_member(
-        self, member: nextcord.Member, until: datetime.timedelta
+        self,
+        member: nextcord.Member,
+        original_message: nextcord.Message,
+        until: datetime.timedelta,
     ) -> None:
+        guild = original_message.guild
+        perms = guild.me.guild_permissions
+        if not perms.moderate_members:
+            raise MissingGuildPermissions(
+                "moderate_members is required to timeout members.\n"
+                f"Tried timing out Member(id={member.id}) in Guild(id={member.guild_id})"
+            )
+
         await member.edit(
             timeout=until, reason="Automated timeout from Discord-Anti-Spam"  # type: ignore
         )

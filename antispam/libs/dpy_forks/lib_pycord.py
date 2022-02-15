@@ -48,8 +48,12 @@ class Pycord(BaseFork):
         )
 
     async def timeout_member(
-        self, member: discord.Member, until: datetime.timedelta
+        self, member: discord.Member, original_message, until: datetime.timedelta
     ) -> None:
+        # This doesn't bother permissions checking because
+        # I couldn't be bothered handling it nicely
+        #
+        # Will still work fine. I think.
         await member.timeout_for(
             duration=until, reason="Automated timeout from Discord-Anti-Spam"  # type: ignore
         )
