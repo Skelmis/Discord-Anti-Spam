@@ -21,6 +21,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 import asyncio
+import datetime
 import logging
 from typing import Optional, Union, Dict
 from unittest.mock import AsyncMock
@@ -489,3 +490,11 @@ class Hikari(Base, Lib):
 
     def get_file(self, path: str):  # pragma: no cover
         return hikari.File(path)
+
+    async def timeout_member(
+        self, member: guilds.Member, until: datetime.timedelta
+    ) -> None:
+        time_now = datetime.datetime.utcnow() + until
+        await member.edit(
+            communication_disabled_until=time_now, reason="Automated timeout from Discord-Anti-Spam"  # type: ignore
+        )
