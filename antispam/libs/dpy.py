@@ -29,9 +29,9 @@ from antispam.deprecation import mark_deprecated
 from antispam.libs.shared import Base, SubstituteArgs
 
 try:
-    import discord
-except ModuleNotFoundError:
     import disnake as discord
+except ModuleNotFoundError:
+    import discord
 
 from antispam import (
     PropagateFailure,
