@@ -50,6 +50,8 @@ class CorePayload:
         If the default punishment handler kicked this member
     member_was_banned : bool
         If the default punishment handler banned this member
+    member_was_timed_out : bool
+        If the default punishment handler timed out this member
     member_should_be_punished_this_message : bool
         If AntiSpamHandler thinks this member should
         receive some form of punishment this message.
@@ -64,6 +66,7 @@ class CorePayload:
     member_was_warned: bool = attr.ib(default=False)
     member_was_kicked: bool = attr.ib(default=False)
     member_was_banned: bool = attr.ib(default=False)
+    member_was_timed_out: bool = attr.ib(default=False)
     member_should_be_punished_this_message: bool = attr.ib(default=False)
 
     # Per channel things

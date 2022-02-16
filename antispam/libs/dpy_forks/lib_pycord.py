@@ -38,7 +38,7 @@ class Pycord(BaseFork):
         self.handler = handler
         self.bot = self.handler.bot
 
-        log.warning(
+        log.debug(
             "Support for this package is:\n"
             "1) Based on documentation\n"
             "2) Untested, both unittests and implementation tests\n"

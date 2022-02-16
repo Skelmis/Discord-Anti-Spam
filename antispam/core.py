@@ -27,7 +27,12 @@ from typing import TYPE_CHECKING
 from fuzzywuzzy import fuzz
 
 from antispam.abc import Cache
-from antispam.exceptions import MemberNotFound, LogicError, DuplicateObject
+from antispam.exceptions import (
+    MemberNotFound,
+    LogicError,
+    DuplicateObject,
+    UnsupportedAction,
+)
 from antispam.dataclasses import Member, Message, CorePayload, Guild
 from antispam.util import get_aware_time
 
@@ -156,6 +161,39 @@ class Core:
             )
             times_timed_out: int = member.times_timed_out + 1
 
+            guild_message = await self.handler.lib_handler.transform_message(
+                self.options(guild).guild_log_timeout_message,
+                original_message,
+                member.warn_count,
+                member.kick_count,
+            )
+            user_message = await self.handler.lib_handler.transform_message(
+                self.options(guild).member_timeout_message,
+                original_message,
+                member.warn_count,
+                member.kick_count,
+            )
+            try:
+                await self.handler.lib_handler.send_message_to_(
+                    original_message.author,
+                    user_message,
+                    original_message.author.mention,
+                    self.options(guild).member_timeout_message_delete_after,
+                )
+            except:
+                await self.handler.lib_handler.send_guild_log(
+                    guild=guild,
+                    message=f"Sending a message to {original_message.author.mention} about their timeout failed.",
+                    delete_after_time=self.options(
+                        guild
+                    ).member_timeout_message_delete_after,
+                    original_channel=original_message.channel,
+                )
+                log.warning(
+                    f"Failed to message Member(id=%s) about being timed out.",
+                    original_message.author.id,
+                )
+
             # Timeouts
             # 5
             # 20
@@ -164,12 +202,42 @@ class Core:
             timeout_until: datetime.timedelta = datetime.timedelta(
                 minutes=(times_timed_out * times_timed_out) * 5
             )
-            await self.handler.lib_handler.timeout_member(
-                member, original_message, timeout_until
-            )
+            try:
+                await self.handler.lib_handler.timeout_member(
+                    member, original_message, timeout_until
+                )
+            except UnsupportedAction:
+                raise
+            except:
+                user_failed_message = await self.handler.lib_handler.transform_message(
+                    self.handler.options.member_failed_timeout_message,
+                    original_message,
+                    member.warn_count,
+                    member.kick_count,
+                )
 
-            member.times_timed_out += 1
-            await self.handler.cache.set_member(member)
+                await self.handler.lib_handler.send_guild_log(
+                    guild,
+                    user_failed_message,
+                    self.options(guild).member_timeout_message_delete_after,
+                    original_message.channel,
+                )
+
+            else:
+                await self.handler.lib_handler.send_guild_log(
+                    guild,
+                    guild_message,
+                    self.options(guild).guild_log_timeout_message_delete_after,
+                    original_channel=await self.handler.lib_handler.get_channel_from_message(
+                        original_message
+                    ),
+                )
+
+                member.times_timed_out += 1
+                await self.handler.cache.set_member(member)
+
+                return_payload.member_was_timed_out = True
+                return_payload.member_status = "Member was timed out"
 
         elif (
             self.options(guild).warn_only

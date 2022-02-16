@@ -37,7 +37,7 @@ class EnhancedDPY(DPY):
         self.handler = handler
         self.bot = self.handler.bot
 
-        log.warning(
+        log.debug(
             "Support for Enhanced DPY is based on docs and is not tested. "
             "If you encounter issues please let me know via the repo."
         )

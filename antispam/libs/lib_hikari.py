@@ -505,19 +505,7 @@ class Hikari(Base, Lib):
                 f"Tried timing out Member(id={member.id}) in Guild(id={member.guild_id})"
             )
 
-        try:
-            await self.handler.lib_handler.transform_message(
-                self.options.member_kick_message,
-                original_message,
-                member.warn_count,
-                member.kick_count,
-            )
-            await self.send_message_to_(
-                original_message.author,
-                original_message.author.mention,
-            )
-        except:
-            pass
+        internal_guild: Guild = await self.handler.cache.get_guild(member.guild_id)
 
         time_now = datetime.datetime.utcnow() + until
         await member.edit(
