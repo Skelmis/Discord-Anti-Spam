@@ -2,16 +2,14 @@ import datetime
 
 import discord
 
-
+from antispam import visualizer  # noqa
 from antispam.util import (
-    embed_to_string,
     dict_to_embed,
-    transform_message,
+    embed_to_string,
     get_aware_time,
     substitute_args,
+    transform_message,
 )
-
-from antispam import visualizer  # noqa
 from tests.mocks import MockedMessage
 
 

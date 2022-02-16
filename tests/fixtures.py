@@ -2,10 +2,10 @@ import pytest
 from discord.ext import commands  # noqa
 
 from antispam import AntiSpamHandler, PluginCache
-from antispam.core import Core
 from antispam.caches import MemoryCache
+from antispam.core import Core
 from antispam.libs.dpy import DPY
-from antispam.plugins import AntiMassMention, AntiSpamTracker, Stats, AdminLogs
+from antispam.plugins import AdminLogs, AntiMassMention, AntiSpamTracker, Stats
 from tests.mocks import MockedMember
 
 

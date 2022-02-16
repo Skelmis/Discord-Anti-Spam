@@ -20,15 +20,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-import logging
 import datetime
+import logging
 from typing import Union
 
 import attr
 
+from antispam import AntiSpamHandler, GuildNotFound, PluginCache
 from antispam.base_plugin import BasePlugin
 from antispam.exceptions import MemberNotFound
-from antispam import AntiSpamHandler, GuildNotFound, PluginCache
 from antispam.util import get_aware_time
 
 log = logging.getLogger(__name__)

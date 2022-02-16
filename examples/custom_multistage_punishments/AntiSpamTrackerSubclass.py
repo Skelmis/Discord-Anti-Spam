@@ -6,7 +6,7 @@ from copy import deepcopy
 
 import discord
 
-from antispam import MemberNotFound, GuildNotFound, MemberAddonNotFound
+from antispam import GuildNotFound, MemberAddonNotFound, MemberNotFound
 from antispam.dataclasses import Guild, Member
 from antispam.plugins import AntiSpamTracker
 

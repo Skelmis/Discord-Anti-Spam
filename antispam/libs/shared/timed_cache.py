@@ -21,12 +21,12 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 # Taken from https://github.com/Skelmis/DPY-Bot-Base/tree/master/bot_base/caches
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
 import attr
 
-from antispam.exceptions import NonExistentEntry, ExistingEntry
+from antispam.exceptions import ExistingEntry, NonExistentEntry
 
 
 @attr.s(slots=True)

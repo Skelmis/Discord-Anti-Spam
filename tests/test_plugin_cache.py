@@ -1,21 +1,19 @@
 import pytest
-
 from discord.ext import commands
 
 # noinspection PyUnresolvedReferences
 from antispam import (
-    PluginCache,
-    GuildNotFound,
-    MemberNotFound,
-    MemberAddonNotFound,
-    GuildAddonNotFound,
-    Options,
     AntiSpamHandler,
+    GuildAddonNotFound,
+    GuildNotFound,
+    MemberAddonNotFound,
+    MemberNotFound,
+    Options,
+    PluginCache,
 )
+from antispam.dataclasses import Guild, Member  # noqa
 
-from antispam.dataclasses import Member, Guild  # noqa
-
-from .fixtures import create_bot, create_handler, create_plugin_cache, MockClass
+from .fixtures import MockClass, create_bot, create_handler, create_plugin_cache
 
 
 # noinspection DuplicatedCode

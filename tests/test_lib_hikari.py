@@ -4,17 +4,16 @@ from unittest.mock import AsyncMock
 import hikari
 import pytest
 
-from antispam.dataclasses import Guild, Member, CorePayload, Message
-
-from antispam import Options, LogicError, MissingGuildPermissions
+from antispam import LogicError, MissingGuildPermissions, Options
+from antispam.dataclasses import CorePayload, Guild, Member, Message
 from antispam.libs.lib_hikari import Hikari
+
 from .fixtures import (
+    MockClass,
     create_bot,
+    create_dpy_lib_handler,
     create_handler,
     create_memory_cache,
-    create_dpy_lib_handler,
-    MockClass,
-    create_dpy_lib_handler,
 )
 from .mocks import MockedMessage
 

@@ -1,17 +1,17 @@
 # noinspection PyUnresolvedReferences,PyPackageRequirements
 from antispam import (
     BaseASHException,
-    PluginError,
+    DuplicateObject,
     GuildAddonNotFound,
     GuildNotFound,
+    InvalidMessage,
+    LogicError,
     MemberAddonNotFound,
     MemberNotFound,
-    NotFound,
     MissingGuildPermissions,
-    LogicError,
+    NotFound,
     ObjectMismatch,
-    DuplicateObject,
-    InvalidMessage,
+    PluginError,
 )
 
 

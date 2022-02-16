@@ -1,34 +1,33 @@
 import json
 from typing import Optional
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import discord
 import pytest
 from attr import asdict
-from hypothesis import given, strategies as st
-from hypothesis.strategies import text
 from discord.ext import commands  # noqa
+from hypothesis import given
+from hypothesis import strategies as st
+from hypothesis.strategies import text
 
+from antispam import GuildNotFound  # noqa
 from antispam import (
     AntiSpamHandler,
-    Options,
-    GuildNotFound,
-    PluginError,
-    MissingGuildPermissions,
-    PropagateFailure,
     InvocationCancelled,
-)  # noqa
+    MissingGuildPermissions,
+    Options,
+    PluginError,
+    PropagateFailure,
+)
+from antispam.base_plugin import BasePlugin
 from antispam.caches import MemoryCache
 from antispam.caches.mongo import MongoCache
-
-from antispam.enums import IgnoreType, ResetType, Library
-
-from antispam.dataclasses import Guild, Member, CorePayload, Message
-
-from antispam.base_plugin import BasePlugin
+from antispam.dataclasses import CorePayload, Guild, Member, Message
+from antispam.enums import IgnoreType, Library, ResetType
 from antispam.plugins import Stats as StatsPlugin
-from .fixtures import create_bot, create_handler, MockClass
-from .mocks import MockedMessage, MockedMember
+
+from .fixtures import MockClass, create_bot, create_handler
+from .mocks import MockedMember, MockedMessage
 
 """
     How to use hypothesis

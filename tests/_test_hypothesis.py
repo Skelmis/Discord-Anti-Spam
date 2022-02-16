@@ -1,24 +1,21 @@
 import pytest
-
 from discord.ext import commands
+from hypothesis import given
+from hypothesis.strategies import datetimes, dictionaries, floats, lists, text
 
 # noinspection PyUnresolvedReferences
 from antispam import (
-    PluginCache,
-    GuildNotFound,
-    MemberNotFound,
-    MemberAddonNotFound,
-    GuildAddonNotFound,
-    Options,
     AntiSpamHandler,
+    GuildAddonNotFound,
+    GuildNotFound,
+    MemberAddonNotFound,
+    MemberNotFound,
+    Options,
+    PluginCache,
 )
+from antispam.dataclasses import Guild, Member  # noqa
 
-from antispam.dataclasses import Member, Guild  # noqa
-
-from hypothesis import given
-from hypothesis.strategies import text, dictionaries, floats, lists, datetimes
-
-from .fixtures import create_bot, create_handler, create_plugin_cache, MockClass
+from .fixtures import MockClass, create_bot, create_handler, create_plugin_cache
 
 """A test file devoted to hypothesis.
 These tests do not run on ci due to time

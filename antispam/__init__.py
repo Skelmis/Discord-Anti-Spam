@@ -22,15 +22,15 @@ DEALINGS IN THE SOFTWARE.
 """
 __version__ = "1.2.1"
 
-from antispam.anti_spam_handler import AntiSpamHandler
-from antispam.exceptions import *
-from antispam.dataclasses import Options, CorePayload
-from antispam.plugin_cache import PluginCache
-from antispam.base_plugin import BasePlugin
-
-import sys
 import logging
+import sys
 from collections import namedtuple
+
+from antispam.anti_spam_handler import AntiSpamHandler
+from antispam.base_plugin import BasePlugin
+from antispam.dataclasses import CorePayload, Options
+from antispam.exceptions import *
+from antispam.plugin_cache import PluginCache
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 VersionInfo = namedtuple("VersionInfo", "major minor micro releaselevel serial")

@@ -3,9 +3,9 @@ import datetime
 import pytest
 from attr import asdict
 
-from antispam.dataclasses import Message, Member, Guild
-from antispam.factory import FactoryBuilder
 from antispam import Options
+from antispam.dataclasses import Guild, Member, Message
+from antispam.factory import FactoryBuilder
 from antispam.util import get_aware_time
 
 

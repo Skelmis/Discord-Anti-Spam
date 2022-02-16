@@ -1,9 +1,9 @@
 import discord
 from discord.ext import commands
+from jsonLoader import read_json
 
 from antispam import AntiSpamHandler, Options
 from antispam.plugins import AntiSpamTracker
-from jsonLoader import read_json
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 

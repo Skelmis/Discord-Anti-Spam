@@ -23,11 +23,9 @@ DEALINGS IN THE SOFTWARE.
 import logging
 from typing import AsyncIterable
 
+from antispam import dataclasses, exceptions
 from antispam.abc import Cache
-from antispam import dataclasses
 from antispam.enums import ResetType
-from antispam import exceptions
-
 
 log = logging.getLogger(__name__)
 

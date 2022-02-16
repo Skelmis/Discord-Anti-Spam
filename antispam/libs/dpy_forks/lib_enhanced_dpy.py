@@ -23,11 +23,10 @@ DEALINGS IN THE SOFTWARE.
 import datetime
 import logging
 
-from antispam import MissingGuildPermissions
-from antispam.libs.dpy import DPY
-
 import discord  # enhanced dpy
 
+from antispam import MissingGuildPermissions
+from antispam.libs.dpy import DPY
 
 log = logging.getLogger(__name__)
 

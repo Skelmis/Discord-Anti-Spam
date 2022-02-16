@@ -21,9 +21,9 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 import datetime
-from typing import runtime_checkable, Protocol, Union, Optional, List, Dict
+from typing import Dict, List, Optional, Protocol, Union, runtime_checkable
 
-from antispam.dataclasses import Message, Member, Guild
+from antispam.dataclasses import Guild, Member, Message
 from antispam.dataclasses.propagate_data import PropagateData
 from antispam.libs.shared import SubstituteArgs
 

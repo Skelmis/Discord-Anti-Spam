@@ -23,35 +23,34 @@ DEALINGS IN THE SOFTWARE.
 import asyncio
 import datetime
 import logging
-from typing import Optional, Union, Dict
+from typing import Dict, Optional, Union
 from unittest.mock import AsyncMock
 
 import hikari.errors
 from hikari import (
-    messages,
-    guilds,
-    embeds,
-    GuildTextChannel,
-    UnauthorizedError,
     ForbiddenError,
-    NotFoundError,
-    RateLimitTooLongError,
+    GuildTextChannel,
     InternalServerError,
+    NotFoundError,
     Permissions,
+    RateLimitTooLongError,
+    UnauthorizedError,
+    embeds,
+    guilds,
+    messages,
 )
 
 from antispam import (
     AntiSpamHandler,
-    PropagateFailure,
+    InvalidMessage,
     LogicError,
     MissingGuildPermissions,
-    InvalidMessage,
+    PropagateFailure,
 )
-
 from antispam.abc import Lib
-from antispam.dataclasses import Member, Guild, Message
+from antispam.dataclasses import Guild, Member, Message
 from antispam.dataclasses.propagate_data import PropagateData
-from antispam.libs.shared import SubstituteArgs, Base
+from antispam.libs.shared import Base, SubstituteArgs
 
 log = logging.getLogger(__name__)
 

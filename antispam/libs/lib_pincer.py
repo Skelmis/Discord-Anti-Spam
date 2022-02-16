@@ -24,26 +24,24 @@ import asyncio
 import datetime
 import functools
 import logging
-from typing import Optional, List, Dict, Union
+from typing import Dict, List, Optional, Union
 from unittest.mock import AsyncMock
 
 import pincer
-from pincer.objects import UserMessage, Embed, MessageType
+from pincer import objects
+from pincer.objects import Embed, MessageType, UserMessage
 
 from antispam import (
     InvalidMessage,
     LogicError,
-    PropagateFailure,
     MissingGuildPermissions,
     NonExistentEntry,
+    PropagateFailure,
 )
 from antispam.abc import Lib
-from antispam.dataclasses import Member, Guild, Message
+from antispam.dataclasses import Guild, Member, Message
 from antispam.dataclasses.propagate_data import PropagateData
-
-from pincer import objects
-
-from antispam.libs.shared import SubstituteArgs, Base, TimedCache
+from antispam.libs.shared import Base, SubstituteArgs, TimedCache
 
 log = logging.getLogger(__name__)
 

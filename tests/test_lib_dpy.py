@@ -4,16 +4,15 @@ from unittest.mock import AsyncMock, Mock, patch
 import discord
 import pytest
 
-from antispam.dataclasses import Guild, Member, CorePayload, Message
+from antispam import LogicError, MissingGuildPermissions, Options, PropagateFailure
+from antispam.dataclasses import CorePayload, Guild, Member, Message
 
-from antispam import Options, LogicError, MissingGuildPermissions, PropagateFailure
 from .fixtures import (
+    MockClass,
     create_bot,
+    create_dpy_lib_handler,
     create_handler,
     create_memory_cache,
-    create_dpy_lib_handler,
-    MockClass,
-    create_dpy_lib_handler,
 )
 from .mocks import MockedMessage
 

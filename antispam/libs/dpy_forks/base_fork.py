@@ -22,10 +22,8 @@ DEALINGS IN THE SOFTWARE.
 """
 import logging
 
-
 from antispam.libs.dpy import DPY
 from antispam.libs.shared import SubstituteArgs
-
 
 log = logging.getLogger(__name__)
 

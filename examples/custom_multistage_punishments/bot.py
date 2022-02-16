@@ -1,10 +1,9 @@
 import discord
+from AntiSpamTrackerSubclass import MyCustomTracker
 from discord.ext import commands
 
 from antispam import AntiSpamHandler, Options
 from examples.jsonLoader import read_json
-
-from AntiSpamTrackerSubclass import MyCustomTracker
 
 bot = commands.Bot(command_prefix=".", intents=discord.Intents.all())
 

@@ -1,13 +1,13 @@
 import asyncio
 import logging
-from typing import Optional, Any
+from typing import Any, Optional
 
 from antispam import (
+    AntiSpamHandler,
     BasePlugin,
     CorePayload,
-    AntiSpamHandler,
-    MemberNotFound,
     GuildNotFound,
+    MemberNotFound,
 )
 from antispam.abc import Cache
 from antispam.dataclasses import Member

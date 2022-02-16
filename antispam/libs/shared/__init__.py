@@ -1,6 +1,7 @@
 import logging
-from antispam.libs.shared.substitute_args import SubstituteArgs
+
 from antispam.libs.shared.base import Base
+from antispam.libs.shared.substitute_args import SubstituteArgs
 from antispam.libs.shared.timed_cache import TimedCache
 
 __all__ = ("SubstituteArgs", "Base", "TimedCache")

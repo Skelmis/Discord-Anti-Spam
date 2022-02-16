@@ -20,12 +20,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 import attr
 
-from antispam.dataclasses.message import Message
 from antispam.dataclasses.member import Member
+from antispam.dataclasses.message import Message
 from antispam.dataclasses.options import Options
 
 

@@ -4,15 +4,15 @@ from unittest.mock import AsyncMock
 import discord
 import pytest
 
-from antispam.dataclasses import Guild, Member, CorePayload, Message
+from antispam import DuplicateObject, LogicError, MissingGuildPermissions, Options
+from antispam.dataclasses import CorePayload, Guild, Member, Message
 
-from antispam import Options, LogicError, MissingGuildPermissions, DuplicateObject
 from .fixtures import (
+    MockClass,
     create_bot,
+    create_core,
     create_handler,
     create_memory_cache,
-    create_core,
-    MockClass,
 )
 from .mocks import MockedMessage
 

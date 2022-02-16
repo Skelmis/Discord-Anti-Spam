@@ -2,12 +2,11 @@ import datetime
 
 import pytest
 
+from antispam import MemberNotFound, Options, PluginCache
+from antispam.dataclasses import CorePayload, Guild, Member
 from antispam.plugins import AntiSpamTracker
 
-from antispam import PluginCache, MemberNotFound, Options
-
-from antispam.dataclasses import Member, Guild, CorePayload
-from .fixtures import create_anti_spam_tracker, create_handler, MockClass, create_bot
+from .fixtures import MockClass, create_anti_spam_tracker, create_bot, create_handler
 from .mocks import MockedMessage
 
 

@@ -23,11 +23,10 @@ DEALINGS IN THE SOFTWARE.
 import datetime
 import logging
 
-from antispam import MissingGuildPermissions
-from antispam.libs.dpy_forks import BaseFork
-
 import nextcord
 
+from antispam import MissingGuildPermissions
+from antispam.libs.dpy_forks import BaseFork
 
 log = logging.getLogger(__name__)
 

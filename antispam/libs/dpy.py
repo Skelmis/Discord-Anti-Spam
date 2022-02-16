@@ -22,7 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 import datetime
 import logging
-from typing import Union, Optional, Dict
+from typing import Dict, Optional, Union
 from unittest.mock import AsyncMock
 
 from antispam.deprecation import mark_deprecated
@@ -34,16 +34,15 @@ except ModuleNotFoundError:
     import disnake as discord
 
 from antispam import (
-    PropagateFailure,
+    InvalidMessage,
     LogicError,
     MissingGuildPermissions,
-    InvalidMessage,
+    PropagateFailure,
     UnsupportedAction,
 )
 from antispam.abc import Lib
-from antispam.dataclasses import Message, Member, Guild
+from antispam.dataclasses import Guild, Member, Message
 from antispam.dataclasses.propagate_data import PropagateData
-
 
 log = logging.getLogger(__name__)
 

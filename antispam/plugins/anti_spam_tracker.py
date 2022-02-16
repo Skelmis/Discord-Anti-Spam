@@ -22,17 +22,16 @@ DEALINGS IN THE SOFTWARE.
 """
 import datetime
 import logging
-
 import typing
 
 from antispam import AntiSpamHandler
 from antispam.base_plugin import BasePlugin
-from antispam.dataclasses import Member, CorePayload
+from antispam.dataclasses import CorePayload, Member
 from antispam.exceptions import (
-    MemberNotFound,
+    GuildAddonNotFound,
     GuildNotFound,
     MemberAddonNotFound,
-    GuildAddonNotFound,
+    MemberNotFound,
 )
 from antispam.plugin_cache import PluginCache
 from antispam.util import get_aware_time

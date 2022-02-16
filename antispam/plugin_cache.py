@@ -22,14 +22,14 @@ DEALINGS IN THE SOFTWARE.
 """
 from typing import Any
 
+from antispam import AntiSpamHandler
+from antispam.dataclasses import Guild, Member
 from antispam.exceptions import (
-    MemberNotFound,
+    GuildAddonNotFound,
     GuildNotFound,
     MemberAddonNotFound,
-    GuildAddonNotFound,
+    MemberNotFound,
 )
-from antispam.dataclasses import Guild, Member
-from antispam import AntiSpamHandler
 
 
 class PluginCache:

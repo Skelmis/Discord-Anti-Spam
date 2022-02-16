@@ -23,9 +23,9 @@ DEALINGS IN THE SOFTWARE.
 # Taken from https://document.koldfusion.xyz with slight modifications.
 import functools
 from copy import deepcopy
-from typing import List, Dict, Optional, Union, Any, TypeVar, Type
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
-from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
+from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 from pymongo.results import DeleteResult
 
 T = TypeVar("T")

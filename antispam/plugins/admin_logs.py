@@ -25,9 +25,9 @@ import os
 from pathlib import Path
 from typing import Any
 
-from antispam import CorePayload, AntiSpamHandler, LogicError
+from antispam import AntiSpamHandler, CorePayload, LogicError
 from antispam.base_plugin import BasePlugin
-from antispam.dataclasses import Member, Guild
+from antispam.dataclasses import Guild, Member
 
 log = logging.getLogger(__name__)
 

@@ -27,13 +27,13 @@ from typing import TYPE_CHECKING
 from fuzzywuzzy import fuzz
 
 from antispam.abc import Cache
+from antispam.dataclasses import CorePayload, Guild, Member, Message
 from antispam.exceptions import (
-    MemberNotFound,
-    LogicError,
     DuplicateObject,
+    LogicError,
+    MemberNotFound,
     UnsupportedAction,
 )
-from antispam.dataclasses import Member, Message, CorePayload, Guild
 from antispam.util import get_aware_time
 
 if TYPE_CHECKING:

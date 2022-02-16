@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from typing import Protocol, runtime_checkable, Union, Optional, AsyncIterable, List
+from typing import AsyncIterable, List, Optional, Protocol, Union, runtime_checkable
 
 from antispam.dataclasses import Guild, Member, Message
 from antispam.dataclasses.propagate_data import PropagateData

@@ -21,5 +21,5 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 from antispam.enums.ignored_types import IgnoreType
-from antispam.enums.reset_type import ResetType
 from antispam.enums.library import Library
+from antispam.enums.reset_type import ResetType
