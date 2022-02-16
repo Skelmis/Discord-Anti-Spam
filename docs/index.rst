@@ -1,22 +1,16 @@
 Welcome to Discord Anti-Spam's documentation!
 =============================================
 
-Discord Anti-Spam supports discord.py and all forks out of
-the box assuming they use the ``discord`` namespace.
-
-If you want to use this with hikari, please enable it
-by passing ``library=Library.HIKARI`` to the
-``AntiSpamHandler`` constructor.
-
-If you want to use this with pincer, please enable it
-by passing ``library=Library.PINCER`` to the
-``AntiSpamHandler`` constructor.
-
+In order to tell ``AntiSpamHandler`` what library you
+are using you should pass the ``library`` kwarg.
+For the supported libraries, please see the ``Library``
+enum in the Enum reference page.
 
 The package features some built in punishments, these are:
 
-- Per member spam is treated as warns, then kicks followed by bans.
-- Per channel spam starts off as a kick straight away followed by bans
+- Per member spam:
+    - Warn -> Kick -> Ban. This is default in versions lower then 1.3.0
+    - Discord timeouts. This is default in versions 1.3.0 or higher.
 
 .. toctree::
    :maxdepth: 2
