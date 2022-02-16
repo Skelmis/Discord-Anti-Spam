@@ -141,6 +141,7 @@ class AntiSpamHandler:
 
         # Import these here to avoid errors when not
         # having the other lib installed
+        self.lib_handler = None
         if library == Library.HIKARI:
             from antispam.libs.lib_hikari import Hikari
 
@@ -200,6 +201,9 @@ class AntiSpamHandler:
 
         """
         await self.cache.initialize()
+
+        if self.lib_handler is None:
+            raise UnsupportedAction("lib_handler needs to be set before usage.")
 
         self.needs_init = False
 
