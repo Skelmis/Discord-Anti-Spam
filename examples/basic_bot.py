@@ -9,6 +9,7 @@ bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 file = read_json("token")
 
 bot.handler = AntiSpamHandler(bot)
+# If you want a custom fork, specify it with the library kwarg
 
 
 @bot.event
