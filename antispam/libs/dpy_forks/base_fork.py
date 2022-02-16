@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 
 class BaseFork(DPY):
     async def get_substitute_args(self, message) -> SubstituteArgs:
-        member_avatar = message.author.avatar.url
+        member_avatar = str(message.author.display_avatar)
         guild_icon = message.guild.icon.url
         bot_avatar = message.guild.me.avatar.url
 

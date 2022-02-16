@@ -204,11 +204,11 @@ class Core:
             )
             try:
                 await self.handler.lib_handler.timeout_member(
-                    member, original_message, timeout_until
+                    original_message.author, original_message, timeout_until
                 )
             except UnsupportedAction:
                 raise
-            except:
+            except Exception as e:
                 user_failed_message = await self.handler.lib_handler.transform_message(
                     self.handler.options.member_failed_timeout_message,
                     original_message,
@@ -222,6 +222,7 @@ class Core:
                     self.options(guild).member_timeout_message_delete_after,
                     original_message.channel,
                 )
+                raise e from None
 
             else:
                 await self.handler.lib_handler.send_guild_log(
