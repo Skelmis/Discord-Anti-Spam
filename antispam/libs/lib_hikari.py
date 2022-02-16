@@ -492,7 +492,10 @@ class Hikari(Base, Lib):
         return hikari.File(path)
 
     async def timeout_member(
-        self, member: guilds.Member, original_message, until: datetime.timedelta
+        self,
+        member: guilds.Member,
+        original_message: messages.Message,
+        until: datetime.timedelta,
     ) -> None:
         guild: guilds.Guild = self.handler.bot.cache.get_guild(member.guild_id)
         perms = await self._get_perms(guild.get_my_member())  # type: ignore
@@ -501,6 +504,20 @@ class Hikari(Base, Lib):
                 "MODERATE_MEMBERS is required to timeout members.\n"
                 f"Tried timing out Member(id={member.id}) in Guild(id={member.guild_id})"
             )
+
+        try:
+            await self.handler.lib_handler.transform_message(
+                self.options.member_kick_message,
+                original_message,
+                member.warn_count,
+                member.kick_count,
+            )
+            await self.send_message_to_(
+                original_message.author,
+                original_message.author.mention,
+            )
+        except:
+            pass
 
         time_now = datetime.datetime.utcnow() + until
         await member.edit(

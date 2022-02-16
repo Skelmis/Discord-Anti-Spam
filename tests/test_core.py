@@ -76,7 +76,7 @@ class TestCore:
 
         assert len(member.messages) == 4
 
-        await create_core.clean_up(member, datetime.datetime.now(), 1)
+        await create_core.clean_up(member, datetime.datetime.now(), 1, Guild(1))
 
         assert len(member.messages) == 1
 
@@ -114,11 +114,12 @@ class TestCore:
         member.messages = messages
         member.duplicate_counter = 1
 
-        await create_core.clean_up(member, datetime.datetime.now(), 1)
+        await create_core.clean_up(member, datetime.datetime.now(), 1, Guild(1))
 
         assert member.duplicate_counter == 0
 
     def test_remove_duplicate_count(self, create_core):
+        guild = Guild(1)
         member = Member(1, 1)
         member.duplicate_counter = 5
         member.duplicate_channel_counter_dict = {15: 2}
@@ -126,50 +127,52 @@ class TestCore:
         assert member.duplicate_counter == 5
         assert member.duplicate_channel_counter_dict == {15: 2}
 
-        create_core._remove_duplicate_count(member, 1)
+        create_core._remove_duplicate_count(member, guild, 1)
         assert member.duplicate_counter == 4
         assert member.duplicate_channel_counter_dict == {15: 2}
 
-        create_core._remove_duplicate_count(member, 1, 2)
+        create_core._remove_duplicate_count(member, guild, 1, 2)
         assert member.duplicate_counter == 2
         assert member.duplicate_channel_counter_dict == {15: 2}
 
-        create_core.options = Options(per_channel_spam=True)
+        guild.options.per_channel_spam = True
 
-        create_core._remove_duplicate_count(member, 15)
+        create_core._remove_duplicate_count(member, guild, 15)
         assert member.duplicate_counter == 2
         assert member.duplicate_channel_counter_dict == {15: 1}
 
-        create_core._remove_duplicate_count(member, 1)
+        create_core._remove_duplicate_count(member, guild, 1)
         assert member.duplicate_counter == 2
         assert member.duplicate_channel_counter_dict == {15: 1}
 
     def test_get_duplicate_count(self, create_core):
+        guild = Guild(1)
         member = Member(1, 1)
         member.duplicate_counter = 5
         member.duplicate_channel_counter_dict = {15: 2}
 
-        assert create_core._get_duplicate_count(member, 1) == 5
+        assert create_core._get_duplicate_count(member, guild, 1) == 5
 
-        create_core.options = Options(per_channel_spam=True)
+        guild.options.per_channel_spam = True
 
-        assert create_core._get_duplicate_count(member) == 1
-        assert create_core._get_duplicate_count(member, 5) == 1
-        assert create_core._get_duplicate_count(member, 15) == 2
+        assert create_core._get_duplicate_count(member, guild) == 1
+        assert create_core._get_duplicate_count(member, guild, 5) == 1
+        assert create_core._get_duplicate_count(member, guild, 15) == 2
 
     def test_increment_duplicate_count(self, create_core):
+        guild = Guild(1)
         member = Member(1, 1)
         assert member.duplicate_counter == 1
 
-        create_core._increment_duplicate_count(member, 1)
+        create_core._increment_duplicate_count(member, guild, 1)
         assert member.duplicate_counter == 2
 
-        create_core._increment_duplicate_count(member, 1, 3)
+        create_core._increment_duplicate_count(member, guild, 1, 3)
         assert member.duplicate_counter == 5
 
-        create_core.options = Options(per_channel_spam=True)
+        guild.options.per_channel_spam = True
 
-        create_core._increment_duplicate_count(member, 1, 1)
+        create_core._increment_duplicate_count(member, guild, 1, 1)
         assert member.duplicate_channel_counter_dict == {1: 2}
 
     def test_calculate_ratios(self, create_core):
@@ -179,7 +182,7 @@ class TestCore:
 
         assert member.duplicate_counter == 1
 
-        create_core._calculate_ratios(message, member)
+        create_core._calculate_ratios(message, member, Guild(1))
 
         assert member.duplicate_counter == 2
         assert message.is_duplicate is True
@@ -202,7 +205,7 @@ class TestCore:
         ]
         message = Message(6, 1, 1, 1, "Spam tho", datetime.datetime.now())
 
-        create_core._calculate_ratios(message, member)
+        create_core._calculate_ratios(message, member, Guild(1))
 
         assert message.is_duplicate is True
         assert member.messages[0].is_duplicate is False
@@ -215,23 +218,23 @@ class TestCore:
         member = Member(1, 1)
         member.messages = [Message(1, 1, 1, 1, "Hello world", datetime.datetime.now())]
         message = Message(2, 2, 1, 1, "Hello world", datetime.datetime.now())
-        create_core.options = Options(per_channel_spam=True)
+        guild = Guild(1, options=Options(per_channel_spam=True))
 
         assert member.duplicate_counter == 1
 
-        create_core._calculate_ratios(message, member)
+        create_core._calculate_ratios(message, member, guild)
 
         assert member.duplicate_counter == 1
         assert message.is_duplicate is False
 
     @pytest.mark.asyncio
     async def test_propagate_no_punish(self, create_core):
-        await create_core.cache.set_guild(Guild(1, Options()))
+        g = Guild(1, Options(no_punish=True))
+        await create_core.cache.set_guild(g)
         member = Member(1, 1)
         await create_core.cache.set_member(member)
-        create_core._increment_duplicate_count(member, 1, 15)
+        create_core._increment_duplicate_count(member, g, 1, 15)
 
-        create_core.options.no_punish = True
         guild = await create_core.cache.get_guild(1)
         return_data = await create_core.propagate_user(
             MockedMessage(guild_id=1, author_id=1).to_mock(), guild
@@ -245,7 +248,7 @@ class TestCore:
     async def test_propagate_warn_only(self, create_core):
         member = Member(1, 1)
         await create_core.cache.set_member(member)
-        create_core._increment_duplicate_count(member, 1, 15)
+        create_core._increment_duplicate_count(member, Guild(1), 1, 15)
         guild = await create_core.cache.get_guild(1)
 
         create_core.options.warn_only = True
@@ -277,7 +280,7 @@ class TestCore:
     async def test_propagate_kicks(self, create_core):
         member = Member(1, 1)
         member.warn_count = 3
-        create_core._increment_duplicate_count(member, 1, 7)
+        create_core._increment_duplicate_count(member, Guild(1), 1, 7)
         await create_core.cache.set_member(member)
         guild = await create_core.cache.get_guild(1)
 
@@ -298,7 +301,7 @@ class TestCore:
         member = Member(1, 1)
         member.warn_count = 3
         member.kick_count = 3
-        create_core._increment_duplicate_count(member, 1, 7)
+        create_core._increment_duplicate_count(member, Guild(1), 1, 7)
         await create_core.cache.set_member(member)
         guild = await create_core.cache.get_guild(1)
 
@@ -322,17 +325,20 @@ class TestCore:
         m = Message(1, 2, 3, 4, "One")
         m.creation_time = member.messages[0].creation_time
         with pytest.raises(DuplicateObject):
-            create_core._calculate_ratios(m, member)
+            create_core._calculate_ratios(m, member, Guild(1))
 
     def test_calculate_ratios_does_nothing(self, create_core):
         """Tests the loop does nothing on different messages"""
         member = Member(1, 1, messages=[Message(1, 2, 3, 4, "Hello I am the world")])
 
-        create_core._calculate_ratios(Message(2, 2, 3, 4, "My name is Ethan!"), member)
+        create_core._calculate_ratios(
+            Message(2, 2, 3, 4, "My name is Ethan!"), member, Guild(1)
+        )
 
     def test_increment_duplicate_existing(self, create_core):
         """Tests the count increments even when already existing"""
         member = Member(1, 1, duplicate_channel_counter_dict={5: 1})
-        create_core.options.per_channel_spam = True
-        create_core._increment_duplicate_count(member, 5)
+        g = Guild(1)
+        g.options.per_channel_spam = True
+        create_core._increment_duplicate_count(member, g, 5)
         assert member.duplicate_channel_counter_dict[5] == 2

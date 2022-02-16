@@ -41,15 +41,18 @@ log = logging.getLogger(__name__)
 class Core:
     """An abstract way to handle spam tracking on different levels"""
 
-    __slots__ = ("handler", "options")
+    __slots__ = ("handler",)
 
     def __init__(self, handler):
         self.handler: "AntiSpamHandler" = handler
-        self.options: "Options" = handler.options
 
     @property
     def cache(self) -> Cache:
         return self.handler.cache
+
+    @staticmethod
+    def options(guild: Guild) -> "Options":
+        return guild.options
 
     async def propagate(self, message, guild: Guild) -> CorePayload:
         """
@@ -61,7 +64,7 @@ class Core:
         # To get here it must have passed checks so simply run the relevant methods
         guild_r = await self.propagate_user(message, guild)
 
-        if self.options.is_per_channel_per_guild:
+        if self.options(guild).is_per_channel_per_guild:
             guild_r = await self.propagate_per_channel_per_guild(message, guild_r)
 
         return guild_r
@@ -101,11 +104,12 @@ class Core:
             member=member,
             current_time=get_aware_time(),
             channel_id=await self.handler.lib_handler.get_channel_id(original_message),
+            guild=guild,
         )
         message: Message = await self.handler.lib_handler.create_message(
             original_message
         )
-        self._calculate_ratios(message, member)
+        self._calculate_ratios(message, member, guild)
 
         # Check again since in theory the above could take awhile
         if not member.internal_is_in_guild:
@@ -122,8 +126,8 @@ class Core:
         )
 
         if (
-            self._get_duplicate_count(member, channel_id=message.channel_id)
-            < self.options.message_duplicate_count
+            self._get_duplicate_count(member, guild, channel_id=message.channel_id)
+            < self.options(guild).message_duplicate_count
         ):
             return CorePayload()
 
@@ -137,14 +141,14 @@ class Core:
         # We need to punish the member with something
         return_payload = CorePayload(member_should_be_punished_this_message=True)
 
-        if self.options.no_punish:
+        if self.options(guild).no_punish:
             # User will handle punishments themselves
             return CorePayload(
                 member_should_be_punished_this_message=True,
                 member_status="Member should be punished, however, was not due to no_punish being True",
             )
 
-        if self.options.use_timeouts:
+        if self.options(guild).use_timeouts:
             log.debug(
                 "Attempting to timeout Member(id=%s) in Guild(id=%s)",
                 message.author_id,
@@ -168,11 +172,11 @@ class Core:
             await self.handler.cache.set_member(member)
 
         elif (
-            self.options.warn_only
-            or self._get_duplicate_count(member, message.channel_id)
-            >= self.options.warn_threshold
-            and member.warn_count < self.options.kick_threshold
-            and member.kick_count < self.options.ban_threshold
+            self.options(guild).warn_only
+            or self._get_duplicate_count(member, guild, message.channel_id)
+            >= self.options(guild).warn_threshold
+            and member.warn_count < self.options(guild).kick_threshold
+            and member.kick_count < self.options(guild).ban_threshold
         ):
             """
             WARN
@@ -190,13 +194,13 @@ class Core:
                 original_message
             )
             member_message = await self.handler.lib_handler.transform_message(
-                self.options.member_warn_message,
+                self.options(guild).member_warn_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
             )
             guild_message = await self.handler.lib_handler.transform_message(
-                self.options.guild_log_warn_message,
+                self.options(guild).guild_log_warn_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
@@ -206,7 +210,7 @@ class Core:
                     channel,
                     member_message,
                     original_message.author.mention,
-                    self.options.member_warn_message_delete_after,
+                    self.options(guild).member_warn_message_delete_after,
                 )
             except Exception as e:
                 member.warn_count -= 1
@@ -219,15 +223,17 @@ class Core:
                 original_channel=await self.handler.lib_handler.get_channel_from_message(
                     original_message
                 ),
-                delete_after_time=self.options.guild_log_warn_message_delete_after,
+                delete_after_time=self.options(
+                    guild
+                ).guild_log_warn_message_delete_after,
             )
 
             return_payload.member_was_warned = True
             return_payload.member_status = "Member was warned"
 
         elif (
-            member.warn_count >= self.options.kick_threshold
-            and member.kick_count < self.options.ban_threshold
+            member.warn_count >= self.options(guild).kick_threshold
+            and member.kick_count < self.options(guild).ban_threshold
         ):
             # KICK
             # Set this to False here to stop processing other messages, we can revert on failure
@@ -240,13 +246,13 @@ class Core:
             )
 
             guild_message = await self.handler.lib_handler.transform_message(
-                self.options.guild_log_kick_message,
+                self.options(guild).guild_log_kick_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
             )
             user_message = await self.handler.lib_handler.transform_message(
-                self.options.member_kick_message,
+                self.options(guild).member_kick_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
@@ -258,14 +264,14 @@ class Core:
                 user_message,
                 guild_message,
                 True,
-                self.options.member_kick_message_delete_after,
-                self.options.guild_log_kick_message_delete_after,
+                self.options(guild).member_kick_message_delete_after,
+                self.options(guild).guild_log_kick_message_delete_after,
             )
 
             return_payload.member_was_kicked = True
             return_payload.member_status = "Member was kicked"
 
-        elif member.kick_count >= self.options.ban_threshold:
+        elif member.kick_count >= self.options(guild).ban_threshold:
             # BAN
             # Set this to False here to stop processing other messages, we can revert on failure
             member.internal_is_in_guild = False
@@ -277,13 +283,13 @@ class Core:
             )
 
             guild_message = await self.handler.lib_handler.transform_message(
-                self.options.guild_log_ban_message,
+                self.options(guild).guild_log_ban_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
             )
             user_message = await self.handler.lib_handler.transform_message(
-                self.options.member_ban_message,
+                self.options(guild).member_ban_message,
                 original_message,
                 member.warn_count,
                 member.kick_count,
@@ -295,8 +301,8 @@ class Core:
                 user_message,
                 guild_message,
                 False,
-                self.options.member_ban_message_delete_after,
-                self.options.guild_log_ban_message_delete_after,
+                self.options(guild).member_ban_message_delete_after,
+                self.options(guild).guild_log_ban_message_delete_after,
             )
 
             return_payload.member_was_banned = True
@@ -311,7 +317,10 @@ class Core:
         await self.cache.set_member(member)
 
         # Delete the message if wanted
-        if self.options.delete_spam is True and self.options.no_punish is False:
+        if (
+            self.options(guild).delete_spam is True
+            and self.options(guild).no_punish is False
+        ):
             await self.handler.lib_handler.delete_message(original_message)
             await self.handler.lib_handler.delete_member_messages(member)
 
@@ -320,8 +329,7 @@ class Core:
         return_payload.member_kick_count = member.kick_count
         return_payload.member_duplicate_count = (
             self._get_duplicate_count(
-                member=member,
-                channel_id=message.channel_id,
+                member=member, channel_id=message.channel_id, guild=guild
             )
             - 1
         )
@@ -338,7 +346,9 @@ class Core:
 
         return core_payload
 
-    async def clean_up(self, member: Member, current_time, channel_id: int):
+    async def clean_up(
+        self, member: Member, current_time, channel_id: int, guild: Guild
+    ):
         """
         This logic works around checking the current
         time vs a messages creation time. If the message
@@ -354,12 +364,15 @@ class Core:
         channel_id : int
             The channel to clean messages in
             if this is set to per_channel
+        guild: Guild
+            The guild to use for options
         """
         log.debug(
             "Attempting to remove outdated message's on Member(id=%s) in Guild(id=%s)",
             member.id,
             member.guild_id,
         )
+        message_interval = self.options(guild).message_interval
 
         def _is_still_valid(message_obj):
             """
@@ -367,7 +380,7 @@ class Core:
             expired yet based on timestamps
             """
             difference = current_time - message_obj.creation_time
-            offset = datetime.timedelta(milliseconds=self.options.message_interval)
+            offset = datetime.timedelta(milliseconds=message_interval)
 
             if difference >= offset:
                 return False
@@ -391,7 +404,7 @@ class Core:
         # the queue otherwise everything stacks up
         for outstanding_message in outstanding_messages:
             if outstanding_message.is_duplicate:
-                self._remove_duplicate_count(member, channel_id)
+                self._remove_duplicate_count(member, guild, channel_id)
                 log.debug(
                     "Removing duplicate message(%s) from Member(id=%s) in Guild(id=%s)",
                     outstanding_message.id,
@@ -409,6 +422,7 @@ class Core:
         self,
         message: Message,
         member: Member,
+        guild: Guild,
     ) -> None:
         """
         Calculates a messages relation to other messages
@@ -419,7 +433,7 @@ class Core:
                 raise DuplicateObject
 
             elif (
-                self.options.per_channel_spam
+                self.options(guild).per_channel_spam
                 and message.channel_id != message_obj.channel_id
             ):
                 # This user's spam should only be counted per channel
@@ -428,30 +442,35 @@ class Core:
 
             elif (
                 fuzz.token_sort_ratio(message.content, message_obj.content)
-                >= self.options.message_duplicate_accuracy
+                >= self.options(guild).message_duplicate_accuracy
             ):
                 """
                 The handler works off an internal message duplicate counter
                 so just increment that and then let our logic process it later
                 """
-                self._increment_duplicate_count(member, channel_id=message.channel_id)
+                self._increment_duplicate_count(
+                    member, guild, channel_id=message.channel_id
+                )
                 message.is_duplicate = True
                 message_obj.is_duplicate = True
 
                 if (
                     self._get_duplicate_count(
-                        member,
-                        channel_id=message.channel_id,
+                        member, channel_id=message.channel_id, guild=guild
                     )
-                    >= self.options.message_duplicate_count
+                    >= self.options(guild).message_duplicate_count
                 ):
                     break
 
     def _increment_duplicate_count(
-        self, member: Member, channel_id: int, amount: int = 1
+        self,
+        member: Member,
+        guild: Guild,
+        channel_id: int,
+        amount: int = 1,
     ):
         """A helper method to increment the correct duplicate counter, global or not."""
-        is_per_channel = self.options.per_channel_spam
+        is_per_channel = self.options(guild).per_channel_spam
         if not is_per_channel:
             # Just use the regular int, should save overhead
             # for those who dont use per_channel_spam
@@ -465,9 +484,11 @@ class Core:
         else:
             member.duplicate_channel_counter_dict[channel_id] += amount
 
-    def _get_duplicate_count(self, member: Member, channel_id: int = None) -> int:
+    def _get_duplicate_count(
+        self, member: Member, guild: Guild, channel_id: int = None
+    ) -> int:
         """A helper method to get the correct duplicate counter based on settings"""
-        is_per_channel = self.options.per_channel_spam
+        is_per_channel = self.options(guild).per_channel_spam
         if not is_per_channel:
             return member.duplicate_counter
 
@@ -477,9 +498,11 @@ class Core:
         except (KeyError, TypeError):
             return 1
 
-    def _remove_duplicate_count(self, member: Member, channel_id: int, amount: int = 1):
+    def _remove_duplicate_count(
+        self, member: Member, guild: Guild, channel_id: int, amount: int = 1
+    ):
         """Used when cleaning the cache, to only lower the correct counter"""
-        is_per_channel = self.options.per_channel_spam
+        is_per_channel = self.options(guild).per_channel_spam
         if not is_per_channel:
             member.duplicate_counter -= amount
             return
