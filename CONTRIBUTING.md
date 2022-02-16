@@ -33,6 +33,7 @@ I love new code for this project, I love seeing it grow. However, there is a pro
 - Where applicable, code should be documented. For implementation see the below Documentaion sections
   - Applicable means any public methods
 - All code should be unittested to a level which ensures good future regression tests
+  - Code which requires external API's such as MongoDB or Lib impl's require manual testing
 - Where code gets excessive, functional programming ideas should come into play for readability
 - `return` statements are preferred within conditionals when checking whether to continue with processing or not
 For example:
