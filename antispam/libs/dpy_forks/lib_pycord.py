@@ -34,19 +34,6 @@ log = logging.getLogger(__name__)
 
 
 class Pycord(BaseFork):
-    def __init__(self, handler):
-        self.handler = handler
-        self.bot = self.handler.bot
-
-        log.debug(
-            "Support for this package is:\n"
-            "1) Based on documentation\n"
-            "2) Untested, both unittests and implementation tests\n"
-            "3) Out of respect for the fact it gets a half decent amount of downloads, "
-            "and is therefore likely used by my audience\n"
-            "4) That's it. Got issues? Open a Github issue."
-        )
-
     async def timeout_member(
         self, member: discord.Member, original_message, until: datetime.timedelta
     ) -> None:

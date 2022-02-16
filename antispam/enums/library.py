@@ -31,6 +31,9 @@ class Library(Enum):
     Notes
     -----
     Default behaviour will be removed in 1.3.0
+
+    CUSTOM will not set a library handler.
+    You will need to set one yourself.
     """
 
     DPY = 1
@@ -40,3 +43,4 @@ class Library(Enum):
     DISNAKE = 5
     NEXTCORD = 6
     PYCORD = 7
+    CUSTOM = 8
