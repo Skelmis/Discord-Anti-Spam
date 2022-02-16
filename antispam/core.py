@@ -32,7 +32,7 @@ from antispam.dataclasses import Member, Message, CorePayload, Guild
 from antispam.util import get_aware_time
 
 if TYPE_CHECKING:
-    from antispam import Options
+    from antispam import AntiSpamHandler, Options
 
 log = logging.getLogger(__name__)
 
@@ -44,8 +44,7 @@ class Core:
     __slots__ = ("handler", "options")
 
     def __init__(self, handler):
-        self.handler = handler
-        self.handler = handler
+        self.handler: "AntiSpamHandler" = handler
         self.options: "Options" = handler.options
 
     @property
@@ -146,8 +145,27 @@ class Core:
             )
 
         if self.options.use_timeouts:
-            pass
-            # TODO Impl
+            log.debug(
+                "Attempting to timeout Member(id=%s) in Guild(id=%s)",
+                message.author_id,
+                message.guild_id,
+            )
+            times_timed_out: int = member.times_timed_out + 1
+
+            # Timeouts
+            # 5
+            # 20
+            # 45
+            # ...
+            timeout_until: datetime.timedelta = datetime.timedelta(
+                minutes=(times_timed_out * times_timed_out) * 5
+            )
+            await self.handler.lib_handler.timeout_member(
+                member, original_message, timeout_until
+            )
+
+            member.times_timed_out += 1
+            await self.handler.cache.set_member(member)
 
         elif (
             self.options.warn_only

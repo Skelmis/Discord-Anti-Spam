@@ -25,27 +25,35 @@ from typing import Set, Dict, Any, Union
 import attr
 
 
+# noinspection PyUnresolvedReferences
 @attr.s(slots=True, eq=True, kw_only=True)
 class Options:
     """Options for the AntiSpamHandler, see :py:class:`antispam.AntiSpamHandler` for usage.
 
     Parameters
     ----------
-    warn_threshold : int
+    use_timeouts: bool
+        Default: ``None``
+
+        If ``True``, use timeouts as the punishment scheme. If ``False``,
+        then the default punishment scheme of warn, kick, ban is used.
+
+        This will be set to default to ``True`` in version 1.3.0
+    warn_threshold: int
         Default: ``3``
 
         This is the amount of duplicates within ``message_interval`` that will result in a warning.
-    kick_threshold : int
+    kick_threshold: int
         Default: ``2``
 
         This is the amount of warns required before a kick is the next punishment.
         I.e. After 2 warns, you will get kicked.
-    ban_threshold : int
+    ban_threshold: int
         Default: ``2``
 
         This is the amount of kicks required before a ban is the next punishment.
         I.e. After 2 kicks, you will get banned.
-    message_interval : int
+    message_interval: int
         Default: ``30000ms (30 seconds)``
 
         Amount of time a message is kept before being discarded.
@@ -81,6 +89,11 @@ class Options:
 
         The message to be sent in the guild when someone is banned.
         Please see the note at the bottom.
+    guild_log_timeout_message : Union[str, dict]
+        Default: ``$MEMBERNAME was timed out for spamming/sending duplicate messages.``
+
+        The message to be sent in the guild when someone is timed out.
+        Please see the note at the bottom.
     member_warn_message : Union[str, dict]
         Default: ``Hey $MENTIONMEMBER, please stop spamming/sending duplicate messages.``
 
@@ -93,6 +106,22 @@ class Options:
         Default: ``Hey $MENTIONMEMBER, you are being banned from $GUILDNAME for spamming/sending duplicate messages.``
 
         The message to be sent to the member who is being banned.
+    member_timeout_message: Union[str, dict]
+        Default: ``Hey $MENTIONMEMBER, you are being timed out from $GUILDNAME for spamming/sending duplicate messages.``
+
+        The message to be sent to the member who is being timed out.
+    member_failed_kick_message: Union[str, dict]
+        Default: ``I failed to punish you because I lack permissions, but still you shouldn't spam.``
+
+        The message to be sent if kicking the member fails.
+    member_failed_ban_message: Union[str, dict]
+        Default: ``I failed to punish you because I lack permissions, but still you shouldn't spam.``
+
+        The message to be sent if kicking the member fails.
+    member_failed_timeout_message: Union[str, dict]
+        Default: ``I failed to punish you because I lack permissions, but still you shouldn't spam.``
+
+        The message to be sent if kicking the member fails.
     guild_log_warn_message_delete_after : int
         Default: ``None``
 
@@ -105,6 +134,10 @@ class Options:
         Default: ``None``
 
         How many seconds after sending the guild ban message to delete it.
+    guild_log_timeout_message_delete_after : int
+        Default: ``None``
+
+        How many seconds after sending the guild timeout message to delete it.
     member_warn_message_delete_after : int
         Default: ``None``
 
@@ -117,6 +150,10 @@ class Options:
         Default: ``None``
 
         How many seconds after sending the member ban message to delete it.
+    member_timeout_message_delete_after : int
+        Default: ``None``
+
+        How many seconds after sending the member timeout message to delete it.
     ignored_members : Set[int]
         Default: ``Empty Set``
 
@@ -212,45 +249,64 @@ class Options:
     # Strings
     guild_log_warn_message: Union[str, dict] = attr.ib(
         default="$MEMBERNAME was warned for spamming/sending duplicate messages.",
-        kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
     )
     guild_log_kick_message: Union[str, dict] = attr.ib(
         default="$MEMBERNAME was kicked for spamming/sending duplicate messages.",
-        kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
     )
     guild_log_ban_message: Union[str, dict] = attr.ib(
         default="$MEMBERNAME was banned for spamming/sending duplicate messages.",
-        kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
     )
     member_warn_message: Union[str, dict] = attr.ib(
         default="Hey $MENTIONMEMBER, please stop spamming/sending duplicate messages.",
-        kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
     )
     member_kick_message: Union[str, dict] = attr.ib(
         default="Hey $MENTIONMEMBER, you are being kicked from $GUILDNAME for spamming/"
         "sending duplicate messages.",
-        kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
     )
     member_ban_message: Union[str, dict] = attr.ib(
         default="Hey $MENTIONMEMBER, you are being banned from $GUILDNAME for spamming/"
         "sending duplicate messages.",
-        kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
     )
     member_failed_kick_message: Union[str, dict] = attr.ib(
         default="I failed to punish you because I lack permissions, but still you shouldn't spam.",
-        kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
     )
     member_failed_ban_message: Union[str, dict] = attr.ib(
         default="I failed to punish you because I lack permissions, but still you shouldn't spam.",
-        kw_only=True,
         validator=attr.validators.instance_of((str, dict)),
+    )
+
+    # Timeouts
+    use_timeouts: bool = attr.ib(
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(bool)),
+    )
+    member_timeout_message: Union[str, dict] = attr.ib(
+        default="Hey $MENTIONMEMBER, you are being timed out from $GUILDNAME for spamming/"
+        "sending duplicate messages.",
+        validator=attr.validators.instance_of((str, dict)),
+    )
+    member_failed_timeout_message: Union[str, dict] = attr.ib(
+        default="I failed to punish you because I lack permissions, but still you shouldn't spam.",
+        validator=attr.validators.instance_of((str, dict)),
+    )
+    guild_log_timeout_message: Union[str, dict] = attr.ib(
+        default="$MEMBERNAME was timed out for spamming/sending duplicate messages.",
+        validator=attr.validators.instance_of((str, dict)),
+    )
+    guild_log_timeout_message_delete_after: int = attr.ib(
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(int)),
+    )
+    member_timeout_message_delete_after: int = attr.ib(
+        default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(int)),
     )
 
     # delete_after
@@ -325,9 +381,6 @@ class Options:
     per_channel_spam: bool = attr.ib(
         default=False, validator=attr.validators.instance_of(bool)
     )  # False implies per_user_per_guild
-    use_timeouts: bool = attr.ib(
-        default=None,  # validator=attr.validators.instance_of(bool)
-    )
 
     # TODO Implement this
     # Catches 5 people saying the same thing
