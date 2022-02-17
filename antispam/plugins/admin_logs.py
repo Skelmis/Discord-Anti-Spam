@@ -94,6 +94,9 @@ class AdminLogs(BasePlugin):
         elif data.member_was_banned:
             punishment_type = "ban"
 
+        elif data.member_was_timed_out:
+            punishment_type = "timeout"
+
         else:
             raise LogicError
 
@@ -108,6 +111,7 @@ class AdminLogs(BasePlugin):
 
         member: Member = await self.handler.cache.get_member(author_id, guild_id)
         guild: Guild = await self.handler.cache.get_guild(guild_id)
+        channel_id: int = await self.handler.lib_handler.get_channel_id(message)
 
         # Open the punishment file
         file_path = os.path.join(dir_path, f"{current_count}.txt")
@@ -115,6 +119,7 @@ class AdminLogs(BasePlugin):
             # Write headers / rough details
             f.write(f"Author id: {message.author.id}\n-----\n")
             f.write(f"Guild id: {guild_id}\n-----\n")
+            f.write(f"Channel of offence: {channel_id}\n-----\n")
             f.write(
                 f"Current warn count: {member.warn_count}\n"
                 f"Current kick count: {member.kick_count}\n-----\n"

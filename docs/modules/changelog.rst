@@ -3,6 +3,11 @@ Changelog
 
 A changelog that should be fairly up to date feature wise.
 
+1.2.2 -> 1.2.3
+--------------
+
+Fixed the ``AdminLogs`` plugin for timeouts.
+
 1.2.1 -> 1.2.2
 --------------
 
