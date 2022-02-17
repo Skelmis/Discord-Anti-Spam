@@ -63,6 +63,11 @@ def clean_cache(func):
     return wrapped
 
 
+mark_deprecated(
+    "Using names to ignore channels will be removed in 1.3.0, please us id's instead."
+)
+
+
 class Pincer(Base, Lib):
     def __init__(self, handler):
         self.handler = handler
@@ -363,9 +368,6 @@ class Pincer(Base, Lib):
             message.channel_id in self.handler.options.ignored_channels
             or channel.name in self.handler.options.ignored_channels
         ):
-            mark_deprecated(
-                "Using names to ignore channels will be removed in 1.3.0, please us id's instead."
-            )
             log.debug("channel(id=%s) is ignored", channel.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel_id}"}
