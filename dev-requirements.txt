@@ -19,3 +19,5 @@ dnspython
 hikari
 # discord.py
 nextcord
+disnake
+pincer
