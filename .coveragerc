@@ -9,6 +9,7 @@ omit =
     antispam/caches/redis/__init__.py
     # Covered in other projects @ 100% coverage
     antispam/caches/mongo/document.py
+    antispam/caches/mongo/__init__.py
     # Implementation testing due to external deps
     antispam/caches/mongo/mongo_cache.py
     antispam/dataclasses/__init__.py

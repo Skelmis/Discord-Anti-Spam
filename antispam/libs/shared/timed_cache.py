@@ -21,6 +21,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 # Taken from https://github.com/Skelmis/DPY-Bot-Base/tree/master/bot_base/caches
+from copy import deepcopy
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
@@ -44,7 +45,7 @@ class TimedCache:
     def __contains__(self, item: Any) -> bool:
         try:
             entry = self.cache[item]
-            if entry.expiry_time < datetime.now():
+            if entry.expiry_time and entry.expiry_time < datetime.now():
                 self.delete_entry(item)
                 return False
         except KeyError:
@@ -55,11 +56,14 @@ class TimedCache:
     def add_entry(
         self, key: Any, value: Any, *, ttl: timedelta = None, override: bool = False
     ) -> None:
-        ttl = ttl or timedelta()
         if key in self and not override:
             raise ExistingEntry
 
-        self.cache[key] = Entry(value=value, expiry_time=(datetime.now() + ttl))
+        self.cache[key] = (
+            Entry(value=value, expiry_time=(datetime.now() + ttl))
+            if ttl
+            else Entry(value=value)
+        )
 
     def delete_entry(self, key: Any) -> None:
         try:
@@ -75,6 +79,6 @@ class TimedCache:
 
     def force_clean(self) -> None:
         now = datetime.now()
-        for k, v in self.cache.items():
-            if v.expiry_time < now:
+        for k, v in deepcopy(self.cache).items():
+            if v.expiry_time and v.expiry_time < now:
                 self.delete_entry(k)

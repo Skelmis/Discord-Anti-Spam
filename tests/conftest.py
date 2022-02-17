@@ -5,7 +5,7 @@ from antispam import AntiSpamHandler, PluginCache
 from antispam.caches import MemoryCache
 from antispam.core import Core
 from antispam.libs.dpy import DPY
-from antispam.libs.shared import Base
+from antispam.libs.shared import Base, TimedCache
 from antispam.plugins import AdminLogs, AntiMassMention, AntiSpamTracker, Stats
 from tests.mocks import MockedMember
 
@@ -70,3 +70,8 @@ def create_admin_logs(create_handler):
 @pytest.fixture
 def create_base():
     return Base()
+
+
+@pytest.fixture
+def create_timed_cache() -> TimedCache:
+    return TimedCache()

@@ -180,7 +180,7 @@ class Base:
                 if "inline" not in field:
                     field["inline"] = True
 
-        if "timestamp" in data:
+        if "timestamp" in data:  # pragma: no cover
             data["timestamp"] = message.created_at.isoformat()
 
         if "colour" in data:

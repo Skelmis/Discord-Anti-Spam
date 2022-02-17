@@ -4,7 +4,14 @@ from unittest.mock import AsyncMock, Mock, patch
 import discord
 import pytest
 
-from antispam import LogicError, MissingGuildPermissions, Options, PropagateFailure
+from antispam import (
+    LogicError,
+    MissingGuildPermissions,
+    Options,
+    PropagateFailure,
+    InvalidMessage,
+    UnsupportedAction,
+)
 from antispam.dataclasses import Guild, Member, Message
 from .conftest import MockClass
 
@@ -37,6 +44,11 @@ class TestLibDPY:
             message.embeds = [embed]
             await create_dpy_lib_handler.create_message(message)
 
+        with pytest.raises(InvalidMessage):
+            mocked = MockedMessage().to_mock()
+            mocked.is_system = Mock(return_value=True)
+            await create_dpy_lib_handler.create_message(mocked)
+
     @pytest.mark.asyncio
     async def test_create_message_blank_space(self, create_dpy_lib_handler):
         message = MockedMessage(
@@ -49,6 +61,16 @@ class TestLibDPY:
         create_dpy_lib_handler.handler.options.delete_zero_width_chars = False
         returned_message = await create_dpy_lib_handler.create_message(message)
         assert returned_message.content == u"u200Bu200Cu200Du200Eu200FuFEFF Hi"
+
+    @pytest.mark.asyncio
+    async def test_create_message_stickers(self, create_dpy_lib_handler):
+        mock_sticker = Mock()
+        mock_sticker.url = "https://google.com"
+
+        message = MockedMessage(stickers=[mock_sticker]).to_mock()
+
+        r_1 = await create_dpy_lib_handler.create_message(message)
+        assert r_1.content == "https://google.com"
 
     @pytest.mark.asyncio
     async def test_create_message_embed(self, create_dpy_lib_handler):
@@ -241,3 +263,10 @@ class TestLibDPY:
         ) as delete_call:
             await create_dpy_lib_handler.delete_member_messages(member)
             assert delete_call.call_count == 2
+
+    @pytest.mark.asyncio
+    async def test_timeout_raises(self, create_dpy_lib_handler):
+        with pytest.raises(UnsupportedAction):
+            await create_dpy_lib_handler.timeout_member(
+                Member(1, 1), "Foo", datetime.timedelta(minutes=5)
+            )

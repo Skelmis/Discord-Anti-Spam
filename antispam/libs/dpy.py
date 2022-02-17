@@ -30,7 +30,7 @@ from antispam.libs.shared import Base, SubstituteArgs
 
 try:
     import discord
-except ModuleNotFoundError:
+except ModuleNotFoundError:  # pragma: no cover
     import disnake as discord
 
 from antispam import (
@@ -83,7 +83,9 @@ class DPY(Base, Lib):
     async def get_channel_id(self, message: discord.Message) -> int:
         return message.channel.id
 
-    async def get_substitute_args(self, message: discord.Message) -> SubstituteArgs:
+    async def get_substitute_args(
+        self, message: discord.Message
+    ) -> SubstituteArgs:  # pragma: no cover
         version = int(discord.__version__.split(".")[0])
         if version >= 2:
             mark_deprecated(
@@ -186,7 +188,7 @@ class DPY(Base, Lib):
                     raise PropagateFailure(
                         data={"status": f"Ignoring this role: {item}"}
                     )
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             log.warning(
                 "Could not compute ignored_roles for %s(%s)",
                 message.author.name,

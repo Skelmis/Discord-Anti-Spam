@@ -2,6 +2,7 @@
 This 'mocks' a discord.Message so we can use it for testing
 """
 import datetime
+from typing import List
 from unittest.mock import AsyncMock, MagicMock
 
 import discord
@@ -25,6 +26,7 @@ class MockedMessage:
         guild_name="Guild",
         guild_id=123456789,
         message_mentions=None,
+        stickers: List[MagicMock] = None
     ):
         self.author = {"name": author_name, "id": author_id, "is_bot": author_is_bot}
         if author_is_bot:
@@ -41,6 +43,7 @@ class MockedMessage:
         self.message_id = message_id
         self.content = message_content
         self.clean_content = message_clean_content
+        self.stickers: List[MagicMock] = stickers or []
 
         self.message_mentions = message_mentions or list()
 
@@ -71,7 +74,7 @@ class MockedMessage:
         mock.content = self.content
         mock.clean_content = self.clean_content
         mock.mentions = self.message_mentions
-        mock.stickers = []
+        mock.stickers = self.stickers
 
         mock.is_system = MagicMock(return_value=False)
 
