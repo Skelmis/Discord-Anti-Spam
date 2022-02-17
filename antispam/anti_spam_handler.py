@@ -46,7 +46,7 @@ from antispam.exceptions import (
 from antispam.factory import FactoryBuilder
 from antispam.util import get_aware_time
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from antispam.plugins import Stats
 
 log = logging.getLogger(__name__)
@@ -137,17 +137,17 @@ class AntiSpamHandler:
         self.needs_init = True
 
         self.pre_invoke_plugins: Dict[str, BasePlugin] = {}
-        self.after_invoke_extensions: Dict[str, BasePlugin] = {}
+        self.after_invoke_plugins: Dict[str, BasePlugin] = {}
 
         # Import these here to avoid errors when not
         # having the other lib installed
         self.lib_handler = None
-        if library == Library.HIKARI:
+        if library == Library.HIKARI:  # pragma: no cover
             from antispam.libs.lib_hikari import Hikari
 
             self.lib_handler = Hikari(self)
 
-        elif library == Library.PINCER:
+        elif library == Library.PINCER:  # pragma: no cover
             from antispam.libs.lib_pincer import Pincer
 
             if self.options.use_timeouts:
@@ -157,22 +157,22 @@ class AntiSpamHandler:
 
             self.lib_handler = Pincer(self)
 
-        elif library == Library.DISNAKE:
+        elif library == Library.DISNAKE:  # pragma: no cover
             from antispam.libs.dpy_forks.lib_disnake import Disnake
 
             self.lib_handler = Disnake(self)
 
-        elif library == Library.ENHANCED_DPY:
+        elif library == Library.ENHANCED_DPY:  # pragma: no cover
             from antispam.libs.dpy_forks.lib_enhanced_dpy import EnhancedDPY
 
             self.lib_handler = EnhancedDPY(self)
 
-        elif library == Library.NEXTCORD:
+        elif library == Library.NEXTCORD:  # pragma: no cover
             from antispam.libs.dpy_forks.lib_nextcord import Nextcord
 
             self.lib_handler = Nextcord(self)
 
-        elif library == Library.PYCORD:
+        elif library == Library.PYCORD:  # pragma: no cover
             raise UnsupportedAction(
                 "Py-cord is no longer officially supported, please see the following url for support:\n"
                 "https://gist.github.com/Skelmis/b15a64f11c2ef89a7c6083ff455774a2"
@@ -181,7 +181,7 @@ class AntiSpamHandler:
         elif library == Library.CUSTOM:
             pass
 
-        else:
+        else:  # pragma: no cover
             from antispam.libs.dpy import DPY
 
             self.lib_handler = DPY(self)
@@ -269,9 +269,7 @@ class AntiSpamHandler:
 
             try:
                 if pre_invoke_return.get("cancel_next_invocation"):
-                    stats: Optional[BasePlugin] = self.after_invoke_extensions.get(
-                        "stats"
-                    )
+                    stats: Optional[BasePlugin] = self.after_invoke_plugins.get("stats")
                     if stats:
                         if hasattr(stats, "injectable_nonce"):
                             # Increment stats for invocation call stats
@@ -306,7 +304,7 @@ class AntiSpamHandler:
         except InvalidMessage as e:
             return {"status": e.message}
 
-        for after_invoke_ext in self.after_invoke_extensions.values():
+        for after_invoke_ext in self.after_invoke_plugins.values():
             if guild.id in after_invoke_ext.blacklisted_guilds:
                 # https://github.com/Skelmis/DPY-Anti-Spam/issues/65
                 continue
@@ -769,7 +767,7 @@ class AntiSpamHandler:
             except NotImplementedError:
                 continue
 
-        for plugin in self.after_invoke_extensions.values():
+        for plugin in self.after_invoke_plugins.values():
             try:
                 data["after_invoke_plugins"][
                     plugin.__class__.__name__
@@ -823,7 +821,7 @@ class AntiSpamHandler:
 
         if (
             self.pre_invoke_plugins.get(cls_name)
-            or self.after_invoke_extensions.get(cls_name)
+            or self.after_invoke_plugins.get(cls_name)
         ) and not force_overwrite:
             log.debug("Duplicate extension load attempt")
             raise PluginError(
@@ -835,7 +833,7 @@ class AntiSpamHandler:
             self.pre_invoke_plugins[cls_name] = plugin
         else:
             log.info("Loading after-invoke extension: %s", cls_name)
-            self.after_invoke_extensions[cls_name] = plugin
+            self.after_invoke_plugins[cls_name] = plugin
 
     def unregister_plugin(self, plugin_name: str) -> None:
         """
@@ -861,7 +859,7 @@ class AntiSpamHandler:
             pass
 
         try:
-            self.after_invoke_extensions.pop(plugin_name.lower())
+            self.after_invoke_plugins.pop(plugin_name.lower())
         except KeyError:
             if not has_popped_pre_invoke:
                 log.debug(

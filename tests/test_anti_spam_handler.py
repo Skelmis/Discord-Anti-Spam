@@ -3,6 +3,7 @@ from typing import Optional
 from unittest.mock import AsyncMock, MagicMock
 
 import discord
+import nextcord
 import pytest
 from attr import asdict
 from discord.ext import commands  # noqa
@@ -10,7 +11,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 from hypothesis.strategies import text
 
-from antispam import GuildNotFound  # noqa
+from antispam import GuildNotFound, UnsupportedAction  # noqa
 from antispam import (
     AntiSpamHandler,
     InvocationCancelled,
@@ -446,10 +447,10 @@ class TestAntiSpamHandler:
         )
 
         assert len(ash.pre_invoke_plugins) == 1
-        # assert len(ash.after_invoke_extensions) == 1
+        # assert len(ash.after_invoke_plugins) == 1
 
         assert ash.pre_invoke_plugins["plugin"].is_pre_invoke is True
-        # assert ash.after_invoke_extensions["plugin"].is_pre_invoke is False
+        # assert ash.after_invoke_plugins["plugin"].is_pre_invoke is False
 
         assert ash.pre_invoke_plugins["plugin"].test == {"Plugin me"}
 
@@ -471,9 +472,9 @@ class TestAntiSpamHandler:
 
         create_handler.register_plugin(Test(), force_overwrite=True)
 
-        assert len(create_handler.after_invoke_extensions.values()) == 0
+        assert len(create_handler.after_invoke_plugins.values()) == 0
         create_handler.register_plugin(Test(invoke=False), force_overwrite=True)
-        assert len(create_handler.after_invoke_extensions.values()) == 1
+        assert len(create_handler.after_invoke_plugins.values()) == 1
 
     def test_unregister_extension(self, create_handler: AntiSpamHandler):
         class Test(BasePlugin):
@@ -481,9 +482,9 @@ class TestAntiSpamHandler:
                 self.is_pre_invoke = invoke
 
         create_handler.register_plugin(Test(invoke=False))
-        assert len(create_handler.after_invoke_extensions.values()) == 1
+        assert len(create_handler.after_invoke_plugins.values()) == 1
         create_handler.unregister_plugin("Test")
-        assert len(create_handler.after_invoke_extensions.values()) == 0
+        assert len(create_handler.after_invoke_plugins.values()) == 0
 
         with pytest.raises(PluginError):
             create_handler.unregister_plugin("Invalid Extension")
@@ -834,3 +835,108 @@ class TestAntiSpamHandler:
         """Tests the 1.2.x deprecations for works as expected"""
         with pytest.deprecated_call():
             AntiSpamHandler(create_bot)
+
+    @pytest.mark.asyncio
+    async def test_conflicting_init_args(self, create_bot):
+        options = Options(
+            no_punish=True,
+            delete_spam=True,
+            warn_only=True,
+            per_channel_spam=True,
+            use_timeouts=False,
+        )
+        AntiSpamHandler(create_bot, options=options)
+
+    @pytest.mark.asyncio
+    async def test_custom_lib(self, create_bot):
+        ash = AntiSpamHandler(create_bot, library=Library.CUSTOM)
+        with pytest.raises(UnsupportedAction):
+            await ash.propagate(MockedMessage().to_mock())
+
+    @pytest.mark.asyncio
+    async def test_get_options(self, create_handler):
+        options = await create_handler.get_options()
+        assert options == create_handler.options
+        assert id(options) != id(create_handler.options)
+
+    @pytest.mark.asyncio
+    async def test_save_to_dict_not_implemented(self, create_handler):
+        """Tests Plugins without save methods work properly"""
+
+        class Plugin(BasePlugin):
+            pass
+
+        create_handler.register_plugin(Plugin())
+
+        r_1 = await create_handler.save_to_dict()
+        assert r_1["pre_invoke_plugins"] == dict()
+        assert r_1["after_invoke_plugins"] == dict()
+
+        create_handler.unregister_plugin("Plugin")
+
+        create_handler.register_plugin(Plugin(is_pre_invoke=False))
+        r_2 = await create_handler.save_to_dict()
+        assert r_2["pre_invoke_plugins"] == dict()
+        assert r_2["after_invoke_plugins"] == dict()
+
+    @pytest.mark.asyncio
+    async def test_visualizer(self, create_handler):
+        msg = await create_handler.visualize(
+            "$MEMBERID", MockedMessage(author_id=1).to_mock()
+        )
+        assert msg == "1"
+
+        embed = await create_handler.visualize(
+            '{"title": "$MEMBERID"}', MockedMessage(author_id=1).to_mock()
+        )
+        assert isinstance(embed, nextcord.Embed)
+        assert embed.title == nextcord.Embed(title="1").title
+
+    @pytest.mark.asyncio
+    async def test_load_from_dict_plugins_pre_invoke(self, create_bot):
+        """Tests load_from_dict edge cases"""
+
+        class Plugin(BasePlugin):
+            @classmethod
+            async def load_from_dict(cls, ash, data):
+                ref = cls()
+                ref.test = data
+                return ref
+
+        with open("tests/raw.json", "r") as file:
+            stored_data = json.load(file)
+
+        stored_data["pre_invoke_plugins"]["Plugin"] = {"Plugin me"}
+
+        # This skips the plugin due to the missing lookup
+        ash = await AntiSpamHandler.load_from_dict(create_bot, stored_data)
+
+        assert len(ash.pre_invoke_plugins) == 0
+
+    @pytest.mark.asyncio
+    async def test_load_from_dict_plugins_after_invoke(self, create_bot):
+        """Tests load_from_dict edge cases"""
+
+        class Plugin(BasePlugin):
+            def __init__(self):
+                super().__init__(is_pre_invoke=False)
+
+            @classmethod
+            async def load_from_dict(cls, ash, data):
+                ref = cls()
+                ref.test = data
+                return ref
+
+        with open("tests/raw.json", "r") as file:
+            stored_data = json.load(file)
+
+        stored_data["after_invoke_plugins"]["Plugin"] = {"Plugin me"}
+
+        # This skips the plugin due to the missing lookup
+        ash = await AntiSpamHandler.load_from_dict(create_bot, stored_data)
+        assert len(ash.after_invoke_plugins) == 0
+
+        ash_2 = await AntiSpamHandler.load_from_dict(
+            create_bot, stored_data, plugins={Plugin}
+        )
+        assert len(ash_2.after_invoke_plugins) == 1

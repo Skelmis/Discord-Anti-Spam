@@ -23,7 +23,7 @@ class TestStats:
     async def test_stats_creates(self, create_stats):
         """Tests the plugin creates stats entries where required"""
         create_stats.handler.pre_invoke_plugins["before"] = True
-        create_stats.handler.after_invoke_extensions["after"] = True
+        create_stats.handler.after_invoke_plugins["after"] = True
 
         assert create_stats.data == {
             "pre_invoke_calls": {},
@@ -48,7 +48,7 @@ class TestStats:
     async def test_stats_adds(self, create_stats):
         """Tests the plugin adds to existing data"""
         create_stats.handler.pre_invoke_plugins["before"] = True
-        create_stats.handler.after_invoke_extensions["after"] = True
+        create_stats.handler.after_invoke_plugins["after"] = True
         create_stats.data = {
             "pre_invoke_calls": {"before": {"calls": 1}},
             "after_invoke_calls": {"after": {"calls": 1}},

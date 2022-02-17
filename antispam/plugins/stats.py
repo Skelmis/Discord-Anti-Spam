@@ -69,7 +69,7 @@ class Stats(BasePlugin):
                 self.data["pre_invoke_calls"][invoker] = {}
                 self.data["pre_invoke_calls"][invoker]["calls"] = 1
 
-        for invoker in self.handler.after_invoke_extensions.keys():
+        for invoker in self.handler.after_invoke_plugins.keys():
             try:
                 self.data["after_invoke_calls"][invoker]["calls"] += 1
             except KeyError:

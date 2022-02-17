@@ -80,7 +80,7 @@ class AntiMassMention(BasePlugin):
         :linenos:
 
         data = await AntiSpamHandler.propagate(message)
-        return_item: Union[dict, MassMentionPunishment] = data.after_invoke_extensions["AntiMassMention"]
+        return_item: Union[dict, MassMentionPunishment] = data.after_invoke_plugins["AntiMassMention"]
 
         if isinstance(return_item, MassMentionPunishment):
             # Punish for mention spam
