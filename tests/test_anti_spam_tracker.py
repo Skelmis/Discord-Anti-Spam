@@ -5,8 +5,8 @@ import pytest
 from antispam import MemberNotFound, Options, PluginCache
 from antispam.dataclasses import CorePayload, Guild, Member
 from antispam.plugins import AntiSpamTracker
+from .conftest import MockClass
 
-from .fixtures import MockClass, create_anti_spam_tracker, create_bot, create_handler
 from .mocks import MockedMessage
 
 

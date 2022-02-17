@@ -1,11 +1,9 @@
 import pytest
 
-from antispam import GuildNotFound, MemberNotFound, Options  # noqa
-from antispam.dataclasses import Guild, Member, Message  # noqa
+from antispam import GuildNotFound, MemberNotFound, Options
+from antispam.dataclasses import Guild, Member, Message
 from antispam.enums import ResetType
 from antispam.factory import FactoryBuilder
-
-from .fixtures import create_bot, create_handler, create_memory_cache  # noqa
 
 
 class TestMemoryCache:

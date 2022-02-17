@@ -3,7 +3,6 @@ import pytest
 from antispam import CorePayload, GuildNotFound, LogicError
 from antispam.plugins import AdminLogs
 
-from .fixtures import create_admin_logs, create_handler  # noqa
 from .mocks import MockedMessage
 
 

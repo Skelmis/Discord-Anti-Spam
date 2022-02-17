@@ -6,7 +6,6 @@ from antispam.plugins import AntiMassMention
 from antispam.plugins.anti_mass_mention import MassMentionPunishment, Tracking
 from antispam.util import get_aware_time
 
-from .fixtures import create_anti_mass_mention, create_bot, create_handler
 from .mocks import MockedMessage
 
 

@@ -1,19 +1,11 @@
 import datetime
-from unittest.mock import AsyncMock
 
-import discord
 import pytest
 
-from antispam import DuplicateObject, LogicError, MissingGuildPermissions, Options
+from antispam import DuplicateObject, Options
 from antispam.dataclasses import CorePayload, Guild, Member, Message
 
-from .fixtures import (
-    MockClass,
-    create_bot,
-    create_core,
-    create_handler,
-    create_memory_cache,
-)
+
 from .mocks import MockedMessage
 
 

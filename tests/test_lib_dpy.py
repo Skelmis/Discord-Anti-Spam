@@ -5,15 +5,9 @@ import discord
 import pytest
 
 from antispam import LogicError, MissingGuildPermissions, Options, PropagateFailure
-from antispam.dataclasses import CorePayload, Guild, Member, Message
+from antispam.dataclasses import Guild, Member, Message
+from .conftest import MockClass
 
-from .fixtures import (
-    MockClass,
-    create_bot,
-    create_dpy_lib_handler,
-    create_handler,
-    create_memory_cache,
-)
 from .mocks import MockedMessage
 
 

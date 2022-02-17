@@ -7,11 +7,14 @@ omit =
     antispam/caches/__init__.py
     antispam/caches/memory/__init__.py
     antispam/caches/redis/__init__.py
-    antispam/caches/mongo/document.py # Covered in other projects
-    antispam/caches/mongo/mongo_cache.py # Implementation testing due to external deps
+    # Covered in other projects @ 100% coverage
+    antispam/caches/mongo/document.py
+    # Implementation testing due to external deps
+    antispam/caches/mongo/mongo_cache.py
     antispam/dataclasses/__init__.py
     antispam/enums/__init__.py
     antispam/plugins/__init__.py
-    antispam/libs/hikari.py
-    antispam/libs/pincer.py
-    antispam/libs/dpy_forks/* # Implementation testing due to basically just being dpy
+    antispam/libs/lib_hikari.py
+    antispam/libs/lib_pincer.py
+    # Implementation testing due to basically just being dpy
+    antispam/libs/dpy_forks/*

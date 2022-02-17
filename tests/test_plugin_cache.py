@@ -13,10 +13,11 @@ from antispam import (
 )
 from antispam.dataclasses import Guild, Member  # noqa
 
-from .fixtures import MockClass, create_bot, create_handler, create_plugin_cache
-
 
 # noinspection DuplicatedCode
+from tests.conftest import MockClass
+
+
 class TestPluginCache:
     def test_init_key(self, create_plugin_cache):
         """Test the cache extracts the caller's name for a key"""

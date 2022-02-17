@@ -25,8 +25,8 @@ from antispam.caches.mongo import MongoCache
 from antispam.dataclasses import CorePayload, Guild, Member, Message
 from antispam.enums import IgnoreType, Library, ResetType
 from antispam.plugins import Stats as StatsPlugin
+from .conftest import MockClass
 
-from .fixtures import MockClass, create_bot, create_handler
 from .mocks import MockedMember, MockedMessage
 
 """

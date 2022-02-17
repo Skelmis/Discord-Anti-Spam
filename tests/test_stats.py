@@ -3,7 +3,7 @@ import pytest
 from antispam.dataclasses import CorePayload
 from antispam.plugins import Stats  # noqa
 
-from .fixtures import create_bot, create_handler, create_stats
+
 from .mocks import MockedMessage
 
 
