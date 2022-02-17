@@ -1,11 +1,12 @@
 import datetime
 from unittest.mock import AsyncMock
 
+import nextcord
 import pytest
 
-from antispam import DuplicateObject, Options
+from antispam import DuplicateObject, Options, UnsupportedAction
 from antispam.dataclasses import CorePayload, Guild, Member, Message
-
+from antispam.libs.dpy_forks.lib_nextcord import Nextcord
 
 from .mocks import MockedMessage
 
@@ -24,7 +25,7 @@ class TestCore:
         payload = await create_core.propagate(msg, guild)
 
         assert payload == CorePayload(
-            member_status="Bypassing message check since the member isn't seen to be in a guild"
+            member_status="Bypassing message check since the member doesn't seem to be in a guild"
         )
 
     @pytest.mark.asyncio
@@ -363,3 +364,55 @@ class TestCore:
         g = Guild(1, options=Options(is_per_channel_per_guild=True))
         await create_core.cache.set_guild(g)
         await create_core.propagate(MockedMessage(author_id=1, guild_id=1).to_mock(), g)
+
+    @pytest.mark.asyncio
+    async def test_basic_timeout_func(self, create_core):
+        create_core.handler.lib_handler = Nextcord(create_core.handler)
+
+        g = Guild(1, options=Options(use_timeouts=True))
+        member = Member(1, 1, duplicate_counter=5)  # Force a punishment
+        g.members[member.id] = member
+        await create_core.cache.set_guild(g)
+
+        r_1 = await create_core.propagate(
+            MockedMessage(author_id=1, guild_id=1).to_mock(), g
+        )
+        assert r_1.member_was_timed_out is True
+        assert r_1.member_should_be_punished_this_message is True
+
+    @pytest.mark.asyncio
+    async def test_unsupported_timeouts(self, create_core):
+        g = Guild(1, options=Options(use_timeouts=True))
+        member = Member(1, 1, duplicate_counter=5)  # Force a punishment
+        g.members[member.id] = member
+        await create_core.cache.set_guild(g)
+
+        mock = MockedMessage(author_id=1, guild_id=1).to_mock()
+
+        # Also cover raises on attempted sends
+        mock.author.send = AsyncMock(
+            side_effect=Exception("Cannot send messages to this person.")
+        )
+
+        with pytest.raises(UnsupportedAction):
+            await create_core.propagate(mock, g)
+
+    @pytest.mark.asyncio
+    async def test_timeout_attempt_raises(self, create_core):
+        g = Guild(1, options=Options(use_timeouts=True))
+        member = Member(1, 1, duplicate_counter=5)  # Force a punishment
+        g.members[member.id] = member
+        await create_core.cache.set_guild(g)
+
+        create_core.handler.lib_handler.timeout_member = AsyncMock(
+            side_effect=Exception("Failed to timeout this member.")
+        )
+        send_guild_log = AsyncMock()
+        create_core.handler.lib_handler.send_guild_log = send_guild_log
+
+        with pytest.raises(Exception):
+            await create_core.propagate(
+                MockedMessage(author_id=1, guild_id=1).to_mock(), g
+            )
+
+            assert send_guild_log.call_count == 1

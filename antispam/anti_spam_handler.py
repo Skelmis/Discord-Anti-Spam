@@ -142,12 +142,12 @@ class AntiSpamHandler:
         # Import these here to avoid errors when not
         # having the other lib installed
         self.lib_handler = None
-        if library == Library.HIKARI:  # pragma: no cover
+        if library == Library.HIKARI:
             from antispam.libs.lib_hikari import Hikari
 
             self.lib_handler = Hikari(self)
 
-        elif library == Library.PINCER:  # pragma: no cover
+        elif library == Library.PINCER:
             from antispam.libs.lib_pincer import Pincer
 
             if self.options.use_timeouts:
@@ -157,22 +157,22 @@ class AntiSpamHandler:
 
             self.lib_handler = Pincer(self)
 
-        elif library == Library.DISNAKE:  # pragma: no cover
+        elif library == Library.DISNAKE:
             from antispam.libs.dpy_forks.lib_disnake import Disnake
 
             self.lib_handler = Disnake(self)
 
-        elif library == Library.ENHANCED_DPY:  # pragma: no cover
+        elif library == Library.ENHANCED_DPY:
             from antispam.libs.dpy_forks.lib_enhanced_dpy import EnhancedDPY
 
             self.lib_handler = EnhancedDPY(self)
 
-        elif library == Library.NEXTCORD:  # pragma: no cover
+        elif library == Library.NEXTCORD:
             from antispam.libs.dpy_forks.lib_nextcord import Nextcord
 
             self.lib_handler = Nextcord(self)
 
-        elif library == Library.PYCORD:  # pragma: no cover
+        elif library == Library.PYCORD:
             raise UnsupportedAction(
                 "Py-cord is no longer officially supported, please see the following url for support:\n"
                 "https://gist.github.com/Skelmis/b15a64f11c2ef89a7c6083ff455774a2"
@@ -181,7 +181,7 @@ class AntiSpamHandler:
         elif library == Library.CUSTOM:
             pass
 
-        else:  # pragma: no cover
+        else:
             from antispam.libs.dpy import DPY
 
             self.lib_handler = DPY(self)

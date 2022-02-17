@@ -93,7 +93,7 @@ class Core:
 
             if not member.internal_is_in_guild:
                 return CorePayload(
-                    member_status="Bypassing message check since the member isn't seen to be in a guild"
+                    member_status="Bypassing message check since the member doesn't seem to be in a guild"
                 )
 
         except MemberNotFound:
@@ -120,7 +120,7 @@ class Core:
         # Not sure how to hit this in tests, but I've seen it happen so is required
         if not member.internal_is_in_guild:  # pragma: no cover
             return CorePayload(
-                member_status="Bypassing message check since the member isn't seen to be in a guild"
+                member_status="Bypassing message check since the member doesn't seem to be in a guild"
             )
 
         await self.cache.add_message(message)
