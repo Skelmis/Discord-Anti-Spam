@@ -3,7 +3,67 @@ Changelog
 
 A changelog that should be fairly up to date feature wise.
 
-1.1.3 -> 2.0.0
+1.2.1 -> 1.2.2
+--------------
+
+The big feature of this release is the new punishment
+handling using discord timeouts. You can opt into
+these by passing ``use_timeouts=True`` as an option.
+
+This will be the become the default scheme in version 1.3.0.
+
+New:
+****
+
+1) Added the ``times_timed_out`` field to ``Member``'s
+2) Added ``member_was_timed_out `` field to ``CorePayload``
+3) Added the following fields to ``Options``
+    - ``use_timeouts``
+    - ``member_timeout_message``
+    - ``guild_log_timeout_message``
+    - ``member_failed_timeout_message``
+    - ``member_timeout_message_delete_after``
+    - ``guild_log_timeout_message_delete_after``
+
+Fixes:
+******
+
+1) ``Option`` attributes missing documentation
+2) How the core handler used ``Options``
+    Previously per-guild options were ignored in
+    most situations, this has been fixed.
+
+Deprecated:
+***********
+
+1) Library defaults
+    In version 1.3.0 you will need to explicitly
+    define the library you are running AntiSpam with.
+2) MaxMessages Plugin
+    It will be getting reworked in version 1.3.0, if
+    you wish to preserve current behaviour save it locally.
+3) Support for ``.name`` lookups in ignored channels & roles
+
+Changes:
+********
+
+1) ``Lib`` impl changes
+    Reworked the lib folder to provide explicit fork
+    support and reduce duplicated code.
+2) ``Options.is_per_channel_per_guild`` defaults
+    This was changed to ``False`` to preserve the current
+    behaviour once it is actually implemented.
+
+
+1.2.0 -> 1.2.1
+--------------
+
+Fixes:
+******
+
+Mongo is no longer required when not using the ``MongoCache``
+
+1.1.3 -> 1.2.0
 --------------
 
 New:
