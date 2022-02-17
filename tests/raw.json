@@ -5,10 +5,10 @@
     "options": {
         "use_timeouts": null,
         "member_timeout_message": "Hey $MENTIONMEMBER, you are being timed out from $GUILDNAME for spamming/sending duplicate messages.",
-                "member_failed_timeout_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
-                "guild_log_timeout_message": "$MEMBERNAME was timed out for spamming/sending duplicate messages.",
-                "guild_log_timeout_message_delete_after": null,
-                "member_timeout_message_delete_after": null,
+        "member_failed_timeout_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
+        "guild_log_timeout_message": "$MEMBERNAME was timed out for spamming/sending duplicate messages.",
+        "guild_log_timeout_message_delete_after": null,
+        "member_timeout_message_delete_after": null,
         "warn_threshold": 3,
         "kick_threshold": 2,
         "ban_threshold": 2,
@@ -40,7 +40,7 @@
         "mention_on_embed": true,
         "delete_zero_width_chars": true,
         "per_channel_spam": false,
-        "is_per_channel_per_guild": true,
+        "is_per_channel_per_guild": false,
         "addons": {}
     },
     "guilds": [
@@ -84,7 +84,7 @@
                 "mention_on_embed": true,
                 "delete_zero_width_chars": true,
                 "per_channel_spam": false,
-                "is_per_channel_per_guild": true,
+                "is_per_channel_per_guild": false,
                 "addons": {}
             },
             "messages": [],

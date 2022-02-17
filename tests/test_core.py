@@ -1,4 +1,5 @@
 import datetime
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -309,6 +310,27 @@ class TestCore:
             member_duplicate_count=7,
         )
 
+    @pytest.mark.asyncio
+    async def test_delete_spam(self, create_core):
+        bulk_delete = AsyncMock()
+        singular_delete = AsyncMock()
+        create_core.handler.lib_handler.delete_message = singular_delete
+        create_core.handler.lib_handler.delete_member_messages = bulk_delete
+
+        member = Member(1, 1)
+        member.warn_count = 3
+        create_core._increment_duplicate_count(member, Guild(1), 1, 7)
+        await create_core.cache.set_member(member)
+        guild = await create_core.cache.get_guild(1)
+        guild.options.delete_spam = True
+        await create_core.cache.set_guild(guild)
+
+        await create_core.propagate_user(
+            MockedMessage(guild_id=1, author_id=1).to_mock(), guild
+        )
+        assert bulk_delete.call_count == 1
+        assert singular_delete.call_count == 1
+
     def test_calculate_ratios_raises(self, create_core):
         member = Member(
             1, 1, messages=[Message(1, 2, 3, 4, "One"), Message(2, 2, 3, 4, "Two")]
@@ -334,3 +356,10 @@ class TestCore:
         g.options.per_channel_spam = True
         create_core._increment_duplicate_count(member, g, 5)
         assert member.duplicate_channel_counter_dict[5] == 2
+
+    @pytest.mark.asyncio
+    async def test_is_per_channel_per_guild(self, create_core):
+        # Appease coverage
+        g = Guild(1, options=Options(is_per_channel_per_guild=True))
+        await create_core.cache.set_guild(g)
+        await create_core.propagate(MockedMessage(author_id=1, guild_id=1).to_mock(), g)

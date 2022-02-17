@@ -36,7 +36,7 @@ from antispam.exceptions import (
 )
 from antispam.util import get_aware_time
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from antispam import AntiSpamHandler, Options
 
 log = logging.getLogger(__name__)
@@ -117,7 +117,8 @@ class Core:
         self._calculate_ratios(message, member, guild)
 
         # Check again since in theory the above could take awhile
-        if not member.internal_is_in_guild:
+        # Not sure how to hit this in tests, but I've seen it happen so is required
+        if not member.internal_is_in_guild:  # pragma: no cover
             return CorePayload(
                 member_status="Bypassing message check since the member isn't seen to be in a guild"
             )
@@ -281,7 +282,9 @@ class Core:
                     original_message.author.mention,
                     self.options(guild).member_warn_message_delete_after,
                 )
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
+                # This is a general sos, haven't figured out a way
+                # to raise this late but it could in theory happen
                 member.warn_count -= 1
                 raise e
 
@@ -377,9 +380,9 @@ class Core:
             return_payload.member_was_banned = True
             return_payload.member_status = "Member was banned"
 
-        else:
-            # Supports backwards compat?
-            # Not sure if this is required tbh
+        else:  # pragma: no cover
+            # We shouldn't hit this, but for punishments
+            # i'd rather be explicit then implicit
             raise LogicError
 
         # Store the updated values

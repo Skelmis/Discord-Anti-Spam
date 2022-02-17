@@ -385,7 +385,7 @@ class Options:
     # TODO Implement this
     # Catches 5 people saying the same thing
     is_per_channel_per_guild: bool = attr.ib(
-        default=True, validator=attr.validators.instance_of(bool)
+        default=False, validator=attr.validators.instance_of(bool)
     )
 
     # Add on option storage for plugins
