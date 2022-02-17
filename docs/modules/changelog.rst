@@ -16,7 +16,7 @@ New:
 ****
 
 1) Added the ``times_timed_out`` field to ``Member``'s
-2) Added ``member_was_timed_out `` field to ``CorePayload``
+2) Added ``member_was_timed_out`` field to ``CorePayload``
 3) Added the following fields to ``Options``
     - ``use_timeouts``
     - ``member_timeout_message``
