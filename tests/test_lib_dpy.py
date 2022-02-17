@@ -52,7 +52,7 @@ class TestLibDPY:
     @pytest.mark.asyncio
     async def test_create_message_blank_space(self, create_dpy_lib_handler):
         message = MockedMessage(
-            message_clean_content=u"u200Bu200Cu200Du200Eu200FuFEFF Hi"
+            message_clean_content="u200Bu200Cu200Du200Eu200FuFEFF Hi"
         ).to_mock()
 
         returned_message = await create_dpy_lib_handler.create_message(message)
@@ -60,7 +60,7 @@ class TestLibDPY:
 
         create_dpy_lib_handler.handler.options.delete_zero_width_chars = False
         returned_message = await create_dpy_lib_handler.create_message(message)
-        assert returned_message.content == u"u200Bu200Cu200Du200Eu200FuFEFF Hi"
+        assert returned_message.content == "u200Bu200Cu200Du200Eu200FuFEFF Hi"
 
     @pytest.mark.asyncio
     async def test_create_message_stickers(self, create_dpy_lib_handler):
