@@ -19,3 +19,4 @@ omit =
     antispam/libs/lib_pincer.py
     # Implementation testing due to basically just being dpy
     antispam/libs/dpy_forks/*
+    antispam/base_plugin.py

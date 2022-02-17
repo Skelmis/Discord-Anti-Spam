@@ -11,6 +11,7 @@ from antispam import (
 )
 from antispam.abc import Cache
 from antispam.dataclasses import Member
+from antispam.deprecation import mark_deprecated
 
 try:
     import nextcord as discord
@@ -86,6 +87,11 @@ class MaxMessageLimiter(BasePlugin):
         message
             A message to get info from
         """
+        mark_deprecated(
+            "This plugin is deprecated and will be re-worked in 1.3.0 "
+            "to be library agnostic and using timeouts. If you wish to "
+            "use the legacy punishment system, please copy the plugin locally."
+        )
         channel: discord.TextChannel = message.channel
         overwrites = channel.overwrites
 
