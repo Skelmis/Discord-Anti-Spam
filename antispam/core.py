@@ -216,12 +216,25 @@ class Core:
                     member.warn_count,
                     member.kick_count,
                 )
+                guild_failed_message = await self.handler.lib_handler.transform_message(
+                    "I failed to timeout $MEMBERNAME ($MEMBERID) as I lack permissions.",
+                    original_message,
+                    member.warn_count,
+                    member.kick_count,
+                )
 
                 await self.handler.lib_handler.send_guild_log(
                     guild,
-                    user_failed_message,
+                    guild_failed_message,
                     self.options(guild).member_timeout_message_delete_after,
                     original_message.channel,
+                )
+
+                await self.handler.lib_handler.send_message_to_(
+                    original_message.author,
+                    user_failed_message,
+                    original_message.author.mention,
+                    self.options(guild).member_timeout_message_delete_after,
                 )
                 raise e from None
 
