@@ -49,7 +49,7 @@ class EnhancedDPY(DPY):
         if not perms.moderate_members:
             raise MissingGuildPermissions(
                 "moderate_members is required to timeout members.\n"
-                f"Tried timing out Member(id={member.id}) in Guild(id={member.guild_id})"
+                f"Tried timing out Member(id={member.id}) in Guild(id={member.guild.id})"
             )
 
         await member.edit(
