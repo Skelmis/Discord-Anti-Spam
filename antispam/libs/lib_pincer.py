@@ -41,6 +41,7 @@ from antispam import (
 from antispam.abc import Lib
 from antispam.dataclasses import Guild, Member, Message
 from antispam.dataclasses.propagate_data import PropagateData
+from antispam.deprecation import mark_deprecated
 from antispam.libs.shared import Base, SubstituteArgs, TimedCache
 
 log = logging.getLogger(__name__)
@@ -362,6 +363,9 @@ class Pincer(Base, Lib):
             message.channel_id in self.handler.options.ignored_channels
             or channel.name in self.handler.options.ignored_channels
         ):
+            mark_deprecated(
+                "Using names to ignore channels will be removed in 1.3.0, please us id's instead."
+            )
             log.debug("channel(id=%s) is ignored", channel.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel_id}"}
@@ -378,8 +382,6 @@ class Pincer(Base, Lib):
         # Return if member has an ignored role
         try:
             user_roles = member.roles
-            # We don't support this yet
-            # user_roles.extend([role.name for role in roles])
             for item in user_roles:
                 if item in self.handler.options.ignored_roles:
                     log.debug("role(%s) is a part of ignored roles", item)

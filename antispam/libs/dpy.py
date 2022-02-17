@@ -168,7 +168,9 @@ class DPY(Base, Lib):
             message.channel.id in self.handler.options.ignored_channels
             or message.channel.name in self.handler.options.ignored_channels
         ):
-            # TODO Remove .name
+            mark_deprecated(
+                "Using names to ignore channels will be removed in 1.3.0, please us id's instead."
+            )
             log.debug("channel(id=%s) is ignored", message.channel.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel.id}"}
@@ -178,6 +180,9 @@ class DPY(Base, Lib):
         try:
             user_roles = [role.id for role in message.author.roles]
             user_roles.extend([role.name for role in message.author.roles])
+            mark_deprecated(
+                "Using names to ignore roles will be removed in 1.3.0, please us id's instead."
+            )
             for item in user_roles:
                 if item in self.handler.options.ignored_roles:
                     log.debug(
