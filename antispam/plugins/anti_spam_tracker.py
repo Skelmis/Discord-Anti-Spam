@@ -38,7 +38,7 @@ from antispam.util import get_aware_time
 
 log = logging.getLogger(__name__)
 
-
+# TODO User -> member
 class AntiSpamTracker(BasePlugin):
     """
     A class devoted to people who want to handle punishments themselves.
@@ -210,7 +210,7 @@ class AntiSpamTracker(BasePlugin):
 
         log.debug("Cache updated for Member(id=%s) in Guild(id%s)", member_id, guild_id)
 
-    async def get_user_count(self, message) -> int:
+    async def get_user_count(self, message) -> int:  # TODO get_member_count
         """
         Returns how many messages that are still 'valid'
         (counted as spam) a certain user has

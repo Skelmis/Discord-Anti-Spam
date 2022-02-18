@@ -11,6 +11,7 @@ from antispam.dataclasses import Guild, Member
 from antispam.plugins import AntiSpamTracker
 
 
+# TODO Test thisA
 # noinspection DuplicatedCode
 class MyCustomTracker(AntiSpamTracker):
     async def update_cache(self, message: discord.Message, data: dict) -> None:
