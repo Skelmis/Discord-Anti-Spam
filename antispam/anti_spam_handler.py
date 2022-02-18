@@ -181,8 +181,17 @@ class AntiSpamHandler:
         elif library == Library.CUSTOM:
             pass
 
+        elif library == Library.DPY:
+            from antispam.libs.dpy import DPY
+
+            self.lib_handler = DPY(self)
         else:
             from antispam.libs.dpy import DPY
+
+            mark_deprecated(
+                "DPY will be removed as the default library in 1.3.0, "
+                "please explicitly set the library you are using."
+            )
 
             self.lib_handler = DPY(self)
 
