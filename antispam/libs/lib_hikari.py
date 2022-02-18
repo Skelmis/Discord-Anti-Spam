@@ -56,7 +56,7 @@ from antispam.libs.shared import Base, SubstituteArgs
 log = logging.getLogger(__name__)
 
 mark_deprecated(
-    "Using names to ignore roles and channels will be removed in 1.3.0, please us id's instead."
+    "Using names to ignore roles and channels will be removed in 1.3.0, please use id's instead."
 )
 
 
