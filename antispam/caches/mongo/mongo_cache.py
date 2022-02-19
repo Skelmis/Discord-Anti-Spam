@@ -28,6 +28,7 @@ import pytz
 from attr import asdict
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from antispam import Options
 from antispam.abc import Cache
 from antispam.caches.mongo.document import Document
 from antispam.dataclasses import Guild, Member, Message
@@ -69,6 +70,9 @@ class MongoCache(Cache):
     async def get_guild(self, guild_id: int) -> Guild:
         log.debug("Attempting to return cached Guild(id=%s)", guild_id)
         guild: Guild = await self.guilds.find({"id": guild_id})
+
+        # This is a dict here actually
+        guild.options = Options(**guild.options)  # type: ignore
         if not guild:
             raise GuildNotFound
 
@@ -95,7 +99,7 @@ class MongoCache(Cache):
 
         iters = [self.set_member(m) for m in members]
         await asyncio.gather(*iters)
-        await self.guilds.upsert({"id": guild.id}, asdict(guild))
+        await self.guilds.upsert({"id": guild.id}, asdict(guild, recurse=True))
 
     async def delete_guild(self, guild_id: int) -> None:
         log.debug("Attempting to delete Guild(id=%s)", guild_id)
