@@ -35,7 +35,7 @@ from antispam.dataclasses import Guild, Member, Message
 from antispam.enums import ResetType
 from antispam.exceptions import GuildNotFound, MemberNotFound
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from antispam import AntiSpamHandler
 
 log = logging.getLogger(__name__)
@@ -72,10 +72,10 @@ class MongoCache(Cache):
         guild: Guild = await self.guilds.find({"id": guild_id})
 
         # This is a dict here actually
-        guild.options = Options(**guild.options)  # type: ignore
         if not guild:
             raise GuildNotFound
 
+        guild.options = Options(**guild.options)  # type: ignore
         members: List[Member] = await self.members.find_many_by_custom(
             {"guild_id": guild_id}
         )
@@ -139,6 +139,9 @@ class MongoCache(Cache):
             {"id": member.id, "guild_id": member.guild_id}, member_dict
         )
 
+        if not await self._guild_exists(member.guild_id):
+            await self.set_guild(Guild(member.guild_id, options=self.handler.options))
+
     async def delete_member(self, member_id: int, guild_id: int) -> None:
         log.debug(
             "Attempting to delete Member(id=%s) in Guild(id=%s)", member_id, guild_id
@@ -157,8 +160,6 @@ class MongoCache(Cache):
         )
         if not member:
             member = Member(message.author_id, guild_id=message.guild_id)
-
-            await self.set_guild(Guild(message.guild_id))
 
         member.messages.append(message)
         await self.set_member(member)
@@ -201,3 +202,8 @@ class MongoCache(Cache):
         log.warning("Cache was just dropped")
         await self.__mongo.drop_database("antispam_guilds")
         await self.__mongo.drop_database("antispam_members")
+
+    async def _guild_exists(self, guild_id: int) -> True:
+        """A guild existence check"""
+        r_1 = await self.guilds.find({"id": guild_id})
+        return bool(r_1)

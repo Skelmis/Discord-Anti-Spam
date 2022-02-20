@@ -1,17 +1,30 @@
+from typing import Any, Dict, List
+
 import pytest
+from attr import asdict
 from discord.ext import commands  # noqa
 
 from antispam import AntiSpamHandler, PluginCache
 from antispam.caches import MemoryCache
+from antispam.caches.mongo import MongoCache
 from antispam.core import Core
+from antispam.dataclasses import Guild, Member, Message
 from antispam.libs.dpy import DPY
 from antispam.libs.shared import Base, TimedCache
 from antispam.plugins import AdminLogs, AntiMassMention, AntiSpamTracker, Stats
 from tests.mocks import MockedMember
+from tests.mocks.mock_document import MockedDocument
 
 
 class MockClass:
     pass
+
+
+class MockedMongoCache(MongoCache):
+    def __init__(self, handler, member_data, guild_data):
+        self.handler = handler
+        self.guilds: MockedDocument = MockedDocument(guild_data, converter=Guild)
+        self.members: MockedDocument = MockedDocument(member_data, converter=Member)
 
 
 @pytest.fixture
@@ -75,3 +88,27 @@ def create_base():
 @pytest.fixture
 def create_timed_cache() -> TimedCache:
     return TimedCache()
+
+
+@pytest.fixture()
+def create_mongo_cache(create_handler) -> MockedMongoCache:
+    guild_data: List[Dict[str, Any]] = [asdict(Guild(1))]
+    member_data: List[Dict[str, Any]] = [
+        asdict(
+            Member(
+                1,
+                1,
+                warn_count=2,
+                kick_count=1,
+                messages=[
+                    Message(1, 1, 1, 1, content="Foo"),
+                    Message(2, 1, 1, 1, content="Bar"),
+                    Message(3, 1, 1, 1, content="Baz"),
+                ],
+            ),
+            recurse=True,
+        ),
+        asdict(Member(2, 1)),
+    ]
+
+    return MockedMongoCache(create_handler, member_data, guild_data)
