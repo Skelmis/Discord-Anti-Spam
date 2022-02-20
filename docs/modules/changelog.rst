@@ -3,6 +3,12 @@ Changelog
 
 A changelog that should be fairly up to date feature wise.
 
+1.2.(3-7) -> 1.2.8
+------------------
+
+Fixed ``MongoCache`` and ``MyCustomTracker``.
+These are also both now fully unit-tested.
+
 1.2.2 -> 1.2.3
 --------------
 
