@@ -27,6 +27,7 @@ import typing
 from antispam import AntiSpamHandler
 from antispam.base_plugin import BasePlugin
 from antispam.dataclasses import CorePayload, Member
+from antispam.deprecation import mark_deprecated
 from antispam.exceptions import (
     GuildAddonNotFound,
     GuildNotFound,
@@ -39,6 +40,9 @@ from antispam.util import get_aware_time
 log = logging.getLogger(__name__)
 
 # TODO User -> member
+mark_deprecated("All `user` usages will be renamed to `member` in version 1.3.0")
+
+
 class AntiSpamTracker(BasePlugin):
     """
     A class devoted to people who want to handle punishments themselves.
