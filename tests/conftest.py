@@ -1,4 +1,5 @@
 from typing import Any, Dict, List
+from unittest.mock import Mock
 
 import pytest
 from attr import asdict
@@ -12,6 +13,9 @@ from antispam.dataclasses import Guild, Member, Message
 from antispam.libs.dpy import DPY
 from antispam.libs.shared import Base, TimedCache
 from antispam.plugins import AdminLogs, AntiMassMention, AntiSpamTracker, Stats
+from examples.custom_multistage_punishments.AntiSpamTrackerSubclass import (
+    MyCustomTracker,
+)
 from tests.mocks import MockedMember
 from tests.mocks.mock_document import MockedDocument
 
@@ -36,7 +40,9 @@ def create_bot():
 @pytest.fixture
 def create_handler():
     """Create a simple handler for usage"""
-    return AntiSpamHandler(MockedMember(mock_type="bot").to_mock())
+    mock = MockedMember(mock_type="bot").to_mock()
+    mock.get_guild = Mock()
+    return AntiSpamHandler(mock)
 
 
 @pytest.fixture
@@ -112,3 +118,8 @@ def create_mongo_cache(create_handler) -> MockedMongoCache:
     ]
 
     return MockedMongoCache(create_handler, member_data, guild_data)
+
+
+@pytest.fixture()
+def create_example_tracker_subclass(create_handler) -> MyCustomTracker:
+    return MyCustomTracker(create_handler, 3, 1000)

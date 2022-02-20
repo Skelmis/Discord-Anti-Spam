@@ -183,13 +183,13 @@ class AntiSpamTracker(BasePlugin):
         if not message.guild:
             return
 
-        member_id = message.author.id
-        guild_id = await self.anti_spam_handler.lib_handler.get_guild_id(message)
-        timestamp = get_aware_time()
-
         if not data.member_should_be_punished_this_message:
             # They shouldn't be punished so don't increase cache
             return
+
+        member_id = message.author.id
+        guild_id = await self.anti_spam_handler.lib_handler.get_guild_id(message)
+        timestamp = get_aware_time()
 
         # We now need to increase their cache
         try:

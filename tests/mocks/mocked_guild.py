@@ -1,7 +1,7 @@
 """
 This 'mocks' a discord.Guild so we can use it for testing
 """
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 import discord
 
@@ -24,5 +24,7 @@ class MockedGuild:
 
         mock.me = MockedMember(name="Bot", member_id=54321).to_mock()
         mock.me.top_role.position = 100  # Bot should have higher role by default
+
+        mock.get_role = Mock()
 
         return mock

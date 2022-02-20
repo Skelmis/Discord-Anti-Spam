@@ -3,6 +3,7 @@ from AntiSpamTrackerSubclass import MyCustomTracker
 from discord.ext import commands
 
 from antispam import AntiSpamHandler, Options
+from antispam.caches.mongo import MongoCache
 from examples.jsonLoader import read_json
 
 bot = commands.Bot(command_prefix=".", intents=discord.Intents.all())
@@ -10,9 +11,15 @@ bot = commands.Bot(command_prefix=".", intents=discord.Intents.all())
 file = read_json("token")
 
 # Generally you only need/want AntiSpamHandler(bot)
-bot.handler = AntiSpamHandler(bot, options=Options(ignore_bots=False, no_punish=True))
+bot.handler = AntiSpamHandler(
+    bot, options=Options(ignore_bots=False, no_punish=True, use_timeouts=False)
+)
 bot.tracker = MyCustomTracker(bot.handler, 3)
 bot.handler.register_plugin(bot.tracker)
+
+bot.handler.set_cache(
+    MongoCache(bot.handler, file["mongo"], "antispam_tracker_subcclass")
+)
 
 
 @bot.event

@@ -1,5 +1,8 @@
 [run]
 branch = True
+include =
+    antispam/*
+    examples/custom_multistage_punishments/AntiSpamTrackerSubclass.py
 omit =
     antispam/abc/*
     antispam/deprecation.py

@@ -6,16 +6,19 @@ from copy import deepcopy
 
 import discord
 
-from antispam import GuildNotFound, MemberAddonNotFound, MemberNotFound
+from antispam import GuildNotFound, MemberAddonNotFound, MemberNotFound, CorePayload
 from antispam.dataclasses import Guild, Member
 from antispam.plugins import AntiSpamTracker
 
 
-# TODO Test thisA
 # noinspection DuplicatedCode
 class MyCustomTracker(AntiSpamTracker):
-    async def update_cache(self, message: discord.Message, data: dict) -> None:
+    async def update_cache(self, message: discord.Message, data: CorePayload) -> None:
         """Override this so we can add a custom field to the stored user"""
+
+        if not data.member_should_be_punished_this_message:
+            # They shouldn't be punished so don't increase cache
+            return
 
         member_id = message.author.id
         guild_id = message.guild.id
@@ -126,14 +129,10 @@ class MyCustomTracker(AntiSpamTracker):
 
     async def clean_cache(self) -> None:
         """Override this so if the has_been_muted field exists we don't remove them"""
-        cache: typing.AsyncIterable[
-            Guild
-        ] = await self.anti_spam_handler.cache.get_all_guilds()
-
-        async for guild in cache:
+        async for guild in self.anti_spam_handler.cache.get_all_guilds():
             for member in guild.members.values():
                 await self.remove_outdated_timestamps(
-                    member.addons[super().__class__.__name__],
+                    member.addons[self.__class__.__name__],
                     member_id=member.id,
                     guild_id=guild.id,
                 )
@@ -145,7 +144,7 @@ class MyCustomTracker(AntiSpamTracker):
                     len(member_data["timestamps"]) == 0
                     and not member_data["has_been_muted"]
                 ):
-                    member.addons.pop(super().__class__.__name__)
+                    member.addons.pop(self.__class__.__name__)
                     await self.anti_spam_handler.cache.set_member(member)
 
     async def get_user_count(self, message: discord.Message) -> int:
