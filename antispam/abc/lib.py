@@ -76,17 +76,6 @@ class Lib(Protocol):
             This raises an error with the `.data` attribute set.
 
             `.data` is what gets returned from within propagate itself.
-
-            Example from the discord.py impl
-
-            .. code-block:: python
-                :linenos:
-
-                if message.author.id == self.handler.bot.user.id:
-                    log.debug("Message(id=%s) was from myself", message.id)
-                    raise PropagateFailure(
-                        data={"status": "Ignoring messages from myself (the bot)"}
-                    )
         """
         raise NotImplementedError
 
