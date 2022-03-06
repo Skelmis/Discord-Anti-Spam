@@ -116,13 +116,6 @@ class Core:
         )
         self._calculate_ratios(message, member, guild)
 
-        # Check again since in theory the above could take awhile
-        # Not sure how to hit this in tests, but I've seen it happen so is required
-        if not member.internal_is_in_guild:  # pragma: no cover
-            return CorePayload(
-                member_status="Bypassing message check since the member doesn't seem to be in a guild"
-            )
-
         await self.cache.add_message(message)
         log.info(
             "Created Message(%s) on Member(id=%s) in Guild(id=%s)",
@@ -136,6 +129,13 @@ class Core:
             < self.options(guild).message_duplicate_count
         ):
             return CorePayload()
+
+        # Check again since in theory the above could take awhile
+        # Not sure how to hit this in tests, but I've seen it happen so is required
+        if not member.internal_is_in_guild:  # pragma: no cover
+            return CorePayload(
+                member_status="Bypassing message check since the member doesn't seem to be in a guild"
+            )
 
         # We need to punish the member with something
         log.debug(
