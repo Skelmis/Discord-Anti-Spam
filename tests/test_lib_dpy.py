@@ -198,8 +198,8 @@ class TestLibDPY:
             "colour": 0xFFFFFF,
         }
         # mock_message.created_at = datetime.datetime.utcnow()
-        mock_message.guild.me.avatar.url = "test"
-        mock_message.author.avatar.url = "author"
+        mock_message.guild.me.display_avatar = "test"
+        mock_message.author.display_avatar = "author"
         test_embed = await create_dpy_lib_handler.dict_to_embed(
             bounds_dict, mock_message, 1, 2
         )
