@@ -3,6 +3,14 @@ Changelog
 
 A changelog that should be fairly up to date feature wise.
 
+1.2.8 -> 1.2.9
+--------------
+
+Fixed ``timeouts`` 'stacking' when they shouldn't have.
+
+Resolved some issues with discord.py and forks where
+default avatars would result in errors.
+
 1.2.(3-7) -> 1.2.8
 ------------------
 
