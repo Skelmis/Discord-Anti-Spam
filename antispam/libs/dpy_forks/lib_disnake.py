@@ -145,3 +145,6 @@ class Disnake(BaseFork):
             member_id=message.author.id,
             has_perms_to_make_guild=has_perms,
         )
+
+    async def is_member_currently_timed_out(self, member: disnake.Member) -> bool:
+        return bool(member.current_timeout)

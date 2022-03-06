@@ -160,6 +160,15 @@ class Core:
                 message.author_id,
                 message.guild_id,
             )
+            _author = await self.handler.lib_handler.get_member_from_message(
+                original_message
+            )
+            if await self.handler.lib_handler.is_member_currently_timed_out(_author):
+                return CorePayload(
+                    member_should_be_punished_this_message=None,
+                    member_status="Attempted to timeout this member, however, they are already timed out.",
+                )
+
             member.internal_is_in_guild = False
             times_timed_out: int = member.times_timed_out + 1
 
@@ -252,6 +261,7 @@ class Core:
                 )
 
                 member.times_timed_out += 1
+                member.internal_is_in_guild = True
                 await self.handler.cache.set_member(member)
 
                 return_payload.member_was_timed_out = True
@@ -345,7 +355,10 @@ class Core:
                 member.warn_count,
                 member.kick_count,
             )
-            await self.handler.lib_handler.punish_member(
+            # This variable is for future usage to phase out
+            # the requirement to set member.internal_is_...
+            # within a lib impl
+            _success: bool = await self.handler.lib_handler.punish_member(
                 original_message,
                 member,
                 guild,
@@ -382,7 +395,7 @@ class Core:
                 member.warn_count,
                 member.kick_count,
             )
-            await self.handler.lib_handler.punish_member(
+            _success: bool = await self.handler.lib_handler.punish_member(
                 original_message,
                 member,
                 guild,

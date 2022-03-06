@@ -7,7 +7,14 @@ from tests.mocks.mock_role import MockedRole
 
 
 class MockedMember:
-    def __init__(self, name=None, member_id=None, is_bot=False, mock_type="member"):
+    def __init__(
+        self,
+        name=None,
+        member_id=None,
+        is_bot=False,
+        mock_type="member",
+        is_timed_out: bool = False,
+    ):
         self.name = name or "Mocked Member"
         # 0 is falsey
         if mock_type.lower() == "bot":
@@ -17,6 +24,7 @@ class MockedMember:
         self.mention = f"<@{self.id}>"
         self.is_bot = is_bot
         self.type = mock_type.lower()
+        self.is_timed_out = is_timed_out
 
     def to_mock(self):
         """Returns an AsyncMock matching the spec for this class"""
@@ -50,6 +58,7 @@ class MockedMember:
         mock.id = self.id
         mock.bot = self.is_bot
         mock.mention = f"<@{self.id}>"
+        mock.timeout = self.is_timed_out
 
         return mock
 

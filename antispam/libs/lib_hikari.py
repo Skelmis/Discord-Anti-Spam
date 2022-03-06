@@ -86,6 +86,10 @@ class Hikari(Base, Lib):
     async def dict_to_lib_embed(self, data: Dict):
         return self.handler.bot.entity_factory.deserialize_embed(data)
 
+    async def get_member_from_message(self, message: messages.Message):
+        guild: guilds.Guild = self.handler.bot.cache.get_guild(message.guild_id)
+        return guild.get_member(message.author.id)
+
     async def send_message_to_(
         self, target, message, mention: str, delete_after_time: Optional[int] = None
     ) -> None:  # pragma: no cover
@@ -518,3 +522,6 @@ class Hikari(Base, Lib):
         await member.edit(
             communication_disabled_until=time_now, reason="Automated timeout from Discord-Anti-Spam"  # type: ignore
         )
+
+    async def is_member_currently_timed_out(self, member: guilds.Member) -> bool:
+        return bool(member.raw_communication_disabled_until)

@@ -71,6 +71,9 @@ class DPY(Base, Lib):
     async def get_message_mentions(self, message: discord.Message):  # pragma: no cover
         return message.mentions
 
+    async def get_member_from_message(self, message):
+        return message.author
+
     async def get_channel_by_id(self, channel_id: int):  # pragma: no cover
         channel = self.bot.get_channel(channel_id)
         if not channel:
@@ -517,6 +520,12 @@ class DPY(Base, Lib):
     async def timeout_member(
         self, member, original_message, until: datetime.timedelta
     ) -> None:
+        raise UnsupportedAction(
+            "Timeouts are not supported for discord.py, if you "
+            "are using a fork please specify it explicitly."
+        )
+
+    async def is_member_currently_timed_out(self, member) -> bool:
         raise UnsupportedAction(
             "Timeouts are not supported for discord.py, if you "
             "are using a fork please specify it explicitly."

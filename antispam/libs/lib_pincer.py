@@ -37,6 +37,7 @@ from antispam import (
     MissingGuildPermissions,
     NonExistentEntry,
     PropagateFailure,
+    UnsupportedAction,
 )
 from antispam.abc import Lib
 from antispam.dataclasses import Guild, Member, Message
@@ -146,6 +147,9 @@ class Pincer(Base, Lib):
 
     async def get_channel_id(self, message: UserMessage) -> int:
         return message.channel_id
+
+    async def get_member_from_message(self, message: UserMessage):
+        return await self._fetch_member(message.author.id, message.guild_id)
 
     async def get_message_mentions(self, message: UserMessage) -> List[int]:
         mentions = [m.user.id for m in message.mentions]
@@ -541,3 +545,11 @@ class Pincer(Base, Lib):
             # Admin implies all perms
             initial = 0b111111111111111111111111111111111111111
         return initial
+
+    async def timeout_member(
+        self, member, original_message, until: datetime.timedelta
+    ) -> None:
+        raise UnsupportedAction("Timeouts are not supported for Pincer.")
+
+    async def is_member_currently_timed_out(self, member) -> bool:
+        raise UnsupportedAction("Timeouts are not supported for Pincer.")

@@ -524,7 +524,7 @@ class Lib(Protocol):
 
         Parameters
         ----------
-        member: Union[discord.member]
+        member: Union[discord.member, hikari.guilds.Member]
             The member to timeout
         original_message
             The message being propagated
@@ -537,5 +537,38 @@ class Lib(Protocol):
             Timing out members is not supported.
         MissingGuildPermissions
             Can't time this member out
+        """
+        raise NotImplementedError
+
+    async def get_member_from_message(self, message):
+        """
+        Given the message, return the Author's object
+
+        Parameters
+        ----------
+        message: Union[discord.Message, hikari.messages.Message, pincer.objects.Embed]
+            The message to extract it from
+
+        Returns
+        -------
+        Union[discord.member, hikari.guilds.Member, ...]
+            The member object
+        """
+
+    async def is_member_currently_timed_out(self, member) -> bool:
+        """
+        Given the libraries member object,
+        return True if they are currently timed
+        out or False otherwise.
+
+        Parameters
+        ----------
+        member: Union[discord.member, hikari.guilds.Member]
+            The member to check agaisnt.
+
+        Returns
+        -------
+        bool
+            True if timed out, otherwise False
         """
         raise NotImplementedError
