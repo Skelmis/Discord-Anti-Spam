@@ -99,7 +99,7 @@ class DPY(Base, Lib):
                 "DPY will be removed as a blanket default in 1.3.0.\n"
                 "You will need to explicitly specify the library you are using at said time."
             )
-            member_avatar = message.author.avatar.url  # type: ignore
+            member_avatar = message.author.display_avatar  # type: ignore
             guild_icon = message.guild.icon.url  # type: ignore
             bot_avatar = message.guild.me.avatar.url  # type: ignore
         else:

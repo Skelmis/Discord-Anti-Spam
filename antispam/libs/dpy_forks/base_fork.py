@@ -32,7 +32,7 @@ class BaseFork(DPY):
     async def get_substitute_args(self, message) -> SubstituteArgs:
         member_avatar = str(message.author.display_avatar)
         guild_icon = message.guild.icon.url
-        bot_avatar = message.guild.me.avatar.url
+        bot_avatar = str(message.guild.me.display_avatar)
 
         return SubstituteArgs(
             bot_id=message.guild.me.id,
