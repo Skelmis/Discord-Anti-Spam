@@ -388,6 +388,7 @@ class Hikari(Base, Lib):
 
         # Even if we can't tell them they are being punished
         # We still need to punish them, so try that
+        _success = True
         try:
             if is_kick:
                 await guild.kick(
@@ -401,6 +402,7 @@ class Hikari(Base, Lib):
                 log.info("Banned Member(id=%s)", member.id)
 
         except InternalServerError:
+            _success = False
             member.internal_is_in_guild = True
             member.kick_count -= 1
             await self.send_guild_log(
@@ -445,6 +447,7 @@ class Hikari(Base, Lib):
 
         member.internal_is_in_guild = True
         await self.handler.cache.set_member(member)
+        return _success
 
     async def delete_member_messages(self, member: Member) -> None:  # pragma: no cover
         log.debug(

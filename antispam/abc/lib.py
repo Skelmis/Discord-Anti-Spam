@@ -202,6 +202,11 @@ class Lib(Protocol):
         MissingGuildPermissions
             I lack perms to carry out this punishment
 
+        Returns
+        -------
+        bool
+            Did the punishment succeed?
+
         Notes
         -----
         Due to early design decisions, this will only

@@ -160,6 +160,7 @@ class Core:
                 message.author_id,
                 message.guild_id,
             )
+            member.internal_is_in_guild = False
             times_timed_out: int = member.times_timed_out + 1
 
             guild_message = await self.handler.lib_handler.transform_message(
@@ -208,8 +209,10 @@ class Core:
                     original_message.author, original_message, timeout_until
                 )
             except UnsupportedAction:
+                member.internal_is_in_guild = True
                 raise
             except Exception as e:
+                member.internal_is_in_guild = True
                 user_failed_message = await self.handler.lib_handler.transform_message(
                     self.handler.options.member_failed_timeout_message,
                     original_message,

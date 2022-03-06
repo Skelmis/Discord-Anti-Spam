@@ -465,8 +465,8 @@ class Pincer(Base, Lib):
 
         # Even if we can't tell them they are being punished
         # We still need to punish them, so try that
+        _success = True
         try:
-
             if is_kick:
                 await guild.kick(
                     _member.id, reason="Automated punishment from DPY Anti-Spam."
@@ -478,6 +478,7 @@ class Pincer(Base, Lib):
                 )
                 log.info("Banned Member(id=%s)", member.id)
         except:
+            _success = False
             # TODO Pincer doesnt throw errors
             member.internal_is_in_guild = True
             member.kick_count -= 1
@@ -523,6 +524,7 @@ class Pincer(Base, Lib):
 
         member.internal_is_in_guild = True
         await self.handler.cache.set_member(member)
+        return _success
 
     async def _get_perms(self, member_roles: List[int], guild_id: int) -> int:
         guild_roles: list = await self.bot.http.get(f"/guilds/{guild_id}/roles")

@@ -308,7 +308,7 @@ class DPY(Base, Lib):
         is_kick: bool,
         user_delete_after: int = None,
         channel_delete_after: int = None,
-    ):  # pragma: no cover
+    ) -> bool:  # pragma: no cover
         guild = original_message.guild
         author = original_message.author
 
@@ -333,7 +333,6 @@ class DPY(Base, Lib):
             member.internal_is_in_guild = True
             member.kick_count -= 1
 
-            # TODO Make this consistent across libs
             await self.send_guild_log(
                 guild=internal_guild,
                 message=f"I am failing to punish {original_message.author.display_name} because they own this guild.",
@@ -382,6 +381,7 @@ class DPY(Base, Lib):
 
         # Even if we can't tell them they are being punished
         # We still need to punish them, so try that
+        _success = True
         try:
             if is_kick:
                 await guild.kick(
@@ -401,6 +401,7 @@ class DPY(Base, Lib):
             raise e from None
 
         except discord.HTTPException:
+            _success = False
             member.internal_is_in_guild = True
             member.kick_count -= 1
             await self.send_guild_log(
@@ -448,6 +449,8 @@ class DPY(Base, Lib):
 
         member.internal_is_in_guild = True
         await self.handler.cache.set_member(member)
+
+        return _success
 
     async def delete_member_messages(self, member: Member) -> None:  # pragma: no cover
         log.debug(
