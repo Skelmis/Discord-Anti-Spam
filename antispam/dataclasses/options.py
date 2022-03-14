@@ -117,7 +117,7 @@ class Options:
     member_failed_ban_message: Union[str, dict]
         Default: ``I failed to punish you because I lack permissions, but still you shouldn't spam.``
 
-        The message to be sent if kicking the member fails.
+        The message to be sent if banning the member fails.
     member_failed_timeout_message: Union[str, dict]
         Default: ``I failed to punish you because I lack permissions, but still you shouldn't spam.``
 
