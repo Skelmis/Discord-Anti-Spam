@@ -126,6 +126,13 @@ class AntiSpamHandler:
                 "If you wish to preserve this behaviour, set use_timeouts=False in your options."
             )
 
+        if self.options.use_timeouts and self.options.warn_only:
+            log.warning(
+                "You are attempting to create an AntiSpamHandler with options that are mutually exclusive. "
+                "Please note `use_timeouts` will over rule any other options you attempt to set which are "
+                "mutually exclusive."
+            )
+
         cache = cache or MemoryCache(self)
         if not issubclass(type(cache), Cache):
             raise ValueError("Expected `cache` that inherits from the `Cache` Protocol")
