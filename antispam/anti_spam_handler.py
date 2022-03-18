@@ -521,6 +521,7 @@ class AntiSpamHandler:
             pass
         else:
             guild.options = self.options
+            await self.cache.set_guild(guild)
             log.debug("Reset options for Guild(id=%s)", guild_id)
 
     @ensure_init
@@ -584,7 +585,8 @@ class AntiSpamHandler:
                 options=self.options,
                 log_channel_id=log_channel,
             )
-            await self.cache.set_guild(guild)
+
+        await self.cache.set_guild(guild)
 
     @ensure_init
     async def remove_guild_log_channel(self, guild_id: int) -> None:
