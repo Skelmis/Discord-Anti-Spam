@@ -449,11 +449,11 @@ class AntiSpamHandler:
                 guild_id,
             )
             guild = Guild(id=guild_id, options=options)
-            await self.cache.set_guild(guild)
             log.info("Created Guild(id=%s)", guild.id)
         else:
             guild.options = options
 
+        await self.cache.set_guild(guild)
         log.info("Set custom options for guild(%s)", guild_id)
 
     @ensure_init
