@@ -58,7 +58,9 @@ class MockedMember:
         mock.id = self.id
         mock.bot = self.is_bot
         mock.mention = f"<@{self.id}>"
-        mock.timeout = self.is_timed_out
+
+        # nextcord based mock
+        mock.communication_disabled_until = self.is_timed_out
 
         return mock
 
