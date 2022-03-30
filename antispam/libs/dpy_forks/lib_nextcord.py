@@ -51,4 +51,4 @@ class Nextcord(BaseFork):
         )
 
     async def is_member_currently_timed_out(self, member: nextcord.Member) -> bool:
-        return bool(member.timeout)
+        return bool(member.communication_disabled_until)
