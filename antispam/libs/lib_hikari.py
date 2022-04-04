@@ -525,3 +525,6 @@ class Hikari(Base, Lib):
 
     async def is_member_currently_timed_out(self, member: guilds.Member) -> bool:
         return bool(member.raw_communication_disabled_until)
+
+    def is_dm(self, message: messages.Message) -> bool:
+        return bool(message.guild_id)

@@ -115,7 +115,7 @@ class TestAntiSpamTracker:
         values = await create_anti_spam_tracker.member_tracking.get_member_data(1, 1)
         assert len(values) == 1
 
-        result = await create_anti_spam_tracker.get_user_count(
+        result = await create_anti_spam_tracker.get_member_count(
             MockedMessage(author_id=1, guild_id=1).to_mock()
         )
         assert result == 1
@@ -127,7 +127,7 @@ class TestAntiSpamTracker:
         #   await create_anti_spam_tracker.get_user_count(None)
 
         with pytest.raises(MemberNotFound):
-            await create_anti_spam_tracker.get_user_count(
+            await create_anti_spam_tracker.get_member_count(
                 MockedMessage(is_in_guild=False).to_mock()
             )
 

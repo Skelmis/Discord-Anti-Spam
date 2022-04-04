@@ -46,7 +46,7 @@ class TestTrackerExampleSubclass:
     @pytest.mark.asyncio
     async def test_get_user_has_been_muted(self, create_example_tracker_subclass):
         with pytest.raises(MemberNotFound):
-            await create_example_tracker_subclass.get_user_has_been_muted(
+            await create_example_tracker_subclass.get_member_has_been_muted(
                 MockedMessage().to_mock()
             )
 
@@ -57,12 +57,12 @@ class TestTrackerExampleSubclass:
             2, 1, {"timestamps": [], "has_been_muted": False}
         )
 
-        r_1 = await create_example_tracker_subclass.get_user_has_been_muted(
+        r_1 = await create_example_tracker_subclass.get_member_has_been_muted(
             MockedMessage(author_id=1, guild_id=1).to_mock()
         )
         assert r_1 is True
 
-        r_2 = await create_example_tracker_subclass.get_user_has_been_muted(
+        r_2 = await create_example_tracker_subclass.get_member_has_been_muted(
             MockedMessage(author_id=2, guild_id=1).to_mock()
         )
         assert r_2 is False
@@ -70,21 +70,21 @@ class TestTrackerExampleSubclass:
     @pytest.mark.asyncio
     async def test_get_user_count(self, create_example_tracker_subclass):
         with pytest.raises(TypeError):
-            await create_example_tracker_subclass.get_user_count(dict())
+            await create_example_tracker_subclass.get_member_count(dict())
 
         with pytest.raises(TypeError):
-            await create_example_tracker_subclass.get_user_count(set())
+            await create_example_tracker_subclass.get_member_count(set())
 
         with pytest.raises(TypeError):
-            await create_example_tracker_subclass.get_user_count([1, 2, 3])
+            await create_example_tracker_subclass.get_member_count([1, 2, 3])
 
         with pytest.raises(MemberNotFound):
-            await create_example_tracker_subclass.get_user_count(
+            await create_example_tracker_subclass.get_member_count(
                 MockedMessage(is_in_guild=False).to_mock()
             )
 
         with pytest.raises(MemberNotFound):
-            await create_example_tracker_subclass.get_user_count(
+            await create_example_tracker_subclass.get_member_count(
                 MockedMessage(guild_id=1).to_mock()
             )
 
@@ -99,7 +99,7 @@ class TestTrackerExampleSubclass:
                 "has_been_muted": True,
             },
         )
-        r_1 = await create_example_tracker_subclass.get_user_count(
+        r_1 = await create_example_tracker_subclass.get_member_count(
             MockedMessage(author_id=1, guild_id=1).to_mock()
         )
         assert r_1 == 1

@@ -1,14 +1,21 @@
+import logging
+
 import discord
 from AntiSpamTrackerSubclass import MyCustomTracker
 from discord.ext import commands
 
 from antispam import AntiSpamHandler, Options
-from antispam.caches.mongo import MongoCache
 from examples.jsonLoader import read_json
 
 bot = commands.Bot(command_prefix=".", intents=discord.Intents.all())
 
 file = read_json("token")
+
+logging.basicConfig(
+    format="%(levelname)-7s | %(asctime)s | %(filename)12s:%(funcName)-12s | %(message)s",
+    datefmt="%I:%M:%S %p %d/%m/%Y",
+    level=logging.INFO,
+)
 
 # Generally you only need/want AntiSpamHandler(bot)
 bot.handler = AntiSpamHandler(
@@ -16,10 +23,6 @@ bot.handler = AntiSpamHandler(
 )
 bot.tracker = MyCustomTracker(bot.handler, 3)
 bot.handler.register_plugin(bot.tracker)
-
-bot.handler.set_cache(
-    MongoCache(bot.handler, file["mongo"], "antispam_tracker_subcclass")
-)
 
 
 @bot.event

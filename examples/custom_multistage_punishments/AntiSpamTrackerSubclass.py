@@ -21,7 +21,7 @@ class MyCustomTracker(AntiSpamTracker):
 
         member_id = message.author.id
         guild_id = message.guild.id
-        timestamp = datetime.datetime.now(datetime.timezone.utc)
+        timestamp = datetime.datetime.now(tz=datetime.timezone.utc)
 
         try:
             member_data = await self.member_tracking.get_member_data(
@@ -33,11 +33,10 @@ class MyCustomTracker(AntiSpamTracker):
         member_data["timestamps"].append(timestamp)
         await self.member_tracking.set_member_data(member_id, guild_id, member_data)
 
-    async def get_user_has_been_muted(self, message: discord.Message) -> bool:
+    async def get_member_has_been_muted(self, message: discord.Message) -> bool:
         """
-        Returns if the user for the associated message
-        has been muted yet or not.
-
+        Returns if the member for the associated
+        message has been muted yet or not.
 
         Parameters
         ----------
@@ -63,7 +62,7 @@ class MyCustomTracker(AntiSpamTracker):
             member_data = await self.member_tracking.get_member_data(
                 member_id, guild_id
             )
-        except GuildNotFound as e:
+        except (GuildNotFound, MemberAddonNotFound) as e:
             raise MemberNotFound from e
 
         return member_data["has_been_muted"]
@@ -94,11 +93,11 @@ class MyCustomTracker(AntiSpamTracker):
         guild_id = message.guild.id
 
         try:
-            has_been_muted = await self.get_user_has_been_muted(message=message)
+            has_been_muted = await self.get_member_has_been_muted(message=message)
             member_data = await self.member_tracking.get_member_data(
                 member_id, guild_id
             )
-        except (GuildNotFound, MemberNotFound):
+        except (GuildNotFound, MemberNotFound, MemberAddonNotFound):
             return None
 
         if has_been_muted:
@@ -146,7 +145,7 @@ class MyCustomTracker(AntiSpamTracker):
                     member.addons.pop(self.__class__.__name__)
                     await self.anti_spam_handler.cache.set_member(member)
 
-    async def get_user_count(self, message: discord.Message) -> int:
+    async def get_member_count(self, message: discord.Message) -> int:
         if not isinstance(message, discord.Message):
             raise TypeError("Expected message of type: discord.Message")
 

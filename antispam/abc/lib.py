@@ -572,3 +572,14 @@ class Lib(Protocol):
             True if timed out, otherwise False
         """
         raise NotImplementedError
+
+    def is_dm(self, message) -> bool:
+        """
+        Returns True if this message occurred in a dm, False otherwise.
+
+        Parameters
+        ----------
+        message
+            The discord message this is called on.
+        """
+        raise NotImplementedError

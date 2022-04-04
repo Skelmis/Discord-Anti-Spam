@@ -3,6 +3,29 @@ Changelog
 
 A changelog that should be fairly up to date feature wise.
 
+1.2.11 -> 1.3.0
+--------------
+
+New:
+****
+
+- The ``AdminLogs`` plugin now supports custom punishments
+  via a new argument when initializing it.
+  See the plugin for further info.
+
+Fixes:
+******
+
+- Upgraded the nextcord ``Lib`` to support the latest release.
+  This is not backwards compatible.
+
+- ``AntiSpamTracker`` should now be library agnostic.
+
+Changes:
+********
+
+- All usages of ``user`` in AntiSpamTracker are now ``member``
+
 1.2.8 -> 1.2.9
 --------------
 

@@ -20,12 +20,6 @@ class TestAdminLogs:
 
     @pytest.mark.asyncio
     async def test_set_punish_types(self, create_admin_logs):
-        with pytest.raises(LogicError):
-            await create_admin_logs.propagate(
-                MockedMessage().to_mock(),
-                CorePayload(member_should_be_punished_this_message=True),
-            )
-
         with pytest.raises(GuildNotFound):
             await create_admin_logs.propagate(
                 MockedMessage().to_mock(),

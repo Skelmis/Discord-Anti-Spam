@@ -532,3 +532,6 @@ class DPY(Base, Lib):
             "Timeouts are not supported for discord.py, if you "
             "are using a fork please specify it explicitly."
         )
+
+    def is_dm(self, message) -> bool:
+        return bool(message.guild)

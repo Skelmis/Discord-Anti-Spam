@@ -553,3 +553,6 @@ class Pincer(Base, Lib):
 
     async def is_member_currently_timed_out(self, member) -> bool:
         raise UnsupportedAction("Timeouts are not supported for Pincer.")
+
+    def is_dm(self, message) -> bool:
+        return bool(message.guild_id)

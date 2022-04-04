@@ -25,9 +25,9 @@ import logging
 import typing
 
 from antispam import AntiSpamHandler
+from antispam.abc import Lib
 from antispam.base_plugin import BasePlugin
 from antispam.dataclasses import CorePayload, Member
-from antispam.deprecation import mark_deprecated
 from antispam.exceptions import (
     GuildAddonNotFound,
     GuildNotFound,
@@ -38,9 +38,6 @@ from antispam.plugin_cache import PluginCache
 from antispam.util import get_aware_time
 
 log = logging.getLogger(__name__)
-
-# TODO User -> member
-mark_deprecated("All `user` usages will be renamed to `member` in version 1.3.0")
 
 
 class AntiSpamTracker(BasePlugin):
@@ -98,7 +95,7 @@ class AntiSpamTracker(BasePlugin):
             Your AntiSpamHandler instance
         spam_amount_to_punish : int
             A number denoting the minimum value required
-            per user in order trip `is_spamming`
+            per member in order trip `is_spamming`
         valid_timestamp_interval : int
             How long a timestamp should remain 'valid' for.
             Defaults to ``AntiSpamHandler.options.get("message_interval")``
@@ -128,6 +125,7 @@ class AntiSpamTracker(BasePlugin):
             log.warning("`no_punish` is not enabled! This will likely lead to issues")
 
         self.anti_spam_handler: AntiSpamHandler = anti_spam_handler
+        self.lib_handler: Lib = self.anti_spam_handler.lib_handler
 
         if valid_timestamp_interval is not None:
             if isinstance(valid_timestamp_interval, (str, float)):
@@ -175,12 +173,10 @@ class AntiSpamTracker(BasePlugin):
         data : CorePayload
             The data returned from `propagate`
         """
-        # TODO Check with stubs when possible from #68
-
         if not isinstance(data, CorePayload):
             raise TypeError("Expected data of type: CorePayload")
 
-        if not message.guild:
+        if self.lib_handler.is_dm(message):
             return
 
         if not data.member_should_be_punished_this_message:
@@ -214,20 +210,20 @@ class AntiSpamTracker(BasePlugin):
 
         log.debug("Cache updated for Member(id=%s) in Guild(id%s)", member_id, guild_id)
 
-    async def get_user_count(self, message) -> int:  # TODO get_member_count
+    async def get_member_count(self, message) -> int:
         """
         Returns how many messages that are still 'valid'
-        (counted as spam) a certain user has
+        (counted as spam) a certain member has
 
         Parameters
         ----------
         message
-            The message from which to extract user
+            The message from which to extract member
 
         Returns
         -------
         int
-            How many times this user has sent a
+            How many times this member has sent a
             message that has been marked as
             'punishment worthy' by AntiSpamHandler
             within the valid interval time period
@@ -238,10 +234,8 @@ class AntiSpamTracker(BasePlugin):
             The User for the ``message`` could not be found
 
         """
-        # TODO Check message within #68
-
-        if not message.guild:
-            raise MemberNotFound("Can't find user's from dm's")
+        if self.lib_handler.is_dm(message):
+            raise MemberNotFound("Can't find member's from dm's")
 
         member_id = message.author.id
         guild_id = await self.anti_spam_handler.lib_handler.get_guild_id(message)
@@ -264,7 +258,7 @@ class AntiSpamTracker(BasePlugin):
         time vs a messages creation time. If the message
         is older by the config amount it can be cleaned up
 
-        *Generally not called by the end user*
+        *Generally not called by the end member*
 
         Parameters
         ==========
@@ -317,7 +311,7 @@ class AntiSpamTracker(BasePlugin):
         Parameters
         ----------
         message
-            The message to extract user from
+            The message to extract member from
 
         Raises
         ------
@@ -329,9 +323,7 @@ class AntiSpamTracker(BasePlugin):
         This will actually create a member internally
         if one doesn't already exist for simplicities sake
         """
-        # TODO Check message using stubs from #68
-
-        if not message.guild:
+        if self.lib_handler.is_dm(message):
             return
 
         member_id = message.author.id
@@ -401,13 +393,13 @@ class AntiSpamTracker(BasePlugin):
 
     async def is_spamming(self, message) -> bool:
         """
-        Given a message, deduce and return if a user
+        Given a message, deduce and return if a member
         is classed as 'spamming' or not based on ``punish_min_amount``
 
         Parameters
         ----------
         message
-            The message to extract guild and user from
+            The message to extract guild and member from
 
         Returns
         -------
@@ -415,13 +407,11 @@ class AntiSpamTracker(BasePlugin):
             True if the User is spamming else False
 
         """
-        # TODO Check message with stubs from #68
-
-        if not message.guild:
+        if self.lib_handler.is_dm(message):
             return False
 
         try:
-            user_count = await self.get_user_count(message=message)
+            user_count = await self.get_member_count(message=message)
             if user_count >= self.punish_min_amount:
                 return True
         except (MemberNotFound, MemberAddonNotFound, GuildNotFound):
@@ -431,14 +421,14 @@ class AntiSpamTracker(BasePlugin):
 
     async def do_punishment(self, message, *args, **kwargs) -> None:
         """
-        This only exists for if the user wishes to subclass
+        This only exists for if the member wishes to subclass
         this class and implement there own logic for punishments
         here.
 
         Parameters
         ----------
         message
-            The message to extract the guild and user from
+            The message to extract the guild and member from
 
         Notes
         -----
