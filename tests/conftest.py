@@ -5,7 +5,7 @@ import pytest
 from attr import asdict
 from discord.ext import commands  # noqa
 
-from antispam import AntiSpamHandler, PluginCache
+from antispam import AntiSpamHandler, PluginCache, Options
 from antispam.caches import MemoryCache
 from antispam.caches.mongo import MongoCache
 from antispam.core import Core
@@ -43,7 +43,9 @@ def create_handler():
     """Create a simple handler for usage"""
     mock = MockedMember(mock_type="bot").to_mock()
     mock.get_guild = Mock()
-    return AntiSpamHandler(mock, library=Library.DPY)
+    return AntiSpamHandler(
+        mock, library=Library.DPY, options=Options(use_timeouts=False)
+    )
 
 
 @pytest.fixture

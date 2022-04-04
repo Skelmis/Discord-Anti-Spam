@@ -951,7 +951,7 @@ class AntiSpamHandler:
 
             # Clean guild
             predicate = (
-                guild.options != Options()
+                guild.options != self.options
                 or guild.log_channel_id is not None
                 or bool(new_guild.members)
             )

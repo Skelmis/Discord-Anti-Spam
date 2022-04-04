@@ -40,6 +40,8 @@ Removed:
 
 - DPY as a default for the library options in init and load_from_dict.
 
+- The ability to use names for ignored channels and roles.
+
 1.2.8 -> 1.2.9
 --------------
 

@@ -52,7 +52,8 @@ class TestAntiSpamHandler:
 
     def test_initial_options(self, create_handler: AntiSpamHandler):
         """Tests the initial options are equal to the dataclass"""
-        assert create_handler.options == Options()
+        # We hard set tests to NOT use timeouts, saves writing em all.
+        assert create_handler.options == Options(use_timeouts=False)
 
     def test_custom_options(self, create_bot):
         """Tests custom options get set correct"""
@@ -82,7 +83,7 @@ class TestAntiSpamHandler:
     def test_add_ignored_item(self, create_handler):
         """Tests the handler adds ignored items correctly"""
         # ensure they start empty
-        assert create_handler.options == Options()
+        assert create_handler.options == Options(use_timeouts=False)
 
     # TODO Cannot test this until files get stubbed
     """
@@ -235,7 +236,7 @@ class TestAntiSpamHandler:
         assert create_handler.cache.cache.get(1).options == Options(no_punish=False)
 
         await create_handler.remove_guild_options(1)
-        assert create_handler.cache.cache.get(1).options == Options()
+        assert create_handler.cache.cache.get(1).options == Options(use_timeouts=False)
 
     @pytest.mark.asyncio
     async def test_reset_member_count(self, create_handler):
@@ -739,7 +740,7 @@ class TestAntiSpamHandler:
         await create_handler.clean_cache()
         assert not bool(create_handler.cache.cache)
 
-        await create_handler.cache.set_guild(Guild(1))
+        await create_handler.cache.set_guild(Guild(1, options=create_handler.options))
         assert bool(create_handler.cache.cache)
 
         await create_handler.clean_cache()
@@ -756,6 +757,7 @@ class TestAntiSpamHandler:
     @pytest.mark.asyncio
     async def test_clean_cache_strict_member(self, create_handler):
         """Tests clean_cache on members with strict mode"""
+
         await create_handler.cache.set_member(Member(1, 1))
         assert bool(create_handler.cache.cache)
 
@@ -773,7 +775,7 @@ class TestAntiSpamHandler:
     @pytest.mark.asyncio
     async def test_clean_cache_strict_guild(self, create_handler):
         """Tests clean_cache on guilds with strict mode"""
-        await create_handler.cache.set_guild(Guild(1))
+        await create_handler.cache.set_guild(Guild(1, options=create_handler.options))
         assert bool(create_handler.cache.cache)
 
         await create_handler.clean_cache(strict=True)
@@ -840,11 +842,6 @@ class TestAntiSpamHandler:
 
         create_handler.set_cache(MongoCache(create_handler, "Mock"))
         assert isinstance(create_handler.cache, MongoCache)
-
-    def test_use_timeout_deprecation(self, create_bot):
-        """Tests the 1.2.x deprecations for works as expected"""
-        with pytest.deprecated_call():
-            AntiSpamHandler(create_bot, Library.DPY)
 
     @pytest.mark.asyncio
     async def test_conflicting_init_args(self, create_bot):
@@ -955,8 +952,13 @@ class TestAntiSpamHandler:
         hikari = AntiSpamHandler(create_bot, library=Library.HIKARI)
         assert isinstance(hikari.lib_handler, Hikari)
 
-        pincer = AntiSpamHandler(create_bot, library=Library.PINCER)
+        pincer = AntiSpamHandler(
+            create_bot, library=Library.PINCER, options=Options(use_timeouts=False)
+        )
         assert isinstance(pincer.lib_handler, Pincer)
+
+        with pytest.raises(UnsupportedAction):
+            AntiSpamHandler(create_bot, library=Library.PINCER)
 
         with pytest.raises(UnsupportedAction):
             AntiSpamHandler(

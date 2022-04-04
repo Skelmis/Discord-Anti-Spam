@@ -29,7 +29,7 @@ from unittest.mock import AsyncMock
 
 import pincer
 from pincer import objects
-from pincer.objects import Embed, MessageType, UserMessage
+from pincer.objects import Embed, UserMessage
 
 from antispam import (
     InvalidMessage,
@@ -62,11 +62,6 @@ def clean_cache(func):
         return func(*args, **kwargs)
 
     return wrapped
-
-
-mark_deprecated(
-    "Using names to ignore channels will be removed in 1.3.0, please us id's instead."
-)
 
 
 class Pincer(Base, Lib):
@@ -368,10 +363,7 @@ class Pincer(Base, Lib):
 
         # Return if ignored channel
         channel: objects.Channel = await self._fetch_text_channel(message.channel_id)
-        if (
-            message.channel_id in self.handler.options.ignored_channels
-            or channel.name in self.handler.options.ignored_channels
-        ):
+        if message.channel_id in self.handler.options.ignored_channels:
             log.debug("channel(id=%s) is ignored", channel.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel_id}"}

@@ -33,9 +33,6 @@ from antispam.libs.dpy_forks import BaseFork
 
 log = logging.getLogger(__name__)
 
-mark_deprecated(
-    "Using names to ignore roles and channels will be removed in 1.3.0, please use id's instead."
-)
 # noinspection DuplicatedCode
 class Disnake(BaseFork):
     async def timeout_member(
@@ -106,10 +103,7 @@ class Disnake(BaseFork):
             )
 
         # Return if ignored channel
-        if (
-            message.channel.id in self.handler.options.ignored_channels
-            or message.channel.name in self.handler.options.ignored_channels
-        ):
+        if message.channel.id in self.handler.options.ignored_channels:
             log.debug("channel(id=%s) is ignored", message.channel.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel.id}"}
@@ -118,7 +112,6 @@ class Disnake(BaseFork):
         # Return if member has an ignored role
         try:
             user_roles = [role.id for role in message.author.roles]
-            user_roles.extend([role.name for role in message.author.roles])
             for item in user_roles:
                 if item in self.handler.options.ignored_roles:
                     log.debug(

@@ -55,10 +55,6 @@ from antispam.libs.shared import Base, SubstituteArgs
 
 log = logging.getLogger(__name__)
 
-mark_deprecated(
-    "Using names to ignore roles and channels will be removed in 1.3.0, please use id's instead."
-)
-
 
 class Hikari(Base, Lib):
     def __init__(self, handler: AntiSpamHandler):
@@ -191,10 +187,7 @@ class Hikari(Base, Lib):
 
         # Return if ignored channel
         channel = await message.fetch_channel()
-        if (
-            message.channel_id in self.handler.options.ignored_channels
-            or channel.name in self.handler.options.ignored_channels
-        ):
+        if message.channel_id in self.handler.options.ignored_channels:
             log.debug("channel(id=%s) is ignored", channel.id)
             raise PropagateFailure(
                 data={"status": f"Ignoring this channel: {message.channel_id}"}
@@ -204,7 +197,6 @@ class Hikari(Base, Lib):
         try:
             roles = await member.fetch_roles()
             user_roles = list(member.role_ids)
-            user_roles.extend([role.name for role in roles])
             for item in user_roles:
                 if item in self.handler.options.ignored_roles:
                     log.debug("role(%s) is a part of ignored roles", item)

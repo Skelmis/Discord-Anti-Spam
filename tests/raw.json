@@ -3,7 +3,7 @@
     "after_invoke_plugins": {},
     "cache": "MemoryCache",
     "options": {
-        "use_timeouts": null,
+        "use_timeouts": false,
         "member_timeout_message": "Hey $MENTIONMEMBER, you are being timed out from $GUILDNAME for spamming/sending duplicate messages.",
         "member_failed_timeout_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
         "guild_log_timeout_message": "$MEMBERNAME was timed out for spamming/sending duplicate messages.",
@@ -47,7 +47,7 @@
         {
             "id": 1,
             "options": {
-                "use_timeouts": null,
+                "use_timeouts": true,
                 "member_timeout_message": "Hey $MENTIONMEMBER, you are being timed out from $GUILDNAME for spamming/sending duplicate messages.",
                 "member_failed_timeout_message": "I failed to punish you because I lack permissions, but still you shouldn't spam.",
                 "guild_log_timeout_message": "$MEMBERNAME was timed out for spamming/sending duplicate messages.",
