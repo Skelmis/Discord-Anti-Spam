@@ -527,4 +527,4 @@ class Hikari(Base, Lib):
         return bool(member.raw_communication_disabled_until)
 
     def is_dm(self, message: messages.Message) -> bool:
-        return bool(message.guild_id)
+        return not bool(message.guild_id)

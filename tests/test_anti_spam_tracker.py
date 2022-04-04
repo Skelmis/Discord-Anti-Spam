@@ -235,10 +235,6 @@ class TestAntiSpamTracker:
 
     @pytest.mark.asyncio
     async def test_is_spamming(self, create_anti_spam_tracker):
-        # TODO Fix on #68
-        # with pytest.raises(TypeError):
-        #    await create_anti_spam_tracker.is_spamming(MockClass)
-
         # Test not in guild returns
         await create_anti_spam_tracker.is_spamming(
             MockedMessage(is_in_guild=False).to_mock()

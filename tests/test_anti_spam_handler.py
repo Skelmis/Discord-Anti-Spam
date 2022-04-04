@@ -56,7 +56,9 @@ class TestAntiSpamHandler:
 
     def test_custom_options(self, create_bot):
         """Tests custom options get set correct"""
-        handler = AntiSpamHandler(create_bot, options=Options(no_punish=True))
+        handler = AntiSpamHandler(
+            create_bot, Library.DPY, options=Options(no_punish=True)
+        )
 
         assert handler.options != Options()
         assert handler.options == Options(no_punish=True)
@@ -64,18 +66,18 @@ class TestAntiSpamHandler:
     def test_options_typing(self, create_bot):
         """Tests the handler raises on incorrect option types"""
         with pytest.raises(ValueError):
-            AntiSpamHandler(create_bot, options=1)
+            AntiSpamHandler(create_bot, Library.DPY, options=1)
 
     def test_cache_typing(self, create_bot):
         """Tests the cache typing raises on incorrect instances"""
         with pytest.raises(ValueError):
-            AntiSpamHandler(create_bot, cache=MockClass())
+            AntiSpamHandler(create_bot, Library.DPY, cache=MockClass())
 
         with pytest.raises(ValueError):
-            AntiSpamHandler(create_bot, cache=MockClass)
+            AntiSpamHandler(create_bot, Library.DPY, cache=MockClass)
 
         with pytest.raises(ValueError):
-            AntiSpamHandler(create_bot, cache=1)
+            AntiSpamHandler(create_bot, Library.DPY, cache=1)
 
     def test_add_ignored_item(self, create_handler):
         """Tests the handler adds ignored items correctly"""
@@ -277,7 +279,7 @@ class TestAntiSpamHandler:
 
         assert await mock_bot.fetch_channel.called_with(1)
 
-        handler = AntiSpamHandler(mock_bot)
+        handler = AntiSpamHandler(mock_bot, Library.DPY)
 
         await handler.add_guild_log_channel(2, 1)
         g = await handler.cache.get_guild(1)
@@ -294,7 +296,7 @@ class TestAntiSpamHandler:
 
         assert await mock_bot.fetch_channel.called_with(1)
 
-        handler = AntiSpamHandler(mock_bot)
+        handler = AntiSpamHandler(mock_bot, Library.DPY)
         await handler.cache.set_guild(Guild(1, Options()))
 
         await handler.add_guild_log_channel(2, 1)
@@ -348,7 +350,7 @@ class TestAntiSpamHandler:
             ],
         }
 
-        await AntiSpamHandler.load_from_dict(create_bot, test_data)
+        await AntiSpamHandler.load_from_dict(create_bot, test_data, Library.DPY)
 
     @pytest.mark.asyncio
     async def test_load_from_dict_fails(self, create_bot):
@@ -389,13 +391,15 @@ class TestAntiSpamHandler:
         }
 
         await AntiSpamHandler.load_from_dict(
-            MagicMock(side_effect=discord.HTTPException), test_data
+            MagicMock(side_effect=discord.HTTPException), test_data, Library.DPY
         )
 
-        await AntiSpamHandler.load_from_dict(create_bot, 1, raise_on_exception=False)
+        await AntiSpamHandler.load_from_dict(
+            create_bot, 1, Library.DPY, raise_on_exception=False
+        )
 
         with pytest.raises(TypeError):
-            await AntiSpamHandler.load_from_dict(create_bot, 1)
+            await AntiSpamHandler.load_from_dict(create_bot, 1, Library.DPY)
 
     @pytest.mark.asyncio
     async def test_save_to_dict(self, create_handler: AntiSpamHandler):
@@ -449,7 +453,7 @@ class TestAntiSpamHandler:
         # stored_data["after_invoke_plugins"]["Plugin"] = {"Plugin me"}
 
         ash = await AntiSpamHandler.load_from_dict(
-            create_bot, stored_data, plugins={Plugin}
+            create_bot, stored_data, Library.DPY, plugins={Plugin}
         )
 
         assert len(ash.pre_invoke_plugins) == 1
@@ -504,7 +508,7 @@ class TestAntiSpamHandler:
     async def test_propagate_exits(self):
         bot = AsyncMock()
         bot.user.id = 9
-        create_handler = AntiSpamHandler(bot)
+        create_handler = AntiSpamHandler(bot, Library.DPY)
 
         # TODO Until files get stubbed, we cant check this.
         """
@@ -549,7 +553,7 @@ class TestAntiSpamHandler:
     async def test_propagate_guild_ignore(self):
         bot = AsyncMock()
         bot.user.id = 919191
-        create_handler = AntiSpamHandler(bot)
+        create_handler = AntiSpamHandler(bot, Library.DPY)
 
         create_handler.options.ignored_guilds.add(1)
 
@@ -562,7 +566,7 @@ class TestAntiSpamHandler:
     async def test_propagate_role_ignores(self):
         bot = AsyncMock()
         bot.user.id = 919191
-        create_handler = AntiSpamHandler(bot)
+        create_handler = AntiSpamHandler(bot, Library.DPY)
 
         create_handler.options.ignored_roles.add(252525)
 
@@ -574,7 +578,7 @@ class TestAntiSpamHandler:
     async def test_propagate_missing_perms(self):
         bot = AsyncMock()
         bot.user.id = 919191
-        create_handler = AntiSpamHandler(bot)
+        create_handler = AntiSpamHandler(bot, Library.DPY)
 
         message = MockedMessage().to_mock()
         message.guild.me.guild_permissions.kick_members = False
@@ -596,7 +600,7 @@ class TestAntiSpamHandler:
     async def test_propagate_pre_invoke(self):
         bot = AsyncMock()
         bot.user.id = 919191
-        create_handler = AntiSpamHandler(bot)
+        create_handler = AntiSpamHandler(bot, Library.DPY)
 
         class PreInvoke(BasePlugin):
             async def propagate(self, msg):
@@ -614,7 +618,7 @@ class TestAntiSpamHandler:
     async def test_propagate_after_invoke(self):
         bot = AsyncMock()
         bot.user.id = 919191
-        create_handler = AntiSpamHandler(bot)
+        create_handler = AntiSpamHandler(bot, Library.DPY)
 
         class AfterInvoke(BasePlugin):
             def __init__(self):
@@ -635,7 +639,7 @@ class TestAntiSpamHandler:
     async def test_propagate_role_raises(self):
         bot = AsyncMock()
         bot.user.id = 919191
-        create_handler = AntiSpamHandler(bot)
+        create_handler = AntiSpamHandler(bot, Library.DPY)
 
         create_handler.options.ignored_roles.add(252525)
 
@@ -721,7 +725,7 @@ class TestAntiSpamHandler:
         assert handler.lib_handler.__class__.__name__ == "Hikari"
 
     def test_dpy_setup(self):
-        handler = AntiSpamHandler(commands.Bot(command_prefix="!"))
+        handler = AntiSpamHandler(commands.Bot(command_prefix="!"), Library.DPY)
         assert handler.lib_handler.__class__.__name__ == "DPY"
 
     @pytest.mark.asyncio
@@ -840,7 +844,7 @@ class TestAntiSpamHandler:
     def test_use_timeout_deprecation(self, create_bot):
         """Tests the 1.2.x deprecations for works as expected"""
         with pytest.deprecated_call():
-            AntiSpamHandler(create_bot)
+            AntiSpamHandler(create_bot, Library.DPY)
 
     @pytest.mark.asyncio
     async def test_conflicting_init_args(self, create_bot):
@@ -851,7 +855,7 @@ class TestAntiSpamHandler:
             per_channel_spam=True,
             use_timeouts=False,
         )
-        AntiSpamHandler(create_bot, options=options)
+        AntiSpamHandler(create_bot, Library.DPY, options=options)
 
     @pytest.mark.asyncio
     async def test_custom_lib(self, create_bot):
@@ -915,7 +919,7 @@ class TestAntiSpamHandler:
         stored_data["pre_invoke_plugins"]["Plugin"] = {"Plugin me"}
 
         # This skips the plugin due to the missing lookup
-        ash = await AntiSpamHandler.load_from_dict(create_bot, stored_data)
+        ash = await AntiSpamHandler.load_from_dict(create_bot, stored_data, Library.DPY)
 
         assert len(ash.pre_invoke_plugins) == 0
 
@@ -939,11 +943,11 @@ class TestAntiSpamHandler:
         stored_data["after_invoke_plugins"]["Plugin"] = {"Plugin me"}
 
         # This skips the plugin due to the missing lookup
-        ash = await AntiSpamHandler.load_from_dict(create_bot, stored_data)
+        ash = await AntiSpamHandler.load_from_dict(create_bot, stored_data, Library.DPY)
         assert len(ash.after_invoke_plugins) == 0
 
         ash_2 = await AntiSpamHandler.load_from_dict(
-            create_bot, stored_data, plugins={Plugin}
+            create_bot, stored_data, Library.DPY, plugins={Plugin}
         )
         assert len(ash_2.after_invoke_plugins) == 1
 

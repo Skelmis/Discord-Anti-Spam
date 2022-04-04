@@ -26,6 +26,11 @@ Changes:
 
 - All usages of ``user`` in AntiSpamTracker are now ``member``
 
+Removed:
+********
+
+- DPY as a default for the library options in init and load_from_dict.
+
 1.2.8 -> 1.2.9
 --------------
 

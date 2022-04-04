@@ -79,8 +79,8 @@ class AntiSpamHandler:
     def __init__(
         self,
         bot,
+        library: Library,
         *,
-        library: Library = Library.DPY,
         options: Options = None,
         cache: Cache = None,
     ):
@@ -94,8 +94,6 @@ class AntiSpamHandler:
         library : Library, Optional
             An enum denoting the library this AntiSpamHandler.
             See :py:class:`antispam.enums.library.Library` for more
-
-            Defaults to DPY support
         options : Options, Optional
             An instance of your custom Options
             the handler should use
@@ -193,14 +191,10 @@ class AntiSpamHandler:
 
             self.lib_handler = DPY(self)
         else:
-            from antispam.libs.dpy import DPY
-
-            mark_deprecated(
-                "DPY will be removed as the default library in 1.3.0, "
-                "please explicitly set the library you are using."
+            raise UnsupportedAction(
+                "You must set a library for usage. See here for choices: "
+                "https://dpy-anti-spam.readthedocs.io/en/latest/modules/interactions/enums.html#antispam.enums.Library"
             )
-
-            self.lib_handler = DPY(self)
 
         log.info("Package instance created")
 
@@ -613,6 +607,7 @@ class AntiSpamHandler:
     async def load_from_dict(
         bot,
         data: dict,
+        library: Library,
         *,
         raise_on_exception: bool = True,
         plugins: Set[Type[BasePlugin]] = None,
@@ -628,6 +623,8 @@ class AntiSpamHandler:
             The bot instance
         data : dict
             The data to load AntiSpamHandler from
+        library: Library
+            The :py:class:`Library` you are using.
         raise_on_exception : bool
             Whether or not to raise if an issue is encountered
             while trying to rebuild ``AntiSpamHandler`` from a saved state
@@ -692,7 +689,9 @@ class AntiSpamHandler:
         caches = {"MemoryCache": MemoryCache}
 
         try:
-            ash = AntiSpamHandler(bot=bot, options=Options(**data["options"]))
+            ash = AntiSpamHandler(
+                bot=bot, options=Options(**data["options"]), library=library
+            )
             cache_type = data["cache"]
             ash.cache = caches[cache_type](ash)
             for guild in data["guilds"]:
@@ -722,7 +721,7 @@ class AntiSpamHandler:
                 log.debug("Raising exception when attempting to load from state")
                 raise e
 
-            ash = AntiSpamHandler(bot=bot)
+            ash = AntiSpamHandler(bot=bot, library=library)
             log.info(
                 "Failed to load AntiSpamHandler from state, returning a generic instance"
             )

@@ -534,4 +534,4 @@ class DPY(Base, Lib):
         )
 
     def is_dm(self, message) -> bool:
-        return bool(message.guild)
+        return not bool(message.guild)

@@ -15,6 +15,7 @@ from antispam.dataclasses import Guild, Member  # noqa
 
 
 # noinspection DuplicatedCode
+from antispam.enums import Library
 from tests.conftest import MockClass
 
 
@@ -56,7 +57,9 @@ class TestPluginCache:
     @pytest.mark.asyncio
     async def test_set_member_data_dictionaries(self):
         """Test the cache sets member addon's correct"""
-        plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
+        plugin_cache = PluginCache(
+            AntiSpamHandler(commands.Bot("!"), Library.DPY), MockClass()
+        )
         arg = {"test": "tester"}
 
         with pytest.raises(GuildNotFound):
@@ -87,7 +90,9 @@ class TestPluginCache:
     @pytest.mark.asyncio
     async def test_set_guild_data_text(self):
         """Test the cache sets guild addon's correct using text"""
-        plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
+        plugin_cache = PluginCache(
+            AntiSpamHandler(commands.Bot("!"), Library.DPY), MockClass()
+        )
 
         arg = "Hello world"
 
@@ -101,7 +106,9 @@ class TestPluginCache:
     @pytest.mark.asyncio
     async def test_set_member_keyerror(self):
         """A test to test set_member_data throws a keyerror"""
-        plugin_cache = PluginCache(AntiSpamHandler(commands.Bot("!")), MockClass())
+        plugin_cache = PluginCache(
+            AntiSpamHandler(commands.Bot("!"), Library.DPY), MockClass()
+        )
         await plugin_cache.set_guild_data(1, "A test")
         with pytest.raises(MemberNotFound):
             await plugin_cache.get_member_data(1, 1)

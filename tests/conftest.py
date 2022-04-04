@@ -10,6 +10,7 @@ from antispam.caches import MemoryCache
 from antispam.caches.mongo import MongoCache
 from antispam.core import Core
 from antispam.dataclasses import Guild, Member, Message
+from antispam.enums import Library
 from antispam.libs.dpy import DPY
 from antispam.libs.shared import Base, TimedCache
 from antispam.plugins import AdminLogs, AntiMassMention, AntiSpamTracker, Stats
@@ -42,7 +43,7 @@ def create_handler():
     """Create a simple handler for usage"""
     mock = MockedMember(mock_type="bot").to_mock()
     mock.get_guild = Mock()
-    return AntiSpamHandler(mock)
+    return AntiSpamHandler(mock, library=Library.DPY)
 
 
 @pytest.fixture

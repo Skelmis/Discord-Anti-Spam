@@ -555,4 +555,4 @@ class Pincer(Base, Lib):
         raise UnsupportedAction("Timeouts are not supported for Pincer.")
 
     def is_dm(self, message) -> bool:
-        return bool(message.guild_id)
+        return not bool(message.guild_id)
