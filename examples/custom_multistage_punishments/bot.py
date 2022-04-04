@@ -1,5 +1,3 @@
-import logging
-
 import discord
 from AntiSpamTrackerSubclass import MyCustomTracker
 from discord.ext import commands
@@ -11,11 +9,6 @@ bot = commands.Bot(command_prefix=".", intents=discord.Intents.all())
 
 file = read_json("token")
 
-logging.basicConfig(
-    format="%(levelname)-7s | %(asctime)s | %(filename)12s:%(funcName)-12s | %(message)s",
-    datefmt="%I:%M:%S %p %d/%m/%Y",
-    level=logging.INFO,
-)
 
 # Generally you only need/want AntiSpamHandler(bot)
 bot.handler = AntiSpamHandler(
