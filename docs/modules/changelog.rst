@@ -23,6 +23,9 @@ Fixes:
 
 - ``AntiSpamTrackerSubclass`` example is now up to date.
 
+- A regression in clean cache where it checked ``Options`` rather then
+  the current anti spam handlers options
+
 Changes:
 ********
 
