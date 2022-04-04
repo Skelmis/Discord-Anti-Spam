@@ -28,6 +28,13 @@ Changes:
 
 - All usages of ``user`` in AntiSpamTracker are now ``member``
 
+- ``MaxMessageLimiter``:
+    - New hard cap of 50
+    - Is now guild wide
+    - Punishment is a timeout for 5 minutes
+
+- Default punishment scheme is to timeout members.
+
 Removed:
 ********
 

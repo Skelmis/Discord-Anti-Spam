@@ -524,7 +524,7 @@ class Lib(Protocol):
 
         Parameters
         ----------
-        member: Union[discord.member, hikari.guilds.Member]
+        member: Union[discord.Member, hikari.guilds.Member]
             The member to timeout
         original_message
             The message being propagated
@@ -551,9 +551,10 @@ class Lib(Protocol):
 
         Returns
         -------
-        Union[discord.member, hikari.guilds.Member, ...]
+        Union[discord.Member, hikari.guilds.Member, ...]
             The member object
         """
+        raise NotImplementedError
 
     async def is_member_currently_timed_out(self, member) -> bool:
         """

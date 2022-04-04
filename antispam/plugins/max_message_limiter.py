@@ -1,6 +1,7 @@
 import asyncio
+import datetime
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 from antispam import (
     AntiSpamHandler,
@@ -11,20 +12,10 @@ from antispam import (
 )
 from antispam.abc import Cache
 from antispam.dataclasses import Member
-from antispam.deprecation import mark_deprecated
+from antispam.util import get_aware_time
 
-try:
-    import nextcord as discord
-except ModuleNotFoundError:
-    try:
-        import disnake as discord
-    except ModuleNotFoundError:
-        try:
-            import discord
-        except ModuleNotFoundError:
-            raise RuntimeError(
-                "This plugin only supports discord.py and its forks."
-            ) from None
+if TYPE_CHECKING:
+    from antispam.abc import Lib
 
 log = logging.getLogger(__name__)
 
@@ -37,12 +28,19 @@ class MaxMessageLimiter(BasePlugin):
 
     Notes
     -----
-    This is per channel and only works with the initial
+    This only works with the initial
     message_interval, no updates or guild specifics. If this
-    is something you want let me know on discord and I'll make it.
+    is something you want let me know on discord and I might make it.
+
+    This is also guild wide.
     """
 
-    def __init__(self, handler: AntiSpamHandler, hard_cap: int = 25):
+    def __init__(
+        self,
+        handler: AntiSpamHandler,
+        hard_cap: int = 50,
+        message_interval: Optional[int] = None,
+    ):
         """
         Parameters
         ----------
@@ -51,10 +49,22 @@ class MaxMessageLimiter(BasePlugin):
         hard_cap : int, Optional
             The hard cap for the amount of messages you
             can send within ``message_interval``
+
+            Defaults to ``50``
+
+        message_interval: int, Optional
+            The period of time in milliseconds which
+            messages should be treated as valid.
+
+            Defaults to your AntiSpamHandler options message_interval
         """
         super().__init__(is_pre_invoke=False)
         self.hard_cap: int = hard_cap
         self.primary_cache: Cache = handler.cache
+        self.lib_handler: "Lib" = handler.lib_handler
+        self.message_interval: int = (
+            message_interval or handler.options.message_interval
+        )
         log.info("Plugin ready for usage")
 
     async def propagate(self, message, data: Optional[CorePayload] = None) -> Any:
@@ -63,11 +73,17 @@ class MaxMessageLimiter(BasePlugin):
                 message.author.id, message.guild.id
             )
         except (MemberNotFound, GuildNotFound):
-            # If they don't exist they havent exceeded limits
+            # If they don't exist they haven't exceeded limits
             return None
 
         messages_in_channel = [
-            m for m in member.messages if m.channel_id == message.channel.id
+            m
+            for m in member.messages
+            if m.channel_id == message.channel.id
+            and (
+                m.creation_time + datetime.timedelta(milliseconds=self.message_interval)
+            )
+            >= get_aware_time()
         ]
 
         if len(messages_in_channel) < self.hard_cap:
@@ -87,30 +103,13 @@ class MaxMessageLimiter(BasePlugin):
         message
             A message to get info from
         """
-        mark_deprecated(
-            "This plugin is deprecated and will be re-worked in 1.3.0 "
-            "to be library agnostic and using timeouts. If you wish to "
-            "use the legacy punishment system, please copy the plugin locally."
+        author = await self.lib_handler.get_member_from_message(message)
+        await self.lib_handler.timeout_member(
+            author, message, datetime.timedelta(minutes=5)
         )
-        channel: discord.TextChannel = message.channel
-        overwrites = channel.overwrites
 
-        # Remove perms to speak
-        overwrites[message.author] = discord.PermissionOverwrite(send_messages=False)
-        await channel.edit(overwrites=overwrites)
         log.info(
-            "Removed Member(id=%s)'s perms to speak in Channel(%s) for Guild(id=%s)",
-            member.id,
-            channel.id,
-            message.guild.id,
-        )
-        await asyncio.sleep(60)
-        # Give back said perms
-        overwrites[message.author] = discord.PermissionOverwrite(send_messages=None)
-        await channel.edit(overwrites=overwrites)
-        log.info(
-            "Gave back Member(id=%s)'s perms to speak in Channel(%s) for Guild(id=%s)",
-            member.id,
-            channel.id,
+            "Timed out Member(id=%s)'s in Guild(id=%s)",
+            author.id,
             message.guild.id,
         )

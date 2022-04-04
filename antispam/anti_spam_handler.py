@@ -118,12 +118,6 @@ class AntiSpamHandler:
                 "mutually exclusive."
             )
 
-        if self.options.use_timeouts is None:
-            mark_deprecated(
-                "The default punishment behaviour will be swapped out for timeouts in 1.3.0,\n"
-                "If you wish to preserve this behaviour, set use_timeouts=False in your options."
-            )
-
         if self.options.use_timeouts and self.options.warn_only:
             log.warning(
                 "You are attempting to create an AntiSpamHandler with options that are mutually exclusive. "

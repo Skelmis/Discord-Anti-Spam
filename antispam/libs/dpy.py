@@ -95,10 +95,6 @@ class DPY(Base, Lib):
     ) -> SubstituteArgs:  # pragma: no cover
         version = int(discord.__version__.split(".")[0])
         if version >= 2:
-            mark_deprecated(
-                "DPY will be removed as a blanket default in 1.3.0.\n"
-                "You will need to explicitly specify the library you are using at said time."
-            )
             member_avatar = str(message.author.display_avatar)
             bot_avatar = str(message.guild.me.display_avatar)
 

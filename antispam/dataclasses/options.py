@@ -284,7 +284,7 @@ class Options:
 
     # Timeouts
     use_timeouts: bool = attr.ib(
-        default=None,
+        default=True,
         validator=attr.validators.optional(attr.validators.instance_of(bool)),
     )
     member_timeout_message: Union[str, dict] = attr.ib(
