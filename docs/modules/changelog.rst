@@ -21,6 +21,8 @@ Fixes:
 
 - ``AntiSpamTracker`` should now be library agnostic.
 
+- ``AntiSpamTrackerSubclass`` example is now up to date.
+
 Changes:
 ********
 
