@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import logging
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Union, Callable, Optional
 
 from antispam import AntiSpamHandler, CorePayload, LogicError
 from antispam.base_plugin import BasePlugin
@@ -37,16 +37,28 @@ class AdminLogs(BasePlugin):
     regard to evidence collection on automated punishments.
     """
 
-    def __init__(self, handler: AntiSpamHandler, log_location: str):
+    def __init__(
+        self,
+        handler: AntiSpamHandler,
+        log_location: str,
+        punishment_type: Optional[Union[str, Callable]] = None,
+    ):
         """
         Parameters
         ----------
         handler : AntiSpamHandler
             Our AntiSpamHandler instance
-        log_location
+        log_location: str
             The directory to store logs in, relative from
             the caller location. This directory should be
             empty or only contain previous output from this plugin.
+        punishment_type: Optional[Union[str, Callable]]
+            This will be used if sending logs for custom punishments.
+
+            You can also provide a :py:class:`Callable` which should
+            return a string to be used as the punishment type. This
+            function will be called with 2 arguments.
+            Argument 1 is the message, argument 2 is :py:class:`CorePayload`
 
         Notes
         -----
@@ -58,11 +70,12 @@ class AdminLogs(BasePlugin):
 
         if handler.options.no_punish:
             log.warning(
-                "Using this package while in no_punish mode is likely going to cause issues"
+                "Using this package while in no_punish mode is likely going to cause issues."
             )
 
         self.handler = handler
         self.path = log_location
+        self._punishment_type: Optional[Union[str, Callable]] = punishment_type
 
         log.info("Plugin ready for usage")
 
@@ -98,7 +111,12 @@ class AdminLogs(BasePlugin):
             punishment_type = "timeout"
 
         else:
-            raise LogicError
+            # Lets take a look and try figure out a punishment type
+            if self._punishment_type and callable(self._punishment_type):
+                punishment_type = str(self._punishment_type(message, data))
+
+            else:
+                punishment_type = self._punishment_type or "Unknown Punishment"
 
         # Make sure a folder exists for this punishment on this Member within this Guild
         dir_path = os.path.join(
