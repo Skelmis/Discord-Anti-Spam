@@ -42,6 +42,7 @@ setup(
     extras_requires={
         "dev": parse_requirements_file("dev-requirements.txt"),
         "mongo": ["motor", "dnspython"],
+        "redis": ["redis", "orjson"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
