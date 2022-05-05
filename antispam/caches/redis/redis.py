@@ -22,6 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, List, AsyncIterable
 
 from attr import asdict
@@ -37,6 +38,8 @@ if TYPE_CHECKING:
     from redis import asyncio as aioredis
 
     from antispam import AntiSpamHandler
+
+log = logging.getLogger(__name__)
 
 
 class RedisCache(Cache):
@@ -56,6 +59,7 @@ class RedisCache(Cache):
         self.handler: AntiSpamHandler = handler
 
     async def get_guild(self, guild_id: int) -> Guild:
+        log.debug("Attempting to return cached Guild(id=%s)", guild_id)
         resp = await self.redis.get(f"GUILD:{guild_id}")
         if not resp:
             raise GuildNotFound
@@ -77,6 +81,7 @@ class RedisCache(Cache):
         return guild
 
     async def set_guild(self, guild: Guild) -> None:
+        log.debug("Attempting to set Guild(id=%s)", guild.id)
         # Store members separate
         for member in guild.members.values():
             await self.set_member(member)
@@ -86,9 +91,15 @@ class RedisCache(Cache):
         await self.redis.set(f"GUILD:{guild.id}", as_json)
 
     async def delete_guild(self, guild_id: int) -> None:
+        log.debug("Attempting to delete Guild(id=%s)", guild_id)
         await self.redis.delete(f"GUILD:{guild_id}")
 
     async def get_member(self, member_id: int, guild_id: int) -> Member:
+        log.debug(
+            "Attempting to return a cached Member(id=%s) for Guild(id=%s)",
+            member_id,
+            guild_id,
+        )
         resp = await self.redis.get(f"MEMBER:{member_id}:{guild_id}")
         if not resp:
             raise MemberNotFound
@@ -107,13 +118,27 @@ class RedisCache(Cache):
         return member
 
     async def set_member(self, member: Member) -> None:
+        log.debug(
+            "Attempting to cache Member(id=%s) for Guild(id=%s)",
+            member.id,
+            member.guild_id,
+        )
         as_json = json.dumps(asdict(member, recurse=True))
         await self.redis.set(f"MEMBER:{member.guild_id}:{member.id}", as_json)
 
     async def delete_member(self, member_id: int, guild_id: int) -> None:
+        log.debug(
+            "Attempting to delete Member(id=%s) in Guild(id=%s)", member_id, guild_id
+        )
         await self.redis.delete(f"MEMBER:{guild_id}:{member_id}")
 
     async def add_message(self, message: Message) -> None:
+        log.debug(
+            "Attempting to add a Message(id=%s) to Member(id=%s) in Guild(id=%s)",
+            message.id,
+            message.author_id,
+            message.guild_id,
+        )
         try:
             member: Member = await self.get_member(message.author_id, message.guild_id)
         except (MemberNotFound, GuildNotFound):
@@ -125,6 +150,12 @@ class RedisCache(Cache):
     async def reset_member_count(
         self, member_id: int, guild_id: int, reset_type: ResetType
     ) -> None:
+        log.debug(
+            "Attempting to reset counts on Member(id=%s) in Guild(id=%s) with type %s",
+            member_id,
+            guild_id,
+            reset_type.name,
+        )
         try:
             member: Member = await self.get_member(member_id, guild_id)
         except (MemberNotFound, GuildNotFound):
@@ -138,14 +169,17 @@ class RedisCache(Cache):
         await self.set_member(member)
 
     async def drop(self) -> None:
+        log.warning("Cache was just dropped")
         await self.redis.flushdb(asynchronous=True)
 
     async def get_all_guilds(self) -> AsyncIterable[Guild]:
+        log.debug("Yielding all cached guilds")
         keys: List[bytes] = await self.redis.keys("GUILD:*")
         for key in keys:
             yield await self.get_guild(int(key.decode("utf-8").split(":")[1]))
 
     async def get_all_members(self, guild_id: int) -> AsyncIterable[Member]:
+        log.debug("Yielding all cached members for Guild(id=%s)", guild_id)
         keys: List[bytes] = await self.redis.keys(f"MEMBER:{guild_id}:*")
         for key in keys:
             yield await self.get_member(
