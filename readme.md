@@ -25,10 +25,11 @@ A basic bot
 import discord
 from discord.ext import commands
 from antispam import AntiSpamHandler
+from antispam.enums import Library
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
-bot.handler = AntiSpamHandler(bot)
+bot.handler = AntiSpamHandler(bot, library=Library.DPY)
 
 
 @bot.event
@@ -53,26 +54,9 @@ Now, there will no doubt be bugs & changes etc. But, you can use this as is now 
 
 ---
 
-### Build Ideology:
-- OOP approach 
-- Scalable -> Multi guild support out of the box
-- Test Driven -> CI with Github Actions
+### Support
 
-
----
-
-### Discord
-
-Given the steady progress of this library I decided to create a discord.
-Come checkout the progress of the next release, give us ideas for what we should add, etc...
-
-[Discord Invite](https://discord.gg/BqPNSH2jPg)
-
----
-
-### Helping out:
-All help is appreciated, just create an issue or pull request!
-See [here](https://github.com/Skelmis/DPY-Anti-Spam/blob/master/CONTRIBUTING.md) for more details.
+Want realtime help? Join the discord [here](https://discord.gg/BqPNSH2jPg).
 
 ---
 
