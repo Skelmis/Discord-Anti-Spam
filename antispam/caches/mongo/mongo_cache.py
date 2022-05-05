@@ -42,20 +42,22 @@ log = logging.getLogger(__name__)
 
 
 class MongoCache(Cache):
+    """
+    A cache backend built to use MongoDB.
+
+    Parameters
+    ----------
+    handler: AntiSpamHandler
+        The AntiSpamHandler instance
+    connection_url: str
+        Your MongoDB connection url
+    database_name: str, Optional
+        The optional name of your collection.
+
+        Defaults to antispam
+    """
+
     def __init__(self, handler, connection_url, database_name=None):
-        """
-
-        Parameters
-        ----------
-        handler: AntiSpamHandler
-            The AntiSpamHandler instance
-        connection_url: str
-            Your MongoDB connection url
-        database_name: str, Optional
-            The optional name of your collection.
-
-            Defaults to antispam
-        """
         self.handler: "AntiSpamHandler" = handler
         self.database_name = database_name or "antispam"
 

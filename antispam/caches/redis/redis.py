@@ -40,7 +40,16 @@ if TYPE_CHECKING:
 
 
 class RedisCache(Cache):
-    """Not implemented lol"""
+    """
+    A cache backend built to use Redis.
+
+    Parameters
+    ----------
+    handler: AntiSpamHandler
+        The AntiSpamHandler instance
+    redis: redis.asyncio.Redis
+        Your redis connection instance.
+    """
 
     def __init__(self, handler: AntiSpamHandler, redis: aioredis.Redis):
         self.redis: aioredis.Redis = redis
