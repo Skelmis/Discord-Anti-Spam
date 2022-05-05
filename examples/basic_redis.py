@@ -60,8 +60,8 @@ async def set(ctx):
 
 @bot.command()
 async def get(ctx):
-    r = await redis_cache.get_guild(ctx.guild.id)
-    await ctx.send(r)
+    async for iter in redis_cache.get_all_members(ctx.guild.id):
+        print(iter)
 
 
 if __name__ == "__main__":

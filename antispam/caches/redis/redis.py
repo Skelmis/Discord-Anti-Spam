@@ -22,7 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, AsyncIterable
 
 from attr import asdict
 
@@ -99,18 +99,46 @@ class RedisCache(Cache):
 
     async def set_member(self, member: Member) -> None:
         as_json = json.dumps(asdict(member, recurse=True))
-        await self.redis.set(f"MEMBER:{member.id}:{member.guild_id}", as_json)
+        await self.redis.set(f"MEMBER:{member.guild_id}:{member.id}", as_json)
 
     async def delete_member(self, member_id: int, guild_id: int) -> None:
-        await self.redis.delete(f"MEMBER:{member_id}:{guild_id}")
+        await self.redis.delete(f"MEMBER:{guild_id}:{member_id}")
 
     async def add_message(self, message: Message) -> None:
-        pass
+        try:
+            member: Member = await self.get_member(message.author_id, message.guild_id)
+        except (MemberNotFound, GuildNotFound):
+            member = Member(message.author_id, guild_id=message.guild_id)
+
+        member.messages.append(message)
+        await self.set_member(member)
 
     async def reset_member_count(
         self, member_id: int, guild_id: int, reset_type: ResetType
     ) -> None:
-        pass
+        try:
+            member: Member = await self.get_member(member_id, guild_id)
+        except (MemberNotFound, GuildNotFound):
+            return
+
+        if reset_type == ResetType.KICK_COUNTER:
+            member.kick_count = 0
+        else:
+            member.warn_count = 0
+
+        await self.set_member(member)
 
     async def drop(self) -> None:
-        pass
+        await self.redis.flushdb(asynchronous=True)
+
+    async def get_all_guilds(self) -> AsyncIterable[Guild]:
+        keys: List[bytes] = await self.redis.keys("GUILD:*")
+        for key in keys:
+            yield await self.get_guild(int(key.decode("utf-8").split(":")[1]))
+
+    async def get_all_members(self, guild_id: int) -> AsyncIterable[Member]:
+        keys: List[bytes] = await self.redis.keys(f"MEMBER:{guild_id}:*")
+        for key in keys:
+            yield await self.get_member(
+                int(key.decode("utf-8").split(":")[2]), guild_id
+            )
