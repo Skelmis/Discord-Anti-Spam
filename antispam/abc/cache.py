@@ -175,6 +175,9 @@ class Cache(Protocol):
         reset_type : ResetType
             An enum denoting the type of reset
 
+        Notes
+        -----
+        This shouldn't raise an error if the member doesn't exist.
         """
         raise NotImplementedError
 

@@ -42,20 +42,22 @@ log = logging.getLogger(__name__)
 
 
 class MongoCache(Cache):
+    """
+    A cache backend built to use MongoDB.
+
+    Parameters
+    ----------
+    handler: AntiSpamHandler
+        The AntiSpamHandler instance
+    connection_url: str
+        Your MongoDB connection url
+    database_name: str, Optional
+        The optional name of your collection.
+
+        Defaults to antispam
+    """
+
     def __init__(self, handler, connection_url, database_name=None):
-        """
-
-        Parameters
-        ----------
-        handler: AntiSpamHandler
-            The AntiSpamHandler instance
-        connection_url: str
-            Your MongoDB connection url
-        database_name: str, Optional
-            The optional name of your collection.
-
-            Defaults to antispam
-        """
         self.handler: "AntiSpamHandler" = handler
         self.database_name = database_name or "antispam"
 
@@ -188,6 +190,9 @@ class MongoCache(Cache):
 
     async def get_all_members(self, guild_id: int) -> AsyncIterable[Member]:
         log.debug("Yielding all cached members for Guild(id=%s)", guild_id)
+        if not await self._guild_exists(guild_id):
+            raise GuildNotFound
+
         members = await self.members.find_many_by_custom({"guild_id": guild_id})
         for member in members:
             yield member

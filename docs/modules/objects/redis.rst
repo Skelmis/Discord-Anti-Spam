@@ -5,9 +5,8 @@ A caching option within the standard package.
 
 Furthermore, refer to :py:class:`antispam.abc.Cache` for protocol implementation.
 
-*Not yet made*
 
-.. currentmodule:: antispam.caches
+.. currentmodule:: antispam.caches.redis
 
 .. autoclass:: RedisCache
     :members:
