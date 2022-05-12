@@ -3,6 +3,11 @@ Changelog
 
 A changelog that should be fairly up to date feature wise.
 
+1.3.0 -> 1.4.0
+--------------
+
+Support for ``Redis`` as a built in cache backend.
+
 1.2.11 -> 1.3.0
 --------------
 
