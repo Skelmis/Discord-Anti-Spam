@@ -30,9 +30,9 @@ from attr import asdict
 import orjson as json
 
 from antispam.abc import Cache
+from antispam.enums import ResetType
 from antispam.exceptions import GuildNotFound, MemberNotFound
 from antispam.dataclasses import Message, Member, Guild, Options
-from antispam.enums import ResetType
 
 if TYPE_CHECKING:
     from redis import asyncio as aioredis
@@ -64,9 +64,7 @@ class RedisCache(Cache):
         if not resp:
             raise GuildNotFound
 
-        resp = resp.decode("utf-8")
-        as_json = json.loads(resp)
-
+        as_json = json.loads(resp.decode("utf-8"))
         guild: Guild = Guild(**as_json)
         # This is actually a dict here
         guild.options = Options(**guild.options)  # type: ignore
@@ -77,7 +75,6 @@ class RedisCache(Cache):
             guild_members.append(member)
 
         guild.members = guild_members
-
         return guild
 
     async def set_guild(self, guild: Guild) -> None:
@@ -104,9 +101,7 @@ class RedisCache(Cache):
         if not resp:
             raise MemberNotFound
 
-        resp = resp.decode("utf-8")
-        as_json = json.loads(resp)
-
+        as_json = json.loads(resp.decode("utf-8"))
         member: Member = Member(**as_json)
 
         messages: List[Message] = []
@@ -123,6 +118,17 @@ class RedisCache(Cache):
             member.id,
             member.guild_id,
         )
+
+        # Ensure a guild exists
+        try:
+            # NOOP
+            await self.get_guild(member.guild_id)
+        except GuildNotFound:
+            guild = Guild(id=member.guild_id, options=self.handler.options)
+            guild.members = [member.id]
+            guild_as_json = json.dumps(asdict(guild, recurse=True))
+            await self.redis.set(f"GUILD:{guild.id}", guild_as_json)
+
         as_json = json.dumps(asdict(member, recurse=True))
         await self.redis.set(f"MEMBER:{member.guild_id}:{member.id}", as_json)
 
@@ -142,7 +148,7 @@ class RedisCache(Cache):
         try:
             member: Member = await self.get_member(message.author_id, message.guild_id)
         except (MemberNotFound, GuildNotFound):
-            member = Member(message.author_id, guild_id=message.guild_id)
+            member: Member = Member(message.author_id, guild_id=message.guild_id)
 
         member.messages.append(message)
         await self.set_member(member)
@@ -176,12 +182,12 @@ class RedisCache(Cache):
         log.debug("Yielding all cached guilds")
         keys: List[bytes] = await self.redis.keys("GUILD:*")
         for key in keys:
-            yield await self.get_guild(int(key.decode("utf-8").split(":")[1]))
+            key = key.decode("utf-8").split(":")[1]
+            yield await self.get_guild(int(key))
 
     async def get_all_members(self, guild_id: int) -> AsyncIterable[Member]:
         log.debug("Yielding all cached members for Guild(id=%s)", guild_id)
         keys: List[bytes] = await self.redis.keys(f"MEMBER:{guild_id}:*")
         for key in keys:
-            yield await self.get_member(
-                int(key.decode("utf-8").split(":")[2]), guild_id
-            )
+            key = key.decode("utf-8").split(":")[2]
+            yield await self.get_member(int(key), guild_id)
