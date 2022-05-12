@@ -190,6 +190,9 @@ class MongoCache(Cache):
 
     async def get_all_members(self, guild_id: int) -> AsyncIterable[Member]:
         log.debug("Yielding all cached members for Guild(id=%s)", guild_id)
+        if not await self._guild_exists(guild_id):
+            raise GuildNotFound
+
         members = await self.members.find_many_by_custom({"guild_id": guild_id})
         for member in members:
             yield member
