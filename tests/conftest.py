@@ -8,6 +8,7 @@ from discord.ext import commands  # noqa
 from antispam import AntiSpamHandler, PluginCache, Options
 from antispam.caches import MemoryCache
 from antispam.caches.mongo import MongoCache
+from antispam.caches.redis import RedisCache
 from antispam.core import Core
 from antispam.dataclasses import Guild, Member, Message
 from antispam.enums import Library
@@ -17,7 +18,7 @@ from antispam.plugins import AdminLogs, AntiMassMention, AntiSpamTracker, Stats
 from examples.custom_multistage_punishments.AntiSpamTrackerSubclass import (
     MyCustomTracker,
 )
-from tests.mocks import MockedMember
+from tests.mocks import MockedMember, MockedRedis
 from tests.mocks.mock_document import MockedDocument
 
 
@@ -126,3 +127,8 @@ def create_mongo_cache(create_handler) -> MockedMongoCache:
 @pytest.fixture()
 def create_example_tracker_subclass(create_handler) -> MyCustomTracker:
     return MyCustomTracker(create_handler, 3, 1000)
+
+
+@pytest.fixture()
+def create_redis_cache(create_handler) -> RedisCache:
+    return RedisCache(create_handler, MockedRedis())
