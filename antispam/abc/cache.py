@@ -22,7 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 from typing import AsyncIterable, List, Optional, Protocol, Union, runtime_checkable
 
-from antispam.dataclasses import Guild, Member, Message
+from antispam.dataclasses import Guild, Member, Message, Channel
 from antispam.dataclasses.propagate_data import PropagateData
 from antispam.enums import ResetType
 
@@ -89,6 +89,52 @@ class Cache(Protocol):
         Notes
         -----
         This fails silently.
+        """
+        raise NotImplementedError
+
+    async def get_channel(self, channel_id: int, guild_id: int) -> Channel:
+        """Fetch a channel object from the cache
+
+        Parameters
+        ----------
+        channel_id: int
+            The id of the channel
+        guild_id: int
+            The id of the guild this channel is in
+
+        Returns
+        -------
+        Channel
+            The channel object
+
+        Raises
+        ------
+        GuildNotFound
+            Couldn't find a guild matching this id
+        ChannelNotFound
+            Couldn't find a channel mathing this id
+        """
+        raise NotImplementedError
+
+    async def set_channel(self, channel: Channel) -> None:
+        """Store a channel in cache
+
+        Parameters
+        ----------
+        channel: Channel
+            The channel to cache
+        """
+        raise NotImplementedError
+
+    async def delete_channel(self, channel_id: int, guild_id: int) -> None:
+        """Deletes a channel from the cache
+
+        Parameters
+        ----------
+        channel_id: int
+            The id of the channel
+        guild_id: int
+            The id of the guild this channel is in
         """
         raise NotImplementedError
 

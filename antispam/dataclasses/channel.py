@@ -20,9 +20,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-from antispam.dataclasses.core import CorePayload
-from antispam.dataclasses.message import Message
-from antispam.dataclasses.options import Options
-from antispam.dataclasses.channel import Channel
-from antispam.dataclasses.guild import Guild
-from antispam.dataclasses.member import Member
+from typing import List, Any, Dict
+
+import attr
+
+from antispam.dataclasses import Message, Options
+
+
+@attr.s(slots=True)
+class Channel:
+    id: int = attr.ib(eq=True)
+    guild_id: int = attr.ib(eq=True)
+    options: Options = attr.ib(default=attr.Factory(Options), eq=False)
+    addons: Dict[str, Any] = attr.ib(default=attr.Factory(dict), eq=False)
+    messages: List[Message] = attr.ib(default=attr.Factory(list), eq=False)
+
+    def has_custom_options(self, default_options: Options) -> bool:
+        return default_options == self.options
