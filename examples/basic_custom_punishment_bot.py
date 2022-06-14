@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+
+from antispam.enums import Library
 from jsonLoader import read_json
 
 from antispam import AntiSpamHandler, Options
@@ -10,7 +12,9 @@ bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 file = read_json("token")
 
 bot.handler = AntiSpamHandler(
-    bot, options=Options(no_punish=True, message_duplicate_count=3)
+    bot,
+    library=Library.YOUR_LIBRARY_HERE,
+    options=Options(no_punish=True, message_duplicate_count=3),
 )
 bot.tracker = AntiSpamTracker(bot.handler, 5)
 bot.handler.register_plugin(bot.tracker)

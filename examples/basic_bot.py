@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+
+from antispam.enums import Library
 from jsonLoader import read_json
 
 from antispam import AntiSpamHandler
@@ -8,13 +10,11 @@ bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 file = read_json("token")
 
-bot.handler = AntiSpamHandler(bot)
-# If you want a custom fork, specify it with the library kwarg
+bot.handler = AntiSpamHandler(bot, library=Library.YOUR_LIBRARY_HERE)
 
 
 @bot.event
 async def on_ready():
-    # On ready, print some details to standard out
     print(f"-----\nLogged in as: {bot.user.name} : {bot.user.id}\n-----")
 
 

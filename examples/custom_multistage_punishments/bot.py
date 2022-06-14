@@ -14,7 +14,7 @@ file = read_json("token")
 # Generally you only need/want AntiSpamHandler(bot)
 bot.handler = AntiSpamHandler(
     bot,
-    library=Library.DPY,
+    library=Library.YOUR_LIBRARY_HERE,
     options=Options(ignore_bots=False, no_punish=True, use_timeouts=False),
 )
 bot.tracker = MyCustomTracker(bot.handler, 3)
