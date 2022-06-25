@@ -26,11 +26,7 @@ from enum import Enum
 class Library(Enum):
     """
     An enum to denote which type of API wrapper you are
-    intending on using this with. Defaults to DPY.
-
-    Notes
-    -----
-    Default behaviour will be removed in 1.3.0
+    intending on using this with.
 
     CUSTOM will not set a library handler.
     You will need to set one yourself.
