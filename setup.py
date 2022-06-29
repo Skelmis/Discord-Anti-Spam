@@ -41,7 +41,7 @@ setup(
     install_requires=parse_requirements_file("requirements.txt"),
     extras_requires={
         "dev": parse_requirements_file("dev-requirements.txt"),
-        "mongo": ["motor", "dnspython"],
+        "mongo": ["motor", "dnspython", "pytz"],
         "redis": ["redis", "orjson", "hiredis"],
     },
     classifiers=[
