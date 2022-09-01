@@ -193,3 +193,14 @@ class TestMongoCache:
             assert isinstance(g, Guild)
 
         assert counter == 1
+
+    @pytest.mark.asyncio
+    async def test_set_guild_is_idempotent(self, create_mongo_cache):
+        await create_mongo_cache.delete_member(1, 2)
+        await create_mongo_cache.set_guild(Guild(2))
+        await create_mongo_cache.delete_member(1, 2)
+
+        guild = await create_mongo_cache.get_guild(2)
+        guild.members[1] = Member(1, 2)
+        await create_mongo_cache.set_guild(guild)
+        assert len(guild.members) == 1

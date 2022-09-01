@@ -22,6 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 import asyncio
 import logging
+from copy import deepcopy
 from typing import TYPE_CHECKING, AsyncIterable, Dict, List
 
 import pytz
@@ -95,6 +96,7 @@ class MongoCache(Cache):
 
     async def set_guild(self, guild: Guild) -> None:
         log.debug("Attempting to set Guild(id=%s)", guild.id)
+        guild = deepcopy(guild)
         # Since self.members exists
         members: List[Member] = list(guild.members.values())
         guild.members = {}

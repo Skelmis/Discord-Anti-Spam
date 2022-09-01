@@ -25,7 +25,8 @@ from __future__ import annotations
 import asyncio
 import datetime
 import logging
-from typing import TYPE_CHECKING, List, AsyncIterable, Dict
+from copy import deepcopy
+from typing import TYPE_CHECKING, List, AsyncIterable, Dict, cast
 
 from attr import asdict
 
@@ -69,11 +70,11 @@ class RedisCache(Cache):
         as_json = json.loads(resp.decode("utf-8"))
         guild: Guild = Guild(**as_json)
         # This is actually a dict here
-        guild.options = Options(**guild.options)  # type: ignore
+        guild.options = cast(dict, guild.options)
+        guild.options = Options(**guild.options)
 
         guild_members: Dict[int, Member] = {}
-        for member_id in guild.members:  # type: ignore
-            member: Member = await self.get_member(member_id, guild_id)
+        async for member in self.get_all_members(guild_id):
             guild_members[member.id] = member
 
         guild.members = guild_members
@@ -81,6 +82,11 @@ class RedisCache(Cache):
 
     async def set_guild(self, guild: Guild) -> None:
         log.debug("Attempting to set Guild(id=%s)", guild.id)
+        guild = deepcopy(guild)  # Ensure idempotent
+
+        # We do this to clear the 'old' guilds members
+        await self._delete_members_for_guild(guild.id)
+
         members: List[Member] = list(guild.members.values())
         guild.members = {}
         iters = [self.set_member(m) for m in members]
@@ -91,9 +97,7 @@ class RedisCache(Cache):
 
     async def delete_guild(self, guild_id: int) -> None:
         log.debug("Attempting to delete Guild(id=%s)", guild_id)
-        async for member in self.get_all_members(guild_id):
-            await self.delete_member(member.id, member.guild_id)
-
+        await self._delete_members_for_guild(guild_id)
         await self.redis.delete(f"GUILD:{guild_id}")
 
     async def get_member(self, member_id: int, guild_id: int) -> Member:
@@ -110,8 +114,9 @@ class RedisCache(Cache):
         member: Member = Member(**as_json)
 
         messages: List[Message] = []
+        member.messages = cast(list, member.messages)
         for message in member.messages:
-            message = Message(**message)  # type: ignore
+            message = Message(**message)
             message.creation_time = datetime.datetime.fromisoformat(
                 message.creation_time  # type: ignore
             )
@@ -126,18 +131,9 @@ class RedisCache(Cache):
             member.id,
             member.guild_id,
         )
-
-        # Ensure a guild exists
-        try:
-            guild = await self.get_guild(member.guild_id)
-
-            guild.members = [m.id for m in guild.members.values()]
-            guild.members.append(member.id)
-            guild_as_json = json.dumps(asdict(guild, recurse=True))
-            await self.redis.set(f"GUILD:{guild.id}", guild_as_json)
-        except GuildNotFound:
+        if not await self._does_guild_exist(member.guild_id):
             guild = Guild(id=member.guild_id, options=self.handler.options)
-            guild.members = [member.id]
+            guild.members = {}
             guild_as_json = json.dumps(asdict(guild, recurse=True))
             await self.redis.set(f"GUILD:{guild.id}", guild_as_json)
 
@@ -148,13 +144,6 @@ class RedisCache(Cache):
         log.debug(
             "Attempting to delete Member(id=%s) in Guild(id=%s)", member_id, guild_id
         )
-        try:
-            guild: Guild = await self.get_guild(guild_id)
-            guild.members.pop(member_id)
-            await self.set_guild(guild)
-        except:
-            pass
-
         await self.redis.delete(f"MEMBER:{guild_id}:{member_id}")
 
     async def add_message(self, message: Message) -> None:
@@ -206,10 +195,23 @@ class RedisCache(Cache):
 
     async def get_all_members(self, guild_id: int) -> AsyncIterable[Member]:
         log.debug("Yielding all cached members for Guild(id=%s)", guild_id)
-        # NOOP
-        await self.get_guild(guild_id)
+        if not await self._does_guild_exist(guild_id):
+            raise GuildNotFound
 
+        async for member in self._get_all_members(guild_id):
+            yield member
+
+    async def _get_all_members(self, guild_id: int) -> AsyncIterable[Member]:
+        """This exists so we don't need to raise GuildNotFound when used internally."""
         keys: List[bytes] = await self.redis.keys(f"MEMBER:{guild_id}:*")
         for key in keys:
             key = key.decode("utf-8").split(":")[2]
             yield await self.get_member(int(key), guild_id)
+
+    async def _does_guild_exist(self, guild_id: int) -> bool:
+        resp = await self.redis.get(f"GUILD:{guild_id}")
+        return bool(resp)
+
+    async def _delete_members_for_guild(self, guild_id: int):
+        async for member in self._get_all_members(guild_id):
+            await self.delete_member(member.id, member.guild_id)
