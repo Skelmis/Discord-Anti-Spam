@@ -22,6 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 from __future__ import annotations
 
+import datetime
 import logging
 from typing import TYPE_CHECKING, List, AsyncIterable, Dict
 
@@ -106,7 +107,11 @@ class RedisCache(Cache):
 
         messages: List[Message] = []
         for message in member.messages:
-            messages.append(Message(**message))  # type: ignore
+            message = Message(**message)  # type: ignore
+            message.creation_time = datetime.datetime.fromisoformat(
+                message.creation_time  # type: ignore
+            )
+            messages.append(message)
 
         member.messages = messages
         return member

@@ -1,9 +1,12 @@
+import datetime
+
 import orjson as json
 
 import pytest
 from attr import asdict
 
 from antispam import GuildNotFound, MemberNotFound, Options
+from antispam.caches.redis import RedisCache
 from antispam.dataclasses import Guild, Member, Message
 from antispam.enums import ResetType
 from antispam.factory import FactoryBuilder
@@ -171,3 +174,19 @@ class TestRedisCache:
         await create_redis_cache.delete_member(1, 2)
         g = await create_redis_cache.get_guild(2)
         assert len(g.members) == 0
+
+    @pytest.mark.asyncio
+    async def test_date_serialization(self, create_redis_cache: RedisCache):
+        # https://github.com/Skelmis/Discord-Anti-Spam/issues/104
+        await create_redis_cache.set_guild(
+            Guild(
+                1,
+                Options(),
+                members={
+                    1: Member(1, 1, messages=[Message(1, 1, 1, 1, "Hello world")])
+                },
+            )
+        )
+
+        member: Member = await create_redis_cache.get_member(1, 1)
+        assert isinstance(member.messages[0].creation_time, datetime.datetime)
