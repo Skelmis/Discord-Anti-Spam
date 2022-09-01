@@ -29,15 +29,15 @@ class TestLibDPY:
         message.embeds = None
         message.attachments = None
 
-        with pytest.raises(LogicError):
+        with pytest.raises(InvalidMessage):
             await create_dpy_lib_handler.create_message(message)
 
-        with pytest.raises(LogicError):
+        with pytest.raises(InvalidMessage):
             # Test embeds that ain't embeds raise
             message.embeds = [MockClass()]
             await create_dpy_lib_handler.create_message(message)
 
-        with pytest.raises(LogicError):
+        with pytest.raises(InvalidMessage):
             # test embed type raises
             embed = discord.Embed()
             embed.type = "Not rich"

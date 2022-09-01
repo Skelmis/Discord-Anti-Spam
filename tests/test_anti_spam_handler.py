@@ -832,9 +832,7 @@ class TestAntiSpamHandler:
         message.attachments = True
 
         return_data = await create_handler.propagate(message)
-        assert return_data == {
-            "status": "Could not create a use-able message for the given message."
-        }
+        assert return_data == {"status": "We don't check against attachments"}
 
     def test_set_cache(self, create_handler):
         """Tests set_cache works as expected"""
