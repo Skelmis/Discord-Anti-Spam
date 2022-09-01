@@ -1,4 +1,5 @@
 import json
+import os.path
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock
 
@@ -403,18 +404,20 @@ class TestAntiSpamHandler:
             await AntiSpamHandler.load_from_dict(create_bot, 1, Library.DPY)
 
     @pytest.mark.asyncio
-    async def test_save_to_dict(self, create_handler: AntiSpamHandler):
+    async def test_save_to_dict(self, create_handler: AntiSpamHandler, get_test_path):
         await create_handler.save_to_dict()
 
         await create_handler.cache.set_guild(Guild(1, Options()))
         data = await create_handler.save_to_dict()
-        with open("tests/raw.json", "r") as file:
+        with open(os.path.join(get_test_path, "raw.json"), "r") as file:
             stored_data = json.load(file)
 
         assert data == stored_data
 
     @pytest.mark.asyncio
-    async def test_save_to_dict_with_plugin(self, create_handler: AntiSpamHandler):
+    async def test_save_to_dict_with_plugin(
+        self, create_handler: AntiSpamHandler, get_test_path
+    ):
         await create_handler.cache.set_guild(Guild(1, Options()))
 
         class Plugin(BasePlugin):
@@ -424,7 +427,7 @@ class TestAntiSpamHandler:
         create_handler.register_plugin(Plugin())
         data = await create_handler.save_to_dict()
 
-        with open("tests/raw.json", "r") as file:
+        with open(os.path.join(get_test_path, "raw.json"), "r") as file:
             stored_data = json.load(file)
         stored_data["pre_invoke_plugins"]["Plugin"] = {"Plugin me"}
 
@@ -439,7 +442,7 @@ class TestAntiSpamHandler:
         assert data_two == stored_data
 
     @pytest.mark.asyncio
-    async def test_load_from_dict_with_plugin(self, create_bot):
+    async def test_load_from_dict_with_plugin(self, create_bot, get_test_path):
         class Plugin(BasePlugin):
             @classmethod
             async def load_from_dict(cls, ash, data):
@@ -447,7 +450,7 @@ class TestAntiSpamHandler:
                 ref.test = data
                 return ref
 
-        with open("tests/raw.json", "r") as file:
+        with open(os.path.join(get_test_path, "raw.json"), "r") as file:
             stored_data = json.load(file)
 
         stored_data["pre_invoke_plugins"]["Plugin"] = {"Plugin me"}
@@ -900,7 +903,7 @@ class TestAntiSpamHandler:
         assert embed.title == nextcord.Embed(title="1").title
 
     @pytest.mark.asyncio
-    async def test_load_from_dict_plugins_pre_invoke(self, create_bot):
+    async def test_load_from_dict_plugins_pre_invoke(self, create_bot, get_test_path):
         """Tests load_from_dict edge cases"""
 
         class Plugin(BasePlugin):
@@ -910,7 +913,7 @@ class TestAntiSpamHandler:
                 ref.test = data
                 return ref
 
-        with open("tests/raw.json", "r") as file:
+        with open(os.path.join(get_test_path, "raw.json"), "r") as file:
             stored_data = json.load(file)
 
         stored_data["pre_invoke_plugins"]["Plugin"] = {"Plugin me"}
@@ -921,7 +924,7 @@ class TestAntiSpamHandler:
         assert len(ash.pre_invoke_plugins) == 0
 
     @pytest.mark.asyncio
-    async def test_load_from_dict_plugins_after_invoke(self, create_bot):
+    async def test_load_from_dict_plugins_after_invoke(self, create_bot, get_test_path):
         """Tests load_from_dict edge cases"""
 
         class Plugin(BasePlugin):
@@ -934,7 +937,7 @@ class TestAntiSpamHandler:
                 ref.test = data
                 return ref
 
-        with open("tests/raw.json", "r") as file:
+        with open(os.path.join(get_test_path, "raw.json"), "r") as file:
             stored_data = json.load(file)
 
         stored_data["after_invoke_plugins"]["Plugin"] = {"Plugin me"}

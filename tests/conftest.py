@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, List
 from unittest.mock import Mock
 
@@ -132,3 +133,12 @@ def create_example_tracker_subclass(create_handler) -> MyCustomTracker:
 @pytest.fixture()
 def create_redis_cache(create_handler) -> RedisCache:
     return RedisCache(create_handler, MockedRedis())
+
+
+@pytest.fixture(scope="session")
+def get_test_path() -> str:
+    pathlike = os.getcwd()
+    if not pathlike.endswith("tests"):
+        pathlike = os.path.join(pathlike, "tests")
+
+    return pathlike
