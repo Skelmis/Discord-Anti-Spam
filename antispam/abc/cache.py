@@ -73,6 +73,13 @@ class Cache(Protocol):
         ----------
         guild : Guild
             The Guild that needs to be stored
+
+        Warnings
+        --------
+        This method should be idempotent.
+
+        The passed guild object should not
+        experience a change to the callee.
         """
         raise NotImplementedError
 
@@ -123,6 +130,13 @@ class Cache(Protocol):
         ----------
         member : Member
             The Member we want to cache
+
+        Warnings
+        --------
+        This method should be idempotent.
+
+        The passed member object should not
+        experience a change to the callee.
         """
         raise NotImplementedError
 

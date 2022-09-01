@@ -192,11 +192,6 @@ class TestRedisCache:
         assert isinstance(member.messages[0].creation_time, datetime.datetime)
 
     @pytest.mark.asyncio
-    async def test_guild_member_serialization(self, create_redis_cache: RedisCache):
-        # https://github.com/Skelmis/Discord-Anti-Spam/issues/103
-        pass
-
-    @pytest.mark.asyncio
     async def test_guild_delete_cleans_members(self, create_redis_cache: RedisCache):
         await create_redis_cache.set_guild(
             Guild(
@@ -215,3 +210,17 @@ class TestRedisCache:
 
         with pytest.raises(MemberNotFound):
             await create_redis_cache.get_member(1, 1)
+
+    @pytest.mark.asyncio
+    async def test_set_member_is_idempotent(self, create_redis_cache):
+        member = Member(
+            3,
+            1,
+            messages=[
+                Message(1, 1, 1, 1, "Hello world"),
+                Message(2, 1, 1, 1, "foo bar"),
+            ],
+        )
+        assert isinstance(member.messages[0].creation_time, datetime.datetime)
+        await create_redis_cache.set_member(member)
+        assert isinstance(member.messages[0].creation_time, datetime.datetime)

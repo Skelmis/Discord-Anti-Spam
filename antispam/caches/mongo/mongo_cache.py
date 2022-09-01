@@ -97,6 +97,9 @@ class MongoCache(Cache):
     async def set_guild(self, guild: Guild) -> None:
         log.debug("Attempting to set Guild(id=%s)", guild.id)
         guild = deepcopy(guild)
+
+        await self._delete_members_for_guild(guild.id)
+
         # Since self.members exists
         members: List[Member] = list(guild.members.values())
         guild.members = {}
@@ -214,3 +217,6 @@ class MongoCache(Cache):
         """A guild existence check"""
         r_1 = await self.guilds.find({"id": guild_id})
         return bool(r_1)
+
+    async def _delete_members_for_guild(self, guild_id: int):
+        await self.members.delete({"guild_id": guild_id})

@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 from antispam import GuildNotFound, Options, MemberNotFound
@@ -204,3 +206,17 @@ class TestMongoCache:
         guild.members[1] = Member(1, 2)
         await create_mongo_cache.set_guild(guild)
         assert len(guild.members) == 1
+
+    @pytest.mark.asyncio
+    async def test_set_member_is_idempotent(self, create_mongo_cache):
+        member = Member(
+            3,
+            1,
+            messages=[
+                Message(1, 1, 1, 1, "Hello world"),
+                Message(2, 1, 1, 1, "foo bar"),
+            ],
+        )
+        assert isinstance(member.messages[0].creation_time, datetime.datetime)
+        await create_mongo_cache.set_member(member)
+        assert isinstance(member.messages[0].creation_time, datetime.datetime)
