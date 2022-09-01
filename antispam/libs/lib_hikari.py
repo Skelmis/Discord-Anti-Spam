@@ -244,15 +244,15 @@ class Hikari(Base, Lib):
 
         if not bool(message.content and message.content.strip()):
             if not message.embeds and not message.attachments:
-                raise LogicError
+                raise InvalidMessage("We don't check against system messages")
 
             if not message.embeds:
                 # We dont check attachments lol
-                raise InvalidMessage
+                raise InvalidMessage("We don't check against attachments")
 
             for embed in message.embeds:
                 if not isinstance(embed, embeds.Embed):
-                    raise LogicError
+                    raise InvalidMessage("embed was not of instance embeds.Embed")
 
                 content += await self.embed_to_string(embed)
         else:

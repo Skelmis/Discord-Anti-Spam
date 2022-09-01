@@ -71,6 +71,10 @@ class Pincer(Base, Lib):
 
         self._timed_cache: TimedCache = TimedCache()
 
+        mark_deprecated(
+            "Pincer is a deprecated lib and will be removed in a future release."
+        )
+
     # Cached methods
     async def _fetch_member(self, member_id: int, guild_id: int) -> objects.GuildMember:
         key = f"GuildMember:{member_id}:{guild_id}"

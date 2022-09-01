@@ -223,18 +223,18 @@ class DPY(Base, Lib):
         elif not bool(message.content and message.content.strip()):
             if not message.embeds and not message.attachments:
                 # System message? Like on join trip these
-                raise LogicError
+                raise InvalidMessage("We don't check against system messages")
 
             if not message.embeds:
-                # We don't check agaisn't attachments
-                raise InvalidMessage
+                # We don't check against attachments
+                raise InvalidMessage("We don't check against attachments")
 
             for embed in message.embeds:
                 if not isinstance(embed, discord.Embed):
-                    raise LogicError
+                    raise InvalidMessage("embed was not of instance discord.Embed")
 
                 if embed.type.lower() != "rich":
-                    raise LogicError
+                    raise InvalidMessage("Only rich embeds are supported")
 
                 content += await self.embed_to_string(embed)
         else:
