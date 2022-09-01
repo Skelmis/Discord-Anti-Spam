@@ -22,6 +22,7 @@ DEALINGS IN THE SOFTWARE.
 """
 from __future__ import annotations
 
+import asyncio
 import datetime
 import logging
 from typing import TYPE_CHECKING, List, AsyncIterable, Dict
@@ -80,16 +81,19 @@ class RedisCache(Cache):
 
     async def set_guild(self, guild: Guild) -> None:
         log.debug("Attempting to set Guild(id=%s)", guild.id)
-        # Store members separate
-        for member in guild.members.values():
-            await self.set_member(member)
+        members: List[Member] = list(guild.members.values())
+        guild.members = {}
+        iters = [self.set_member(m) for m in members]
+        await asyncio.gather(*iters)
 
-        guild.members = [member.id for member in guild.members.values()]
         as_json = json.dumps(asdict(guild, recurse=True))
         await self.redis.set(f"GUILD:{guild.id}", as_json)
 
     async def delete_guild(self, guild_id: int) -> None:
         log.debug("Attempting to delete Guild(id=%s)", guild_id)
+        async for member in self.get_all_members(guild_id):
+            await self.delete_member(member.id, member.guild_id)
+
         await self.redis.delete(f"GUILD:{guild_id}")
 
     async def get_member(self, member_id: int, guild_id: int) -> Member:
