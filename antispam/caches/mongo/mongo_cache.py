@@ -141,13 +141,13 @@ class MongoCache(Cache):
             member.id,
             member.guild_id,
         )
+        if not await self._guild_exists(member.guild_id):
+            await self.set_guild(Guild(member.guild_id, options=self.handler.options))
+
         member_dict: Dict = asdict(member, recurse=True)
         await self.members.upsert_custom(
             {"id": member.id, "guild_id": member.guild_id}, member_dict
         )
-
-        if not await self._guild_exists(member.guild_id):
-            await self.set_guild(Guild(member.guild_id, options=self.handler.options))
 
     async def delete_member(self, member_id: int, guild_id: int) -> None:
         log.debug(
