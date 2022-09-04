@@ -1,46 +1,26 @@
-import os
+from pathlib import Path
+from typing import Union, List
 
 
-def countlines(start, lines=0, header=True, begin_start=None):
-    if header:
-        print("{:>10} |{:>10} | {:<20}".format("ADDED", "TOTAL", "FILE"))
-        print("{:->11}|{:->11}|{:->20}".format("", "", ""))
+def count_lines(directory: Union[str, List[str]]):
+    """Count Python LOC in a given directory."""
+    if isinstance(directory, str):
+        directories = [directory]
+    else:
+        directories = directory
 
-    for thing in os.listdir(start):
-        try:
-            thing = os.path.join(start, thing)
-            if os.path.isfile(thing):
-                if thing.endswith(".py"):
-                    with open(thing, "r") as f:
-                        newlines = f.readlines()
-                        newlines = len(newlines)
-                        lines += newlines
-                        if begin_start is not None:
-                            reldir_of_thing = "." + thing.replace(begin_start, "")
-                        else:
-                            reldir_of_thing = "." + thing.replace(start, "")
-
-                        reldir_of_thing = reldir_of_thing[:-2]
-                        reldir_of_thing += ".py"
-
-                        print(
-                            "{:>10} |{:>10} | {:<20}".format(
-                                newlines, lines, reldir_of_thing
-                            )
-                        )
-        except:
-            pass
-
-    for thing in os.listdir(start):
-        try:
-            thing = os.path.join(start, thing)
-            if os.path.isdir(thing):
-                lines = countlines(thing, lines, header=False, begin_start=start)
-        except:
-            pass
-
-    return lines
+    total_lines: int = 0
+    print("{:>10} |{:>10} | {:<20}".format("ADDED", "TOTAL", "FILE"))
+    print("{:->11}|{:->11}|{:->20}".format("", "", ""))
+    for directory in directories:
+        for path in Path(directory).rglob("*.py"):
+            with open(path.absolute(), "r") as f:
+                newlines = f.readlines()
+                newlines = len(newlines)
+                total_lines += newlines
+                print(
+                    "{:>10} |{:>10} | {:<20}".format(newlines, total_lines, str(path))
+                )
 
 
-countlines("./antispam")
-countlines("./tests")
+count_lines(["./antispam", "./tests"])
