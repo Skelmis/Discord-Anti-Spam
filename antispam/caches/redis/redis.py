@@ -184,7 +184,8 @@ class RedisCache(Cache):
 
     async def drop(self) -> None:
         log.warning("Cache was just dropped")
-        await self.redis.flushdb(asynchronous=True)
+        async for guild in self.get_all_guilds():
+            await self.delete_guild(guild.id)
 
     async def get_all_guilds(self) -> AsyncIterable[Guild]:
         log.debug("Yielding all cached guilds")
