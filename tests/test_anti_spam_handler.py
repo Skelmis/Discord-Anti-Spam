@@ -980,3 +980,18 @@ class TestAntiSpamHandler:
 
         dpy = AntiSpamHandler(create_bot, library=Library.DPY)
         assert isinstance(dpy.lib_handler, DPY)
+
+    @pytest.mark.asyncio
+    async def test_clean_cache_with_custom_options(self, create_handler):
+        await create_handler.cache.set_guild(
+            Guild(1, options=Options(ignore_bots=False))
+        )
+
+        r_1 = await create_handler.cache.get_guild(1)
+        assert r_1.options.ignore_bots is False
+
+        await create_handler.clean_cache()
+
+        r_2 = await create_handler.cache.get_guild(1)
+        assert id(r_1) != id(r_2)
+        assert r_2.options.ignore_bots is False
