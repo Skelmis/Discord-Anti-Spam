@@ -41,7 +41,9 @@ class AdminLogs(BasePlugin):
         self,
         handler: AntiSpamHandler,
         log_location: str,
+        *,
         punishment_type: Optional[Union[str, Callable]] = None,
+        save_all_transcripts: bool = True,
     ):
         """
         Parameters
@@ -59,6 +61,11 @@ class AdminLogs(BasePlugin):
             return a string to be used as the punishment type. This
             function will be called with 2 arguments.
             Argument 1 is the message, argument 2 is :py:class:`CorePayload`
+        save_all_transcripts: bool
+            Whether or not to save all transcripts regardless of if
+            log channel is set for the guild in question.
+
+            Defaults to True
 
         Notes
         -----
@@ -76,6 +83,7 @@ class AdminLogs(BasePlugin):
         self.handler = handler
         self.path = log_location
         self._punishment_type: Optional[Union[str, Callable]] = punishment_type
+        self.save_all_transcripts: bool = save_all_transcripts
 
         log.info("Plugin ready for usage")
 
@@ -118,6 +126,14 @@ class AdminLogs(BasePlugin):
             else:
                 punishment_type = self._punishment_type or "Unknown Punishment"
 
+        guild: Guild = await self.handler.cache.get_guild(guild_id)
+        if not self.save_all_transcripts and not guild.log_channel_id:
+            log.debug(
+                "Failing to save transcript as %s does not have a log channel set",
+                guild.id,
+            )
+            return
+
         # Make sure a folder exists for this punishment on this Member within this Guild
         dir_path = os.path.join(
             self.path, str(guild_id), str(author_id), punishment_type
@@ -128,7 +144,6 @@ class AdminLogs(BasePlugin):
         current_count = len(os.listdir(dir_path)) + 1
 
         member: Member = await self.handler.cache.get_member(author_id, guild_id)
-        guild: Guild = await self.handler.cache.get_guild(guild_id)
         channel_id: int = await self.handler.lib_handler.get_channel_id(message)
 
         # Open the punishment file
