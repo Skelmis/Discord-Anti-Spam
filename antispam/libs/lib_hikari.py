@@ -23,7 +23,7 @@ DEALINGS IN THE SOFTWARE.
 import asyncio
 import datetime
 import logging
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, List
 from unittest.mock import AsyncMock
 
 import hikari.errors
@@ -122,33 +122,30 @@ class Hikari(Base, Lib):
     async def get_channel_by_id(self, channel_id: int):  # pragma: no cover
         return await self.handler.bot.rest.fetch_channel(channel_id)
 
-    async def check_message_can_be_propagated(
-        self, message: messages.Message
-    ) -> PropagateData:
-        if not isinstance(message, (messages.Message, AsyncMock)):
-            raise PropagateFailure(
-                data={"status": "Expected message of type messages.Message"}
-            )
+    def get_expected_message_type(self):
+        return messages.Message
 
-        # Ensure we only moderate actual guild messages
-        if not message.guild_id:
-            log.debug(
-                "Message(id=%s) from Member(id=%s) was not in a guild",
-                message.id,
-                message.author.id,
-            )
-            raise PropagateFailure(data={"status": "Ignoring messages from dm's"})
+    def get_author_id_from_message(self, message) -> int:
+        return message.author.id
 
-        # The bot is immune to spam
-        if message.author.id == self.handler.bot.get_me().id:
-            log.debug("Message(id=%s) was from myself", message.id)
-            raise PropagateFailure(
-                data={"status": "Ignoring messages from myself (the bot)"}
-            )
+    def get_author_name_from_message(self, message) -> str:
+        return message.author.name
 
+    def get_bot_id_from_message(self, message) -> int:
+        return self.handler.bot.get_me().id
+
+    def get_channel_id_from_message(self, message) -> int:
+        return message.channel_id
+
+    def get_message_id_from_message(self, message) -> int:
+        return message.id
+
+    def get_guild_id_from_message(self, message) -> Optional[int]:
+        return message.guild_id
+
+    def get_role_ids_for_message_author(self, message) -> List[int]:
         guild: guilds.Guild = self.handler.bot.cache.get_guild(message.guild_id)
         member: guilds.Member = guild.get_member(message.author.id)
-
         if not member:
             log.error(
                 "Idk how to fetch members, so this is returning since "
@@ -160,65 +157,15 @@ class Hikari(Base, Lib):
                     "cache lookup failed. Please open a github issue."
                 }
             )
+        return list(member.role_ids)
 
-        # Return if ignored bot
-        if self.handler.options.ignore_bots and message.author.is_bot:
-            log.debug(
-                "I ignore bots, and this is a bot message with author(id=%s)",
-                message.author.id,
-            )
-            raise PropagateFailure(data={"status": "Ignoring messages from bots"})
+    def check_if_message_is_from_a_bot(self, message) -> bool:
+        return message.author.is_bot
 
-        # Return if ignored guild
-        if message.guild_id in self.handler.options.ignored_guilds:
-            log.debug("Ignored Guild(id=%s)", message.guild.id)
-            raise PropagateFailure(
-                data={"status": f"Ignoring this guild: {message.guild_id}"}
-            )
-
-        # Return if ignored member
-        if message.author.id in self.handler.options.ignored_members:
-            log.debug(
-                "The Member(id=%s) who sent this message is ignored", message.author.id
-            )
-            raise PropagateFailure(
-                data={"status": f"Ignoring this member: {message.author.id}"}
-            )
-
-        # Return if ignored channel
-        channel = await message.fetch_channel()
-        if message.channel_id in self.handler.options.ignored_channels:
-            log.debug("channel(id=%s) is ignored", channel.id)
-            raise PropagateFailure(
-                data={"status": f"Ignoring this channel: {message.channel_id}"}
-            )
-
-        # Return if member has an ignored role
-        try:
-            roles = await member.fetch_roles()
-            user_roles = list(member.role_ids)
-            for item in user_roles:
-                if item in self.handler.options.ignored_roles:
-                    log.debug("role(%s) is a part of ignored roles", item)
-                    raise PropagateFailure(
-                        data={"status": f"Ignoring this role: {item}"}
-                    )
-        except AttributeError:
-            log.warning(
-                "Could not compute ignored_roles for %s(%s)",
-                message.author.username,
-                message.author.id,
-            )
-
+    async def does_author_have_kick_and_ban_perms(self, message) -> bool:
+        guild: guilds.Guild = self.handler.bot.cache.get_guild(message.guild_id)
         perms: Permissions = await self._get_perms(guild.get_my_member())
-        has_perms = bool(perms.KICK_MEMBERS and perms.BAN_MEMBERS)
-
-        return PropagateData(
-            guild_id=message.guild_id,
-            member_name=message.author.username,
-            member_id=message.author.id,
-            has_perms_to_make_guild=has_perms,
-        )
+        return bool(perms.KICK_MEMBERS and perms.BAN_MEMBERS)
 
     async def _get_perms(self, member: guilds.Member) -> Permissions:
         roles = await member.fetch_roles()

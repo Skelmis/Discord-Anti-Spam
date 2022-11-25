@@ -47,3 +47,6 @@ class BaseFork(DPY):
             member_name=message.author.display_name,
             member_avatar=member_avatar,
         )
+
+    def get_author_name_from_message(self, message) -> str:
+        return message.author.display_name

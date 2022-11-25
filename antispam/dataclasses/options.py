@@ -160,6 +160,11 @@ class Options:
         A Set of members to ignore messages from.
         Set this with :py:meth:`antispam.AntiSpamHandler.add_ignored_item`
         Remove members with :py:meth:`antispam.AntiSpamHandler.remove_ignored_item`
+
+        .. note::
+
+            These can also be set per guild rather then globally.
+
     ignored_channels : Set[int]
         Default: ``Empty Set``
 
@@ -191,6 +196,11 @@ class Options:
         Default: ``True``
 
         Should bots bypass anti-spam?
+
+        .. note::
+
+            This can also be set per guild rather then globally.
+
     warn_only : bool
         Default: ``False``
 

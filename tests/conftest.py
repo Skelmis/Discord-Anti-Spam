@@ -92,8 +92,8 @@ def create_admin_logs(create_handler):
 
 
 @pytest.fixture
-def create_base():
-    return Base()
+def create_base(create_handler):
+    return Base(create_handler)
 
 
 @pytest.fixture

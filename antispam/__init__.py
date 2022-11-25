@@ -26,10 +26,10 @@ import logging
 import sys
 from collections import namedtuple
 
+from antispam.exceptions import *
 from antispam.anti_spam_handler import AntiSpamHandler
 from antispam.base_plugin import BasePlugin
 from antispam.dataclasses import CorePayload, Options
-from antispam.exceptions import *
 from antispam.plugin_cache import PluginCache
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())

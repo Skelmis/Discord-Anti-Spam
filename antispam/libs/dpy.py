@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import datetime
 import logging
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, List
 from unittest.mock import AsyncMock
 
 from antispam.deprecation import mark_deprecated
@@ -37,7 +37,6 @@ except ModuleNotFoundError:  # pragma: no cover
 
 from antispam import (
     InvalidMessage,
-    LogicError,
     MissingGuildPermissions,
     PropagateFailure,
     UnsupportedAction,
@@ -53,6 +52,43 @@ class DPY(Base, Lib):
     def __init__(self, handler):
         self.handler = handler
         self.bot = self.handler.bot
+
+    def get_expected_message_type(self):
+        return discord.Message
+
+    def get_author_id_from_message(self, message) -> int:
+        return message.author.id
+
+    def get_author_name_from_message(self, message) -> str:
+        return message.author.name
+
+    def get_bot_id_from_message(self, message) -> int:
+        return self.handler.bot.user.id
+
+    def get_channel_id_from_message(self, message) -> int:
+        return message.channel.id
+
+    def get_message_id_from_message(self, message) -> int:
+        return message.id
+
+    def get_guild_id_from_message(self, message) -> Optional[int]:
+        if message.guild:
+            return message.guild.id
+
+        return None
+
+    def get_role_ids_for_message_author(self, message) -> List[int]:
+        try:
+            return [role.id for role in message.author.roles]
+        except AttributeError:
+            return []
+
+    def check_if_message_is_from_a_bot(self, message) -> bool:
+        return message.author.bot
+
+    async def does_author_have_kick_and_ban_perms(self, message) -> bool:
+        perms = message.guild.me.guild_permissions
+        return perms.kick_members and perms.ban_members
 
     def get_file(self, path: str):  # pragma: no cover
         return discord.File(path)
@@ -113,94 +149,6 @@ class DPY(Base, Lib):
             member_id=message.author.id,
             member_name=message.author.display_name,
             member_avatar=member_avatar,
-        )
-
-    async def check_message_can_be_propagated(
-        self, message: discord.Message
-    ) -> PropagateData:
-        if not isinstance(message, (discord.Message, AsyncMock)):
-            raise PropagateFailure(
-                data={"status": "Expected message of type discord.Message"}
-            )
-
-        # Ensure we only moderate actual guild messages
-        if not message.guild:
-            log.debug(
-                "Message(id=%s) from Member(id=%s) was not in a guild",
-                message.id,
-                message.author.id,
-            )
-            raise PropagateFailure(data={"status": "Ignoring messages from dm's"})
-
-        # The bot is immune to spam
-        if message.author.id == self.bot.user.id:
-            log.debug("Message(id=%s) was from myself", message.id)
-            raise PropagateFailure(
-                data={"status": "Ignoring messages from myself (the bot)"}
-            )
-
-        if isinstance(message.author, discord.User):  # pragma: no cover
-            log.warning(f"Given Message(id=%s) with an author of type User", message.id)
-
-        # Return if ignored bot
-        if self.handler.options.ignore_bots and message.author.bot:
-            log.debug(
-                "I ignore bots, and this is a bot message with author(id=%s)",
-                message.author.id,
-            )
-            raise PropagateFailure(data={"status": "Ignoring messages from bots"})
-
-        # Return if ignored guild
-        if message.guild.id in self.handler.options.ignored_guilds:
-            log.debug("Ignored Guild(id=%s)", message.guild.id)
-            raise PropagateFailure(
-                data={"status": f"Ignoring this guild: {message.guild.id}"}
-            )
-
-        # Return if ignored member
-        if message.author.id in self.handler.options.ignored_members:
-            log.debug(
-                "The Member(id=%s) who sent this message is ignored", message.author.id
-            )
-            raise PropagateFailure(
-                data={"status": f"Ignoring this member: {message.author.id}"}
-            )
-
-        # Return if ignored channel
-        if message.channel.id in self.handler.options.ignored_channels:
-            log.debug("channel(id=%s) is ignored", message.channel.id)
-            raise PropagateFailure(
-                data={"status": f"Ignoring this channel: {message.channel.id}"}
-            )
-
-        # Return if member has an ignored role
-        try:
-            user_roles = [role.id for role in message.author.roles]
-            for item in user_roles:
-                if item in self.handler.options.ignored_roles:
-                    log.debug(
-                        "Ignoring Member(id=%s) as they have an ignored Role(id/name=%S)",
-                        message.author.id,
-                        item,
-                    )
-                    raise PropagateFailure(
-                        data={"status": f"Ignoring this role: {item}"}
-                    )
-        except AttributeError:  # pragma: no cover
-            log.warning(
-                "Could not compute ignored_roles for %s(%s)",
-                message.author.name,
-                message.author.id,
-            )
-
-        perms = message.guild.me.guild_permissions
-        has_perms = perms.kick_members and perms.ban_members
-
-        return PropagateData(
-            guild_id=message.guild.id,
-            member_name=message.author.name,
-            member_id=message.author.id,
-            has_perms_to_make_guild=has_perms,
         )
 
     async def create_message(self, message: discord.Message) -> Message:
