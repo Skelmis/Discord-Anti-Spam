@@ -35,6 +35,10 @@ class Base:
         -------
         bool
             True if the message is from a bot else false
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
@@ -51,6 +55,10 @@ class Base:
         -------
         bool
             True if the author has them else False
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
@@ -68,6 +76,10 @@ class Base:
             The guild's id
         None
             This message is not in a guild
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
@@ -83,6 +95,10 @@ class Base:
         -------
         int
             The author's id
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
@@ -98,6 +114,10 @@ class Base:
         -------
         str
             The author's name
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
@@ -113,6 +133,10 @@ class Base:
         -------
         int
             The bot's id
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
@@ -128,6 +152,10 @@ class Base:
         -------
         int
             The message id
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
@@ -143,6 +171,10 @@ class Base:
         -------
         int
             The channel id
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
@@ -158,6 +190,10 @@ class Base:
         -------
         List[int]
             A list of role ids, empty list if you can't get any
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
@@ -165,6 +201,10 @@ class Base:
         """Return the expected type of your libraries message.
 
         I.e. discord.Message
+
+        Warnings
+        --------
+        Lib classes must implement this.
         """
         raise NotImplementedError
 
