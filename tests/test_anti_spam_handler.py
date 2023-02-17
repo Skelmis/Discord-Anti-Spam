@@ -31,7 +31,6 @@ from antispam.libs.dpy_forks.lib_disnake import Disnake
 from antispam.libs.dpy_forks.lib_enhanced_dpy import EnhancedDPY
 from antispam.libs.dpy_forks.lib_nextcord import Nextcord
 from antispam.libs.lib_hikari import Hikari
-from antispam.libs.lib_pincer import Pincer
 from antispam.plugins import Stats as StatsPlugin
 from .conftest import MockClass
 
@@ -952,19 +951,6 @@ class TestAntiSpamHandler:
     def test_library_inits(self, create_bot):
         hikari = AntiSpamHandler(create_bot, library=Library.HIKARI)
         assert isinstance(hikari.lib_handler, Hikari)
-
-        pincer = AntiSpamHandler(
-            create_bot, library=Library.PINCER, options=Options(use_timeouts=False)
-        )
-        assert isinstance(pincer.lib_handler, Pincer)
-
-        with pytest.raises(UnsupportedAction):
-            AntiSpamHandler(create_bot, library=Library.PINCER)
-
-        with pytest.raises(UnsupportedAction):
-            AntiSpamHandler(
-                create_bot, library=Library.PINCER, options=Options(use_timeouts=True)
-            )
 
         disnake = AntiSpamHandler(create_bot, library=Library.DISNAKE)
         assert isinstance(disnake.lib_handler, Disnake)

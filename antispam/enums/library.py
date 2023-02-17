@@ -34,7 +34,6 @@ class Library(Enum):
 
     DPY = 1
     HIKARI = 2
-    PINCER = 3
     ENHANCED_DPY = 4
     DISNAKE = 5
     NEXTCORD = 6

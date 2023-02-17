@@ -146,16 +146,6 @@ class AntiSpamHandler:
 
             self.lib_handler = Hikari(self)
 
-        elif library == Library.PINCER:
-            from antispam.libs.lib_pincer import Pincer
-
-            if self.options.use_timeouts:
-                raise UnsupportedAction(
-                    "Pincer does not currently support timeouts. Please disable this option."
-                )
-
-            self.lib_handler = Pincer(self)
-
         elif library == Library.DISNAKE:
             from antispam.libs.dpy_forks.lib_disnake import Disnake
 
