@@ -460,16 +460,20 @@ class DPY(Base, Lib):
     async def timeout_member(
         self, member, original_message, until: datetime.timedelta
     ) -> None:
-        raise UnsupportedAction(
-            "Timeouts are not supported for discord.py, if you "
-            "are using a fork please specify it explicitly."
+        guild = original_message.guild
+        perms = guild.me.guild_permissions
+        if not perms.moderate_members:
+            raise MissingGuildPermissions(
+                "moderate_members is required to timeout members.\n"
+                f"Tried timing out Member(id={member.id}) in Guild(id={member.guild.id})"
+            )
+
+        await member.timeout(
+            until=until, reason="Automated timeout from Discord-Anti-Spam"
         )
 
     async def is_member_currently_timed_out(self, member) -> bool:
-        raise UnsupportedAction(
-            "Timeouts are not supported for discord.py, if you "
-            "are using a fork please specify it explicitly."
-        )
+        return member.timed_out_until is not None
 
     def is_dm(self, message) -> bool:
         return not bool(message.guild)
