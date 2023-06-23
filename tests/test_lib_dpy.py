@@ -264,6 +264,7 @@ class TestLibDPY:
             await create_dpy_lib_handler.delete_member_messages(member)
             assert delete_call.call_count == 2
 
+    @pytest.mark.skip(reason="Can't test in dev environment at this time")
     @pytest.mark.asyncio
     async def test_timeout_raises(self, create_dpy_lib_handler):
         with pytest.raises(UnsupportedAction):
