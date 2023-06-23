@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
-__version__ = "1.7.0"
+__version__ = "1.8.0"
 
 import logging
 import sys
@@ -34,7 +34,7 @@ from antispam.plugin_cache import PluginCache
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 VersionInfo = namedtuple("VersionInfo", "major minor micro releaselevel serial")
-version_info = VersionInfo(major=1, minor=7, micro=0, releaselevel="final", serial=0)
+version_info = VersionInfo(major=1, minor=8, micro=0, releaselevel="final", serial=0)
 
 
 if sys.version_info[1] < 8:
