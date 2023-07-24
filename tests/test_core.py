@@ -381,6 +381,7 @@ class TestCore:
         assert r_1.member_should_be_punished_this_message is True
 
     @pytest.mark.asyncio
+    @pytest.mark.skip(reason="DPY impl now support timeouts")
     async def test_unsupported_timeouts(self, create_core):
         g = Guild(1, options=Options(use_timeouts=True))
         member = Member(1, 1, duplicate_counter=5)  # Force a punishment
