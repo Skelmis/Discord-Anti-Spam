@@ -16,6 +16,7 @@ motor
 dnspython
 redis
 orjson
+pytz
 
 # Your discord libs here
 hikari
