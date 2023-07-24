@@ -468,9 +468,7 @@ class DPY(Base, Lib):
                 f"Tried timing out Member(id={member.id}) in Guild(id={member.guild.id})"
             )
 
-        await member.timeout(
-            until, reason="Automated timeout from Discord-Anti-Spam"
-        )
+        await member.timeout(until, reason="Automated timeout from Discord-Anti-Spam")
 
     async def is_member_currently_timed_out(self, member) -> bool:
         return member.timed_out_until is not None
