@@ -1,2 +1,2 @@
-fuzzywuzzy>=0.18
+thefuzz>=0.18
 attrs

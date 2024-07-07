@@ -24,7 +24,7 @@ import datetime
 import logging
 from typing import TYPE_CHECKING
 
-from fuzzywuzzy import fuzz
+from thefuzz import fuzz
 
 from antispam.abc import Cache
 from antispam.dataclasses import CorePayload, Guild, Member, Message
