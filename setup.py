@@ -24,7 +24,7 @@ def parse_requirements_file(path):
 
 
 setup(
-    name="Discord Anti-Spam",
+    name="Discord-Anti-Spam",
     version=version,
     author="Skelmis",
     author_email="ethan@koldfusion.xyz",
