@@ -2,8 +2,8 @@ fuzzywuzzy>=0.18
 attrs
 discord.py
 hikari
-sphinx==4.2.0
-sphinx-rtd-theme==0.5.2
+sphinx==7.3.7
+sphinx-rtd-theme==2.0.0
 sphinxcontrib-applehelp==1.0.2
 sphinxcontrib-devhelp==1.0.2
 sphinxcontrib-htmlhelp==2.0.0
