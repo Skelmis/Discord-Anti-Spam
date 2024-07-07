@@ -3,13 +3,11 @@ thefuzz>=0.18
 nest-asyncio==1.5.1
 pip-chill==1.0.1
 python-levenshtein==0.12.2
-sphinx-rtd-theme==0.5.2
 twine==3.4.1
 typed-ast==1.4.3
 pytest
 pytest-asyncio
 hypothesis
-sphinx==4.2.0
 attrs==21.2.0
 setuptools==65.5.1
 motor
@@ -17,6 +15,17 @@ dnspython
 redis
 orjson
 pytz
+
+# Docs
+sphinx==4.2.0
+sphinx-rtd-theme==0.5.2
+sphinxcontrib-applehelp==1.0.2
+sphinxcontrib-devhelp==1.0.2
+sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-jquery==4.1
+sphinxcontrib-jsmath==1.0.1
+sphinxcontrib-qthelp==1.0.3
+sphinxcontrib-serializinghtml==1.1.10
 
 # Your discord libs here
 hikari
