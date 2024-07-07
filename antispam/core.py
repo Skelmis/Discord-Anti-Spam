@@ -229,7 +229,7 @@ class Core:
                     member.kick_count,
                 )
                 guild_failed_message = await self.handler.lib_handler.transform_message(
-                    "I failed to timeout $MEMBERNAME ($MEMBERID) as I lack permissions.",
+                    self.handler.options.guild_failed_timeout_message,
                     original_message,
                     member.warn_count,
                     member.kick_count,

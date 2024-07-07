@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "Discord Anti-Spam"
-copyright = "2022, Skelmis"
+copyright = "2020-present, Skelmis"
 author = "Skelmis"
 
 

@@ -121,7 +121,11 @@ class Options:
     member_failed_timeout_message: Union[str, dict]
         Default: ``I failed to punish you because I lack permissions, but still you shouldn't spam.``
 
-        The message to be sent if kicking the member fails.
+        The message to be sent to the member if kicking the member fails.
+    guild_failed_timeout_message: Union[str, dict]
+        Default: ``I failed to timeout $MEMBERNAME ($MEMBERID) as I lack permissions.``
+
+        The message to be sent to the guild if kicking the member fails.
     guild_log_warn_message_delete_after : int
         Default: ``None``
 
@@ -304,6 +308,10 @@ class Options:
     )
     member_failed_timeout_message: Union[str, dict] = attr.ib(
         default="I failed to punish you because I lack permissions, but still you shouldn't spam.",
+        validator=attr.validators.instance_of((str, dict)),
+    )
+    guild_failed_timeout_message: Union[str, dict] = attr.ib(
+        default="I failed to timeout $MEMBERNAME ($MEMBERID) as I lack permissions.",
         validator=attr.validators.instance_of((str, dict)),
     )
     guild_log_timeout_message: Union[str, dict] = attr.ib(
