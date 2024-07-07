@@ -1,6 +1,8 @@
 Changelog
 =========
 
+**This changelog has been superseded by a discord based log in the support server.**
+
 A changelog that should be fairly up to date feature wise.
 
 1.3.0 -> 1.4.0
@@ -9,7 +11,7 @@ A changelog that should be fairly up to date feature wise.
 Support for ``Redis`` as a built in cache backend.
 
 1.2.11 -> 1.3.0
---------------
+---------------
 
 New:
 ****

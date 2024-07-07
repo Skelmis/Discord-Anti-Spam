@@ -56,8 +56,7 @@ html_theme = "sphinx_rtd_theme"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "discord.py": ("https://discordpy.readthedocs.io/en/latest/", None),
-    "hikari": ("https://www.hikari-py.dev/objects.inv", None),
-    "pincer": ("https://docs.pincer.dev/en/latest/", None),
+    "hikari": ("https://docs.hikari-py.dev/en/latest/", None),
 }
 
 master_doc = "index"
