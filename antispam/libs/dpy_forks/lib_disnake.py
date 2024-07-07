@@ -33,6 +33,7 @@ from antispam.libs.dpy_forks import BaseFork
 
 log = logging.getLogger(__name__)
 
+
 # noinspection DuplicatedCode
 class Disnake(BaseFork):
     async def timeout_member(
