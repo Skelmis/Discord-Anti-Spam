@@ -2,4 +2,4 @@ fuzzywuzzy>=0.18
 attrs
 discord.py
 hikari
-sphinx==4.2.0
+sphinx
