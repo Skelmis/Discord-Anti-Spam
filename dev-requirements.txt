@@ -9,7 +9,7 @@ pytest
 pytest-asyncio
 hypothesis
 attrs==21.2.0
-setuptools==65.5.1
+setuptools==70.0.0
 motor
 dnspython
 redis
