@@ -1,8 +1,7 @@
 Example usages
 ==============
 
-Note, all of these examples are for discord.py.
-If you would like another library here, let me know.
+Note, all of these examples using discord.py are version one. If you use version 2.x you will need to make changes to add things such as intents.
 
 Super duper basic bot
 ---------------------
@@ -14,9 +13,10 @@ Super duper basic bot
     from discord.ext import commands
 
     from antispam import AntiSpamHandler
+    `from antispam.enums import Library`
 
     bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
-    bot.handler = AntiSpamHandler(bot)
+    bot.handler = AntiSpamHandler(bot, Library.DPY)
 
 
     @bot.event
@@ -69,9 +69,10 @@ How to use templating in a string
     from discord.ext import commands
 
     from antispam import AntiSpamHandler, Options
+    from antispam.enums import Library
 
     bot = commands.Bot(command_prefix="!")
-    bot.handler = AntiSpamHandler(bot, options=Options(ban_message="$MENTIONUSER you are hereby banned from $GUILDNAME for spam!"))
+    bot.handler = AntiSpamHandler(bot, Library.DPY, options=Options(ban_message="$MENTIONUSER you are hereby banned from $GUILDNAME for spam!"))
 
     @bot.event
     async def on_ready():
@@ -93,11 +94,12 @@ Cog Based Usage
 
     from discord.ext import commands
     from antispam import AntiSpamHandler
+    from antispam.enums import Library
 
     class AntiSpamCog(commands.Cog):
         def __init__(self, bot):
             self.bot = bot
-            self.bot.handler = AntiSpamHandler(self.bot)
+            self.bot.handler = AntiSpamHandler(self.bot, Library.DPY)
 
         @commands.Cog.listener()
         async def on_ready(self):
@@ -121,6 +123,7 @@ How to use templating in embeds
     from discord.ext import commands
 
     from antispam import AntiSpamHandler, Options
+    from antispam.enums import Library
 
     bot = commands.Bot(command_prefix="!")
 
@@ -136,7 +139,7 @@ How to use templating in embeds
             {"name": "Current kicks:", "value": "$KICKCOUNT", "inline": False},
         ],
     }
-    bot.handler = AntiSpamHandler(bot, options=Options(guild_warn_message=warn_embed_dict))
+    bot.handler = AntiSpamHandler(bot, Library.DPY, options=Options(guild_warn_message=warn_embed_dict))
 
     @bot.event
     async def on_ready():
@@ -161,9 +164,10 @@ Custom Punishments
 
     from antispam import AntiSpamHandler, Options
     from antispam.plugins import AntiSpamTracker
+    from antispam.enums import Library
 
     bot = commands.Bot(command_prefix="!")
-    bot.handler = AntiSpamHandler(bot, options=Options(no_punish=True,  message_duplicate_count=3))
+    bot.handler = AntiSpamHandler(bot, Library.DPY, options=Options(no_punish=True,  message_duplicate_count=3))
     bot.tracker = AntiSpamTracker(bot.handler, 5) # 5 Being how many 'punishment requests' before is_spamming returns True
     bot.handler.register_plugin(bot.tracker)
 
